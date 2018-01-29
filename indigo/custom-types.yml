@@ -1,7 +1,7 @@
 tosca_definitions_version: alien_dsl_1_4_0
 
 metadata:
-  template_name: compute-type
+  template_name: indigo-types
   template_version: 1.0.0
   template_author: indigo
 
@@ -46,7 +46,7 @@ node_types:
   tosca.nodes.indigo.OphidiaServer:
     derived_from: tosca.nodes.SoftwareComponent
     metadata:
-      icon: /images/server.png
+      icon: /images/ophidia-server.png
     properties:
       io_ips:
         type: list
@@ -75,7 +75,7 @@ node_types:
   tosca.nodes.indigo.OphidiaIO:
     derived_from: tosca.nodes.SoftwareComponent
     metadata:
-      icon: /images/io.png
+      icon: /images/ophidia-io.png
     properties:
       server_ip:
         type: string
@@ -97,6 +97,79 @@ node_types:
           implementation: https://raw.githubusercontent.com/indigo-dc/tosca-types/master/artifacts/ophidia/ophidia_io_install.yml
           inputs:
             ophidia_server_ip: { get_property: [ SELF, server_ip ] }
+
+  tosca.nodes.indigo.HaddockApp:
+    derived_from: tosca.nodes.SoftwareComponent
+    properties:
+      haddock_app_name:
+        type: string
+        description: Haddocking application
+        required: true
+        constraints:
+        - valid_values: [ disvis, powerfit ]
+    artifacts:
+      - galaxy_role:
+          file: indigo-dc.disvis-powerfit
+          type: tosca.artifacts.AnsibleGalaxy.role
+    interfaces:
+      Standard:
+        configure:
+          implementation: https://raw.githubusercontent.com/indigo-dc/tosca-types/master/artifacts/haddock/haddock_install.yml
+          inputs:
+            haddock_app_name: { get_property: [ SELF, haddock_app_name ] }
+
+  tosca.nodes.indigo.Disvis:
+    derived_from: tosca.nodes.indigo.HaddockApp
+    properties:
+      haddock_app_name:
+        type: string
+        required: true
+        default: disvis
+        constraints:
+          - equal: disvis
+
+  tosca.nodes.indigo.Powerfit:
+    derived_from: tosca.nodes.indigo.HaddockApp
+    properties:
+      haddock_app_name:
+        type: string
+        required: true
+        default: powerfit
+        constraints:
+          - equal: powerfit
+
+  tosca.nodes.indigo.Eubiosteo:
+    derived_from: tosca.nodes.SoftwareComponent
+    artifacts:
+      - galaxy_role:
+          file: indigo-dc.eubiosteo
+          type: tosca.artifacts.AnsibleGalaxy.role
+    interfaces:
+      Standard:
+        configure:
+          implementation: https://raw.githubusercontent.com/indigo-dc/tosca-types/master/artifacts/eubiosteo/eubiosteo_install.yml
+
+  tosca.nodes.indigo.Ambertools:
+    derived_from: tosca.nodes.SoftwareComponent
+    artifacts:
+      - galaxy_role:
+          file: indigo-dc.ambertools
+          type: tosca.artifacts.AnsibleGalaxy.role
+    interfaces:
+      Standard:
+        configure:
+          implementation: https://raw.githubusercontent.com/indigo-dc/tosca-types/master/artifacts/ambertools/ambertools_install.yml
+
+  tosca.nodes.indigo.Kepler:
+    derived_from: tosca.nodes.SoftwareComponent
+    artifacts:
+      - galaxy_role:
+          file: indigo-dc.kepler
+          type: tosca.artifacts.AnsibleGalaxy.role
+    interfaces:
+      Standard:
+        configure:
+          implementation: https://raw.githubusercontent.com/indigo-dc/tosca-types/master/artifacts/kepler/kepler_install.yml
 
 artifact_types:
 
