@@ -9,7 +9,7 @@ description: The INDIGO Custom types
 
 imports:
   - tosca-normative-types:1.0.0-ALIEN14
-  - indigo-types:1.0.0
+  - indigo-base-types:1.0.0
 
 node_types:
 
