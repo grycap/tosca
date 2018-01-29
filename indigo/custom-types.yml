@@ -1,0 +1,285 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: indigo-types
+  template_version: 1.0.0
+  template_author: indigo
+
+description: The INDIGO Custom types
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN14
+
+node_types:
+
+  tosca.nodes.indigo.Compute:
+    derived_from: tosca.nodes.Compute
+    description: >
+      The INDIGO Compute node
+    metadata:
+      icon: /images/compute.png
+    attributes:
+      private_address:
+        description: List of private IP addresses
+        type: list
+        entry_schema:
+          type: string
+      public_address:
+        description: List of public IP addresses
+        type: list
+        entry_schema:
+          type: string
+      ctxt_log:
+        description: Contextualization log
+        type: string
+    capabilities:
+      scalable:
+        type: tosca.capabilities.indigo.Scalable
+      os:
+         type: tosca.capabilities.indigo.OperatingSystem
+      endpoint:
+        type: tosca.capabilities.indigo.Endpoint
+      host:
+        type: tosca.capabilities.indigo.Container
+        valid_source_types: [tosca.nodes.SoftwareComponent]
+
+  tosca.nodes.indigo.OphidiaServer:
+    derived_from: tosca.nodes.SoftwareComponent
+    metadata:
+      icon: /images/ophidia-server.png
+    properties:
+      io_ips:
+        type: list
+        entry_schema:
+          type: string
+        description: List of IPs of the Ophidia IO nodes
+        required: false
+        default: []
+    artifacts:
+      - ophidia_role:
+          file: indigo-dc.ophidia-cluster
+          type: tosca.artifacts.AnsibleGalaxy.role
+      - slurm_role:
+          file: indigo-dc.slurm
+          type: tosca.artifacts.AnsibleGalaxy.role
+      - nfs_role:
+          file: indigo-dc.nfs
+          type: tosca.artifacts.AnsibleGalaxy.role
+    interfaces:
+      Standard:
+        configure:
+          implementation: https://raw.githubusercontent.com/indigo-dc/tosca-types/master/artifacts/ophidia/ophidia_server_install.yml
+          inputs:
+            ophidia_io_ips: { get_property: [ SELF, io_ips ] }
+
+  tosca.nodes.indigo.OphidiaIO:
+    derived_from: tosca.nodes.SoftwareComponent
+    metadata:
+      icon: /images/ophidia-io.png
+    properties:
+      server_ip:
+        type: string
+        description: IP of the OphidiaServer node
+        required: true
+    artifacts:
+      - ophidia_role:
+          file: indigo-dc.ophidia-cluster
+          type: tosca.artifacts.AnsibleGalaxy.role
+      - slurm_role:
+          file: indigo-dc.slurm
+          type: tosca.artifacts.AnsibleGalaxy.role
+      - nfs_role:
+          file: indigo-dc.nfs
+          type: tosca.artifacts.AnsibleGalaxy.role
+    interfaces:
+      Standard:
+        configure:
+          implementation: https://raw.githubusercontent.com/indigo-dc/tosca-types/master/artifacts/ophidia/ophidia_io_install.yml
+          inputs:
+            ophidia_server_ip: { get_property: [ SELF, server_ip ] }
+
+  tosca.nodes.indigo.HaddockApp:
+    derived_from: tosca.nodes.SoftwareComponent
+    properties:
+      haddock_app_name:
+        type: string
+        description: Haddocking application
+        required: true
+        constraints:
+        - valid_values: [ disvis, powerfit ]
+    artifacts:
+      - galaxy_role:
+          file: indigo-dc.disvis-powerfit
+          type: tosca.artifacts.AnsibleGalaxy.role
+    interfaces:
+      Standard:
+        configure:
+          implementation: https://raw.githubusercontent.com/indigo-dc/tosca-types/master/artifacts/haddock/haddock_install.yml
+          inputs:
+            haddock_app_name: { get_property: [ SELF, haddock_app_name ] }
+
+  tosca.nodes.indigo.Disvis:
+    derived_from: tosca.nodes.indigo.HaddockApp
+    properties:
+      haddock_app_name:
+        type: string
+        required: true
+        default: disvis
+        constraints:
+          - equal: disvis
+
+  tosca.nodes.indigo.Powerfit:
+    derived_from: tosca.nodes.indigo.HaddockApp
+    properties:
+      haddock_app_name:
+        type: string
+        required: true
+        default: powerfit
+        constraints:
+          - equal: powerfit
+
+  tosca.nodes.indigo.Eubiosteo:
+    derived_from: tosca.nodes.SoftwareComponent
+    artifacts:
+      - galaxy_role:
+          file: indigo-dc.eubiosteo
+          type: tosca.artifacts.AnsibleGalaxy.role
+    interfaces:
+      Standard:
+        configure:
+          implementation: https://raw.githubusercontent.com/indigo-dc/tosca-types/master/artifacts/eubiosteo/eubiosteo_install.yml
+
+  tosca.nodes.indigo.Ambertools:
+    derived_from: tosca.nodes.SoftwareComponent
+    metadata:
+      icon: /images/amber.jpg
+    artifacts:
+      - galaxy_role:
+          file: indigo-dc.ambertools
+          type: tosca.artifacts.AnsibleGalaxy.role
+    interfaces:
+      Standard:
+        configure:
+          implementation: https://raw.githubusercontent.com/indigo-dc/tosca-types/master/artifacts/ambertools/ambertools_install.yml
+
+  tosca.nodes.indigo.Kepler:
+    derived_from: tosca.nodes.SoftwareComponent
+    metadata:
+      icon: /images/kepler.jpeg
+    artifacts:
+      - galaxy_role:
+          file: indigo-dc.kepler
+          type: tosca.artifacts.AnsibleGalaxy.role
+    interfaces:
+      Standard:
+        configure:
+          implementation: https://raw.githubusercontent.com/indigo-dc/tosca-types/master/artifacts/kepler/kepler_install.yml
+
+  tosca.nodes.indigo.HadoopMaster:
+    derived_from: tosca.nodes.SoftwareComponent
+    metadata:
+      icon: /images/hadoop-master.jpg
+    artifacts:
+      - hadoop_role:
+          file: indigo-dc.hadoop
+          type: tosca.artifacts.AnsibleGalaxy.role
+    interfaces:
+      Standard:
+        configure:
+          implementation: https://raw.githubusercontent.com/indigo-dc/tosca-types/master/artifacts/hadoop/hadoop_master_install.yml
+          inputs:
+            hadoop_master_ip: { get_attribute: [ HOST, private_address, 0 ] }
+
+  tosca.nodes.indigo.HadoopSlave:
+    derived_from: tosca.nodes.SoftwareComponent
+    metadata:
+      icon: /images/hadoop-wn.jpg
+    properties:
+      master_ip:
+        required: yes
+        type: string
+    artifacts:
+      - hadoop_role:
+          file: indigo-dc.hadoop
+          type: tosca.artifacts.AnsibleGalaxy.role
+    interfaces:
+      Standard:
+        configure:
+          implementation: https://raw.githubusercontent.com/indigo-dc/tosca-types/master/artifacts/hadoop/hadoop_wn_install.yml
+          inputs:
+            hadoop_master_ip: { get_property: [ SELF, master_ip ] }
+
+artifact_types:
+
+  tosca.artifacts.Implementation.YAML:
+    derived_from: tosca.artifacts.Implementation
+    description: YAML Ansible recipe artifact
+    mime_type: text/yaml
+    file_ext: [ yaml, yml ]
+
+  tosca.artifacts.AnsibleGalaxy.role:
+    derived_from: tosca.artifacts.Root
+    description: Ansible Galaxy role to be deployed in the target node
+
+capability_types:
+
+  tosca.capabilities.indigo.OperatingSystem:
+    derived_from: tosca.capabilities.OperatingSystem
+    properties:
+      gpu:
+        type: boolean
+        required: no
+      image:
+        type: string
+        required: no
+      credential:
+        type: tosca.datatypes.Credential
+        required: no
+
+  tosca.capabilities.indigo.Scalable:
+    derived_from: tosca.capabilities.Scalable
+    properties:
+      min_instances:
+        type: integer
+        default: 1
+        required: no
+      max_instances:
+        type: integer
+        default: 1
+        required: no
+      count:
+        type: integer
+        description: the number of resources
+        required: no
+        default: 1
+      removal_list:
+        type: list
+        description: list of IDs of the resources to be removed
+        required: no
+        entry_schema:
+          type: string
+
+  tosca.capabilities.indigo.Container:
+    derived_from: tosca.capabilities.Container
+    properties:
+      instance_type:
+        type: string
+        required: no
+
+  tosca.capabilities.indigo.Endpoint:
+    derived_from: tosca.capabilities.Endpoint
+    properties:
+      dns_name:
+        description: The optional name to register with DNS
+        type: string
+        required: false
+      private_ip:
+        description: Flag used to specify that this endpoint will require also a private IP although it is a public one.
+        type: boolean
+        required: false
+        default: true
+    attributes:
+      credential:
+        type: list
+        entry_schema:
+          type: tosca.datatypes.Credential
