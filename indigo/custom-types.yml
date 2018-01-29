@@ -10,6 +10,153 @@ description: The INDIGO Custom types
 imports:
   - tosca-normative-types:1.0.0-ALIEN14
 
+artifact_types:
+
+  tosca.artifacts.Implementation.YAML:
+    derived_from: tosca.artifacts.Implementation
+    description: YAML Ansible recipe artifact
+    mime_type: text/yaml
+    file_ext: [ yaml, yml ]
+
+  tosca.artifacts.AnsibleGalaxy.role:
+    derived_from: tosca.artifacts.Root
+    description: Ansible Galaxy role to be deployed in the target node
+
+capability_types:
+
+  tosca.capabilities.indigo.OperatingSystem:
+    derived_from: tosca.capabilities.OperatingSystem
+    properties:
+      gpu:
+        type: boolean
+        required: no
+      image:
+        type: string
+        required: no
+      credential:
+        type: tosca.datatypes.Credential
+        required: no
+
+  tosca.capabilities.indigo.Scalable:
+    derived_from: tosca.capabilities.Scalable
+    properties:
+      min_instances:
+        type: integer
+        default: 1
+        required: no
+      max_instances:
+        type: integer
+        default: 1
+        required: no
+      count:
+        type: integer
+        description: the number of resources
+        required: no
+        default: 1
+      removal_list:
+        type: list
+        description: list of IDs of the resources to be removed
+        required: no
+        entry_schema:
+          type: string
+
+  tosca.capabilities.indigo.Container:
+    derived_from: tosca.capabilities.Container
+    properties:
+      instance_type:
+        type: string
+        required: no
+
+  tosca.capabilities.indigo.LRMS:
+    derived_from: tosca.capabilities.Container
+    properties:
+      type:
+        type: string
+        required: true
+        constraints:
+        - valid_values: [ local, torque, slurm, sge, condor, mesos ]
+
+  tosca.capabilities.indigo.LRMS.Torque:
+    derived_from: tosca.capabilities.indigo.LRMS
+    properties:
+      type:
+        type: string
+        required: true
+        default: torque
+        constraints:
+          - equal: torque
+
+  tosca.capabilities.indigo.LRMS.Slurm:
+    derived_from: tosca.capabilities.indigo.LRMS
+    properties:
+      type:
+        type: string
+        required: true
+        default: slurm
+        constraints:
+          - equal: slurm
+
+  tosca.capabilities.indigo.LRMS.Local:
+    derived_from: tosca.capabilities.indigo.LRMS
+    properties:
+      type:
+        type: string
+        required: true
+        default: local
+        constraints:
+          - equal: local
+
+  tosca.capabilities.indigo.LRMS.Mesos:
+    derived_from: tosca.capabilities.indigo.LRMS
+    properties:
+      type:
+        type: string
+        required: true
+        default: mesos
+        constraints:
+          - equal: mesos
+
+  tosca.capabilities.indigo.MesosMaster:        
+    derived_from: tosca.capabilities.Container
+
+  tosca.capabilities.indigo.MesosSlave:
+    derived_from: tosca.capabilities.Container
+
+  tosca.capabilities.indigo.Container.Docker:
+    derived_from: tosca.capabilities.Container.Docker
+    properties:
+      num_cpus:
+        type: float
+        required: false
+        constraints:
+          - greater_or_equal: 0.0
+
+  tosca.capabilities.indigo.Endpoint:
+    derived_from: tosca.capabilities.Endpoint
+    properties:
+      dns_name:
+        description: The optional name to register with DNS
+        type: string
+        required: false
+      private_ip:
+        description: Flag used to specify that this endpoint will require also a private IP although it is a public one.
+        type: boolean
+        required: false
+        default: true
+    attributes:
+      credential:
+        type: list
+        entry_schema:
+          type: tosca.datatypes.Credential
+
+  tosca.capabilities.indigo.Container.Application.Docker.Chronos:
+    derived_from: tosca.capabilities.Root
+
+relationship_types:
+
+  tosca.relationships.indigo.Manages:
+    derived_from: tosca.relationships.Root
+
 node_types:
 
   tosca.nodes.indigo.Compute:
@@ -235,77 +382,3 @@ node_types:
         type: tosca.datatypes.Credential
         required: true
 
-artifact_types:
-
-  tosca.artifacts.Implementation.YAML:
-    derived_from: tosca.artifacts.Implementation
-    description: YAML Ansible recipe artifact
-    mime_type: text/yaml
-    file_ext: [ yaml, yml ]
-
-  tosca.artifacts.AnsibleGalaxy.role:
-    derived_from: tosca.artifacts.Root
-    description: Ansible Galaxy role to be deployed in the target node
-
-capability_types:
-
-  tosca.capabilities.indigo.OperatingSystem:
-    derived_from: tosca.capabilities.OperatingSystem
-    properties:
-      gpu:
-        type: boolean
-        required: no
-      image:
-        type: string
-        required: no
-      credential:
-        type: tosca.datatypes.Credential
-        required: no
-
-  tosca.capabilities.indigo.Scalable:
-    derived_from: tosca.capabilities.Scalable
-    properties:
-      min_instances:
-        type: integer
-        default: 1
-        required: no
-      max_instances:
-        type: integer
-        default: 1
-        required: no
-      count:
-        type: integer
-        description: the number of resources
-        required: no
-        default: 1
-      removal_list:
-        type: list
-        description: list of IDs of the resources to be removed
-        required: no
-        entry_schema:
-          type: string
-
-  tosca.capabilities.indigo.Container:
-    derived_from: tosca.capabilities.Container
-    properties:
-      instance_type:
-        type: string
-        required: no
-
-  tosca.capabilities.indigo.Endpoint:
-    derived_from: tosca.capabilities.Endpoint
-    properties:
-      dns_name:
-        description: The optional name to register with DNS
-        type: string
-        required: false
-      private_ip:
-        description: Flag used to specify that this endpoint will require also a private IP although it is a public one.
-        type: boolean
-        required: false
-        default: true
-    attributes:
-      credential:
-        type: list
-        entry_schema:
-          type: tosca.datatypes.Credential
