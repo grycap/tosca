@@ -14,6 +14,8 @@ imports:
 node_types:
 
   tosca.nodes.indigo.GalaxyPortal:
+    metadata:
+      icon: /images/galaxy.png
     derived_from: tosca.nodes.WebServer
     properties:
       admin_email:
@@ -194,6 +196,8 @@ node_types:
  
   tosca.nodes.indigo.GalaxyWN:
     derived_from: tosca.nodes.SoftwareComponent
+    metadata:
+      icon: /images/galaxy.png
     properties:
       front_end_ip:
         type: string
@@ -307,6 +311,8 @@ node_types:
 
   tosca.nodes.indigo.GalaxyShedTool:
     derived_from: tosca.nodes.WebApplication
+    metadata:
+      icon: /images/galaxy-toolshed.png
     properties:
       flavor:
         type: string
