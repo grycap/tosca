@@ -337,83 +337,6 @@ node_types:
           inputs:
             ophidia_server_ip: { get_property: [ SELF, server_ip ] }
 
-  tosca.nodes.indigo.HaddockApp:
-    derived_from: tosca.nodes.SoftwareComponent
-    properties:
-      haddock_app_name:
-        type: string
-        description: Haddocking application
-        required: true
-        constraints:
-        - valid_values: [ disvis, powerfit ]
-    artifacts:
-      - galaxy_role:
-          file: indigo-dc.disvis-powerfit
-          type: tosca.artifacts.AnsibleGalaxy.role
-    interfaces:
-      Standard:
-        configure:
-          implementation: https://raw.githubusercontent.com/indigo-dc/tosca-types/master/artifacts/haddock/haddock_install.yml
-          inputs:
-            haddock_app_name: { get_property: [ SELF, haddock_app_name ] }
-
-  tosca.nodes.indigo.Disvis:
-    derived_from: tosca.nodes.indigo.HaddockApp
-    properties:
-      haddock_app_name:
-        type: string
-        required: true
-        default: disvis
-        constraints:
-          - equal: disvis
-
-  tosca.nodes.indigo.Powerfit:
-    derived_from: tosca.nodes.indigo.HaddockApp
-    properties:
-      haddock_app_name:
-        type: string
-        required: true
-        default: powerfit
-        constraints:
-          - equal: powerfit
-
-  tosca.nodes.indigo.Eubiosteo:
-    derived_from: tosca.nodes.SoftwareComponent
-    artifacts:
-      - galaxy_role:
-          file: indigo-dc.eubiosteo
-          type: tosca.artifacts.AnsibleGalaxy.role
-    interfaces:
-      Standard:
-        configure:
-          implementation: https://raw.githubusercontent.com/indigo-dc/tosca-types/master/artifacts/eubiosteo/eubiosteo_install.yml
-
-  tosca.nodes.indigo.Ambertools:
-    derived_from: tosca.nodes.SoftwareComponent
-    metadata:
-      icon: /images/amber.jpg
-    artifacts:
-      - galaxy_role:
-          file: indigo-dc.ambertools
-          type: tosca.artifacts.AnsibleGalaxy.role
-    interfaces:
-      Standard:
-        configure:
-          implementation: https://raw.githubusercontent.com/indigo-dc/tosca-types/master/artifacts/ambertools/ambertools_install.yml
-
-  tosca.nodes.indigo.Kepler:
-    derived_from: tosca.nodes.SoftwareComponent
-    metadata:
-      icon: /images/kepler.jpeg
-    artifacts:
-      - galaxy_role:
-          file: indigo-dc.kepler
-          type: tosca.artifacts.AnsibleGalaxy.role
-    interfaces:
-      Standard:
-        configure:
-          implementation: https://raw.githubusercontent.com/indigo-dc/tosca-types/master/artifacts/kepler/kepler_install.yml
-
   tosca.nodes.indigo.HadoopMaster:
     derived_from: tosca.nodes.SoftwareComponent
     metadata:
@@ -526,34 +449,6 @@ node_types:
           implementation: https://raw.githubusercontent.com/indigo-dc/tosca-types/master/artifacts/apache/apache_install.yml
         start:
           implementation: https://raw.githubusercontent.com/indigo-dc/tosca-types/master/artifacts/apache/apache_start.yml
-
-# INDIGO non normative types
-
-  tosca.nodes.indigo.Database.MySQL:
-    derived_from: tosca.nodes.Database.MySQL
-    properties:
-      access_host:
-        type: string
-        required: no
-        default: "%"
-      root_password:
-        type: string
-        required: true
-    requirements:
-      - host:
-          capability: tosca.capabilities.Container
-          relationship: tosca.relationships.HostedOn
-          node: tosca.nodes.DBMS.MySQL
-    interfaces:
-      Standard:
-        create:
-          implementation: https://raw.githubusercontent.com/indigo-dc/tosca-types/master/artifacts/mysql/mysql_db_configure.yml
-          inputs:
-            db_password: { get_property: [ SELF, password ] }
-            db_name: { get_property: [ SELF, name ] }
-            db_user: { get_property: [ SELF, user ] }
-            db_root_password: { get_property: [ SELF, root_password ] }
-            db_access_host: { get_property: [ SELF, access_host ] }
 
 
   tosca.nodes.indigo.ElasticCluster:
