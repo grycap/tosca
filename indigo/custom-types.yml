@@ -151,6 +151,8 @@ node_types:
 
   tosca.nodes.indigo.Ambertools:
     derived_from: tosca.nodes.SoftwareComponent
+    metadata:
+      icon: /images/amber.jpg
     artifacts:
       - galaxy_role:
           file: indigo-dc.ambertools
@@ -172,6 +174,40 @@ node_types:
       Standard:
         configure:
           implementation: https://raw.githubusercontent.com/indigo-dc/tosca-types/master/artifacts/kepler/kepler_install.yml
+
+  tosca.nodes.indigo.HadoopMaster:
+    derived_from: tosca.nodes.SoftwareComponent
+    metadata:
+      icon: /images/hadoop-master.jpg
+    artifacts:
+      - hadoop_role:
+          file: indigo-dc.hadoop
+          type: tosca.artifacts.AnsibleGalaxy.role
+    interfaces:
+      Standard:
+        configure:
+          implementation: https://raw.githubusercontent.com/indigo-dc/tosca-types/master/artifacts/hadoop/hadoop_master_install.yml
+          inputs:
+            hadoop_master_ip: { get_attribute: [ HOST, private_address, 0 ] }
+
+  tosca.nodes.indigo.HadoopSlave:
+    derived_from: tosca.nodes.SoftwareComponent
+    metadata:
+      icon: /images/hadoop-wn.jpg
+    properties:
+      master_ip:
+        required: yes
+        type: string
+    artifacts:
+      - hadoop_role:
+          file: indigo-dc.hadoop
+          type: tosca.artifacts.AnsibleGalaxy.role
+    interfaces:
+      Standard:
+        configure:
+          implementation: https://raw.githubusercontent.com/indigo-dc/tosca-types/master/artifacts/hadoop/hadoop_wn_install.yml
+          inputs:
+            hadoop_master_ip: { get_property: [ SELF, master_ip ] }
 
 artifact_types:
 
