@@ -554,3 +554,197 @@ node_types:
             db_user: { get_property: [ SELF, user ] }
             db_root_password: { get_property: [ SELF, root_password ] }
             db_access_host: { get_property: [ SELF, access_host ] }
+
+
+  tosca.nodes.indigo.ElasticCluster:
+    derived_from: tosca.nodes.SoftwareComponent
+    properties:
+      secret_token:
+        type: string
+        description: Token to access CLUES web interface
+        default: not_very_secret_token
+        required: false
+      deployment_id:
+        type: string
+        description: ID of the deployment of this elastic cluster in the orchestrator
+        required: false
+      orchestrator_url:
+        type: string
+        description: URL of the orchestrator
+        required: false
+        default: http://orchestrator01-indigo.cloud.ba.infn.it:8080/orchestrator
+      iam_access_token:
+        type: string
+        description: INDIGO IAM access token
+        required: false
+        default: iam_access_token
+      iam_clues_client_id:
+        type: string
+        description: INDIGO IAM client id to be used by CLUES
+        required: false
+        default: iam_clues_client_id
+      iam_clues_client_secret:
+        type: string
+        description: INDIGO IAM client secret to be used by CLUES
+        required: false
+        default: iam_clues_client_secret
+      marathon_credentials:
+        type: tosca.datatypes.Credential
+        description: Credentials to access the marathon endpoint from CLUES plugin
+        default:
+          protocol: http
+          user: admin
+          token: password
+        required: false
+      chronos_credentials:
+        type: tosca.datatypes.Credential
+        description: Credentials to access the chronos endpoint from CLUES plugin
+        default:
+          protocol: http
+          user: admin
+          token: password
+        required: false
+      mesos_credentials:
+        type: tosca.datatypes.Credential
+        description: Credentials to access the mesos endpoint from CLUES plugin
+        default:
+          protocol: http
+          user: admin
+          token: password
+        required: false
+      hybrid:
+        type: boolean
+        description: Flag to specify that this ElasticCluster will work in a hybrid environment
+        default: false
+        required: false
+    artifacts:
+      - docker_agent_role:
+          file: indigo-dc.clues
+          type: tosca.artifacts.AnsibleGalaxy.role
+    interfaces:
+      Standard:
+        create:
+          implementation: https://raw.githubusercontent.com/indigo-dc/tosca-types/master/artifacts/ec3/ec3_install.yml
+          inputs:
+            clues_secret_token: { get_property: [ SELF, secret_token ] }
+            clues_queue_system: { get_property: [ SELF, lrms, type ] }
+            ec3_max_instances: { get_property: [ SELF, wn, max_instances] }
+            ec3_deployment_id: { get_property: [ SELF, deployment_id] }
+            orchestrator_url: { get_property: [ SELF, orchestrator_url] }
+            ec3_iam_access_token: { get_property: [ SELF, iam_access_token] }
+            ec3_iam_clues_client_id: { get_property: [ SELF, iam_clues_client_id] }
+            ec3_iam_clues_client_secret: { get_property: [ SELF, iam_clues_client_secret] }
+            clues_marathon_credentials: { get_property: [ SELF, marathon_credentials] }
+            clues_chronos_credentials: { get_property: [ SELF, chronos_credentials] }
+            clues_mesos_credentials: { get_property: [ SELF, mesos_credentials] }
+    requirements:
+      - wn:
+          capability: tosca.capabilities.Scalable
+          node: tosca.nodes.indigo.LRMS.WorkerNode
+          relationship: tosca.relationships.indigo.Manages
+      - lrms:
+          capability: tosca.capabilities.indigo.LRMS
+          node: tosca.nodes.indigo.LRMS.FrontEnd
+          relationship: tosca.relationships.HostedOn
+
+  tosca.nodes.indigo.LRMS.WorkerNode:
+    derived_from: tosca.nodes.SoftwareComponent
+    properties:
+      front_end_ip:
+        type: string
+        description: IP of the Front-End node
+        required: true
+      hybrid:
+        type: boolean
+        description: Flag to specify that this WorkerNode will work in a hybrid environment
+        default: false
+        required: false
+      public_front_end_ip:
+        type: string
+        description: Public IP of the Front-End node
+        required: false
+        default: ''
+    capabilities:
+        wn:
+          type: tosca.capabilities.Scalable
+          valid_source_types: [tosca.nodes.indigo.ElasticCluster]
+    requirements:
+      - host:
+          capability: tosca.capabilities.Container
+          node: tosca.nodes.Compute
+          relationship: tosca.relationships.HostedOn
+
+  tosca.nodes.indigo.LRMS.WorkerNode.Slurm:
+    derived_from: tosca.nodes.indigo.LRMS.WorkerNode
+    artifacts:
+      - slurm_role:
+          file: indigo-dc.slurm
+          type: tosca.artifacts.AnsibleGalaxy.role
+      - nfs_role:
+          file: indigo-dc.nfs
+          type: tosca.artifacts.AnsibleGalaxy.role
+      - openvpn_role:
+          file: indigo-dc.openvpn
+          type: tosca.artifacts.AnsibleGalaxy.role
+    interfaces:
+      Standard:
+        configure:
+          implementation: https://raw.githubusercontent.com/indigo-dc/tosca-types/master/artifacts/lrms/slurm/slurm_wn_install.yml
+          inputs:
+            slurm_front_end_ip: { get_property: [ SELF, front_end_ip ] }
+            wn_hybrid_cluster:  { get_property: [ SELF, hybrid] }
+            slurm_public_front_end_ip: { get_property: [ SELF, public_front_end_ip ] }
+
+  tosca.nodes.indigo.LRMS.FrontEnd:
+    derived_from: tosca.nodes.SoftwareComponent
+    properties:
+      wn_ips:
+        type: list
+        entry_schema:
+          type: string
+        description: List of IPs of the WNs
+        required: false
+        default: []
+      hybrid:
+        type: boolean
+        description: Flag to specify that this FrontEnd will work in a hybrid environment
+        default: false
+        required: false
+    capabilities:
+        lrms:
+          type: tosca.capabilities.indigo.LRMS
+    requirements:
+      - host:
+          capability: tosca.capabilities.Container
+          node: tosca.nodes.Compute
+          relationship: tosca.relationships.HostedOn
+
+  tosca.nodes.indigo.LRMS.FrontEnd.Slurm:
+    derived_from: tosca.nodes.indigo.LRMS.FrontEnd
+    artifacts:
+      - slurm_role:
+          file: indigo-dc.slurm
+          type: tosca.artifacts.AnsibleGalaxy.role
+      - nfs_role:
+          file: indigo-dc.nfs
+          type: tosca.artifacts.AnsibleGalaxy.role
+      - openvpn_role:
+          file: indigo-dc.openvpn
+          type: tosca.artifacts.AnsibleGalaxy.role
+    capabilities:
+        lrms:
+          type: tosca.capabilities.indigo.LRMS.Slurm
+    interfaces:
+      Standard:
+        configure:
+          implementation: https://raw.githubusercontent.com/indigo-dc/tosca-types/master/artifacts/lrms/slurm/slurm_fe_install.yml
+          inputs:
+            wn_ips: { get_property: [ SELF, wn_ips ] }
+            front_end_ip: { get_attribute: [ HOST, private_address, 0 ] }
+            fe_hybrid_cluster:  { get_property: [ SELF, hybrid] }
+
+  tosca.nodes.indigo.LRMS.FrontEnd.Local:
+    derived_from: tosca.nodes.indigo.LRMS.FrontEnd
+    capabilities:
+        lrms:
+          type: tosca.capabilities.indigo.LRMS.Local
