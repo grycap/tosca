@@ -1,7 +1,7 @@
 tosca_definitions_version: alien_dsl_1_4_0
 
 metadata:
-  template_name: indigo-types
+  template_name: indigo-base-types
   template_version: 1.0.0
   template_author: indigo
 
@@ -10,204 +10,43 @@ description: The INDIGO Custom types
 imports:
   - tosca-normative-types:1.0.0-ALIEN14
 
-node_types:
+data_types:
 
-  tosca.nodes.indigo.Compute:
-    derived_from: tosca.nodes.Compute
+  tosca.datatypes.Root:
     description: >
-      The INDIGO Compute node
-    metadata:
-      icon: /images/compute.png
-    attributes:
-      private_address:
-        description: List of private IP addresses
-        type: list
-        entry_schema:
-          type: string
-      public_address:
-        description: List of public IP addresses
-        type: list
-        entry_schema:
-          type: string
-      ctxt_log:
-        description: Contextualization log
-        type: string
-    capabilities:
-      scalable:
-        type: tosca.capabilities.indigo.Scalable
-      os:
-         type: tosca.capabilities.indigo.OperatingSystem
-      endpoint:
-        type: tosca.capabilities.indigo.Endpoint
-      host:
-        type: tosca.capabilities.indigo.Container
-        valid_source_types: [tosca.nodes.SoftwareComponent]
+      The TOSCA root Data Type all other TOSCA base Data Types derive from
 
-  tosca.nodes.indigo.OphidiaServer:
-    derived_from: tosca.nodes.SoftwareComponent
-    metadata:
-      icon: /images/ophidia-server.png
+  tosca.datatypes.network.PortDef:
+    derived_from: tosca.datatypes.Root
+    type: integer
+    constraints:
+      - in_range: [ 1, 65535 ]
+
+  tosca.datatypes.network.PortSpec:
+    derived_from: tosca.datatypes.Root
     properties:
-      io_ips:
-        type: list
-        entry_schema:
-          type: string
-        description: List of IPs of the Ophidia IO nodes
+      protocol:
+        type: string
+        required: true
+        default: tcp
+        constraints:
+          - valid_values: [ udp, tcp, igmp ]
+      target:
+        type: tosca.datatypes.network.PortDef
         required: false
-        default: []
-    artifacts:
-      - ophidia_role:
-          file: indigo-dc.ophidia-cluster
-          type: tosca.artifacts.AnsibleGalaxy.role
-      - slurm_role:
-          file: indigo-dc.slurm
-          type: tosca.artifacts.AnsibleGalaxy.role
-      - nfs_role:
-          file: indigo-dc.nfs
-          type: tosca.artifacts.AnsibleGalaxy.role
-    interfaces:
-      Standard:
-        configure:
-          implementation: https://raw.githubusercontent.com/indigo-dc/tosca-types/master/artifacts/ophidia/ophidia_server_install.yml
-          inputs:
-            ophidia_io_ips: { get_property: [ SELF, io_ips ] }
-
-  tosca.nodes.indigo.OphidiaIO:
-    derived_from: tosca.nodes.SoftwareComponent
-    metadata:
-      icon: /images/ophidia-io.png
-    properties:
-      server_ip:
-        type: string
-        description: IP of the OphidiaServer node
-        required: true
-    artifacts:
-      - ophidia_role:
-          file: indigo-dc.ophidia-cluster
-          type: tosca.artifacts.AnsibleGalaxy.role
-      - slurm_role:
-          file: indigo-dc.slurm
-          type: tosca.artifacts.AnsibleGalaxy.role
-      - nfs_role:
-          file: indigo-dc.nfs
-          type: tosca.artifacts.AnsibleGalaxy.role
-    interfaces:
-      Standard:
-        configure:
-          implementation: https://raw.githubusercontent.com/indigo-dc/tosca-types/master/artifacts/ophidia/ophidia_io_install.yml
-          inputs:
-            ophidia_server_ip: { get_property: [ SELF, server_ip ] }
-
-  tosca.nodes.indigo.HaddockApp:
-    derived_from: tosca.nodes.SoftwareComponent
-    properties:
-      haddock_app_name:
-        type: string
-        description: Haddocking application
-        required: true
+      target_range:
+        type: range
+        required: false
         constraints:
-        - valid_values: [ disvis, powerfit ]
-    artifacts:
-      - galaxy_role:
-          file: indigo-dc.disvis-powerfit
-          type: tosca.artifacts.AnsibleGalaxy.role
-    interfaces:
-      Standard:
-        configure:
-          implementation: https://raw.githubusercontent.com/indigo-dc/tosca-types/master/artifacts/haddock/haddock_install.yml
-          inputs:
-            haddock_app_name: { get_property: [ SELF, haddock_app_name ] }
-
-  tosca.nodes.indigo.Disvis:
-    derived_from: tosca.nodes.indigo.HaddockApp
-    properties:
-      haddock_app_name:
-        type: string
-        required: true
-        default: disvis
+          - in_range: [ 1, 65535 ]
+      source:
+        type: tosca.datatypes.network.PortDef
+        required: false
+      source_range:
+        type: range
+        required: false
         constraints:
-          - equal: disvis
-
-  tosca.nodes.indigo.Powerfit:
-    derived_from: tosca.nodes.indigo.HaddockApp
-    properties:
-      haddock_app_name:
-        type: string
-        required: true
-        default: powerfit
-        constraints:
-          - equal: powerfit
-
-  tosca.nodes.indigo.Eubiosteo:
-    derived_from: tosca.nodes.SoftwareComponent
-    artifacts:
-      - galaxy_role:
-          file: indigo-dc.eubiosteo
-          type: tosca.artifacts.AnsibleGalaxy.role
-    interfaces:
-      Standard:
-        configure:
-          implementation: https://raw.githubusercontent.com/indigo-dc/tosca-types/master/artifacts/eubiosteo/eubiosteo_install.yml
-
-  tosca.nodes.indigo.Ambertools:
-    derived_from: tosca.nodes.SoftwareComponent
-    metadata:
-      icon: /images/amber.jpg
-    artifacts:
-      - galaxy_role:
-          file: indigo-dc.ambertools
-          type: tosca.artifacts.AnsibleGalaxy.role
-    interfaces:
-      Standard:
-        configure:
-          implementation: https://raw.githubusercontent.com/indigo-dc/tosca-types/master/artifacts/ambertools/ambertools_install.yml
-
-  tosca.nodes.indigo.Kepler:
-    derived_from: tosca.nodes.SoftwareComponent
-    metadata:
-      icon: /images/kepler.jpeg
-    artifacts:
-      - galaxy_role:
-          file: indigo-dc.kepler
-          type: tosca.artifacts.AnsibleGalaxy.role
-    interfaces:
-      Standard:
-        configure:
-          implementation: https://raw.githubusercontent.com/indigo-dc/tosca-types/master/artifacts/kepler/kepler_install.yml
-
-  tosca.nodes.indigo.HadoopMaster:
-    derived_from: tosca.nodes.SoftwareComponent
-    metadata:
-      icon: /images/hadoop-master.jpg
-    artifacts:
-      - hadoop_role:
-          file: indigo-dc.hadoop
-          type: tosca.artifacts.AnsibleGalaxy.role
-    interfaces:
-      Standard:
-        configure:
-          implementation: https://raw.githubusercontent.com/indigo-dc/tosca-types/master/artifacts/hadoop/hadoop_master_install.yml
-          inputs:
-            hadoop_master_ip: { get_attribute: [ HOST, private_address, 0 ] }
-
-  tosca.nodes.indigo.HadoopSlave:
-    derived_from: tosca.nodes.SoftwareComponent
-    metadata:
-      icon: /images/hadoop-wn.jpg
-    properties:
-      master_ip:
-        required: yes
-        type: string
-    artifacts:
-      - hadoop_role:
-          file: indigo-dc.hadoop
-          type: tosca.artifacts.AnsibleGalaxy.role
-    interfaces:
-      Standard:
-        configure:
-          implementation: https://raw.githubusercontent.com/indigo-dc/tosca-types/master/artifacts/hadoop/hadoop_wn_install.yml
-          inputs:
-            hadoop_master_ip: { get_property: [ SELF, master_ip ] }
+          - in_range: [ 1, 65535 ]
 
 artifact_types:
 
@@ -266,6 +105,124 @@ capability_types:
         type: string
         required: no
 
+  tosca.capabilities.indigo.LRMS:
+    derived_from: tosca.capabilities.Container
+    properties:
+      type:
+        type: string
+        required: true
+        constraints:
+        - valid_values: [ local, torque, slurm, sge, condor, mesos ]
+
+  tosca.capabilities.indigo.LRMS.Torque:
+    derived_from: tosca.capabilities.indigo.LRMS
+    properties:
+      type:
+        type: string
+        required: true
+        default: torque
+        constraints:
+          - equal: torque
+
+  tosca.capabilities.indigo.LRMS.Slurm:
+    derived_from: tosca.capabilities.indigo.LRMS
+    properties:
+      type:
+        type: string
+        required: true
+        default: slurm
+        constraints:
+          - equal: slurm
+
+  tosca.capabilities.indigo.LRMS.Local:
+    derived_from: tosca.capabilities.indigo.LRMS
+    properties:
+      type:
+        type: string
+        required: true
+        default: local
+        constraints:
+          - equal: local
+
+  tosca.capabilities.indigo.LRMS.Mesos:
+    derived_from: tosca.capabilities.indigo.LRMS
+    properties:
+      type:
+        type: string
+        required: true
+        default: mesos
+        constraints:
+          - equal: mesos
+
+  tosca.capabilities.indigo.MesosMaster:        
+    derived_from: tosca.capabilities.Container
+
+  tosca.capabilities.indigo.MesosSlave:
+    derived_from: tosca.capabilities.Container
+
+  tosca.capabilities.Container.Docker:
+    derived_from: tosca.capabilities.Container
+    properties:
+      version:
+        type: list
+        required: false
+        entry_schema:
+          type: version
+        description: >
+          The Docker version capability.
+      publish_all:
+        type: boolean
+        default: false
+        required: false
+        description: >
+          Indicates that all ports (ranges) listed in the dockerfile
+          using the EXPOSE keyword be published.
+      publish_ports:
+        type: list
+        entry_schema:
+          type: tosca.datatypes.network.PortSpec
+        required: false
+        description: >
+          List of ports mappings from source (Docker container)
+          to target (host) ports to publish.
+      expose_ports:
+        type: list
+        entry_schema:
+          type: tosca.datatypes.network.PortSpec
+        required: false
+        description: >
+          List of ports mappings from source (Docker container) to expose
+          to other Docker containers (not accessible outside host).
+      volumes:
+        type: list
+        entry_schema:
+          type: string
+        required: false
+        description: >
+          The dockerfile VOLUME command which is used to enable access
+          from the Docker container to a directory on the host machine.
+      host_id:
+        type: string
+        required: false
+        description: >
+            The optional identifier of an existing host resource
+            that should be used to run this container on.
+      volume_id:
+        type: string
+        required: false
+        description: >
+          The optional identifier of an existing storage volume (resource)
+          that should be used to create the container's mount point(s) on.
+
+  tosca.capabilities.indigo.Container.Docker:
+    derived_from: tosca.capabilities.Container.Docker
+    properties:
+      num_cpus:
+        type: float
+        required: false
+        constraints:
+          - greater_or_equal: 0.0
+
   tosca.capabilities.indigo.Endpoint:
     derived_from: tosca.capabilities.Endpoint
     properties:
@@ -283,3 +240,263 @@ capability_types:
         type: list
         entry_schema:
           type: tosca.datatypes.Credential
+
+  tosca.capabilities.indigo.Container.Application.Docker.Chronos:
+    derived_from: tosca.capabilities.Root
+
+relationship_types:
+
+  tosca.relationships.indigo.Manages:
+    derived_from: tosca.relationships.Root
+
+node_types:
+
+  tosca.nodes.indigo.Compute:
+    derived_from: tosca.nodes.Compute
+    description: >
+      The INDIGO Compute node
+    metadata:
+      icon: /images/compute.png
+    attributes:
+      private_address:
+        description: List of private IP addresses
+        type: list
+        entry_schema:
+          type: string
+      public_address:
+        description: List of public IP addresses
+        type: list
+        entry_schema:
+          type: string
+      ctxt_log:
+        description: Contextualization log
+        type: string
+    capabilities:
+      scalable:
+        type: tosca.capabilities.indigo.Scalable
+      os:
+         type: tosca.capabilities.indigo.OperatingSystem
+      endpoint:
+        type: tosca.capabilities.indigo.Endpoint
+      host:
+        type: tosca.capabilities.indigo.Container
+        valid_source_types: [tosca.nodes.SoftwareComponent]
+
+  tosca.nodes.indigo.OneDataStorage:
+    derived_from: tosca.nodes.BlockStorage
+    metadata:
+      icon: /images/onedata.png
+    properties:
+      size:
+        # to overwrite BlockStorage size property to set it as not required
+        type: scalar-unit.size
+        required: false
+      oneprovider_host:
+        type: list
+        entry_schema:
+          type: string
+        required: false
+      onezone_endpoint:
+        type: string
+        required: false
+      dataspace:
+        type: list
+        entry_schema:
+          type: string
+        required: false
+      credential:
+        type: tosca.datatypes.Credential
+        required: true
+
+  tosca.nodes.indigo.ElasticCluster:
+    derived_from: tosca.nodes.SoftwareComponent
+    properties:
+      secret_token:
+        type: string
+        description: Token to access CLUES web interface
+        default: not_very_secret_token
+        required: false
+      deployment_id:
+        type: string
+        description: ID of the deployment of this elastic cluster in the orchestrator
+        required: false
+      orchestrator_url:
+        type: string
+        description: URL of the orchestrator
+        required: false
+        default: http://orchestrator01-indigo.cloud.ba.infn.it:8080/orchestrator
+      iam_access_token:
+        type: string
+        description: INDIGO IAM access token
+        required: false
+        default: iam_access_token
+      iam_clues_client_id:
+        type: string
+        description: INDIGO IAM client id to be used by CLUES
+        required: false
+        default: iam_clues_client_id
+      iam_clues_client_secret:
+        type: string
+        description: INDIGO IAM client secret to be used by CLUES
+        required: false
+        default: iam_clues_client_secret
+      marathon_credentials:
+        type: tosca.datatypes.Credential
+        description: Credentials to access the marathon endpoint from CLUES plugin
+        default:
+          protocol: http
+          user: admin
+          token: password
+        required: false
+      chronos_credentials:
+        type: tosca.datatypes.Credential
+        description: Credentials to access the chronos endpoint from CLUES plugin
+        default:
+          protocol: http
+          user: admin
+          token: password
+        required: false
+      mesos_credentials:
+        type: tosca.datatypes.Credential
+        description: Credentials to access the mesos endpoint from CLUES plugin
+        default:
+          protocol: http
+          user: admin
+          token: password
+        required: false
+      hybrid:
+        type: boolean
+        description: Flag to specify that this ElasticCluster will work in a hybrid environment
+        default: false
+        required: false
+    artifacts:
+      - docker_agent_role:
+          file: indigo-dc.clues
+          type: tosca.artifacts.AnsibleGalaxy.role
+    interfaces:
+      Standard:
+        create:
+          implementation: https://raw.githubusercontent.com/indigo-dc/tosca-types/master/artifacts/ec3/ec3_install.yml
+          inputs:
+            clues_secret_token: { get_property: [ SELF, secret_token ] }
+            clues_queue_system: { get_property: [ SELF, lrms, type ] }
+            ec3_max_instances: { get_property: [ SELF, wn, max_instances] }
+            ec3_deployment_id: { get_property: [ SELF, deployment_id] }
+            orchestrator_url: { get_property: [ SELF, orchestrator_url] }
+            ec3_iam_access_token: { get_property: [ SELF, iam_access_token] }
+            ec3_iam_clues_client_id: { get_property: [ SELF, iam_clues_client_id] }
+            ec3_iam_clues_client_secret: { get_property: [ SELF, iam_clues_client_secret] }
+            clues_marathon_credentials: { get_property: [ SELF, marathon_credentials] }
+            clues_chronos_credentials: { get_property: [ SELF, chronos_credentials] }
+            clues_mesos_credentials: { get_property: [ SELF, mesos_credentials] }
+    requirements:
+      - wn:
+          capability: tosca.capabilities.Scalable
+          node: tosca.nodes.indigo.LRMS.WorkerNode
+          relationship: tosca.relationships.indigo.Manages
+      - lrms:
+          capability: tosca.capabilities.indigo.LRMS
+          node: tosca.nodes.indigo.LRMS.FrontEnd
+          relationship: tosca.relationships.HostedOn
+
+  tosca.nodes.indigo.LRMS.WorkerNode:
+    derived_from: tosca.nodes.SoftwareComponent
+    properties:
+      front_end_ip:
+        type: string
+        description: IP of the Front-End node
+        required: true
+      hybrid:
+        type: boolean
+        description: Flag to specify that this WorkerNode will work in a hybrid environment
+        default: false
+        required: false
+      public_front_end_ip:
+        type: string
+        description: Public IP of the Front-End node
+        required: false
+        default: ''
+    capabilities:
+        wn:
+          type: tosca.capabilities.Scalable
+          valid_source_types: [tosca.nodes.indigo.ElasticCluster]
+    requirements:
+      - host:
+          capability: tosca.capabilities.Container
+          node: tosca.nodes.Compute
+          relationship: tosca.relationships.HostedOn
+
+  tosca.nodes.indigo.LRMS.WorkerNode.Slurm:
+    derived_from: tosca.nodes.indigo.LRMS.WorkerNode
+    artifacts:
+      - slurm_role:
+          file: indigo-dc.slurm
+          type: tosca.artifacts.AnsibleGalaxy.role
+      - nfs_role:
+          file: indigo-dc.nfs
+          type: tosca.artifacts.AnsibleGalaxy.role
+      - openvpn_role:
+          file: indigo-dc.openvpn
+          type: tosca.artifacts.AnsibleGalaxy.role
+    interfaces:
+      Standard:
+        configure:
+          implementation: https://raw.githubusercontent.com/indigo-dc/tosca-types/master/artifacts/lrms/slurm/slurm_wn_install.yml
+          inputs:
+            slurm_front_end_ip: { get_property: [ SELF, front_end_ip ] }
+            wn_hybrid_cluster:  { get_property: [ SELF, hybrid] }
+            slurm_public_front_end_ip: { get_property: [ SELF, public_front_end_ip ] }
+
+  tosca.nodes.indigo.LRMS.FrontEnd:
+    derived_from: tosca.nodes.SoftwareComponent
+    properties:
+      wn_ips:
+        type: list
+        entry_schema:
+          type: string
+        description: List of IPs of the WNs
+        required: false
+        default: []
+      hybrid:
+        type: boolean
+        description: Flag to specify that this FrontEnd will work in a hybrid environment
+        default: false
+        required: false
+    capabilities:
+        lrms:
+          type: tosca.capabilities.indigo.LRMS
+    requirements:
+      - host:
+          capability: tosca.capabilities.Container
+          node: tosca.nodes.Compute
+          relationship: tosca.relationships.HostedOn
+
+  tosca.nodes.indigo.LRMS.FrontEnd.Slurm:
+    derived_from: tosca.nodes.indigo.LRMS.FrontEnd
+    artifacts:
+      - slurm_role:
+          file: indigo-dc.slurm
+          type: tosca.artifacts.AnsibleGalaxy.role
+      - nfs_role:
+          file: indigo-dc.nfs
+          type: tosca.artifacts.AnsibleGalaxy.role
+      - openvpn_role:
+          file: indigo-dc.openvpn
+          type: tosca.artifacts.AnsibleGalaxy.role
+    capabilities:
+        lrms:
+          type: tosca.capabilities.indigo.LRMS.Slurm
+    interfaces:
+      Standard:
+        configure:
+          implementation: https://raw.githubusercontent.com/indigo-dc/tosca-types/master/artifacts/lrms/slurm/slurm_fe_install.yml
+          inputs:
+            wn_ips: { get_property: [ SELF, wn_ips ] }
+            front_end_ip: { get_attribute: [ HOST, private_address, 0 ] }
+            fe_hybrid_cluster:  { get_property: [ SELF, hybrid] }
+
+  tosca.nodes.indigo.LRMS.FrontEnd.Local:
+    derived_from: tosca.nodes.indigo.LRMS.FrontEnd
+    capabilities:
+        lrms:
+          type: tosca.capabilities.indigo.LRMS.Local

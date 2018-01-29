@@ -1,0 +1,455 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: indigo-galaxy-types
+  template_version: 1.0.0
+  template_author: indigo
+
+description: The INDIGO Custom types
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN14
+  - indigo-base-types:1.0.0
+
+node_types:
+
+  tosca.nodes.indigo.GalaxyPortal:
+    metadata:
+      icon: /images/galaxy.png
+    derived_from: tosca.nodes.WebServer
+    properties:
+      admin_email:
+        type: string
+        description: email of the admin user
+        default: admin@admin.com
+        required: false
+      admin_api_key:
+        type: string
+        description: key to access the API with admin role
+        default: not_very_secret_api_key
+        required: false
+      user:
+        type: string
+        description: username to launch the galaxy daemon
+        default: galaxy
+        required: false
+      install_path:
+        type: string
+        description: path to install the galaxy tool
+        default: /home/galaxy/galaxy
+        required: false
+      export_dir:
+        type: string
+        description: path to store galaxy data
+        default: /export
+        required: false
+      version:
+        type: string
+        description: galaxy version to install
+        default: master
+        required: false
+      instance_description:
+        type: string
+        description: galaxy instance description
+        default: "INDIGO Galaxy test"
+      instance_key_pub:
+        type: string
+        description: galaxy instance ssh public key
+        default: your_ssh_public_key
+      flavor:
+        type: string
+        description: name of the Galaxy flavor
+        required: false
+        default: galaxy-no-tools
+      reference_data:
+        type: boolean
+        description: Install Reference data
+        default: true
+        required: false
+    requirements:
+      - lrms:
+          capability: tosca.capabilities.indigo.LRMS
+          node: tosca.nodes.indigo.LRMS.FrontEnd
+          relationship: tosca.relationships.HostedOn
+    artifacts:
+      - nfs_role:
+          file: indigo-dc.nfs
+          type: tosca.artifacts.AnsibleGalaxy.role
+      - galaxy_role:
+          file: indigo-dc.galaxycloud
+          type: tosca.artifacts.AnsibleGalaxy.role
+    interfaces:
+      Standard:
+        configure:
+          implementation: https://raw.githubusercontent.com/indigo-dc/tosca-types/master/artifacts/galaxy/galaxy_install.yml
+          inputs:
+            galaxy_install_path: { get_property: [ SELF, install_path ] }
+            galaxy_user: { get_property: [ SELF, user ] }
+            galaxy_admin: { get_property: [ SELF, admin_email ] }
+            galaxy_admin_api_key: { get_property: [ SELF, admin_api_key ] }
+            galaxy_lrms: { get_property: [ SELF, lrms, type ] }
+            galaxy_version: { get_property: [ SELF, version ] }
+            galaxy_instance_description: { get_property: [ SELF, instance_description ] }
+            galaxy_instance_key_pub:  { get_property: [ SELF, instance_key_pub ] }
+            export_dir: { get_property: [ SELF, export_dir ] }
+            galaxy_flavor: { get_property: [ SELF, flavor ] }
+            get_refdata: { get_property: [ SELF, reference_data ] }
+
+  tosca.nodes.indigo.GalaxyPortalAndStorage:
+    derived_from: tosca.nodes.indigo.GalaxyPortal
+    properties:
+      os_storage:
+        type: string
+        description: Storage type (Iaas Block Storage (default), Onedata, Filesystem encryption)
+        default: "IaaS"
+        required: true
+      token:
+        type: string
+        description: Access token for onedata space
+        default: "not_a_token"
+        required: false
+      provider:
+        type: string
+        description: default OneProvider
+        default: "not_a_provider_url"
+        required: false
+      space:
+        type: string
+        description: Onedata space
+        default: "galaxy"
+        required: false
+    artifacts:
+      - nfs_role:
+          file: indigo-dc.nfs
+          type: tosca.artifacts.AnsibleGalaxy.role
+      - indigorepo_role:
+          file: indigo-dc.galaxycloud-indigorepo
+          type: tosca.artifacts.AnsibleGalaxy.role
+      - oneclient_role:
+          file: indigo-dc.oneclient
+          type: tosca.artifacts.AnsibleGalaxy.role
+      - galaxy_os_role:
+          file: indigo-dc.galaxycloud-os
+          type: tosca.artifacts.AnsibleGalaxy.role
+      - galaxy_role:
+          file: indigo-dc.galaxycloud
+          type: tosca.artifacts.AnsibleGalaxy.role
+    interfaces:
+      Standard:
+        configure:
+          implementation: https://raw.githubusercontent.com/indigo-dc/tosca-types/master/artifacts/galaxy/galaxy_os_install.yml
+          inputs:
+            os_storage: { get_property: [ SELF, os_storage ] }
+            userdata_token: { get_property: [ SELF, token ] }
+            userdata_oneprovider: { get_property: [ SELF, provider ] }
+            userdata_space: { get_property: [ SELF, space ] }
+            galaxy_install_path: { get_property: [ SELF, install_path ] }
+            galaxy_user: { get_property: [ SELF, user ] }
+            galaxy_admin: { get_property: [ SELF, admin_email ] }
+            galaxy_admin_api_key: { get_property: [ SELF, admin_api_key ] }
+            galaxy_lrms: { get_property: [ SELF, lrms, type ] }
+            galaxy_version: { get_property: [ SELF, version ] }
+            galaxy_instance_description: { get_property: [ SELF, instance_description ] }
+            galaxy_instance_key_pub:  { get_property: [ SELF, instance_key_pub ] }
+            export_dir: { get_property: [ SELF, export_dir ] }
+            galaxy_flavor: { get_property: [ SELF, flavor ] }
+            get_refdata: { get_property: [ SELF, reference_data ] }
+
+  tosca.nodes.indigo.GalaxyPortalFastConfig:
+    derived_from: tosca.nodes.indigo.GalaxyPortalAndStorage
+    artifacts:
+      - nfs_role:
+          file: indigo-dc.nfs
+          type: tosca.artifacts.AnsibleGalaxy.role
+      - indigorepo_role:
+          file: indigo-dc.galaxycloud-indigorepo
+          type: tosca.artifacts.AnsibleGalaxy.role
+      - oneclient_role:
+          file: indigo-dc.oneclient
+          type: tosca.artifacts.AnsibleGalaxy.role
+      - galaxy_os_role:
+          file: indigo-dc.galaxycloud-os
+          type: tosca.artifacts.AnsibleGalaxy.role
+      - galaxy_role-fastconfig:
+          file: indigo-dc.galaxycloud-fastconfig
+          type: tosca.artifacts.AnsibleGalaxy.role
+    interfaces:
+      Standard:
+        configure:
+          implementation: https://raw.githubusercontent.com/indigo-dc/tosca-types/master/artifacts/galaxy/galaxy_fastconfig.yml
+          inputs:
+            os_storage: { get_property: [ SELF, os_storage ] }
+            userdata_token: { get_property: [ SELF, token ] }
+            userdata_oneprovider: { get_property: [ SELF, provider ] }
+            userdata_space: { get_property: [ SELF, space ] }
+            galaxy_install_path: { get_property: [ SELF, install_path ] }
+            galaxy_user: { get_property: [ SELF, user ] }
+            galaxy_admin: { get_property: [ SELF, admin_email ] }
+            galaxy_admin_api_key: { get_property: [ SELF, admin_api_key ] }
+            galaxy_lrms: { get_property: [ SELF, lrms, type ] }
+            galaxy_version: { get_property: [ SELF, version ] }
+            galaxy_instance_description: { get_property: [ SELF, instance_description ] }
+            galaxy_instance_key_pub:  { get_property: [ SELF, instance_key_pub ] }
+            export_dir: { get_property: [ SELF, export_dir ] }
+            galaxy_flavor: { get_property: [ SELF, flavor ] }
+            get_refdata: { get_property: [ SELF, reference_data ] }
+ 
+  tosca.nodes.indigo.GalaxyWN:
+    derived_from: tosca.nodes.SoftwareComponent
+    metadata:
+      icon: /images/galaxy.png
+    properties:
+      front_end_ip:
+        type: string
+        description: IP of the Front-End node
+        required: true
+      export_dir:
+        type: string
+        description: path to store galaxy data
+        default: /export
+        required: true
+    requirements:
+      - host:
+          capability: tosca.capabilities.Container
+          node: tosca.nodes.Compute
+          relationship: tosca.relationships.HostedOn
+    interfaces:
+      Standard:
+        configure:
+          implementation: https://raw.githubusercontent.com/indigo-dc/tosca-types/master/artifacts/galaxy/galaxy_wn_configure.yml
+          inputs:
+            galaxy_front_end_ip: { get_property: [ SELF, front_end_ip ] }
+            export_dir: { get_property: [ SELF, export_dir ] }
+
+  tosca.nodes.indigo.GalaxyWnToolDeps:
+    derived_from: tosca.nodes.indigo.GalaxyWN
+    properties:
+      flavor:
+        type: string
+        description: name of the Galaxy flavor
+        required: true
+        default: galaxy-no-tools
+      version:
+        type: string
+        description: galaxy version installed
+        default: master
+        required: false
+    requirements:
+      - host:
+          capability: tosca.capabilities.Container
+          node: tosca.nodes.Compute
+          relationship: tosca.relationships.HostedOn
+    interfaces:
+      Standard:
+        configure:
+          implementation: https://raw.githubusercontent.com/indigo-dc/tosca-types/master/artifacts/galaxy/galaxy_wn_configure_tooldeps.yml
+          inputs:
+            galaxy_front_end_ip: { get_property: [ SELF, front_end_ip ] }
+            export_dir: { get_property: [ SELF, export_dir ] }
+            galaxy_flavor: { get_property: [ SELF, flavor ] }
+            galaxy_version: { get_property: [ SELF, version ] }
+
+  tosca.nodes.indigo.GalaxyWnCvmfsReferenceData:
+    derived_from: tosca.nodes.indigo.GalaxyWnToolDeps
+    properties:
+      reference_data:
+        type: boolean
+        description: Install Reference data
+        default: true
+        required: true
+      refdata_cvmfs_server_url:
+        type: string
+        description: CernVM-FS server, replica or stratum-zero
+        default: 'server_url'
+        required: false
+      refdata_cvmfs_repository_name:
+        type: string
+        description: Reference data CernVM-FS repository name
+        default: 'not_a_cvmfs_repository_name'
+        required: false
+      refdata_cvmfs_key_file:
+        type: string
+        description: CernVM-FS public key
+        default: 'not_a_key'
+        required: false
+      refdata_cvmfs_proxy_url:
+        type: string
+        description: CernVM-FS proxy url
+        default: 'DIRECT'
+        required: false
+      refdata_cvmfs_proxy_port:
+        type: integer
+        description: CernVM-FS proxy port
+        default: 80
+        required: false
+      refdata_dir:
+        type: string
+        description: path to store galaxy reference data
+        default: /refdata
+        required: false
+    requirements:
+      - host:
+          capability: tosca.capabilities.Container
+          node: tosca.nodes.Compute
+          relationship: tosca.relationships.HostedOn
+    interfaces:
+      Standard:
+        configure:
+          implementation: https://raw.githubusercontent.com/indigo-dc/tosca-types/master/artifacts/galaxy/galaxy_wn_configure_cvmfs.yml
+          inputs:
+            galaxy_front_end_ip: { get_property: [ SELF, front_end_ip ] }
+            export_dir: { get_property: [ SELF, export_dir ] }
+            galaxy_flavor: { get_property: [ SELF, flavor ] }
+            galaxy_version: { get_property: [ SELF, version ] }
+            get_refdata: { get_property: [ SELF, reference_data ] }
+            refdata_cvmfs_server_url: { get_property: [ SELF, refdata_cvmfs_server_url ] }
+            refdata_cvmfs_repository_name: { get_property: [ SELF, refdata_cvmfs_repository_name ] }
+            refdata_cvmfs_key_file: { get_property: [ SELF, refdata_cvmfs_key_file ] }
+            refdata_cvmfs_proxy_url: { get_property: [ SELF, refdata_cvmfs_proxy_url ] }
+            refdata_cvmfs_proxy_port: { get_property: [ SELF, refdata_cvmfs_proxy_port ] }
+            refdata_dir: { get_property: [ SELF, refdata_dir ] }
+
+  tosca.nodes.indigo.GalaxyShedTool:
+    derived_from: tosca.nodes.WebApplication
+    metadata:
+      icon: /images/galaxy-toolshed.png
+    properties:
+      flavor:
+        type: string
+        description: name of the Galaxy flavor
+        required: true
+        default: galaxy-no-tools
+      admin_api_key:
+        type: string
+        description: key to access the API with admin role
+        default: not_very_secret_api_key
+        required: false
+      version:
+        type: string
+        description: galaxy version installed
+        default: master
+        required: false
+      reference_data:
+        type: boolean
+        description: Install Reference data
+        default: true
+        required: false
+    requirements:
+      - host:
+          capability: tosca.capabilities.Container
+          node: tosca.nodes.indigo.GalaxyPortal
+          relationship: tosca.relationships.HostedOn
+    artifacts:
+      - galaxy_role:
+          file: indigo-dc.galaxycloud-tools
+          type: tosca.artifacts.AnsibleGalaxy.role
+      - tooldeps_role:
+          file: indigo-dc.galaxycloud-tooldeps
+          type: tosca.artifacts.AnsibleGalaxy.role
+    interfaces:
+      Standard:
+        configure:
+          implementation: https://raw.githubusercontent.com/indigo-dc/tosca-types/master/artifacts/galaxy/galaxy_tools_configure.yml
+          inputs:
+            galaxy_flavor: { get_property: [ SELF, flavor ] }
+            galaxy_admin_api_key: { get_property: [ HOST, admin_api_key ] }
+            instance_public_ip: { get_attribute: [ HOST, public_address, 0 ] }
+            galaxy_version: { get_property: [ SELF, version ] }
+            galaxy_flavor: { get_property: [ SELF, flavor ] }
+            get_refdata: { get_property: [ SELF, reference_data ] }
+
+  tosca.nodes.indigo.GalaxyReferenceData:
+    derived_from: tosca.nodes.WebApplication
+    properties:
+      reference_data:
+        type: boolean
+        description: Install Reference data
+        default: true
+        required: true
+      flavor:
+        type: string
+        description: name of the Galaxy flavor
+        required: true
+        default: galaxy-no-tools
+      refdata_repository_name:
+        type: string
+        description: Onedata space name, CernVM-FS repository name or subdirectory downaload name
+        default: 'elixir-italy.galaxy.refdata'
+        required: false
+      refdata_provider_type:
+        type: string
+        description: Select Reference data provider type (Onedata, CernVM-FS or download)
+        default: 'onedata'
+        required: false
+      refdata_provider:
+        type: string
+        description: Oneprovider for reference data
+        default: 'not_a_provider'
+        required: false
+      refdata_token:
+        type: string
+        description: Access token for reference data
+        default: 'not_a_token'
+        required: false
+      refdata_cvmfs_server_url:
+        type: string
+        description: CernVM-FS server, replica or stratum-zero
+        default: 'server_url'
+        required: false
+      refdata_cvmfs_repository_name:
+        type: string
+        description: Reference data CernVM-FS repository name
+        default: 'not_a_cvmfs_repository_name'
+        required: false
+      refdata_cvmfs_key_file:
+        type: string
+        description: CernVM-FS public key
+        default: 'not_a_key'
+        required: false
+      refdata_cvmfs_proxy_url:
+        type: string
+        description: CernVM-FS proxy url
+        default: 'DIRECT'
+        required: false
+      refdata_cvmfs_proxy_port:
+        type: integer 
+        description: CernVM-FS proxy port
+        default: 80
+        required: false
+      refdata_dir:
+        type: string
+        description: path to store galaxy reference data
+        default: /refdata
+        required: false
+    requirements:
+      - host:
+          capability: tosca.capabilities.Container
+          node: tosca.nodes.indigo.GalaxyPortal
+          relationship: tosca.relationships.HostedOn
+    artifacts:
+      - oneclient_role:
+          file: indigo-dc.oneclient
+          type: tosca.artifacts.AnsibleGalaxy.role
+      - cvmfs_role:
+          file: indigo-dc.cvmfs-client
+          type: tosca.artifacts.AnsibleGalaxy.role
+      - galaxy_role:
+          file: indigo-dc.galaxycloud-refdata
+          type: tosca.artifacts.AnsibleGalaxy.role
+    interfaces:
+      Standard:
+        configure:
+          implementation: https://raw.githubusercontent.com/indigo-dc/tosca-types/master/artifacts/galaxy/galaxy_redfata_configure.yml
+          inputs:
+            get_refdata: { get_property: [ SELF, reference_data ] }
+            galaxy_flavor: { get_property: [ SELF, flavor ] }
+            refdata_repository_name: { get_property: [ SELF, refdata_repository_name ] }
+            refdata_provider_type: { get_property: [ SELF, refdata_provider_type ] }
+            refdata_provider: { get_property: [ SELF, refdata_provider ] }
+            refdata_token: { get_property: [ SELF, refdata_token ] }
+            refdata_cvmfs_server_url: { get_property: [ SELF, refdata_cvmfs_server_url ] }
+            refdata_cvmfs_repository_name: { get_property: [ SELF, refdata_cvmfs_repository_name ] }
+            refdata_cvmfs_key_file: { get_property: [ SELF, refdata_cvmfs_key_file ] }
+            refdata_cvmfs_proxy_url: { get_property: [ SELF, refdata_cvmfs_proxy_url ] }
+            refdata_cvmfs_proxy_port: { get_property: [ SELF, refdata_cvmfs_proxy_port ] }
+            refdata_dir: { get_property: [ SELF, refdata_dir ] }
