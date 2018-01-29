@@ -1,7 +1,7 @@
 tosca_definitions_version: alien_dsl_1_4_0
 
 metadata:
-  template_name: indigo-types
+  template_name: indigo-base-types
   template_version: 1.0.0
   template_author: indigo
 
