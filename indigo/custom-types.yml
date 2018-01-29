@@ -162,6 +162,8 @@ node_types:
 
   tosca.nodes.indigo.Kepler:
     derived_from: tosca.nodes.SoftwareComponent
+    metadata:
+      icon: /images/kepler.png
     artifacts:
       - galaxy_role:
           file: indigo-dc.kepler
