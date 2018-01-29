@@ -13,6 +13,17 @@ imports:
 
 node_types:
 
+  tosca.nodes.WebServer.Apache:
+    derived_from: tosca.nodes.WebServer
+    metadata:
+      icon: /images/apache.png
+    interfaces:
+      Standard:
+        create:
+          implementation: https://raw.githubusercontent.com/indigo-dc/tosca-types/master/artifacts/apache/apache_install.yml
+        start:
+          implementation: https://raw.githubusercontent.com/indigo-dc/tosca-types/master/artifacts/apache/apache_start.yml
+
   tosca.nodes.indigo.HaddockApp:
     derived_from: tosca.nodes.SoftwareComponent
     properties:
