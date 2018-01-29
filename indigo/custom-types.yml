@@ -12,6 +12,12 @@ imports:
 
 data_types:
 
+  tosca.datatypes.network.PortDef:
+    derived_from: tosca.datatypes.Root
+    type: integer
+    constraints:
+      - in_range: [ 1, 65535 ]
+
   tosca.datatypes.network.PortSpec:
     derived_from: tosca.datatypes.Root
     properties:
