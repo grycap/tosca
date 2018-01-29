@@ -156,21 +156,21 @@ node_types:
   tosca.nodes.indigo.GalaxyPortalFastConfig:
     derived_from: tosca.nodes.indigo.GalaxyPortalAndStorage
     artifacts:
-      nfs_role:
-        file: indigo-dc.nfs
-        type: tosca.artifacts.AnsibleGalaxy.role
-      indigorepo_role:
-        file: indigo-dc.galaxycloud-indigorepo
-        type: tosca.artifacts.AnsibleGalaxy.role
-      oneclient_role:
-        file: indigo-dc.oneclient
-        type: tosca.artifacts.AnsibleGalaxy.role
-      galaxy_os_role:
-        file: indigo-dc.galaxycloud-os
-        type: tosca.artifacts.AnsibleGalaxy.role
-      galaxy_role-fastconfig:
-        file: indigo-dc.galaxycloud-fastconfig
-        type: tosca.artifacts.AnsibleGalaxy.role
+      - nfs_role:
+          file: indigo-dc.nfs
+          type: tosca.artifacts.AnsibleGalaxy.role
+      - indigorepo_role:
+          file: indigo-dc.galaxycloud-indigorepo
+          type: tosca.artifacts.AnsibleGalaxy.role
+      - oneclient_role:
+          file: indigo-dc.oneclient
+          type: tosca.artifacts.AnsibleGalaxy.role
+      - galaxy_os_role:
+          file: indigo-dc.galaxycloud-os
+          type: tosca.artifacts.AnsibleGalaxy.role
+      - galaxy_role-fastconfig:
+          file: indigo-dc.galaxycloud-fastconfig
+          type: tosca.artifacts.AnsibleGalaxy.role
     interfaces:
       Standard:
         configure:
