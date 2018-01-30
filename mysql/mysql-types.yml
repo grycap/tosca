@@ -36,7 +36,7 @@ node_types:
   tosca.nodes.indigo.Database.MySQL:
     derived_from: tosca.nodes.Database.MySQL
     metadata:
-      icon: /images/mysql-db.png
+      icon: /images/mysql-db-indigo.png
     properties:
       access_host:
         type: string
