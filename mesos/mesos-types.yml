@@ -11,6 +11,24 @@ imports:
   - tosca-normative-types:1.0.0-ALIEN14
   - indigo-base-types:1.0.0
 
+capability_types:
+
+  tosca.capabilities.indigo.LRMS.Mesos:
+    derived_from: tosca.capabilities.indigo.LRMS
+    properties:
+      type:
+        type: string
+        required: true
+        default: mesos
+        constraints:
+          - equal: mesos
+
+  tosca.capabilities.indigo.MesosMaster:        
+    derived_from: tosca.capabilities.Container
+
+  tosca.capabilities.indigo.MesosSlave:
+    derived_from: tosca.capabilities.Container
+
 node_types:
 
   tosca.nodes.indigo.DariahRepository:
@@ -160,6 +178,7 @@ node_types:
         entry_schema:
           type: string
         required: no
+        # Removed as A4C does not support it
         # default: { get_attribute: [ HOST, public_address ] }
       mesos_authenticate_http:
         type: boolean
