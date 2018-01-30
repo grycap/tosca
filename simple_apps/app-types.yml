@@ -26,6 +26,8 @@ node_types:
 
   tosca.nodes.indigo.HaddockApp:
     derived_from: tosca.nodes.SoftwareComponent
+    metadata:
+      icon: /images/Haddock.png
     properties:
       haddock_app_name:
         type: string
@@ -46,6 +48,8 @@ node_types:
 
   tosca.nodes.indigo.Disvis:
     derived_from: tosca.nodes.indigo.HaddockApp
+    metadata:
+      icon: /images/disvis.png
     properties:
       haddock_app_name:
         type: string
@@ -56,6 +60,8 @@ node_types:
 
   tosca.nodes.indigo.Powerfit:
     derived_from: tosca.nodes.indigo.HaddockApp
+    metadata:
+      icon: /images/powerfit.png
     properties:
       haddock_app_name:
         type: string
