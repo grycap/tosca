@@ -160,7 +160,7 @@ node_types:
         entry_schema:
           type: string
         required: no
-        default: { get_attribute: [ HOST, public_address ] }
+        # default: { get_attribute: [ HOST, public_address ] }
       mesos_authenticate_http:
         type: boolean
         required: no
