@@ -114,16 +114,6 @@ capability_types:
         constraints:
         - valid_values: [ local, torque, slurm, sge, condor, mesos ]
 
-  tosca.capabilities.indigo.LRMS.Torque:
-    derived_from: tosca.capabilities.indigo.LRMS
-    properties:
-      type:
-        type: string
-        required: true
-        default: torque
-        constraints:
-          - equal: torque
-
   tosca.capabilities.indigo.LRMS.Local:
     derived_from: tosca.capabilities.indigo.LRMS
     properties:
