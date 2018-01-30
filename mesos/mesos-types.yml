@@ -297,8 +297,10 @@ node_types:
         type: string
         required: yes
       master_ips:
-        required: yes
         type: list
+        entry_schema:
+          type: string
+        required: yes
       onedatatoken:
         type: string
         required: no
