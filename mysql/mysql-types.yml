@@ -5,7 +5,7 @@ metadata:
   template_version: 1.0.0
   template_author: indigo
 
-description: The INDIGO Custom types
+description: The INDIGO MySQL custom types
 
 imports:
   - tosca-normative-types:1.0.0-ALIEN14

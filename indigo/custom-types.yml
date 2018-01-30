@@ -114,26 +114,6 @@ capability_types:
         constraints:
         - valid_values: [ local, torque, slurm, sge, condor, mesos ]
 
-  tosca.capabilities.indigo.LRMS.Torque:
-    derived_from: tosca.capabilities.indigo.LRMS
-    properties:
-      type:
-        type: string
-        required: true
-        default: torque
-        constraints:
-          - equal: torque
-
-  tosca.capabilities.indigo.LRMS.Slurm:
-    derived_from: tosca.capabilities.indigo.LRMS
-    properties:
-      type:
-        type: string
-        required: true
-        default: slurm
-        constraints:
-          - equal: slurm
-
   tosca.capabilities.indigo.LRMS.Local:
     derived_from: tosca.capabilities.indigo.LRMS
     properties:
@@ -143,22 +123,6 @@ capability_types:
         default: local
         constraints:
           - equal: local
-
-  tosca.capabilities.indigo.LRMS.Mesos:
-    derived_from: tosca.capabilities.indigo.LRMS
-    properties:
-      type:
-        type: string
-        required: true
-        default: mesos
-        constraints:
-          - equal: mesos
-
-  tosca.capabilities.indigo.MesosMaster:        
-    derived_from: tosca.capabilities.Container
-
-  tosca.capabilities.indigo.MesosSlave:
-    derived_from: tosca.capabilities.Container
 
   tosca.capabilities.Container.Docker:
     derived_from: tosca.capabilities.Container
@@ -310,6 +274,8 @@ node_types:
 
   tosca.nodes.indigo.ElasticCluster:
     derived_from: tosca.nodes.SoftwareComponent
+    metadata:
+      icon: /images/ec3.png
     properties:
       secret_token:
         type: string
@@ -426,27 +392,6 @@ node_types:
           node: tosca.nodes.Compute
           relationship: tosca.relationships.HostedOn
 
-  tosca.nodes.indigo.LRMS.WorkerNode.Slurm:
-    derived_from: tosca.nodes.indigo.LRMS.WorkerNode
-    artifacts:
-      - slurm_role:
-          file: indigo-dc.slurm
-          type: tosca.artifacts.AnsibleGalaxy.role
-      - nfs_role:
-          file: indigo-dc.nfs
-          type: tosca.artifacts.AnsibleGalaxy.role
-      - openvpn_role:
-          file: indigo-dc.openvpn
-          type: tosca.artifacts.AnsibleGalaxy.role
-    interfaces:
-      Standard:
-        configure:
-          implementation: https://raw.githubusercontent.com/indigo-dc/tosca-types/master/artifacts/lrms/slurm/slurm_wn_install.yml
-          inputs:
-            slurm_front_end_ip: { get_property: [ SELF, front_end_ip ] }
-            wn_hybrid_cluster:  { get_property: [ SELF, hybrid] }
-            slurm_public_front_end_ip: { get_property: [ SELF, public_front_end_ip ] }
-
   tosca.nodes.indigo.LRMS.FrontEnd:
     derived_from: tosca.nodes.SoftwareComponent
     properties:
@@ -470,30 +415,6 @@ node_types:
           capability: tosca.capabilities.Container
           node: tosca.nodes.Compute
           relationship: tosca.relationships.HostedOn
-
-  tosca.nodes.indigo.LRMS.FrontEnd.Slurm:
-    derived_from: tosca.nodes.indigo.LRMS.FrontEnd
-    artifacts:
-      - slurm_role:
-          file: indigo-dc.slurm
-          type: tosca.artifacts.AnsibleGalaxy.role
-      - nfs_role:
-          file: indigo-dc.nfs
-          type: tosca.artifacts.AnsibleGalaxy.role
-      - openvpn_role:
-          file: indigo-dc.openvpn
-          type: tosca.artifacts.AnsibleGalaxy.role
-    capabilities:
-        lrms:
-          type: tosca.capabilities.indigo.LRMS.Slurm
-    interfaces:
-      Standard:
-        configure:
-          implementation: https://raw.githubusercontent.com/indigo-dc/tosca-types/master/artifacts/lrms/slurm/slurm_fe_install.yml
-          inputs:
-            wn_ips: { get_property: [ SELF, wn_ips ] }
-            front_end_ip: { get_attribute: [ HOST, private_address, 0 ] }
-            fe_hybrid_cluster:  { get_property: [ SELF, hybrid] }
 
   tosca.nodes.indigo.LRMS.FrontEnd.Local:
     derived_from: tosca.nodes.indigo.LRMS.FrontEnd
