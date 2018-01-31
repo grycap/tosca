@@ -336,9 +336,9 @@ node_types:
         default: false
         required: false
     artifacts:
-      - docker_agent_role:
-          file: indigo-dc.clues
-          type: tosca.artifacts.AnsibleGalaxy.role
+      docker_agent_role:
+        file: indigo-dc.clues
+        type: tosca.artifacts.AnsibleGalaxy.role
     interfaces:
       Standard:
         create:
