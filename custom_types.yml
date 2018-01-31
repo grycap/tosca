@@ -1010,6 +1010,12 @@ node_types:
       scalable:
         type: tosca.capabilities.Scalable
 
+  tosca.nodes.Container.Application.Docker:
+    derived_from: tosca.nodes.Container.Application
+    requirements:
+      - host:
+          capability: tosca.capabilities.Container.Docker
+
   tosca.nodes.indigo.Container.Application.Docker:
     derived_from: tosca.nodes.Container.Application.Docker
     properties:
