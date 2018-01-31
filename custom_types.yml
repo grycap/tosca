@@ -1292,7 +1292,9 @@ node_types:
       # Set the current data of the mesos server
       # but it can also specified in the TOSCA document
       mesos_masters_list:
-        type: string
+        type: list
+        entry_schema:
+          type: string
         required: no
         default: ['127.0.0.1']
       mesos_authenticate_http:
