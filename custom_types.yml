@@ -6,7 +6,7 @@ metadata:
   template_author: indigo
 
 imports:
-  - ftp://ftpgrycap.i3m.upv.es/public/deep/tosca-normative-types/normative-types.yml
+  - tosca-normative-types:1.0.0-ALIEN14
 
 description: The INDIGO Custom types
 
