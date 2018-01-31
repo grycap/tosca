@@ -6,8 +6,7 @@ metadata:
   template_author: indigo
 
 imports:
-  - tosca-normative-types: https://raw.githubusercontent.com/grycap/tosca/indigo/normative-types.yml
-
+  - tosca-normative-types:1.0.0-ALIEN14
 
 description: The INDIGO Custom types
 
