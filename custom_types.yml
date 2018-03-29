@@ -345,6 +345,8 @@ node_types:
 
   tosca.nodes.indigo.Compute:
     derived_from: tosca.nodes.indigo.MonitoredCompute
+    metadata:
+      icon: /images/compute.png
     attributes:
       private_address:
         type: list
@@ -1901,3 +1903,68 @@ node_types:
           implementation: https://raw.githubusercontent.com/indigo-dc/tosca-types/master/artifacts/ophidia/ophidia_io_install.yml
           inputs:
             ophidia_server_ip: { get_property: [ SELF, server_ip ] }
+
+  tosca.nodes.indigo.LRMS.FrontEnd.Kubernetes:
+    derived_from: tosca.nodes.indigo.LRMS.FrontEnd
+    metadata:
+      icon: /images/kubernetesFE.png
+    properties:
+      admin_username:
+        required: no
+        type: string
+        default: kubeuser
+      admin_token:
+        required: no
+        type: string
+        default: some_insecure_token
+    artifacts:
+      kube_role:
+        file: grycap.kubernetes
+        type: tosca.artifacts.AnsibleGalaxy.role
+      nfs_role:
+        file: indigo-dc.nfs
+        type: tosca.artifacts.AnsibleGalaxy.role
+      openvpn_role:
+        file: indigo-dc.openvpn
+        type: tosca.artifacts.AnsibleGalaxy.role
+    capabilities:
+        lrms:
+          type: tosca.capabilities.indigo.LRMS.Kubernetes
+    interfaces:
+      Standard:
+        configure:
+          implementation: https://raw.githubusercontent.com/indigo-dc/tosca-types/master/artifacts/lrms/kubernetes/kube_fe_install.yml
+          inputs:
+            kube_front_end_ip: { get_attribute: [ HOST, private_address, 0 ] }
+            fe_hybrid_cluster:  { get_property: [ SELF, hybrid] }
+            kube_admin_username:  { get_property: [ SELF, admin_username] }
+            kube_admin_token:  { get_property: [ SELF, admin_token] }
+
+  tosca.nodes.indigo.JupyterHub:
+    derived_from: tosca.nodes.SoftwareComponent
+    metadata:
+      icon: /images/jupyterhub.png
+    properties:
+      spawner:
+        required: no
+        type: string
+        default: local
+        constraints:
+        - valid_values: [ local, kubernetes ]
+      authenticator:
+        required: no
+        type: string
+        default: local
+        constraints:
+        - valid_values: [ local, dummy ]
+    artifacts:
+      kube_role:
+        file: indigo-dc.jupyterhub
+        type: tosca.artifacts.AnsibleGalaxy.role
+    interfaces:
+      Standard:
+        configure:
+          implementation: https://raw.githubusercontent.com/indigo-dc/tosca-types/master/artifacts/jupyter/jupyterhub_install.yml
+          inputs:
+            jupyterhub_spawner: { get_property: [ SELF, spawner ] }
+            jupyterhub_authenticator: { get_property: [ SELF, spawner ] }
