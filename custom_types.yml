@@ -1,4 +1,4 @@
-tosca_definitions_version: alien_dsl_1_4_0
+tosca_definitions_version: alien_dsl_2_0_0
 
 metadata:
   template_name: indigo-types
@@ -6,7 +6,7 @@ metadata:
   template_author: indigo
 
 imports:
-  - tosca-normative-types:1.0.0-ALIEN14
+  - tosca-normative-types:1.0.0-ALIEN20
 
 description: The INDIGO Custom types
 
@@ -17,8 +17,7 @@ data_types:
       The TOSCA root Data Type all other TOSCA base Data Types derive from
 
   tosca.datatypes.network.PortDef:
-    derived_from: tosca.datatypes.Root
-    type: integer
+    derived_from: integer
     constraints:
       - in_range: [ 1, 65535 ]
 
@@ -1297,7 +1296,8 @@ node_types:
     attributes:
       load_balancer_ips:
         type: list
-        entry_schema: string
+        entry_schema:
+          type: string
     properties:
       force_pull_image:
         required: no
