@@ -11,7 +11,7 @@ metadata:
   display_name: Launch the flows4hpc image creation service on a VM
   icon: images/eflows4HPCcics.png
   parents:
-    - simple-node-disk.yaml
+    - simple-node-disk.yml
 
 topology_template:
 

@@ -11,7 +11,7 @@ metadata:
   display_name: Download File in VM local path
   icon: images/download.png
   parents:
-    - single-node-disk.yml
+    - simple-node-disk.yml
 
 topology_template:
 

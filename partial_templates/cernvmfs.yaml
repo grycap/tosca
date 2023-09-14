@@ -14,7 +14,7 @@ metadata:
   web: https://cernvm.cern.ch/fs/
   tag_color: purple
   parents:
-    - single-node-disk.yml
+    - simple-node-disk.yml
 
 topology_template:
 

@@ -5,7 +5,6 @@ imports:
 
 description: Launch Apache Kafka on top of a Kubernetes Virtual Cluster.
 
-
 metadata:
   version: "1.0.0"
   name: Apache Kafka

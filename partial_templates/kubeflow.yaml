@@ -11,7 +11,7 @@ metadata:
   display_name: Launch Kubeflow on top of a Kubernetes Virtual Cluster
   icon: images/kubeflow.png
   parents:
-    - kubernetes.yml
+    - kubernetes.yaml
 
 topology_template:
 

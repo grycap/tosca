@@ -187,7 +187,7 @@ topology_template:
 
       requirements:
         - host: lrms_front_end
-        - dependency: nifins
+        - dependency: noderedns
 
     nodered_service:
       type: tosca.nodes.indigo.KubernetesObject

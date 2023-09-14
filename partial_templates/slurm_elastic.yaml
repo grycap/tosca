@@ -12,7 +12,7 @@ metadata:
   icon: images/elasticity.png
   tag: elastic
   parents:
-   - slurm_cluster.yaml
+   - slurm_cluster.yml
 
 topology_template:
   inputs:

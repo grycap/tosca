@@ -2,14 +2,13 @@ tosca_definitions_version: tosca_simple_yaml_1_0
 
 imports:
   - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
- 
+
+description: Launch an AI4EOSC Nomad Virtual Cluster.
+
 metadata:
   version: "0.1.0"
-  display_name: Deploy an AI4EOSC Nomad Virtual Cluster
+  display_name: Launch an AI4EOSC Nomad Virtual Cluster
   icon: images/nomad.png
-
-
-description: TOSCA template for deploying an AI4EOSC Nomad Virtual Cluster.
 
 topology_template:
   inputs:
@@ -105,6 +104,8 @@ topology_template:
 
     wn_node:
       type: tosca.nodes.indigo.LRMS.WorkerNode.Nomad
+      properties:
+        front_end_ip: { get_attribute: [ front, private_address, 0 ] }
       requirements:
         - host: wn
       artifacts:

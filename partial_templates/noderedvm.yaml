@@ -11,7 +11,7 @@ metadata:
   display_name: Launch Node-RED on a VM
   icon: https://github.com/grycap/im-dashboard/raw/devel/app/static/images/nodered.png
   parents:
-    - simple-node-disk.yaml
+    - simple-node-disk.yml
 
 topology_template:
 

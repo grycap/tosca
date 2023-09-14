@@ -12,7 +12,7 @@ metadata:
   icon: images/slurm_glusterfs.png
   tag: beta
   parents:
-   - slurm_cluster.yaml
+   - slurm_cluster.yml
 
 topology_template:
   inputs:

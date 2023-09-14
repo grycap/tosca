@@ -9,7 +9,7 @@ metadata:
   display_name: Deploy a DEEPaaS AI model
   icon: images/ai4eosc.png
   parents:
-    - simple-node-disk.yaml
+    - simple-node-disk.yml
 
 description: TOSCA template for deploying a DEEPaaS AI model
 

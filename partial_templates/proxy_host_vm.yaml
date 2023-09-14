@@ -11,7 +11,7 @@ metadata:
   icon: images/vm-icon.png
   tag: VM
   parents:
-    - simple-node-disk.yaml
+    - simple-node-disk.yml
 
 topology_template:
   inputs:

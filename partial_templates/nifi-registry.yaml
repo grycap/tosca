@@ -180,7 +180,7 @@ topology_template:
                   pathType: Prefix
       requirements:
         - host: lrms_front_end
-        - dependency: nifi_ref_ns
+        - dependency: nifi_reg_ns
 
   outputs:
     nifi_registry_endpoint:

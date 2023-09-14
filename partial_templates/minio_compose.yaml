@@ -11,7 +11,7 @@ metadata:
   display_name: Launch MinIO server
   icon: images/minio.png
   parents:
-    - simple_node.yaml
+    - simple-node-disk.yml
 
 topology_template:
   inputs:

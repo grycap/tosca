@@ -11,7 +11,7 @@ metadata:
   display_name: Deploy a Galaxy portal in a SLURM cluster
   icon: images/galaxy_slurm.png
   parents:
-  - slurm_cluster.yaml
+  - slurm_cluster.yml
 
 topology_template:
   inputs:

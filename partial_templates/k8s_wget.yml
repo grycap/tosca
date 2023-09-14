@@ -11,7 +11,7 @@ metadata:
   display_name: Download file in a Kubernetes PVC
   icon: images/download.png
   parents:
-    - kubernetes.yml
+    - kubernetes.yaml
 
 topology_template:
 
