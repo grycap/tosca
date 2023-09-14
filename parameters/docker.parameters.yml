@@ -1,0 +1,19 @@
+inputs:
+    nvidia_support:
+      tab: Docker Data
+
+    driver_version:
+      tab: Docker Data
+
+    git_repo:
+      tab: Docker Data
+
+    git_branch:
+      tab: Docker Data
+
+    git_folder:
+      tab: Docker Data
+
+tabs:
+  - Docker Data
+

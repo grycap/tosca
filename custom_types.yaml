@@ -1,0 +1,1586 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+data_types:
+
+  tosca.datatypes.oscar.StorageIOConfig:
+    derived_from: tosca.datatypes.Root
+    properties:
+      storage_provider:
+        type: string
+        required: true
+      path:
+        type: string
+        required: true
+      suffix:
+        type: string
+        required: false
+      prefix:
+        type: string
+        required: false
+
+  tosca.datatypes.oscar.StorageProviders:
+    derived_from: tosca.datatypes.Root
+    properties:
+      minio:
+        type: map
+        entry_schema:
+          type: tosca.datatypes.oscar.StorageMinIOProvider
+        required: false
+      s3:
+        type: map
+        entry_schema:
+          type: tosca.datatypes.oscar.StorageS3Provider
+        required: false
+      onedata:
+        type: map
+        entry_schema:
+          type: tosca.datatypes.oscar.StorageOnedataProvider
+        required: false
+
+  tosca.datatypes.oscar.StorageS3Provider:
+    derived_from: tosca.datatypes.Root
+    properties:
+      access_key:
+        type: string
+        required: true
+      secret_key:
+        type: string
+        required: true
+      region:
+        type: string
+        required: true
+
+  tosca.datatypes.oscar.StorageOnedataProvider:
+    derived_from: tosca.datatypes.Root
+    properties:
+      oneprovider_host:
+        type: string
+        required: true
+      token:
+        type: string
+        required: true
+      space:
+        type: string
+        required: true
+
+  tosca.datatypes.oscar.StorageMinIOProvider:
+    derived_from: tosca.datatypes.oscar.StorageS3Provider
+    properties:
+      endpoint:
+        type: string
+        required: true
+      verify:
+        type: boolean
+        required: false
+        default: false
+
+  tosca.datatypes.indigo.AnsibleTask:
+    derived_from: tosca.datatypes.Root
+    description: he Tosca AnsibleTask type is a complex TOSCA data Type used when describing a single Ansible task.
+    properties:
+      state:
+        description: the state returned by Ansiible (ok, failed, skipped, ...)
+        type: string
+      output:
+        description: the output (if available) returned by the Ansible task.
+        type: string
+
+  tosca.datatypes.indigo.CtxtTask:
+    derived_from: tosca.datatypes.Root
+    description: The Tosca CtxtTask type is a complex TOSCA data Type used when describing the outputs of the ansible contextualization process.
+    properties:
+      tasks:
+        type: map
+        description: The tasks map contains the tasks made by the ctxt agent
+        entry_schema:
+          type: tosca.datatypes.indigo.AnsibleTask
+
+  tosca.datatypes.indigo.network.PortSpec:
+    derived_from: tosca.datatypes.network.PortSpec
+    properties:
+      remote_cidr:
+        description: CIDR of the remote allowed IPs.
+        type: string
+        required: no
+
+capability_types:
+
+  tosca.capabilities.indigo.OperatingSystem:
+    derived_from: tosca.capabilities.OperatingSystem
+    properties:
+      gpu_driver:
+        type: boolean
+        required: no
+      cuda_support:
+        type: boolean
+        required: no
+      cuda_min_version:
+        type: string
+        required: no
+      cuDNN_version:
+        type: string
+        required: no
+      image:
+        type: string
+        required: no
+      credential:
+        type: tosca.datatypes.Credential
+        required: no
+      vo:
+        type: string
+        required: no
+
+  tosca.capabilities.indigo.Scalable:
+    derived_from: tosca.capabilities.Scalable
+    properties:
+      min_instances:
+        type: integer
+        default: 1
+        required: no
+      max_instances:
+        type: integer
+        default: 1
+        required: no
+      count:
+        type: integer
+        description: the number of resources
+        required: no
+        default: 1
+      removal_list:
+        type: list
+        description: list of IDs of the resources to be removed
+        required: no
+        entry_schema:
+          type: string
+
+  tosca.capabilities.indigo.Container:
+    derived_from: tosca.capabilities.Container
+    properties:
+      preemtible_instance:
+        type: boolean
+        required: no
+      instance_type:
+        type: string
+        required: no
+      num_gpus:
+        type: integer
+        required: false
+      gpu_vendor:
+        type: string
+        required: false
+      gpu_model:
+        type: string
+        required: false
+      sgx:
+        type: boolean
+        required: no
+      sgx_epc_size:
+        type: scalar-unit.size
+        required: no
+      disk_type:
+        type: string
+        required: no
+
+  tosca.capabilities.indigo.LRMS:
+    derived_from: tosca.capabilities.Container
+    properties:
+      type:
+        type: string
+        required: true
+        constraints:
+        - valid_values: [ local, torque, slurm, sge, condor, mesos, kubernetes, nomad ]
+
+  tosca.capabilities.indigo.LRMS.Torque:
+    derived_from: tosca.capabilities.indigo.LRMS
+    properties:
+      type:
+        type: string
+        required: true
+        default: torque
+        constraints:
+          - equal: torque
+
+  tosca.capabilities.indigo.LRMS.Slurm:
+    derived_from: tosca.capabilities.indigo.LRMS
+    properties:
+      type:
+        type: string
+        required: true
+        default: slurm
+        constraints:
+          - equal: slurm
+
+  tosca.capabilities.indigo.LRMS.Kubernetes:
+    derived_from: tosca.capabilities.indigo.LRMS
+    properties:
+      type:
+        type: string
+        required: true
+        default: kubernetes
+        constraints:
+          - equal: kubernetes
+
+  tosca.capabilities.indigo.LRMS.Local:
+    derived_from: tosca.capabilities.indigo.LRMS
+    properties:
+      type:
+        type: string
+        required: true
+        default: local
+        constraints:
+          - equal: local
+
+  tosca.capabilities.indigo.LRMS.Mesos:
+    derived_from: tosca.capabilities.indigo.LRMS
+    properties:
+      type:
+        type: string
+        required: true
+        default: mesos
+        constraints:
+          - equal: mesos
+
+  tosca.capabilities.indigo.LRMS.Nomad:
+    derived_from: tosca.capabilities.indigo.LRMS
+    properties:
+      type:
+        type: string
+        required: true
+        default: nomad
+        constraints:
+          - equal: nomad
+
+  tosca.capabilities.indigo.Endpoint:
+    derived_from: tosca.capabilities.Endpoint
+    properties:
+      dns_name:
+        description: The optional name to register with DNS
+        type: string
+        required: false
+      additional_dns_names:
+        description: An optional list of DNS names to register to this endpoint
+        type: list
+        entry_schema:
+          type: string
+        required: false
+      private_ip:
+        description: Flag used to specify that this endpoint will require also a private IP although it is a public one.
+        type: boolean
+        required: false
+        default: true
+      ports:
+        type: map
+        description: The optional map of ports the Endpoint supports (if more than one).
+        required: false
+        constraints:
+          - min_length: 1
+        entry_schema:
+          type: tosca.datatypes.indigo.network.PortSpec
+      additional_ip:
+        description: The optional additional IP to set to the endpoint
+        type: string
+        required: false
+    attributes:
+      credential:
+        type: list
+        entry_schema:
+          type: tosca.datatypes.Credential
+
+artifact_types:
+
+  tosca.artifacts.Implementation.YAML:
+    derived_from: tosca.artifacts.Implementation
+    description: YAML Ansible recipe artifact
+    mime_type: text/yaml
+    file_ext: [ yaml, yml ]
+
+  tosca.artifacts.AnsibleGalaxy.role:
+    derived_from: tosca.artifacts.Root
+    description: Ansible Galaxy role to be deployed in the target node
+
+  tosca.artifacts.AnsibleGalaxy.collection:
+    derived_from: tosca.artifacts.Root
+    description: Ansible Galaxy collection to be installed in the target node
+
+relationship_types:
+
+  tosca.relationships.indigo.Manages:
+    derived_from: tosca.relationships.Root
+
+  tosca.relationships.indigo.AttachesTo:
+    derived_from: tosca.relationships.AttachesTo
+    properties:
+      fs_type:
+        type: string
+        required: false
+        default:
+
+node_types:
+
+  tosca.nodes.indigo.Compute:
+    derived_from: tosca.nodes.Compute
+    attributes:
+      private_address:
+        type: list
+        entry_schema:
+          type: string
+      public_address:
+        type: list
+        entry_schema:
+          type: string
+      ctxt_log:
+        type: string
+      ansible_output:
+        type: map
+        entry_schema:
+          type: tosca.datatypes.indigo.CtxtTask
+    properties:
+      os_users:
+        type: list
+        description: Users creation
+        entry_schema:
+          type: tosca.datatypes.indigo.User
+        default: []
+        required: false
+      tags:
+        type: map
+        description: Map of tags to associate to the Compute instance
+        entry_schema:
+          type: string
+        default: {}
+        required: false
+      instance_name:
+        type: string
+        description: Name to set the cloud instance associated to this Compute
+        default: ''
+        required: false
+    capabilities:
+      scalable:
+        type: tosca.capabilities.indigo.Scalable
+      os:
+         type: tosca.capabilities.indigo.OperatingSystem
+      endpoint:
+        type: tosca.capabilities.indigo.Endpoint
+      host:
+        type: tosca.capabilities.indigo.Container
+        valid_source_types: [tosca.nodes.SoftwareComponent]
+
+  tosca.nodes.ec3.Application:
+    derived_from: tosca.nodes.SoftwareComponent
+    capabilities:
+      endpoint:
+        type: tosca.capabilities.indigo.Endpoint
+
+  tosca.nodes.ec3.ElasticCluster:
+    derived_from: tosca.nodes.ec3.Application
+    properties:
+      secret_token:
+        type: string
+        description: Token to access CLUES web interface
+        default: not_very_secret_token
+        required: false
+      powermanager_plugin:
+        type: string
+        description: Plugin that will manage the VMs (indigo_orchestrator or im)
+        default: indigo_orchestrator
+        required: false
+      im_auth:
+        type: string
+        description: IM auth data
+        default: ""
+        required: false
+      config_options:
+        type: list
+        entry_schema:
+          type: map
+        description: CLUES config options
+        default:
+        - { section: 'scheduling', option: 'IDLE_TIME', value: '1800' }
+        - { section: 'scheduling', option: 'RECONSIDER_JOB_TIME', value: '120' }
+        - { section: 'monitoring', option: 'MAX_WAIT_POWERON', value: '3000' }
+        - { section: 'monitoring', option: 'MAX_WAIT_POWEROFF', value: '600' }
+        - { section: 'monitoring', option: 'PERIOD_LIFECYCLE', value: '10' }
+        - { section: 'monitoring', option: 'PERIOD_MONITORING_NODES', value: '2' }
+        - { section: 'client', option: 'CLUES_REQUEST_WAIT_TIMEOUT', value: '3000' }
+        required: false
+      kube_token:
+        type: string
+        description: Kubernetes admoin token
+        default: ""
+        required: false
+      kube_wn_cpus:
+        type: integer
+        description: Kubernetes WNs CPUs
+        default: 2
+        required: false
+      kube_wn_mem:
+        type: scalar-unit.size
+        description: Kubernetes WNs Memory
+        default: 4 GB
+        required: false
+    artifacts:
+      clues_role:
+        file: grycap.clues
+        type: tosca.artifacts.AnsibleGalaxy.role
+      im_role:
+        file: grycap.im
+        type: tosca.artifacts.AnsibleGalaxy.role
+    interfaces:
+      Standard:
+        create:
+          implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/ec3_install.yml
+          inputs:
+            clues_secret_token: { get_property: [ SELF, secret_token ] }
+            clues_queue_system: { get_property: [ SELF, lrms, type ] }
+            max_number_of_nodes: { get_property: [ SELF, wn, max_instances] }
+            clues_powermanager_plugin: { get_property: [ SELF, powermanager_plugin] }
+            auth: { get_property: [ SELF, im_auth] }
+            clues_git_branch: im_rest
+            clues_config_options: { get_property: [ SELF, config_options] }
+            clues_kube_token: { get_property: [ SELF, kube_token] }
+            KUBERNETES_NODE_MEMORY: { get_property: [ SELF, kube_wn_mem ] }
+            KUBERNETES_NODE_SLOTS: { get_property: [ SELF, kube_wn_cpus ] }
+    requirements:
+      - wn:
+          capability: tosca.capabilities.Scalable
+          node: tosca.nodes.indigo.LRMS.WorkerNode
+          relationship: tosca.relationships.indigo.Manages
+      - lrms:
+          capability: tosca.capabilities.indigo.LRMS
+          node: tosca.nodes.indigo.LRMS.FrontEnd
+          relationship: tosca.relationships.HostedOn
+
+  tosca.nodes.indigo.LRMS.WorkerNode:
+    derived_from: tosca.nodes.SoftwareComponent
+    properties:
+      front_end_ip:
+        type: string
+        description: IP of the Front-End node
+        required: true
+      public_front_end_ip:
+        type: string
+        description: Public IP of the Front-End node
+        required: false
+        default: ''
+    capabilities:
+        wn:
+          type: tosca.capabilities.Scalable
+          valid_source_types: [tosca.nodes.indigo.ElasticCluster]
+    requirements:
+      - host:
+          capability: tosca.capabilities.Container
+          node: tosca.nodes.Compute
+          relationship: tosca.relationships.HostedOn
+
+  tosca.nodes.indigo.LRMS.FrontEnd:
+    derived_from: tosca.nodes.SoftwareComponent
+    properties:
+      wn_ips:
+        type: list
+        entry_schema:
+          type: string
+        description: List of IPs of the WNs
+        required: false
+        default: []
+    capabilities:
+        lrms:
+          type: tosca.capabilities.indigo.LRMS
+    requirements:
+      - host:
+          capability: tosca.capabilities.Container
+          node: tosca.nodes.Compute
+          relationship: tosca.relationships.HostedOn
+
+  tosca.nodes.indigo.LRMS.FrontEnd.Local:
+    derived_from: tosca.nodes.indigo.LRMS.FrontEnd
+    capabilities:
+        lrms:
+          type: tosca.capabilities.indigo.LRMS.Local
+
+  tosca.nodes.indigo.LRMS.WorkerNode.Kubernetes:
+    derived_from: tosca.nodes.indigo.LRMS.WorkerNode
+    properties:
+      version:
+        required: no
+        type: string
+        default: "1.18.8"
+      nvidia_support:
+        required: no
+        type: boolean
+        default: false
+      cri_runtime:
+        required: no
+        type: string
+        default: "docker"
+        constraints:
+        - valid_values: [ docker, containerd ]
+    artifacts:
+      kube_role:
+        file: grycap.kubernetes
+        type: tosca.artifacts.AnsibleGalaxy.role
+      nfs_role:
+        file: grycap.nfs
+        type: tosca.artifacts.AnsibleGalaxy.role
+    interfaces:
+      Standard:
+        configure:
+          implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/lrms/kube_wn_install.yml
+          inputs:
+            kube_front_end_ip: { get_property: [ SELF, front_end_ip ] }
+            kube_version:  { get_property: [ SELF, version ] }
+            kube_nvidia_support:  { get_property: [ SELF, nvidia_support ] }
+            kube_cri_runtime: { get_property: [ SELF, cri_runtime ] }
+
+  tosca.nodes.indigo.LRMS.FrontEnd.Kubernetes:
+    derived_from: tosca.nodes.indigo.LRMS.FrontEnd
+    properties:
+      admin_username:
+        required: no
+        type: string
+        default: kubeuser
+      admin_token:
+        required: no
+        type: string
+        value: some_insecure_token
+      install_kubeapps:
+        required: no
+        type: boolean
+        default: false
+      install_metrics:
+        required: no
+        type: boolean
+        default: true
+      install_nfs_client:
+        required: no
+        type: boolean
+        default: true
+      nfs_client_path:
+        required: no
+        type: string
+        default: '/pv'
+      install_ingress:
+        required: no
+        type: boolean
+        default: true
+      install_dashboard:
+        required: no
+        type: boolean
+        default: true
+      install_yunikorn:
+        required: no
+        type: boolean
+        default: false
+      version:
+        required: no
+        type: string
+        default: "1.18.8"
+      nvidia_support:
+        required: no
+        type: boolean
+        default: false
+      cert_manager:
+        required: no
+        type: boolean
+        default: false
+      cert_user_email:
+        required: no
+        type: string
+        default: "jhondoe@server.com"
+      public_dns_name:
+        required: no
+        type: string
+        default: ""
+      cert_manager_challenge:
+        required: no
+        type: string
+        default: "http01"
+      cert_manager_challenge_dns01_domain:
+        required: no
+        type: string
+        default: ""
+      cert_manager_challenge_dns01_ak:
+        required: no
+        type: string
+        default: ""
+      cert_manager_challenge_dns01_sk:
+        required: no
+        type: string
+        default: ""
+      cert_manager_wildcard_cert_dns_name:
+        required: no
+        type: string
+        default: ""
+      cri_runtime:
+        required: no
+        type: string
+        default: "docker"
+        constraints:
+        - valid_values: [ docker, containerd ]
+    artifacts:
+      kube_role:
+        file: grycap.kubernetes
+        type: tosca.artifacts.AnsibleGalaxy.role
+      nfs_role:
+        file: grycap.nfs
+        type: tosca.artifacts.AnsibleGalaxy.role
+    capabilities:
+        lrms:
+          type: tosca.capabilities.indigo.LRMS.Kubernetes
+        endpoint:
+          type: tosca.capabilities.indigo.Endpoint
+        host:
+          type: tosca.capabilities.Container
+          valid_source_types: [ tosca.nodes.indigo.Helm.Chart ]
+    interfaces:
+      Standard:
+        configure:
+          implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/lrms/kube_fe_install.yml
+          inputs:
+            kube_front_end_ip: { get_attribute: [ HOST, private_address, 0 ] }
+            kube_admin_username:  { get_property: [ SELF, admin_username ] }
+            kube_admin_token:  { get_property: [ SELF, admin_token ] }
+            kube_install_kubeapps: { get_property: [ SELF, install_kubeapps ] }
+            kube_install_metrics:  { get_property: [ SELF, install_metrics ] }
+            kube_install_nfs_client:  { get_property: [ SELF, install_nfs_client ] }
+            kube_nfs_path:  { get_property: [ SELF, nfs_client_path ] }
+            kube_install_ingress:  { get_property: [ SELF, install_ingress ] }
+            kube_version:  { get_property: [ SELF, version ] }
+            kube_nvidia_support:  { get_property: [ SELF, nvidia_support ] }
+            kube_cert_manager:  { get_property: [ SELF, cert_manager ] }
+            kube_cert_user_email:  { get_property: [ SELF, cert_user_email ] }
+            kube_public_dns_name:  { get_property: [ SELF, public_dns_name ] }
+            kube_cert_manager_challenge: { get_property: [ SELF, cert_manager_challenge ] }
+            kube_cert_manager_challenge_dns01_domain: { get_property: [ SELF, cert_manager_challenge_dns01_domain ] }
+            kube_cert_manager_challenge_dns01_ak: { get_property: [ SELF, cert_manager_challenge_dns01_ak ] }
+            kube_cert_manager_challenge_dns01_sk: { get_property: [ SELF, cert_manager_challenge_dns01_sk ] }
+            kube_cert_manager_wildcard_cert_dns_name: { get_property: [ SELF, cert_manager_wildcard_cert_dns_name ] }
+            kube_cri_runtime: { get_property: [ SELF, cri_runtime ] }
+            kube_install_yunikorn: { get_property: [ SELF, install_yunikorn ] }
+            kube_deploy_dashboard: { get_property: [ SELF, install_dashboard ] }
+
+  tosca.nodes.indigo.LRMS.WorkerNode.Slurm:
+    derived_from: tosca.nodes.indigo.LRMS.WorkerNode
+    properties:
+      nfs:
+        type: boolean
+        description: Install and mount NFS
+        required: false
+        default: true
+    artifacts:
+      slurm_role:
+        file: grycap.slurm
+        type: tosca.artifacts.AnsibleGalaxy.role
+      nfs_role:
+        file: grycap.nfs
+        type: tosca.artifacts.AnsibleGalaxy.role
+    interfaces:
+      Standard:
+        configure:
+          implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/lrms/slurm_wn_install.yml
+          inputs:
+            slurm_front_end_ip: { get_property: [ SELF, front_end_ip ] }
+            slurm_public_front_end_ip: { get_property: [ SELF, public_front_end_ip ] }
+            slurm_nfs: { get_property: [ SELF, nfs ] }
+
+  tosca.nodes.indigo.LRMS.FrontEnd.Slurm:
+    derived_from: tosca.nodes.indigo.LRMS.FrontEnd
+    properties:
+      nfs:
+        type: boolean
+        description: Install and mount NFS
+        required: false
+        default: true
+      wn_num:
+        type: integer
+        description: Number of WNs
+        required: false
+        default: -1
+    artifacts:
+      slurm_role:
+        file: grycap.slurm
+        type: tosca.artifacts.AnsibleGalaxy.role
+      nfs_role:
+        file: grycap.nfs
+        type: tosca.artifacts.AnsibleGalaxy.role
+    capabilities:
+        lrms:
+          type: tosca.capabilities.indigo.LRMS.Slurm
+    interfaces:
+      Standard:
+        configure:
+          implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/lrms/slurm_fe_install.yml
+          inputs:
+            wn_num: { get_property: [ SELF, wn_num ] }
+            wn_ips: { get_property: [ SELF, wn_ips ] }
+            front_end_ip: { get_attribute: [ HOST, private_address, 0 ] }
+            max_number_of_nodes: { get_property: [ wn_node, wn, max_instances] }
+            slurm_nfs: { get_property: [ SELF, nfs ] }
+
+  tosca.nodes.indigo.GalaxyPortal:
+    derived_from: tosca.nodes.WebServer
+    properties:
+      admin_email:
+        type: string
+        description: email of the admin user
+        default: admin@admin.com
+        required: false
+      admin_password:
+        type: string
+        description: Password of the admin user
+        default: adminpass
+        required: false
+    requirements:
+      - lrms:
+          capability: tosca.capabilities.indigo.LRMS
+          node: tosca.nodes.indigo.LRMS.FrontEnd
+          relationship: tosca.relationships.HostedOn
+    capabilities:
+      endpoint:
+        type: tosca.capabilities.indigo.Endpoint
+    artifacts:
+      nfs_role:
+        file: grycap.nfs
+        type: tosca.artifacts.AnsibleGalaxy.role
+      galaxy_role:
+        file: grycap.galaxy
+        type: tosca.artifacts.AnsibleGalaxy.role
+    interfaces:
+      Standard:
+        configure:
+          implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/galaxy/galaxy_portal_install.yml
+          inputs:
+            galaxy_admin: { get_property: [ SELF, admin_email ] }
+            galaxy_admin_password: { get_property: [ SELF, admin_password ] }
+            galaxy_lrms: { get_property: [ SELF, lrms, type ] }
+            galaxy_server_name: { get_attribute: [ HOST, private_address, 0 ] }
+
+  tosca.nodes.indigo.GalaxyWN:
+    derived_from: tosca.nodes.SoftwareComponent
+    properties:
+      front_end_ip:
+        type: string
+        description: IP of the Front-End node
+        required: true
+    artifacts:
+      nfs_role:
+        file: grycap.nfs
+        type: tosca.artifacts.AnsibleGalaxy.role
+      galaxy_role:
+        file: grycap.galaxy
+        type: tosca.artifacts.AnsibleGalaxy.role
+    requirements:
+      - host:
+          capability: tosca.capabilities.Container
+          node: tosca.nodes.Compute
+          relationship: tosca.relationships.HostedOn
+    interfaces:
+      Standard:
+        configure:
+          implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/galaxy/galaxy_wn_configure.yml
+          inputs:
+            galaxy_front_end_ip: { get_property: [ SELF, front_end_ip ] }
+
+  tosca.nodes.indigo.LRMS.WorkerNode.Mesos:
+    derived_from: tosca.nodes.indigo.LRMS.WorkerNode
+    properties:
+      principal:
+        type: string
+        description: Mesos principal
+        required: false
+        default: mesosPrinc
+      secret:
+        type: string
+        description: Mesos Secret
+        required: false
+        default: mesosSecr
+    artifacts:
+      mesos_role:
+        file: grycap.mesos
+        type: tosca.artifacts.AnsibleGalaxy.role
+    interfaces:
+      Standard:
+        configure:
+          implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/lrms/mesos_wn_install.yml
+          inputs:
+            mesos_front_private_ip: { get_property: [ SELF, front_end_ip ] }
+            mesos_principal: { get_property: [ SELF, principal] }
+            mesos_secret: { get_property: [ SELF, secret] }
+
+  tosca.nodes.indigo.LRMS.FrontEnd.Mesos:
+    derived_from: tosca.nodes.indigo.LRMS.FrontEnd
+    properties:
+      principal:
+        type: string
+        description: Mesos principal
+        required: false
+        default: mesosPrinc
+      secret:
+        type: string
+        description: Mesos Secret
+        required: false
+        default: mesosSecr
+      marathon_username:
+        type: string
+        description: Marathon username
+        required: false
+        default: admin
+      marathon_password:
+        type: string
+        description: Marathon password
+        required: false
+        default: "secret!"
+      chronos_username:
+        type: string
+        description: Chronos username
+        required: false
+        default: admin
+      chronos_password:
+        type: string
+        description: Chronos password
+        required: false
+        default: "secret!"
+    artifacts:
+      mesos_role:
+        file: grycap.mesos
+        type: tosca.artifacts.AnsibleGalaxy.role
+      marathon_role:
+        file: grycap.marathon
+        type: tosca.artifacts.AnsibleGalaxy.role
+      chronos_role:
+        file: grycap.chronos
+        type: tosca.artifacts.AnsibleGalaxy.role
+    capabilities:
+        lrms:
+          type: tosca.capabilities.indigo.LRMS.Mesos
+        endpoint:
+          type: tosca.capabilities.indigo.Endpoint
+    interfaces:
+      Standard:
+        configure:
+          implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/lrms/mesos_fe_install.yml
+          inputs:
+            mesos_principal: { get_property: [ SELF, principal] }
+            mesos_secret: { get_property: [ SELF, secret] }
+            marathon_username: { get_property: [ SELF, marathon_username] }
+            marathon_password: { get_property: [ SELF, marathon_password] }
+            chronos_username: { get_property: [ SELF, chronos_username] }
+            chronos_password: { get_property: [ SELF, chronos_password] }
+
+  tosca.nodes.indigo.OSCAR:
+    derived_from: tosca.nodes.SoftwareComponent
+    properties:
+      minio_secretkey:
+        type: string
+        description: Secret key to access Minio
+        required: false
+        default: minio123
+        constraints:
+          - min_length: 8
+      password:
+        type: string
+        description: OSCAR password for basic auth
+        required: false
+        default: oscar123
+      dns_host:
+        type: string
+        description: DNS hostname for the ingress
+        required: false
+        default: "''"
+      minio_dns_host:
+        type: string
+        description: DNS hostname for the minio ingress
+        required: false
+        default: "''"
+      minio_dns_host_console:
+        type: string
+        description: DNS hostname for the minio console ingress
+        required: false
+        default: "''"
+      cert_manager_issuer:
+        type: string
+        description: Cert-manager issuer to automatically assign TLS certificates
+        required: false
+        default: "letsencrypt-prod"
+      oidc_enable:
+        type: boolean
+        description: Parameter to enable OpenID Connect support
+        required: false
+        default: false
+      yunikorn_enable:
+        type: boolean
+        description: Parameter to enable Apache YuniKorn support
+        required: false
+        default: false
+      oidc_subject:
+        type: string
+        description: OpenID Connect Subject (user identifier)
+        required: false
+        default: "letsencrypt-prod"
+      oidc_groups:
+        type: list
+        entry_schema:
+          type: string
+        description: OpenID group list to grant access in the cluster.
+        required: false
+        default: []
+    artifacts:
+      minio_role:
+        file: grycap.kubeminio
+        type: tosca.artifacts.AnsibleGalaxy.role
+      oscar_role:
+        file: grycap.kubeoscar
+        type: tosca.artifacts.AnsibleGalaxy.role
+      kubefaas_role:
+        file: grycap.kubefaas
+        type: tosca.artifacts.AnsibleGalaxy.role
+    capabilities:
+      endpoint:
+        type: tosca.capabilities.indigo.Endpoint
+      host:
+          type: tosca.capabilities.Container
+          valid_source_types: [ tosca.nodes.aisprint.FaaS.Function]
+    interfaces:
+      Standard:
+        configure:
+          implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/oscar/oscar_install.yml
+          inputs:
+            oscar_minio_secretkey: { get_property: [ SELF, minio_secretkey ] }
+            oscar_password: { get_property: [ SELF, password ] }
+            cert_manager_issuer: { get_property: [ SELF, cert_manager_issuer ] }
+            dns_host: { get_property: [ SELF, dns_host ] }
+            minio_dns_host: { get_property: [ SELF, minio_dns_host ] }
+            minio_dns_host_console: { get_property: [ SELF, minio_dns_host_console ] }
+            oidc_enable: { get_property: [ SELF, oidc_enable ] }
+            oidc_subject: { get_property: [ SELF, oidc_subject ] }
+            oidc_groups: { get_property: [ SELF, oidc_groups ] }
+            yunikorn_enable:  { get_property: [ SELF, yunikorn_enable ] }
+    requirements:
+      - host:
+          capability: tosca.capabilities.Container
+          node: tosca.nodes.indigo.LRMS.FrontEnd.Kubernetes
+          relationship: tosca.relationships.HostedOn
+
+  tosca.nodes.indigo.OphidiaServer:
+    derived_from: tosca.nodes.SoftwareComponent
+    properties:
+      io_ips:
+        type: list
+        entry_schema:
+          type: string
+        description: List of IPs of the Ophidia IO nodes
+        required: false
+        default: []
+    artifacts:
+      ophidia_role:
+        file: OphidiaBigData.ophidia-cluster
+        type: tosca.artifacts.AnsibleGalaxy.role
+      slurm_role:
+        file: grycap.slurm
+        type: tosca.artifacts.AnsibleGalaxy.role
+      nfs_role:
+        file: grycap.nfs
+        type: tosca.artifacts.AnsibleGalaxy.role
+    interfaces:
+      Standard:
+        configure:
+          implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/ophidia/ophidia_server_install.yml
+          inputs:
+            ophidia_io_ips: { get_property: [ SELF, io_ips ] }
+            ophidia_server_ip: { get_attribute: [ HOST, private_address, 0 ] }
+            ophidia_server_public_ip: { get_attribute: [ HOST, public_address, 0 ] }
+
+  tosca.nodes.indigo.OphidiaIO:
+    derived_from: tosca.nodes.SoftwareComponent
+    properties:
+      server_ip:
+        type: string
+        description: IP of the OphidiaServer node
+        required: true
+      server_public_ip:
+        type: string
+        description: Public IP of the OphidiaServer node
+        required: true
+    artifacts:
+      ophidia_role:
+        file: OphidiaBigData.ophidia-cluster
+        type: tosca.artifacts.AnsibleGalaxy.role
+      slurm_role:
+        file: grycap.slurm
+        type: tosca.artifacts.AnsibleGalaxy.role
+      nfs_role:
+        file: grycap.nfs
+        type: tosca.artifacts.AnsibleGalaxy.role
+    interfaces:
+      Standard:
+        configure:
+          implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/ophidia/ophidia_io_install.yml
+          inputs:
+            ophidia_server_ip: { get_property: [ SELF, server_ip ] }
+            ophidia_server_public_ip: { get_property: [ SELF, server_public_ip ] }
+
+  tosca.nodes.indigo.OneProvider:
+    derived_from: tosca.nodes.SoftwareComponent
+    properties:
+      contact_email:
+        type: string
+        description: Contact Email
+        required: false
+        default: admin@admin.com
+      name:
+        type: string
+        description: Name of the provider
+        required: true
+      subdomain_onezone:
+        type: string
+        description: DNS onezone subdomain
+        required: true
+      registration_token:
+        type: string
+        description: DataHub registration token. Get it from https://datahub.egi.eu/  -> Clusters -> (+) Add a new Oneprovider Cluster (One single use)
+        required: true
+      onezone_api_key:
+        type: string
+        description: DataHub API Key. Get it from https://datahub.egi.eu/ -> Tokens.
+        required: true
+      oneplanel_emergency_passphrase:
+        type: string
+        description: oneplanel_emergency_passphrase
+        required: true
+      spaces:
+        type: list
+        entry_schema:
+          type: map
+        description: "List of spaces to be added to the provider (Each item with: id, name and size in Bytes)"
+        required: true
+      domain_onezone:
+        type: string
+        description: Set the domain of the OneZone
+        required: false
+        default: datahub.egi.eu # Set EGI DataHub onezone
+      namespace:
+        type: string
+        description: Set the namespace
+        required: false
+        default: production
+      geo_position:
+        type: list
+        description: Longitud and latitude of the geoposition of the provider
+        required: no
+        entry_schema:
+          type: float
+#        constraints:
+#          - max_length: 2
+#          - min_length: 2
+        default: [39.46975, -0.37739]
+      version:
+        type: string
+        description: Version/Tag of the docker images of the OneProvider
+        required: false
+        default: "19.02.1"
+    artifacts:
+      nfs_role:
+        file: grycap.nfs,nfs4
+        type: tosca.artifacts.AnsibleGalaxy.role
+    capabilities:
+        endpoint:
+          type: tosca.capabilities.indigo.Endpoint
+    requirements:
+      - host:
+          capability: tosca.capabilities.Container
+          node: tosca.nodes.indigo.LRMS.FrontEnd.Kubernetes
+          relationship: tosca.relationships.HostedOn
+    interfaces:
+      Standard:
+        configure:
+          implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/onedata/oneprovider.yml
+          inputs:
+            onedata_contact_email: { get_property: [ SELF, contact_email ] }
+            onedata_name: { get_property: [ SELF, name ] }
+            onedata_subdomain_onezone: { get_property: [ SELF, subdomain_onezone ] }
+            onedata_registration_token: { get_property: [ SELF, registration_token ] }
+            onedata_onezone_api_key: { get_property: [ SELF, onezone_api_key ] }
+            oneplanel_emergency_passphrase: { get_property: [ SELF, oneplanel_emergency_passphrase ] }
+            onedata_spaces: { get_property: [ SELF, spaces ] }
+            onedata_domain_onezone: { get_property: [ SELF, domain_onezone ] }
+            onedata_namespace: { get_property: [ SELF, namespace ] }
+            onedata_geo_position: { get_property: [ SELF, geo_position ] }
+            onedata_version: { get_property: [ SELF, version ] }
+
+  tosca.nodes.indigo.OneDataStorage:
+    derived_from: tosca.nodes.BlockStorage
+    properties:
+      size:
+        # to overwrite BlockStorage size property to set it as not required
+        type: scalar-unit.size
+        required: false
+      oneprovider_host:
+        type: list
+        entry_schema:
+          type: string
+        required: false
+      onezone_endpoint:
+        type: string
+        required: false
+      dataspace:
+        type: list
+        entry_schema:
+          type: string
+        required: false
+      credential:
+        type: tosca.datatypes.Credential
+        required: true
+
+  tosca.nodes.indigo.HadoopMaster:
+    derived_from: tosca.nodes.SoftwareComponent
+    artifacts:
+      hadoop_role:
+        file: grycap.hadoop
+        type: tosca.artifacts.AnsibleGalaxy.role
+    interfaces:
+      Standard:
+        configure:
+          implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/hadoop/hadoop_master_install.yml
+          inputs:
+            hadoop_master_ip: { get_attribute: [ HOST, private_address, 0 ] }
+
+  tosca.nodes.indigo.HadoopSlave:
+    derived_from: tosca.nodes.SoftwareComponent
+    properties:
+      master_ip:
+        required: yes
+        type: string
+    artifacts:
+      hadoop_role:
+        file: grycap.hadoop
+        type: tosca.artifacts.AnsibleGalaxy.role
+    interfaces:
+      Standard:
+        configure:
+          implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/hadoop/hadoop_wn_install.yml
+          inputs:
+            hadoop_master_ip: { get_property: [ SELF, master_ip ] }
+
+  tosca.nodes.indigo.GlusterFSVolume:
+    derived_from: tosca.nodes.BlockStorage
+    properties:
+      size:
+        # to overwrite BlockStorage size property to set it as not required
+        type: scalar-unit.size
+        required: false
+      wn_ips:
+        type: list
+        entry_schema:
+          type: string
+        description: List of IPs of the GlusteFS nodes (WNs)
+        required: false
+        default: []
+      fe_ip:
+        type: list
+        entry_schema:
+          type: string
+        description: IP of the GlusteFS nodes (FE)
+        required: false
+        default: []
+      brick_dir:
+        type: string
+        description: Set the gluster brid dir
+        required: true
+        default: /data
+      brick_name:
+        type: string
+        description: Set the gluster brid name
+        required: false
+        default: brick_name
+      replicas:
+        type: integer
+        description: Numner of replicas
+        required: false
+        default: 2
+      options:
+        type: map
+        entry_schema:
+          type: string
+        description: A dictionary/hash with options/settings for the volume.
+        required: false
+        default: {}
+
+  tosca.nodes.indigo.LRMS.FrontEnd.Storm:
+    derived_from: tosca.nodes.indigo.LRMS.FrontEnd
+    properties:
+      version:
+        required: no
+        type: string
+        default: "2.2.0"
+      zk_version:
+        required: no
+        type: string
+        default: "3.6.2"
+    artifacts:
+      storm_role:
+        file: grycap.storm
+        type: tosca.artifacts.AnsibleGalaxy.role
+    interfaces:
+      Standard:
+        configure:
+          implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/storm/fe-install.yml
+          inputs:
+            storm_version: { get_property: [ SELF, version ] }
+            zk_version: { get_property: [ SELF, zk_version ] }
+
+  tosca.nodes.indigo.LRMS.WorkerNode.Storm:
+    derived_from: tosca.nodes.indigo.LRMS.WorkerNode
+    properties:
+      num_supervisors:
+        required: no
+        type: integer
+        description: the number of supervisors in this WN
+        default: 1
+      version:
+        required: no
+        type: string
+        default: "2.2.0"
+    artifacts:
+      storm_role:
+        file: grycap.storm
+        type: tosca.artifacts.AnsibleGalaxy.role
+    interfaces:
+      Standard:
+        configure:
+          implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/storm/wn-install.yml
+          inputs:
+            storm_front_end_ip: { get_property: [ SELF, front_end_ip ] }
+            storm_version: { get_property: [ SELF, version ] }
+            num_supervisors: { get_property: [ SELF, num_supervisors ] }
+
+  tosca.nodes.indigo.LRMS.FrontEnd.Nomad:
+    derived_from: tosca.nodes.indigo.LRMS.FrontEnd
+    artifacts:
+      nomad_role:
+        file: grycap.nomad
+        type: tosca.artifacts.AnsibleGalaxy.role
+      consul_role:
+        file: grycap.consul
+        type: tosca.artifacts.AnsibleGalaxy.role
+    capabilities:
+        lrms:
+          type: tosca.capabilities.indigo.LRMS.Nomad
+        endpoint:
+          type: tosca.capabilities.indigo.Endpoint
+    interfaces:
+      Standard:
+        configure:
+          implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/lrms/nomad_fe_install.yml
+
+  tosca.nodes.indigo.LRMS.WorkerNode.Nomad:
+    derived_from: tosca.nodes.indigo.LRMS.WorkerNode
+    artifacts:
+      nomad_role:
+        file: grycap.nomad
+        type: tosca.artifacts.AnsibleGalaxy.role
+    interfaces:
+      Standard:
+        configure:
+          implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/lrms/nomad_wn_install.yml
+          inputs:
+            nomad_server_ip: { get_property: [ SELF, front_end_ip ] }
+
+  tosca.nodes.indigo.Helm.Chart:
+    derived_from: tosca.nodes.ec3.Application
+    properties:
+      repository_name:
+        type: string
+        description: The Helm repository name
+        required: true
+      repository_url:
+        type: string
+        description: The Helm repository URL
+        required: true
+      name:
+        type: string
+        description: The chart name
+        required: true
+      version:
+        type: string
+        description: The chart version
+        required: false
+        default: latest
+      namespace:
+        type: string
+        description: The Helm namespace
+        required: false
+      values:
+        type: map
+        description: A dictionary/hash of values.
+        required: false
+        entry_schema:
+          description: The values to use
+          type: string
+        default: {}
+      values_file:
+        type: string
+        description: Contents of the values file
+        required: false
+        default: ""
+    capabilities:
+      endpoint:
+        type: tosca.capabilities.indigo.Endpoint
+    requirements:
+      - host:
+          capability: tosca.capabilities.Container
+          node: tosca.nodes.indigo.LRMS.FrontEnd.Kubernetes
+          relationship: tosca.relationships.HostedOn
+    interfaces:
+      Standard:
+        configure:
+          implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/lrms/helm_chart.yml
+          inputs:
+            helm_repo_name: { get_property: [ SELF, repository_name ] }
+            helm_repo_url: { get_property: [ SELF, repository_url ] }
+            helm_app_name: { get_property: [ SELF, name ] }
+            helm_version: { get_property: [ SELF, version ] }
+            helm_values: { get_property: [ SELF, values ] }
+            helm_namespace: { get_property: [ SELF, namespace ] }
+            helm_values_file: { get_property: [ SELF, values_file ] }
+
+  tosca.nodes.ec3.DNSRegistry:
+    derived_from: tosca.nodes.SoftwareComponent
+    properties:
+      record_name:
+        type: string
+        description: The name of the record to add in the domain
+        required: true
+      domain_name:
+        type: string
+        description: Domain name to register the record
+        required: false
+        default: "grycap.net"
+      dns_service:
+        type: string
+        description: DNS service name to use
+        required: false
+        default: Route53
+      dns_service_credentials:
+        type: tosca.datatypes.Credential
+        description: Credentials neede to access the DNS service
+        required: false
+    requirements:
+      - host:
+          capability: tosca.capabilities.Container
+          node: tosca.nodes.indigo.LRMS.FrontEnd.Kubernetes
+          relationship: tosca.relationships.HostedOn
+    interfaces:
+      Standard:
+        configure:
+          implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/dns_registry.yml
+          inputs:
+            record_name: { get_property: [ SELF, record_name ] }
+            domain_name: { get_property: [ SELF, domain_name ] }
+            dns_service: { get_property: [ SELF, dns_service ] }
+            dns_service_credentials: { get_property: [ SELF, dns_service_credentials ] }
+            ip_address: { get_attribute: [ HOST, public_address, 0 ] }
+
+
+  tosca.nodes.im.AnsibleHost:
+    derived_from: tosca.nodes.Root
+    properties:
+      host:
+        type: string
+        description: The dns name or IP of the Ansible host
+        required: true
+      credential:
+        type: tosca.datatypes.Credential
+        description: SSH credentials to access Ansible host
+        required: true
+
+  tosca.nodes.indigo.network.Network:
+    derived_from: tosca.nodes.network.Network
+    properties:
+      proxy_host:
+        type: string
+        required: false
+      proxy_credential:
+        type: tosca.datatypes.Credential
+        required: false
+
+  tosca.nodes.indigo.KubernetesObject:
+    derived_from: tosca.nodes.Root
+    properties:
+      spec:
+        type: string
+        description: The YAML description of the K8s object
+        required: true
+    requirements:
+      - host:
+          capability: tosca.capabilities.Container
+          node: tosca.nodes.indigo.LRMS.FrontEnd.Kubernetes
+          relationship: tosca.relationships.HostedOn
+    interfaces:
+      Standard:
+        configure:
+          implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/lrms/k8s_object.yml
+          inputs:
+            k8s_spec: { get_property: [ SELF, spec ] }
+
+  tosca.nodes.indigo.network.Port:
+    derived_from: tosca.nodes.network.Port 
+    properties:
+      dns_name:
+        description: The optional name to register with DNS
+        type: string
+        required: false
+      additional_dns_names:
+        description: An optional list of DNS names to register to this port
+        type: list
+        entry_schema:
+          type: string
+        required: false
+      additional_ip:
+        description: The optional additional IP to set to the endpoint
+        type: string
+        required: false
+
+  tosca.nodes.aisprint.FaaS.Function:
+    derived_from: tosca.nodes.Root
+    attributes:
+      endpoint:
+        type: string
+      credential:
+        type: tosca.datatypes.Credential
+    properties:
+      name:
+        type: string
+        required: true
+      memory:
+        type: string
+        required: true
+      cpu:
+        type: float
+        required: false
+        default: 1.0
+      enable_gpu:
+        type: boolean
+        required: false
+        default: false
+      image:
+        type: string
+        required: true
+      script:
+        type: string
+        required: true
+      alpine:
+        type: boolean
+        required: false
+        default: false
+      env_variables:
+        type: map
+        entry_schema:
+          type: string
+        default: {}
+        required: false
+      input:
+        type: list
+        entry_schema:
+          type: tosca.datatypes.oscar.StorageIOConfig
+        default: []
+        required: false
+      output:
+        type: list
+        entry_schema:
+          type: tosca.datatypes.oscar.StorageIOConfig
+        default: []
+        required: false
+      storage_providers:
+        type: tosca.datatypes.oscar.StorageProviders
+        required: false
+      image_pull_secrets:
+        type: list
+        entry_schema:
+          type: string
+        default: []
+        required: false
+    requirements:
+      - host:
+          capability: tosca.capabilities.Container
+          relationship: tosca.relationships.HostedOn
+          node: tosca.nodes.indigo.OSCAR
+          occurrences: [0, 1]
+    capabilities:
+      scalable:
+        type: tosca.capabilities.indigo.Scalable
+
+  tosca.nodes.indigo.AnsibleRecipe:
+    derived_from: tosca.nodes.ec3.Application
+    properties:
+      tasks:
+        type: list
+        entry_schema:
+          type: map
+        description: The YAML Ansible task list
+        required: true
+        default: []
+    interfaces:
+      Standard:
+        configure:
+          implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/ansible_tasks.yml
+          inputs:
+            ansible_tasks: { get_property: [ SELF, tasks ] }
+            ansible_name: { get_attribute: [ SELF, tosca_name ] }
+
+  tosca.nodes.indigo.KubernetesSecretRegistry:
+    derived_from: tosca.nodes.Root
+    properties:
+      name:
+        type: string
+        description: Name of the secret
+        required: true
+      namespace:
+        type: string
+        description: Namespace of the secret
+        required: false
+        default: default
+      server:
+        type: string
+        description: Docker Registry FQDN
+        required: true
+      username:
+        type: string
+        description: Docker registry username
+        required: true
+      password:
+        type: string
+        description: Docker registry password
+        required: true
+      email:
+        type: string
+        description: Docker registry email
+        required: false
+        default: "jhondoe@server.com"
+    requirements:
+      - host:
+          capability: tosca.capabilities.Container
+          node: tosca.nodes.indigo.LRMS.FrontEnd.Kubernetes
+          relationship: tosca.relationships.HostedOn
+    interfaces:
+      Standard:
+        configure:
+          implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/lrms/k8s_secret_registry.yml
+          inputs:
+            k8s_secret_name: { get_property: [ SELF, name ] }
+            k8s_secret_namespace: { get_property: [ SELF, namespace ] }
+            k8s_secret_server: { get_property: [ SELF, server ] }
+            k8s_secret_username: { get_property: [ SELF, username ] }
+            k8s_secret_password: { get_property: [ SELF, password ] }
+            k8s_secret_email: { get_property: [ SELF, email ] }
+
+policy_types:
+
+  tosca.policies.indigo.Placement:
+    derived_from: tosca.policies.Placement
+    properties:
+      cloud_id:
+        required: true
+        type: string
+      availability_zone:
+        required: false
+        type: string
+        default: 

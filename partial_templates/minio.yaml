@@ -1,0 +1,65 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+imports:
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+
+description: Launch MinIO server on top of a Kubernetes Virtual Cluster.
+
+metadata:
+  version: "1.0.0"
+  name: MinIO
+  display_name: Launch MinIO server on top of a Kubernetes Virtual Cluster
+  icon: images/k8s_minio.png
+  parents:
+    - kubernetes.yaml
+
+topology_template:
+  inputs:
+ 
+    minio_accesskey:
+      type: string
+      description: Access key credential for object storage and web access
+      default: minio
+    minio_secretkey:
+      type: string
+      description: Secret key credential for object storage and web access
+      default: minio123
+      constraints:
+        - min_length: 8
+
+  node_templates:
+
+    minio:
+      type: tosca.nodes.ec3.Application
+      capabilities:
+        endpoint:
+          properties:
+            ports:
+              minio_api:
+                protocol: tcp
+                source: 30300
+              minio_console:
+                protocol: tcp
+                source: 30303
+      artifacts:
+        docker_role:
+          file: grycap.kubeminio
+          type: tosca.artifacts.AnsibleGalaxy.role
+      interfaces:
+        Standard:
+          configure:
+            implementation:  https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/minio.yml
+            inputs:
+                minio_accesskey: { get_input: minio_accesskey }
+                minio_secretkey: { get_input: minio_secretkey }
+                enable_tls: true
+      requirements:
+        - host: front
+        - dependency: lrms_front_end
+
+  outputs:
+    minio_api_endpoint:
+      value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], ':30300/' ] }
+    minio_console_endpoint:
+      value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], ':30303/' ] }
+
