@@ -3,12 +3,12 @@ tosca_definitions_version: tosca_simple_yaml_1_0
 imports:
   - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
 
-description: Launch an InfluxDB on top of a Kubernetes Virtual Cluster.
+description: Deploy an InfluxDB on top of a Kubernetes Virtual Cluster.
 
 metadata:
   version: "1.0.0"
   name: InfluxDB
-  display_name: Launch an InfluxDB on top of a Kubernetes Virtual Cluster
+  display_name: Deploy an InfluxDB on top of a Kubernetes Virtual Cluster
   icon: images/k8s_influxdb.png
   parents:
    - kubernetes.yaml

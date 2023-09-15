@@ -6,7 +6,7 @@ imports:
 metadata:
   version: "1.0.0"
   name: Apache Airflow
-  display_name: Launch Apache Airflow on top of a Kubernetes Virtual Cluster
+  display_name: Deploy Apache Airflow on top of a Kubernetes Virtual Cluster
   icon: images/airflow.png
   parents:
     - kubernetes.yaml

@@ -6,7 +6,7 @@ imports:
 metadata:
   version: "1.0.0"
   name: Binderhub
-  display_name: Launch Binderhub on top of a Kubernetes Virtual Cluster
+  display_name: Deploy Binderhub on top of a Kubernetes Virtual Cluster
   icon: https://binderhub.readthedocs.io/en/latest/_static/logo.png
   parents:
     - kubernetes.yaml

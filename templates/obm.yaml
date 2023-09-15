@@ -3,11 +3,11 @@
   imports:
   - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
   
-  description: Launch a OpenBioMaps server with a compute node
+  description: Deploy a OpenBioMaps server with a compute node
   
   metadata:
     version: "0.1.0"
-    display_name: Launch a OpenBioMaps portal and Compute node
+    display_name: Deploy a OpenBioMaps portal and Compute node
     icon: images/obm.png
     tag: beta
 

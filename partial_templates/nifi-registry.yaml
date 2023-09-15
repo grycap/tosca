@@ -3,12 +3,12 @@ tosca_definitions_version: tosca_simple_yaml_1_0
 imports:
   - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
 
-description: Launch an Apache Nifi Registry on top of a Kubernetes Virtual Cluster.
+description: Deploy an Apache Nifi Registry on top of a Kubernetes Virtual Cluster.
 
 metadata:
   version: "1.0.0"
   name: Nifi Registry
-  display_name: Launch Apache NiFi registry on top of a Kubernetes Virtual Cluster
+  display_name: Deploy Apache NiFi registry on top of a Kubernetes Virtual Cluster
   icon: images/nifi-registry.png
   parents:
    - kubernetes.yaml
