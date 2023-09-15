@@ -3,6 +3,8 @@ tosca_definitions_version: tosca_simple_yaml_1_0
 imports:
   - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
 
+description: Launch an OSCAR Virtual Cluster.
+
 metadata:
   version: "1.0.0"
   display_name: Launch an OSCAR Virtual Cluster
@@ -13,8 +15,6 @@ metadata:
     - oscar_elastic.yaml
     - oscar_function.yaml
     - prometheus.yaml
-
-description: Template for launching an OSCAR Virtual Cluster.
 
 topology_template:
   inputs:
