@@ -3,7 +3,7 @@
   imports:
   - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
   
-  description: TOSCA template for deploying a OpenBioMaps server with a compute node
+  description: Deploy a OpenBioMaps server with a compute node
   
   metadata:
     version: "0.1.0"

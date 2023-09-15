@@ -3,12 +3,12 @@ tosca_definitions_version: tosca_simple_yaml_1_0
 imports:
   - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
 
-description: Launch a FaaS function on top of the OSCAR Virtual Cluster
+description: Deploy a FaaS function on top of the OSCAR Virtual Cluster
 
 metadata:
   version: "1.0.0"
   name: OSCAR Function
-  display_name: Launch a FaaS function on top of the OSCAR Virtual Cluster
+  display_name: Deploy a FaaS function on top of the OSCAR Virtual Cluster
   icon: images/oscar.png
   tag: FaaS
   parents:

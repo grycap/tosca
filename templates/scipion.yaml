@@ -2,7 +2,7 @@ tosca_definitions_version: tosca_simple_yaml_1_0
 imports:
   - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
 description: >
-  Launch a cluster with Scipion via VNC
+  Deploy a cluster with Scipion via VNC
 metadata:
   version: "1.0.0"
   display_name: Scipion on SLURM cluster

@@ -3,12 +3,12 @@ tosca_definitions_version: tosca_simple_yaml_1_0
 imports:
   - ec3_custom_types: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/custom_types.yaml
 
+description: Deploy an Apache Storm cluster
+
 metadata:
   version: "1.0.0"
-  display_name: Launch a Storm Virtual Cluster
+  display_name: Deploy a Storm Virtual Cluster
   icon: images/storm.png
-
-description: Deploys an Apache Storm cluster
 
 topology_template:
   inputs:

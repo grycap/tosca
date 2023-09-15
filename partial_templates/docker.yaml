@@ -4,7 +4,7 @@ imports:
   - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
 
 description: >
-  Launch a set of computing nodes with Docker and Docker Compose installed.
+  Deploy a set of computing nodes with Docker and Docker Compose installed.
 
 metadata:
   version: "1.0.0"

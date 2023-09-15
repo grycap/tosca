@@ -3,12 +3,12 @@ tosca_definitions_version: tosca_simple_yaml_1_0
 imports:
   - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
 
-description: Launch a Galaxy Server using a local LRMS.
+description: Deploy a Galaxy Server using a local LRMS.
 
 metadata:
   version: "1.0.0"
   name: Galaxy
-  display_name: Launch a Galaxy portal
+  display_name: Deploy a Galaxy portal
   icon: images/galaxy.png
   tag: SW
   tag_color: blue

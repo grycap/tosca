@@ -3,12 +3,12 @@ tosca_definitions_version: tosca_simple_yaml_1_0
 imports:
   - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
 
-description: Launch the eflows4hpc image creation service on a VM
+description: Deploy the eflows4hpc image creation service on a VM
 
 metadata:
   version: "1.0.0"
   name: eflows4hpc image creation service
-  display_name: Launch the flows4hpc image creation service on a VM
+  display_name: Deploy the flows4hpc image creation service on a VM
   icon: images/eflows4HPCcics.png
   parents:
     - simple-node-disk.yml

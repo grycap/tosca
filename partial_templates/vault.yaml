@@ -3,12 +3,12 @@ tosca_definitions_version: tosca_simple_yaml_1_0
 imports:
   - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
 
-description: Launch Hashicorp Vault on top of a Kubernetes Virtual Cluster.
+description: Deploy Hashicorp Vault on top of a Kubernetes Virtual Cluster.
 
 metadata:
   version: "1.0.0" 
   name: Vault
-  display_name: Launch Hashicorp Vault on top of a Kubernetes Virtual Cluster
+  display_name: Deploy Hashicorp Vault on top of a Kubernetes Virtual Cluster
   icon: images/vault.png
   parents:
    - kubernetes.yaml

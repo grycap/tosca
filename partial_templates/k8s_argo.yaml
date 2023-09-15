@@ -5,7 +5,7 @@ imports:
 
 metadata:
   version: "1.0.0"
-  display_name: Launch Argo Workflows on top of a Kubernetes Virtual Cluster
+  display_name: Deploy Argo Workflows on top of a Kubernetes Virtual Cluster
   icon: images/k8s_argo.png
   link: 
     parent: kubernetes.yaml
