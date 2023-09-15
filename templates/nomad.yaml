@@ -80,7 +80,6 @@ topology_template:
             network_name: PUBLIC
         host:
           properties:
-            instance_type: { get_input: fe_instance_type }
             num_cpus: { get_input: fe_cpus }
             mem_size: { get_input: fe_mem }
         os:
@@ -104,7 +103,6 @@ topology_template:
             count: { get_input: wn_num }
         host:
           properties:
-            instance_type: { get_input: wn_instance_type }
             num_cpus: { get_input: wn_cpus }
             mem_size: { get_input: wn_mem }
         os:
