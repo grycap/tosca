@@ -1,0 +1,22 @@
+---
+- hosts: localhost
+  connection: local
+  vars:
+     vnode_prefix: vnode-
+  pre_tasks:
+  - set_fact:
+      KUBERNETES_TOKEN: "{{ clues_kube_token }}"
+    when: clues_kube_token != ""
+  roles:
+  - role: grycap.im
+  - role: grycap.clues
+  tasks:
+  - name: Set IM plugin IM_VIRTUAL_CLUSTER_TOSCA to True
+    ini_file: dest=/etc/clues2/conf.d/plugin-im.cfg section="IM VIRTUAL CLUSTER" option=IM_VIRTUAL_CLUSTER_TOSCA value="True"
+    notify: restart cluesd
+  - name: Download is_cluster_ready
+    get_url:
+      url: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/is_cluster_ready
+      dest: /bin/is_cluster_ready
+      mode: 0755
+

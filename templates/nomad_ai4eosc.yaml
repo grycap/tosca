@@ -82,7 +82,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/lrms/nomad_ai4eosc_fe_install.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/lrms/nomad_ai4eosc_fe_install.yml
             inputs:
               nomad_server_list: { get_attribute: [ front, private_address ] }
 
@@ -121,7 +121,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/lrms/nomad_ai4eosc_wn_install.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/lrms/nomad_ai4eosc_wn_install.yml
             inputs:
               nomad_server_list: { get_attribute: [ front, private_address ] }
 

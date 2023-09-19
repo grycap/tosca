@@ -35,7 +35,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/kubeflow.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/kubeflow.yml
             inputs:
               kubeflow_user: { get_input: kubeflow_user }
               kubeflow_pass: { get_input: kubeflow_pass }

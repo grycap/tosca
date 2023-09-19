@@ -34,6 +34,6 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/cernvmfs.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/cernvmfs.yml
             inputs:
               cernvmfs_repositories: { get_input: cernvmfs_repositories }

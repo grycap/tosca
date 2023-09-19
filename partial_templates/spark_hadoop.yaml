@@ -28,7 +28,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/spark/spark_install.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/spark/spark_install.yml
 
     spark_master:
       type: tosca.nodes.SoftwareComponent
@@ -41,4 +41,4 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/spark/spark_install.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/spark/spark_install.yml

@@ -1,0 +1,183 @@
+- hosts: local
+  connection: local
+  vars:
+    NAMESPACE: ai-sprint-monitoring
+    INFLUX_ORG: "{{ REMOTE_INFLUX_ORG | default('aisprint') }}"
+    INFLUX_BUCKET: "{{ REMOTE_INFLUX_BUCKET | default('bucket') }}"
+  tasks:
+  - name: Create the ai-sprint-monitoring and oscar-svc ns file spec
+    copy:
+      content: |
+          ---
+          apiVersion: v1
+          kind: Namespace
+          metadata:
+            name: oscar-svc
+          ---
+          apiVersion: v1
+          kind: Namespace
+          metadata:
+            name: {{NAMESPACE}}
+      dest: /tmp/ai_ns.yml
+
+  - name: Create ai-sprint-monitoring ns
+    command: kubectl apply -f /tmp/ai_ns.yml
+    environment:
+      KUBECONFIG: /etc/kubernetes/admin.conf
+
+  - name: Create dir /opt/monitoring-subsystem 
+    file: path=/opt/monitoring-subsystem state=directory mode=755
+
+  - name: Download monitoring chart
+    get_url:
+#      url: https://gist.github.com/msoczewka/4e3065d061ee2ee5c25f304464e83f53/raw/7b1c9edaa4e09f0ceb8aeeef5575501b7a818f43/ai-sprint-monit-chart.tar.gz
+      url: https://gist.github.com/msoczewka/4e3065d061ee2ee5c25f304464e83f53/raw/d540597024c863d3f895118510fe10527d4d0554/ai-sprint-monit-chart.tar.gz
+      dest: /opt/monitoring-subsystem/ai-sprint-monit-chart.tar.gz
+
+  - name: Create Helm Chart values
+    copy:
+      dest: /tmp/ai-values.yml
+      content: |
+        grafana:
+          ingress:
+            enabled: false
+        influxdb:
+          ingress:
+            enabled: false
+    when: LOCAL_INFLUX_HOSTNAME is not defined or LOCAL_INFLUX_HOSTNAME == '' 
+
+  - name: Create Helm Chart values
+    copy:
+      dest: /tmp/ai-values.yml
+      content: |
+        grafana:
+          ingress:
+            enabled: false
+        influxdb:
+          auth:
+            admin:
+              password: "{{ LOCAL_INFLUX_PASS | default('aisprintPASS') }}"
+              token: "{{ LOCAL_INFLUX_TOKEN | default('aisprintTOKEN') }}"
+          ingress:
+            enabled: true
+            hostname: "{{ LOCAL_INFLUX_HOSTNAME | default('') }}"
+            tls: true
+            certManager: true
+            annotations:
+              kubernetes.io/ingress.class: nginx
+              cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    when: LOCAL_INFLUX_HOSTNAME is defined and LOCAL_INFLUX_HOSTNAME != '' 
+ 
+  - name: Check if chart is installed
+    command: helm status ai-sprint-monit-chart -n {{ NAMESPACE }}
+    register: helm_status
+    ignore_errors: yes
+    changed_when: false
+  
+  - name: Install Helm ai-sprint-monit-chart
+    command: helm install ai-sprint-monit-chart ai-sprint-monit-chart.tar.gz -n {{ NAMESPACE }} -f /tmp/ai-values.yml --wait
+    args:
+      chdir: /opt/monitoring-subsystem/
+    environment:
+      KUBECONFIG: /etc/kubernetes/admin.conf
+    when: helm_status.rc != 0
+
+  - name: Create AMS core config file
+    copy:
+      dest: /opt/monitoring-subsystem/monitoring.yaml
+      content: |
+        monitoring:
+          metrics:
+            mem: {}
+            cpu: {}
+            system: {}
+            processes: {}
+            swap: {}
+            kernel: {}
+            disk:
+              ignore_fs: "[\"hostfs\", \"tmpfs\", \"devtmpfs\", \"devfs\", \"iso9660\", \"overlay\", \"aufs\", \"squashfs\"]"
+            diskio: {}
+            kubernetes: {}
+          time_period: 20s
+          parameters:
+            performance_metrics_time_window_width: 120s
+            default_notification_endpoint: http://ai-sprint-monit-notification-server:5000/constraint
+          alerts: {}
+
+  - name: Get AMS manager pod name
+    command: kubectl get pods -n {{ NAMESPACE }} -l=app=ai-sprint-monit-manager -o jsonpath='{.items[0].metadata.name}'
+    environment:
+      KUBECONFIG: /etc/kubernetes/admin.conf
+    register: amm_pod_name
+
+  - name: Copy AMS core config file
+    command: kubectl cp monitoring.yaml -n {{ NAMESPACE }} {{ amm_pod_name.stdout }}:/home/templates/monitoring_setup.yaml
+    args:
+      chdir: /opt/monitoring-subsystem/
+    environment:
+      KUBECONFIG: /etc/kubernetes/admin.conf
+
+  - name: Setup AMS core
+    command: kubectl exec -n {{ NAMESPACE }} {{ amm_pod_name.stdout }} -- ./setup_monitoring.sh
+    environment:
+      KUBECONFIG: /etc/kubernetes/admin.conf
+    register: mon_out
+
+  - debug:
+      var: mon_out.stdout_lines
+
+  - name: Create App QoS Constraints file
+    copy:
+      dest: /opt/monitoring-subsystem/qos_constraints.yaml
+      content: "{{ QOS_CONSTRAINTS }}"
+    register: qos_file
+    when: QOS_CONSTRAINTS is defined and QOS_CONSTRAINTS != '' 
+
+  - name: Copy AMS App QoS Constraints file
+    command: kubectl cp qos_constraints.yaml -n {{ NAMESPACE }} {{ amm_pod_name.stdout }}:/home/templates/qos_constraints.yaml
+    args:
+      chdir: /opt/monitoring-subsystem/
+    environment:
+      KUBECONFIG: /etc/kubernetes/admin.conf
+    when: QOS_CONSTRAINTS is defined and QOS_CONSTRAINTS != '' and qos_file is changed
+
+  - name: Setup AMS app (execute it twice as workaround)
+    shell: kubectl exec -n {{ NAMESPACE }} {{ amm_pod_name.stdout }} -- ./setup_app.sh -n oscar-svc; sleep 1; kubectl exec -n {{ NAMESPACE }} {{ amm_pod_name.stdout }} -- ./setup_app.sh  -n oscar-svc
+    environment:
+      KUBECONFIG: /etc/kubernetes/admin.conf
+    when: QOS_CONSTRAINTS is defined and QOS_CONSTRAINTS != '' and qos_file is changed
+    register: app_out
+
+  - debug:
+      var: app_out.stdout_lines
+    when: app_out is defined
+
+  - block:
+
+    - name: Create AMS sync config file
+      copy:
+        dest: /opt/monitoring-subsystem/sync.yaml
+        content: |
+          remote:
+            url: {{ REMOTE_INFLUX_URL }}
+            org: {{ INFLUX_ORG }}
+            token: {{ REMOTE_INFLUX_TOKEN }}
+            bucket: {{ INFLUX_BUCKET }}
+      register: sync_file
+
+    - name: Copy AMS sync file
+      command: kubectl cp /opt/monitoring-subsystem/sync.yaml -n {{ NAMESPACE }} {{ amm_pod_name.stdout }}:remote_influx_sync.yaml
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+
+    - name: Setup AMS sync
+      command: kubectl exec -n {{ NAMESPACE }} {{ amm_pod_name.stdout }} -- ./setup_sync.sh
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+      register: sys_out
+      when: sync_file is changed
+
+    - debug:
+        var: sys_out.stdout_lines
+
+    when: REMOTE_INFLUX_URL is defined and REMOTE_INFLUX_URL != '' and REMOTE_INFLUX_TOKEN is defined and REMOTE_INFLUX_TOKEN  != ''

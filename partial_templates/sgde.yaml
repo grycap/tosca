@@ -39,7 +39,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation:  https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/sgde_compose.yml
+            implementation:  https://raw.githubusercontent.com/grycap/tosca/main/artifacts/sgde_compose.yml
             inputs:
               sgde_jwt_secret: { get_input: sgde_jwt_secret }
       requirements:

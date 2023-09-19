@@ -48,7 +48,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation:  https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/minio.yml
+            implementation:  https://raw.githubusercontent.com/grycap/tosca/main/artifacts/minio.yml
             inputs:
                 minio_accesskey: { get_input: minio_accesskey }
                 minio_secretkey: { get_input: minio_secretkey }

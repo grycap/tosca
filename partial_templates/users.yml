@@ -35,6 +35,6 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/create_users.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/create_users.yml
             inputs:
               user_num: { get_input: user_num }

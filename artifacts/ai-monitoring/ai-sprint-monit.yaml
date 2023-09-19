@@ -1,0 +1,123 @@
+- hosts: local
+  connection: local
+  vars:
+    NAMESPACE: ai-sprint-monitoring
+    REGISTRY: https://registry.gitlab.polimi.it
+    DNS_BASE_NAME: "{{ dns_name | default('ai-sprint.local') }}"
+  tasks:
+  - name: Create the ai-sprint-monitoring ns file spec
+    copy:
+      content: |
+          apiVersion: v1
+          kind: Namespace
+          metadata:
+            name: {{NAMESPACE}}
+      dest: /tmp/ai_ns.yml
+
+  - name: Create ai-sprint-monitoring ns
+    command: kubectl apply -f /tmp/ai_ns.yml
+    environment:
+      KUBECONFIG: /etc/kubernetes/admin.conf
+
+  - name: Create registry credentials
+    command: kubectl create secret docker-registry registry-credentials --docker-server={{ REGISTRY }} --docker-username={{ GITLAB_REGISTRY_TOKEN }} --docker-password={{ GITLAB_REGISTRY_TOKEN }} --docker-email={{ GITLAB_REGISTRY_EMAIL }} --namespace={{ NAMESPACE }}
+    environment:
+      KUBECONFIG: /etc/kubernetes/admin.conf
+    ignore_errors: yes
+
+  - name: Download monitoring-subsystem git repo
+    git:
+      repo: "https://{{ GITLAB_REPO_TOKEN }}:{{ GITLAB_REPO_TOKEN }}@gitlab.polimi.it/ai-sprint/monitoring-subsystem.git"
+      dest: /opt/monitoring-subsystem
+      version: master
+
+  - name: Install Helm Chart
+    copy:
+      dest: /tmp/ai-values.yml
+      content: |
+        grafana:
+          adminPassword: {{ grafana_admin_password }}
+          ingress:
+            ingressClassName: nginx
+            enabled: true
+            annotations:
+              cert-manager.io/cluster-issuer: "letsencrypt-prod"
+            hosts:
+              - grafana.{{ DNS_BASE_NAME }}
+            tls:
+              - secretName: grafana.{{ DNS_BASE_NAME }}
+                hosts:
+                  - grafana.{{ DNS_BASE_NAME }}
+        influxdb:
+          ingress:
+            ingressClassName: nginx
+            enabled: true
+            hostname: influxdb.{{ DNS_BASE_NAME }}
+            annotations:
+              cert-manager.io/cluster-issuer: "letsencrypt-prod"
+            extraTls:
+             - hosts:
+                 - influxdb.{{ DNS_BASE_NAME }}
+               secretName: influxdb.{{ DNS_BASE_NAME }}
+          auth:
+            admin:
+              username: {{ admin_username }}
+              password: {{ admin_password }}
+              token: {{ admin_token }}
+              org: {{ org_name }}
+              bucket: {{ bucket_name }}
+        elasticsearch:
+          ingress:
+            enabled: true
+            hosts:
+              - host: elasticsearch.{{ DNS_BASE_NAME }}
+                paths:
+                  - path: /
+            tls:
+              - secretName: elasticsearch.{{ DNS_BASE_NAME }}
+                hosts:
+                  - elasticsearch.{{ DNS_BASE_NAME }}
+          volumeClaimTemplate:
+            storageClassName: null
+        kibana:
+          ingress:
+            enabled: true
+            hosts:
+              - host: kibana.{{ DNS_BASE_NAME }}
+                paths:
+                  - path: /
+            tls:
+              - secretName: kibana.{{ DNS_BASE_NAME }}
+                hosts:
+                  - kibana.{{ DNS_BASE_NAME }}
+            telegraf-ds:
+              config:
+                outputs:
+                  - influxdb:
+                      urls:
+                        - "http://influxdb.{{NAMESPACE}}.svc:8086"
+ 
+  - name: Check if chart is installed
+    command: helm status ai-sprint-monit-chart -n {{ NAMESPACE }}
+    register: helm_status
+    ignore_errors: yes
+    changed_when: false
+ 
+  - block:
+  
+    - name: Install Helm Chart
+      command: helm install ai-sprint-monit-chart AI-Sprint-Monitoring-1.0.0.tgz -n {{ NAMESPACE }} -f /tmp/ai-values.yml
+      args:
+        chdir: /opt/monitoring-subsystem/deliverables
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+      async: 600
+      poll: 5
+      ignore_errors: yes
+      register: helm_install
+
+    - name: Install Helm Chart
+      command: helm uninstall --namespace {{ NAMESPACE }} ai-sprint-monit-chart
+      when: helm_install is failed
+
+    when: helm_status.rc != 0

@@ -43,7 +43,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation:  https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/ai4eosc.yml
+            implementation:  https://raw.githubusercontent.com/grycap/tosca/main/artifacts/ai4eosc.yml
             inputs:
               ai4eosc_model_image: { get_input: ai4eosc_model_image }
       requirements:

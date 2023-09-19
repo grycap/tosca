@@ -42,7 +42,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation:  https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/download_data.yml
+            implementation:  https://raw.githubusercontent.com/grycap/tosca/main/artifacts/download_data.yml
             inputs:
               data_url: { get_input: data_url }
               k8s_pvc_namespace: { get_input: pvc_namespace }
