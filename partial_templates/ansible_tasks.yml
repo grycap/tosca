@@ -36,7 +36,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation:  https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/ansible_tasks.yml
+            implementation:  https://raw.githubusercontent.com/grycap/tosca/main/artifacts/ansible_tasks.yml
             inputs:
                 ansible_tasks: { get_input: ansible_tasks }
                 ansible_url: { get_input: ansible_url }

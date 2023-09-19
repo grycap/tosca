@@ -60,7 +60,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/docker.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/docker.yml
             inputs:
               docker_nvidia_support: { get_input: nvidia_support }
               docker_nvidia_driver_version: { get_input: driver_version }

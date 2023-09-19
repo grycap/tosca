@@ -28,7 +28,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/registry.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/registry.yml
             inputs:
               type_of_node: 'front'
 
@@ -44,7 +44,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/registry.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/registry.yml
             inputs:
               type_of_node: 'wn'
 

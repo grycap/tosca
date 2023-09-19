@@ -1,0 +1,77 @@
+---
+- hosts: localhost
+  connection: local
+  tasks:
+  - name: Install Git
+    package: name=git
+
+  - name: Git clone SQAaaS repo
+    git:
+      repo: https://github.com/EOSC-synergy/SQAaaS
+      dest: /tmp/SQAaaS
+      version: dev-micafer
+      update: no
+
+  - name: Set github token
+    copy:
+      content: "{{ sqaaas_gh_token }}"
+      dest: /tmp/SQAaaS/k8s/.gh_token
+
+  - name: Set jenkins token
+    copy:
+      content: "{{ sqaaas_jk_token }}"
+      dest: /tmp/SQAaaS/k8s/.jk_token
+
+  - name: Set sqaaas.ini file
+    copy:
+      content: |
+        [DEFAULT]
+        repository_backend = {{sqaaas_repo_type}}
+        # db_file = /sqaaas/sqaaas.json
+        [jenkins]
+        url = {{sqaaas_jenkins_url}}
+        user = {{sqaaas_jenkins_admin}}
+        github_organization_name = {{sqaaas_jenkins_github_org_name}}
+        # token = /etc/sqaaas/.jk_token
+        [github]
+        organization = {{sqaaas_github_org}}
+        # token = /etc/sqaaas/.gh_token
+      dest: /tmp/SQAaaS/k8s/sqaaas.ini
+
+  - name: Set web vue_app_backend_host
+    replace:
+      path: /tmp/SQAaaS/k8s/sqaaas-web.yaml
+      regexp: '\{\{vue_app_backend_host\}\}'
+      replace: "{{ IM_NODE_PUBLIC_IP }}"
+
+  - name: Deploy SQAaaS platform
+    command: kubectl apply -k k8s
+    args:
+      chdir: /tmp/SQAaaS
+
+  - block:
+
+    - name: Set BADGRSERVER_IP
+      replace:
+        path: /tmp/SQAaaS/k8s_badgr/badgr.yaml
+        regexp: 'BADGRSERVER_IP'
+        replace: "{{ IM_NODE_PUBLIC_IP }}"
+
+    - name: Set BADGRSERVER_IP
+      replace:
+        path: /tmp/SQAaaS/k8s_badgr/badgr.sql
+        regexp: 'BADGRSERVER_IP'
+        replace: "{{ IM_NODE_PUBLIC_IP }}"
+
+    - name: Create self signed certs
+      command:
+        cmd: openssl req -nodes -new -x509 -keyout server.key -out server.crt -days 365 -subj '/CN=kubeserver'
+        chdir: /tmp/SQAaaS/k8s_badgr/
+        creates: /tmp/SQAaaS/k8s_badgr/server.key
+
+    - name: Deploy Badgr services
+      command: kubectl apply -k k8s_badgr
+      args:
+        chdir: /tmp/SQAaaS
+
+    when: install_badgr is defined and install_badgr | bool

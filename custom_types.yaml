@@ -433,7 +433,7 @@ node_types:
     interfaces:
       Standard:
         create:
-          implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/ec3_install.yml
+          implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/ec3_install.yml
           inputs:
             clues_secret_token: { get_property: [ SELF, secret_token ] }
             clues_queue_system: { get_property: [ SELF, lrms, type ] }
@@ -529,7 +529,7 @@ node_types:
     interfaces:
       Standard:
         configure:
-          implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/lrms/kube_wn_install.yml
+          implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/lrms/kube_wn_install.yml
           inputs:
             kube_front_end_ip: { get_property: [ SELF, front_end_ip ] }
             kube_version:  { get_property: [ SELF, version ] }
@@ -639,7 +639,7 @@ node_types:
     interfaces:
       Standard:
         configure:
-          implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/lrms/kube_fe_install.yml
+          implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/lrms/kube_fe_install.yml
           inputs:
             kube_front_end_ip: { get_attribute: [ HOST, private_address, 0 ] }
             kube_admin_username:  { get_property: [ SELF, admin_username ] }
@@ -681,7 +681,7 @@ node_types:
     interfaces:
       Standard:
         configure:
-          implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/lrms/slurm_wn_install.yml
+          implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/lrms/slurm_wn_install.yml
           inputs:
             slurm_front_end_ip: { get_property: [ SELF, front_end_ip ] }
             slurm_public_front_end_ip: { get_property: [ SELF, public_front_end_ip ] }
@@ -713,7 +713,7 @@ node_types:
     interfaces:
       Standard:
         configure:
-          implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/lrms/slurm_fe_install.yml
+          implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/lrms/slurm_fe_install.yml
           inputs:
             wn_num: { get_property: [ SELF, wn_num ] }
             wn_ips: { get_property: [ SELF, wn_ips ] }
@@ -752,7 +752,7 @@ node_types:
     interfaces:
       Standard:
         configure:
-          implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/galaxy/galaxy_portal_install.yml
+          implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/galaxy/galaxy_portal_install.yml
           inputs:
             galaxy_admin: { get_property: [ SELF, admin_email ] }
             galaxy_admin_password: { get_property: [ SELF, admin_password ] }
@@ -781,7 +781,7 @@ node_types:
     interfaces:
       Standard:
         configure:
-          implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/galaxy/galaxy_wn_configure.yml
+          implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/galaxy/galaxy_wn_configure.yml
           inputs:
             galaxy_front_end_ip: { get_property: [ SELF, front_end_ip ] }
 
@@ -805,7 +805,7 @@ node_types:
     interfaces:
       Standard:
         configure:
-          implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/lrms/mesos_wn_install.yml
+          implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/lrms/mesos_wn_install.yml
           inputs:
             mesos_front_private_ip: { get_property: [ SELF, front_end_ip ] }
             mesos_principal: { get_property: [ SELF, principal] }
@@ -862,7 +862,7 @@ node_types:
     interfaces:
       Standard:
         configure:
-          implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/lrms/mesos_fe_install.yml
+          implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/lrms/mesos_fe_install.yml
           inputs:
             mesos_principal: { get_property: [ SELF, principal] }
             mesos_secret: { get_property: [ SELF, secret] }
@@ -947,7 +947,7 @@ node_types:
     interfaces:
       Standard:
         configure:
-          implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/oscar/oscar_install.yml
+          implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/oscar/oscar_install.yml
           inputs:
             oscar_minio_secretkey: { get_property: [ SELF, minio_secretkey ] }
             oscar_password: { get_property: [ SELF, password ] }
@@ -988,7 +988,7 @@ node_types:
     interfaces:
       Standard:
         configure:
-          implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/ophidia/ophidia_server_install.yml
+          implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/ophidia/ophidia_server_install.yml
           inputs:
             ophidia_io_ips: { get_property: [ SELF, io_ips ] }
             ophidia_server_ip: { get_attribute: [ HOST, private_address, 0 ] }
@@ -1018,7 +1018,7 @@ node_types:
     interfaces:
       Standard:
         configure:
-          implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/ophidia/ophidia_io_install.yml
+          implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/ophidia/ophidia_io_install.yml
           inputs:
             ophidia_server_ip: { get_property: [ SELF, server_ip ] }
             ophidia_server_public_ip: { get_property: [ SELF, server_public_ip ] }
@@ -1097,7 +1097,7 @@ node_types:
     interfaces:
       Standard:
         configure:
-          implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/onedata/oneprovider.yml
+          implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/onedata/oneprovider.yml
           inputs:
             onedata_contact_email: { get_property: [ SELF, contact_email ] }
             onedata_name: { get_property: [ SELF, name ] }
@@ -1144,7 +1144,7 @@ node_types:
     interfaces:
       Standard:
         configure:
-          implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/hadoop/hadoop_master_install.yml
+          implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/hadoop/hadoop_master_install.yml
           inputs:
             hadoop_master_ip: { get_attribute: [ HOST, private_address, 0 ] }
 
@@ -1161,7 +1161,7 @@ node_types:
     interfaces:
       Standard:
         configure:
-          implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/hadoop/hadoop_wn_install.yml
+          implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/hadoop/hadoop_wn_install.yml
           inputs:
             hadoop_master_ip: { get_property: [ SELF, master_ip ] }
 
@@ -1227,7 +1227,7 @@ node_types:
     interfaces:
       Standard:
         configure:
-          implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/storm/fe-install.yml
+          implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/storm/fe-install.yml
           inputs:
             storm_version: { get_property: [ SELF, version ] }
             zk_version: { get_property: [ SELF, zk_version ] }
@@ -1251,7 +1251,7 @@ node_types:
     interfaces:
       Standard:
         configure:
-          implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/storm/wn-install.yml
+          implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/storm/wn-install.yml
           inputs:
             storm_front_end_ip: { get_property: [ SELF, front_end_ip ] }
             storm_version: { get_property: [ SELF, version ] }
@@ -1274,7 +1274,7 @@ node_types:
     interfaces:
       Standard:
         configure:
-          implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/lrms/nomad_fe_install.yml
+          implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/lrms/nomad_fe_install.yml
 
   tosca.nodes.indigo.LRMS.WorkerNode.Nomad:
     derived_from: tosca.nodes.indigo.LRMS.WorkerNode
@@ -1285,7 +1285,7 @@ node_types:
     interfaces:
       Standard:
         configure:
-          implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/lrms/nomad_wn_install.yml
+          implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/lrms/nomad_wn_install.yml
           inputs:
             nomad_server_ip: { get_property: [ SELF, front_end_ip ] }
 
@@ -1337,7 +1337,7 @@ node_types:
     interfaces:
       Standard:
         configure:
-          implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/lrms/helm_chart.yml
+          implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/lrms/helm_chart.yml
           inputs:
             helm_repo_name: { get_property: [ SELF, repository_name ] }
             helm_repo_url: { get_property: [ SELF, repository_url ] }
@@ -1376,7 +1376,7 @@ node_types:
     interfaces:
       Standard:
         configure:
-          implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/dns_registry.yml
+          implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/dns_registry.yml
           inputs:
             record_name: { get_property: [ SELF, record_name ] }
             domain_name: { get_property: [ SELF, domain_name ] }
@@ -1422,7 +1422,7 @@ node_types:
     interfaces:
       Standard:
         configure:
-          implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/lrms/k8s_object.yml
+          implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/lrms/k8s_object.yml
           inputs:
             k8s_spec: { get_property: [ SELF, spec ] }
 
@@ -1536,7 +1536,7 @@ node_types:
     interfaces:
       Standard:
         configure:
-          implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/ansible_tasks.yml
+          implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/ansible_tasks.yml
           inputs:
             ansible_tasks: { get_property: [ SELF, tasks ] }
             ansible_name: { get_attribute: [ SELF, tosca_name ] }
@@ -1578,7 +1578,7 @@ node_types:
     interfaces:
       Standard:
         configure:
-          implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/lrms/k8s_secret_registry.yml
+          implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/lrms/k8s_secret_registry.yml
           inputs:
             k8s_secret_name: { get_property: [ SELF, name ] }
             k8s_secret_namespace: { get_property: [ SELF, namespace ] }

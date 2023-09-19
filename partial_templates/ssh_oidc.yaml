@@ -50,7 +50,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/ssh_oidc.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/ssh_oidc.yml
             inputs:
               ssh_oidc_my_vo: { get_input: ssh_oidc_my_vo }
               ssh_oidc_other_vos: { get_input: ssh_oidc_other_vos }

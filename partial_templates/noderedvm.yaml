@@ -48,7 +48,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation:  https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/nodered_compose.yml
+            implementation:  https://raw.githubusercontent.com/grycap/tosca/main/artifacts/nodered_compose.yml
             inputs:
               nodered_client_user: { get_input: nodered_admin_username }
               nodered_client_pass: { get_input: nodered_admin_password }

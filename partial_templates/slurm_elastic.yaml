@@ -48,12 +48,12 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/refresh_install.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/refresh_install.yml
             inputs:
                 CLIENT_ID: client_id
                 CLIENT_SECRET: client_secret
           start:
-            implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/use_external_im.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/use_external_im.yml
 
     lrms_front_end:
       type: tosca.nodes.indigo.LRMS.FrontEnd.Slurm

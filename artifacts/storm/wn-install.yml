@@ -1,0 +1,4 @@
+- hosts: localhost
+  roles:
+    - role: grycap.storm
+      storm_type_of_node: wn

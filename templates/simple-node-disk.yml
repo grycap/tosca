@@ -117,7 +117,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/dummy.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/dummy.yml
       requirements:
         - local_storage:
             node: my_block_storage

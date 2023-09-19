@@ -39,7 +39,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation:  https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/kafka_k8s.yml
+            implementation:  https://raw.githubusercontent.com/grycap/tosca/main/artifacts/kafka_k8s.yml
             inputs:
               kafka_jaas_user: { get_input: kafka_user }
               kafka_jaas_password: { get_input: kafka_pass }

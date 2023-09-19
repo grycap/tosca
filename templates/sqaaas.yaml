@@ -130,7 +130,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/sqaaas_install.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/sqaaas_install.yml
             inputs:
               sqaaas_jk_token: { get_input: sqaaas_jk_token }
               sqaaas_gh_token: { get_input: sqaaas_gh_token }

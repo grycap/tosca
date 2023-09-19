@@ -33,6 +33,6 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/nvidia.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/nvidia.yml
             inputs:
               nvidia_driver_branch: { get_input: driver_version }

@@ -75,7 +75,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/enes/enes.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/enes/enes.yml
             inputs:
               enes_dns_name: { get_input: kube_public_dns_name }
               storage_size: { get_input: storage_size }

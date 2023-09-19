@@ -101,7 +101,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/ec3/tosca/tosca/artifacts/eflows4hpc/image_creation.yaml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/eflows4hpc/image_creation.yaml
             inputs:
               HTTPS: { get_input: enable_https }
               WORKFLOW_REGISTRY_GIT: { get_input: workflow_registry_git }
