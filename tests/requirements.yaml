@@ -1,0 +1,30 @@
+---
+roles:
+  - name: indigo-dc.jupyterhub
+  - name: grycap.spark
+  - name: grycap.storm
+  - name: grycap.docker
+  - name: OphidiaBigData.ophidia-cluster
+  - name: grycap.nfs
+  - name: grycap.galaxy
+  - name: grycap.kubeminio
+  - name: grycap.hadoop
+  - name: grycap.im
+  - name: grycap.clues
+  - name: grycap.ssh
+  - name: geerlingguy.glusterfs
+  - name: nvidia.nvidia_driver
+  - name: grycap.htcondor
+  - name: grycap.kubernetes
+  - name: grycap.nomad
+  - name: grycap.slurm
+  - name: grycap.mesos
+  - name: grycap.marathon
+  - name: grycap.chronos
+  - name: grycap.consul
+  - name: grycap.nomad
+  - name: grycap.kubefaas
+  - name: grycap.kubeoscar
+
+collections:
+  - name: community.crypto
