@@ -3,15 +3,16 @@ tosca_definitions_version: tosca_simple_yaml_1_0
 imports:
   - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
 
-description: Deploy InfluxDB on top of a Kubernetes Virtual Cluster.
+description: Deploy a Galaxy Server using a local LRMS.
 
 metadata:
   version: "1.0.0"
-  display_name: Deploy InfluxDB on top of a Kubernetes Virtual Cluster
-  icon: images/k8s_influxdb.png
+  display_name: Deploy a Galaxy portal
+  icon: images/galaxy.png
+  tag: VM
   link: 
-    parent: kubernetes.yaml
+    parents: simple-node-disk.yml
     childs:
-      - influxdb.yaml
+      - galaxy.yaml
 
 topology_template: {}
