@@ -22,9 +22,9 @@ for path, _, files in os.walk(directory):
             print("Template: " + name)
             template = yaml.full_load(stream)
             if "metadata" in template and "parents" in template["metadata"]:
-                parent = template["metadata"]["parents"][0]
-                print("Parent: " + parent)
-                with io.open(os.path.abspath(os.path.join(path, "..", "templates", parent))) as pstream:
-                    parent_template = yaml.full_load(pstream)
-                    full_template = _merge_templates(template, parent_template)
-                    ToscaTemplate(yaml_dict_tpl=full_template)
+                for parent in template["metadata"]["parents"]:
+                    print("Parent: " + parent)
+                    with io.open(os.path.abspath(os.path.join(path, "..", "templates", parent))) as pstream:
+                        parent_template = yaml.full_load(pstream)
+                        full_template = _merge_templates(template, parent_template)
+                        ToscaTemplate(yaml_dict_tpl=full_template)
