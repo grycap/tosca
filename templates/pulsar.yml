@@ -7,6 +7,7 @@ description: >
   TOSCA for configuring a Pulsar endpoint
 
 metadata:
+  version: "1.0.0"
   name: Pulsar
   display_name: Configure a Pulsar endpoint
   icon: images/pulsar.png
@@ -35,5 +36,3 @@ topology_template:
       requirements:
         - lrms: lrms_front_end
         - host: lrms_server
-
-  outputs:

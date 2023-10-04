@@ -8,6 +8,7 @@ description: >
 
 
 metadata:
+  version: "1.0.0"
   display_name: HTCondor virtual cluster
   icon: images/htcondor.png
   childs:
