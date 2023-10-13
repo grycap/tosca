@@ -78,9 +78,11 @@
                 networks:
                     - frontend
                     - backend
-                command: mlflow server --backend-store-uri mysql+pymysql://{{ MYSQL_USER }}:{{ MYSQL_PASSWORD }}@db:3306/{{ MYSQL_DATABASE }} --host 0.0.0.0 --default-artifact-root /mlartifacts
+                command: mlflow server --app-name basic-auth --backend-store-uri mysql+pymysql://{{ MYSQL_USER }}:{{ MYSQL_PASSWORD }}@db:3306/{{ MYSQL_DATABASE }} --host 0.0.0.0 --default-artifact-root /mlartifacts
                 volumes:
                   - ./mlartifacts:/mlartifacts
+                  - ./basic_auth.ini:/usr/local/lib/python3.8/site-packages/mlflow/server/auth/basic_auth.ini
+                  - ./mlflow/auth_db:/auth_db
             nginx:
                 restart: always
                 image: nginx
@@ -103,6 +105,17 @@
             backend:
                 driver: bridge
       dest: /opt/mlflow/docker-compose.yaml
+
+  - name: Create mlflow basic_auth.ini file
+    copy:
+      content: |
+        [mlflow]
+        default_permission = READ
+        database_uri = sqlite:///auth_db/basic_auth.db
+        admin_username = {{ mlflow_admin_user }}
+        admin_password = {{ mlflow_admin_password }}
+        authorization_function = mlflow.server.auth:authenticate_request_basic_auth
+      dest: /opt/mlflow/basic_auth.ini
 
   - name: Create nginx.conf file
     copy:
@@ -182,9 +195,9 @@
   - name: Create mlflow/Dockerfile file
     copy:
       content: |
-        FROM python:3.7-slim-buster
+        FROM python:3.8-slim-buster
         # Install python packages
-        RUN pip install mlflow boto3 pymysql
+        RUN pip install "mlflow>=2.7.1" boto3 pymysql
       dest: /opt/mlflow/mlflow/Dockerfile
 
   - name: docker-compose up
