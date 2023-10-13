@@ -16,6 +16,20 @@ description: TOSCA template for deploying MLFlow on a VM
 
 topology_template:
 
+  inputs:
+
+    mlflow_admin_user:
+      type: string
+      description: MLFlow Admin server Username
+      default: admin
+      required: yes
+
+    mlflow_admin_password:
+      type: string
+      description: MLFlow Admin server Password
+      default: password
+      required: yes
+
   node_templates:
 
     mlflow:
@@ -38,6 +52,11 @@ topology_template:
         Standard:
           configure:
             implementation:  https://raw.githubusercontent.com/grycap/tosca/main/artifacts/mlflow_compose.yml
+            inputs:
+              admin_pass:
+                get_input: mlflow_admin_user
+              admin_pass:
+                get_input: mlflow_admin_password
       requirements:
         - host: simple_node
 
