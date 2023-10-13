@@ -53,9 +53,9 @@ topology_template:
           configure:
             implementation:  https://raw.githubusercontent.com/grycap/tosca/main/artifacts/mlflow_compose.yml
             inputs:
-              admin_pass:
+              mlflow_admin_user:
                 get_input: mlflow_admin_user
-              admin_pass:
+              mlflow_admin_password:
                 get_input: mlflow_admin_password
       requirements:
         - host: simple_node
