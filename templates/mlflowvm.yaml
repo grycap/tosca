@@ -102,4 +102,5 @@ topology_template:
   outputs:
     mlflow_endpoint:
       value: { concat: [ 'https://', get_attribute: [ simple_node, public_address, 0 ], '/' ] }
-
+    mlflow_dns_endpoint:
+      value: { concat: [ 'https://', get_input: mlflow_dns_hostname, '/' ] }
