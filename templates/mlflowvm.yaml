@@ -66,6 +66,9 @@ topology_template:
               https:
                 protocol: tcp
                 source: 443
+              http:
+                protocol: tcp
+                source: 80
       interfaces:
         Standard:
           configure:
