@@ -77,6 +77,8 @@ topology_template:
                 get_input: mlflow_admin_password
               mlflow_dns_hostname:
                 get_input: mlflow_dns_hostname
+              mlflow_cert_email:
+                get_input: mlflow_cert_email
       requirements:
         - host: simple_node
         - dependency: nsupdate_mlflow
