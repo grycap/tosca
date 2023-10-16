@@ -42,6 +42,12 @@ topology_template:
       default: 'johndoe@server.com'
       required: no
 
+    mlflow_nsupdate_secret:
+      default: ''
+      description: Secret generated when registering DNS name via https://nsupdate.fedcloud.eu/
+      type: string
+      required: no
+
   node_templates:
 
     mlflow:
@@ -71,6 +77,23 @@ topology_template:
                 get_input: mlflow_admin_password
               mlflow_dns_hostname:
                 get_input: mlflow_dns_hostname
+      requirements:
+        - host: simple_node
+        - dependency: nsupdate_mlflow
+
+    nsupdate_mlflow:
+      type: tosca.nodes.ec3.Application
+      interfaces:
+        Standard:
+          configure:
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/dydns_egi_update.yml
+            inputs:
+              dydns_hostname:
+                get_input: mlflow_dns_hostname
+              dydns_secret:
+                get_input: mlflow_nsupdate_secret
+              new_ip:
+                get_attribute: [ simple_node, public_address, 0 ]
       requirements:
         - host: simple_node
 
