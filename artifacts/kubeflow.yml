@@ -38,7 +38,7 @@
   - name: Install kustomize 5.0.0
     unarchive:
       src: https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv5.0.0/kustomize_v5.0.0_linux_amd64.tar.gz
-      dest: /opt/kustomize
+      dest: /opt/
       remote_src: yes
     when: VERSION == "v1.7.0"
 
