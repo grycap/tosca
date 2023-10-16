@@ -5,5 +5,14 @@ inputs:
   mlflow_admin_password:
       tab: MLFlow Data
 
+  mlflow_dns_hostname:
+    tab: MLFlow Data
+
+  mlflow_nsupdate_secret:
+    tab: MLFlow Data
+
+  mlflow_cert_email:
+    tab: MLFlow Data
+
 tabs:
   - MLFlow Data

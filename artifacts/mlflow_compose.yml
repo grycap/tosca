@@ -6,6 +6,7 @@
     MYSQL_USER: mlflow
     MYSQL_PASSWORD: mlflowpass
     MYSQL_ROOT_PASSWORD: rootpass
+    traefik_host: "{{ ansible_default_ipv4.address }}"
   roles:
   - role: 'grycap.docker'
   tasks:
@@ -27,26 +28,15 @@
       state: directory
       mode: '0755'
 
-  - name: Create private key (RSA, 4096 bits)
-    community.crypto.openssl_privatekey:
-      path: /opt/mlflow/certificate.key
-      mode: 0644
-      format: pkcs8
+  - name: Set traefik_host to Public IP
+    set_fact:
+      traefik_host: "{{ IM_NODE_PUBLIC_IP }}"
+    when: IM_NODE_PUBLIC_IP is defined and IM_NODE_PUBLIC_IP != ""
 
-  - name: Generate an OpenSSL Certificate Signing Request with Subject information
-    community.crypto.openssl_csr:
-      path: /opt/mlflow/certificate.csr
-      privatekey_path: /opt/mlflow/certificate.key
-      country_name: ES
-      organization_name: Node-RED
-      common_name: Node-RED
-
-  - name: Create simple self-signed certificate
-    community.crypto.x509_certificate:
-      path: /opt/mlflow/certificate.pem
-      privatekey_path: /opt/mlflow/certificate.key
-      provider: selfsigned
-      csr_path: /opt/mlflow/certificate.csr
+  - name: Set traefik_host to DNS name
+    set_fact:
+      traefik_host: "{{ mlflow_dns_hostname }}"
+    when: mlflow_dns_hostname is defined and mlflow_dns_hostname != ""
 
   - name: Create docker-compose file
     copy:
@@ -55,7 +45,7 @@
         services:
             db:
                 restart: always
-                image: mysql/mysql-server:5.7.28
+                image: mysql/mysql-server:5.7.41
                 container_name: mlflow_db
                 expose:
                     - "3306"
@@ -83,22 +73,40 @@
                   - ./mlartifacts:/mlartifacts
                   - ./basic_auth.ini:/usr/local/lib/python3.8/site-packages/mlflow/server/auth/basic_auth.ini
                   - ./mlflow/auth_db:/auth_db
-            nginx:
-                restart: always
-                image: nginx
-                container_name: mlflow_nginx
+                labels:
+                  - "traefik.enable=true"
+                  - "traefik.http.routers.web.service=web"
+                  - "traefik.http.routers.web.rule=Host(`{{ traefik_host }}`)"
+                  - "traefik.http.routers.web.entrypoints=websecure"
+                  - "traefik.http.routers.web.tls.certresolver=myresolver"
+                  - "traefik.http.services.web.loadbalancer.server.port=5000"
+                  - "traefik.docker.network=frontend"
+            traefik:
+                image: "traefik:v2.10"
+                container_name: "traefik"
+                command:
+                  - "--api.insecure=true"
+                  - "--providers.docker=true"
+                  - "--providers.docker.exposedbydefault=false"
+                  - "--entrypoints.web.address=:80"
+                  - "--entrypoints.websecure.address=:443"
+                  - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+                  - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+                  - "--entrypoints.web.http.redirections.entrypoint.permanent=true"
+                  - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
+                  - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+                  #- "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+                  - "--certificatesresolvers.myresolver.acme.email={{ mlflow_cert_email }}"
+                  - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
                 ports:
-                    - "80:80"
-                    - "443:443"
-                networks:
-                    - frontend
-                depends_on:
-                    - web
+                  - "80:80"
+                  - "443:443"
+                  - "8080:8080"
                 volumes:
-                  - ./mlflow.conf:/etc/nginx/sites-enabled/mlflow.conf:ro
-                  - ./nginx.conf:/etc/nginx/nginx.conf:ro
-                  - './certificate.pem:/etc/nginx/certificate.pem:ro'
-                  - './certificate.key:/etc/nginx/certificate.key:ro'
+                  - "./letsencrypt:/letsencrypt"
+                  - "/var/run/docker.sock:/var/run/docker.sock:ro"
+                networks:
+                  - frontend
         networks:
             frontend:
                 driver: bridge
@@ -116,75 +124,6 @@
         admin_password = {{ mlflow_admin_password }}
         authorization_function = mlflow.server.auth:authenticate_request_basic_auth
       dest: /opt/mlflow/basic_auth.ini
-
-  - name: Create nginx.conf file
-    copy:
-      content: |
-        # Define the user that will own and run the Nginx server
-        user  nginx;
-        # Define the number of worker processes; recommended value is the number of
-        # cores that are being used by your server
-        worker_processes  1;
-        # Define the location on the file system of the error log, plus the minimum
-        # severity to log messages for
-        error_log  /var/log/nginx/error.log warn;
-        # Define the file that will store the process ID of the main NGINX process
-        pid        /var/run/nginx.pid;
-        # events block defines the parameters that affect connection processing.
-        events {
-            # Define the maximum number of simultaneous connections that can be opened by a worker process
-            worker_connections  1024;
-        }
-        # http block defines the parameters for how NGINX should handle HTTP web traffic
-        http {
-            # Include the file defining the list of file types that are supported by NGINX
-            include       /etc/nginx/mime.types;
-            # Define the default file type that is returned to the user
-            default_type  text/html;
-            # Define the format of log messages.
-            log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
-                              '$status $body_bytes_sent "$http_referer" '
-                              '"$http_user_agent" "$http_x_forwarded_for"';
-
-            # Define the location of the log of access attempts to NGINX
-            access_log  /var/log/nginx/access.log  main;
-            # Define the parameters to optimize the delivery of static content
-            sendfile        on;
-            tcp_nopush     on;
-            tcp_nodelay    on;
-            # Define the timeout value for keep-alive connections with the client
-            keepalive_timeout  65;
-            # Define the usage of the gzip compression algorithm to reduce the amount of data to transmit
-            #gzip  on;
-            # Include additional parameters for virtual host(s)/server(s)
-            include /etc/nginx/sites-enabled/*.conf;
-        }
-      dest: /opt/mlflow/nginx.conf
-  
-  - name: Create mlflow.conf file
-    copy:
-      content: |
-        # Define the parameters for a specific virtual host/server
-        server {
-            # Define the server name, IP address, and/or port of the server
-            listen 443 ssl;
-            ssl_certificate     /etc/nginx/certificate.pem;
-            ssl_certificate_key /etc/nginx/certificate.key;
-            ssl_protocols       TLSv1.2 TLSv1.3;
-            # Define the specified charset to the “Content-Type” response header field
-            charset utf-8;
-            # Configure NGINX to reverse proxy HTTP requests to the upstream server (uWSGI server)
-            location / {
-                # Define the location of the proxy server to send the request to
-                proxy_pass http://web:5000;
-
-                # Redefine the header fields that NGINX sends to the upstream server
-                proxy_set_header Host $host;
-                proxy_set_header X-Real-IP $remote_addr;
-                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            }
-        }
-      dest: /opt/mlflow/mlflow.conf
 
   - name: Create mlflow image build directory
     file:
