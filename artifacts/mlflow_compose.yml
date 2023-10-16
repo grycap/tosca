@@ -28,15 +28,15 @@
       state: directory
       mode: '0755'
 
-  - name: Set traefik_host to DNS name
-    set_fact:
-      traefik_host: "{{ mlflow_dns_hostname }}"
-    when: mlflow_dns_hostname is defined and mlflow_dns_hostname != ""
-
   - name: Set traefik_host to Public IP
     set_fact:
       traefik_host: "{{ IM_NODE_PUBLIC_IP }}"
     when: IM_NODE_PUBLIC_IP is defined and IM_NODE_PUBLIC_IP != ""
+
+  - name: Set traefik_host to DNS name
+    set_fact:
+      traefik_host: "{{ mlflow_dns_hostname }}"
+    when: mlflow_dns_hostname is defined and mlflow_dns_hostname != ""
 
   - name: Create docker-compose file
     copy:
