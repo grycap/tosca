@@ -27,7 +27,9 @@ topology_template:
     kubeflow_manifests_version:
       type: string
       description: Kubeflow Manifests version
-      default: "1.6.1"
+      default: "v1.6.1"
+      constraints:
+      - valid_values: [ "v1.6.1", "v1.7.0" ]
 
   node_templates:
 
