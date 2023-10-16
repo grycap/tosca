@@ -24,6 +24,12 @@ topology_template:
       type: string
       description: Default Kubeflow password (python3 -c 'from passlib.hash import bcrypt; import getpass; print(bcrypt.using(rounds=12, ident="2y").hash(getpass.getpass()))')
       default: "$2y$12$4K/VkmDd1q1Orb3xAt82zu8gk7Ad6ReFR4LCP9UeYE90NLiN9Df72"
+    kubeflow_manifests_version:
+      type: string
+      description: Kubeflow Manifests version
+      default: "v1.6.1"
+      constraints:
+      - valid_values: [ "v1.6.1", "v1.7.0" ]
 
   node_templates:
 
@@ -39,6 +45,7 @@ topology_template:
             inputs:
               kubeflow_user: { get_input: kubeflow_user }
               kubeflow_pass: { get_input: kubeflow_pass }
+              kubeflow_manifests_version: { get_input: kubeflow_manifests_version }
 
   outputs:
     kubeflow_url:

@@ -33,9 +33,17 @@
       url: https://github.com/kubernetes-sigs/kustomize/releases/download/v3.2.0/kustomize_3.2.0_linux_amd64
       dest: /opt/kustomize
       mode: '0777'
+    when: VERSION == "v1.6.1"
+
+  - name: Install kustomize 5.0.0
+    unarchive:
+      src: https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv5.0.0/kustomize_v5.0.0_linux_amd64.tar.gz
+      dest: /opt/
+      remote_src: yes
+    when: VERSION == "v1.7.0"
 
   - name: Build kubeflow yaml
-    shell: /opt/kustomize build example > kubeflow.yaml
+    shell: /opt/kustomize build example | awk '!/well-defined/' > kubeflow.yaml
     args:
       chdir: /tmp/kubeflow
       creates: /tmp/kubeflow/kubeflow.yaml
