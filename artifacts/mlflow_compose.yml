@@ -80,6 +80,7 @@
                   - "traefik.http.routers.web.entrypoints=websecure"
                   - "traefik.http.routers.web.tls.certresolver=myresolver"
                   - "traefik.http.services.web.loadbalancer.server.port=5000"
+                  - "traefik.docker.network=frontend"
             traefik:
                 image: "traefik:v2.10"
                 container_name: "traefik"
