@@ -43,7 +43,7 @@
     when: VERSION == "v1.7.0"
 
   - name: Build kubeflow yaml
-    shell: /opt/kustomize build example > kubeflow.yaml
+    shell: /opt/kustomize build example | awk '!/well-defined/' > kubeflow.yaml
     args:
       chdir: /tmp/kubeflow
       creates: /tmp/kubeflow/kubeflow.yaml
