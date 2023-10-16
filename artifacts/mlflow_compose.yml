@@ -80,11 +80,12 @@
                   - "traefik.http.routers.web.entrypoints=websecure"
                   - "traefik.http.routers.web.tls.certresolver=myresolver"
                   - "traefik.http.services.web.loadbalancer.server.port=5000"
-                  - "traefik.docker.network=frontend"
+                  - "traefik.docker.network=mlflow_frontend"
             traefik:
                 image: "traefik:v2.10"
                 container_name: "traefik"
                 command:
+                  #- "--log.level=DEBUG"
                   - "--api.insecure=true"
                   - "--providers.docker=true"
                   - "--providers.docker.exposedbydefault=false"
