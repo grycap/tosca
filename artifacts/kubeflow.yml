@@ -5,7 +5,6 @@
     VERSION: "{{ kubeflow_manifests_version | default('v1.6.1') }}"
     USER_MAIL: "{{ kubeflow_user | default('user@example.com') }}"
     USER_PASS: "{{ kubeflow_pass | default('$2y$12$4K/VkmDd1q1Orb3xAt82zu8gk7Ad6ReFR4LCP9UeYE90NLiN9Df72') }}"
-    KUSTOMIZE_VERSION: "3.2.0"
   tasks:
   - name: Install Git
     package: name=git
@@ -29,16 +28,19 @@
       regexp: '      hash: '
       line: '      hash: {{ USER_PASS }}'
 
-  - name: Set correct kustomize version
-    set_fact:
-      KUSTOMIZE_VERSION: "5.0.0"
-    when: VERSION == "v1.7.0"
-
-  - name: Install kustomize {{ KUSTOMIZE_VERSION }}
+  - name: Install kustomize 3.2.0
     get_url:
-      url: https://github.com/kubernetes-sigs/kustomize/releases/download/v{{ KUSTOMIZE_VERSION }}/kustomize_{{ KUSTOMIZE_VERSION }}_linux_amd64
+      url: https://github.com/kubernetes-sigs/kustomize/releases/download/v3.2.0/kustomize_3.2.0_linux_amd64
       dest: /opt/kustomize
       mode: '0777'
+    when: VERSION == "v1.6.1"
+
+  - name: Install kustomize 5.0.0
+    unarchive:
+      src: https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv5.0.0/kustomize_v5.0.0_linux_amd64.tar.gz
+      dest: /opt/kustomize
+      remote_src: yes
+    when: VERSION == "v1.7.0"
 
   - name: Build kubeflow yaml
     shell: /opt/kustomize build example > kubeflow.yaml
