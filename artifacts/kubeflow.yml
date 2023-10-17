@@ -99,6 +99,21 @@
                       number: 80
                 pathType: Exact
 
+  - name: Add kubeflow-user RoleBinding + Ingress
+    blockinfile:
+      path: /tmp/kubeflow/kubeflow.yaml
+      marker: "#-- {mark} USER PROFILE --"
+      block: |
+        apiVersion: kubeflow.org/v1beta1
+        kind: Profile
+        metadata:
+          name: kubeflow-{{ USER_MAIL | regex_replace('@|\.|_', '-') }}
+        spec:
+          owner:
+            kind: User
+            name: {{ USER_MAIL }}
+    when: USER_MAIL != "user@example.com"
+
   - name: Deploy kubeflow
     command: kubectl apply -f kubeflow.yaml
     args:
