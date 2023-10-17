@@ -99,7 +99,7 @@
                       number: 80
                 pathType: Exact
 
-  - name: Add kubeflow-user RoleBinding + Ingress
+  - name: Add kubeflow user profile
     blockinfile:
       path: /tmp/kubeflow/kubeflow.yaml
       marker: "#-- {mark} USER PROFILE --"
