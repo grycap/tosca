@@ -91,6 +91,13 @@
                     port:
                       number: 80
                 pathType: Prefix
+              - path: /dashboard_lib.bundle.js
+                backend:
+                  service:
+                    name: istio-ingressgateway
+                    port:
+                      number: 80
+                pathType: Exact
 
   - name: Deploy kubeflow
     command: kubectl apply -f kubeflow.yaml
