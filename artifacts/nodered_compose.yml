@@ -100,16 +100,23 @@
     copy:
       dest: /opt/nodered/docker-compose.yaml
       content: |
-        version: '2'
+        version: '3.4'
         services:
           nodered:
-            image: {{image}}
+            restart: always
+            image: nodered/node-red
             ports:
               - 443:1880
             volumes:
               - './data:/data:rw'
               - './certificate.pem:/certificate.pem:ro'
               - './certificate.key:/certificate.key:ro'
+            healthcheck:
+              test: ["CMD", "curl", "-f", "http://localhost:1880"]
+              interval: 1m
+              timeout: 10s
+              retries: 3
+              start_period: 30s
 
   - name: docker-compose up
     docker_compose:
