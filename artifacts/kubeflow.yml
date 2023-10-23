@@ -101,7 +101,7 @@
 
   - name: Set fact namespace
     set_fact:
-      user_namespace: "kubeflow-{{ USER_MAIL | regex_replace('@|\.|_', '-') }}"
+      user_namespace: "kubeflow-{{ USER_MAIL | regex_replace('@|\\.|_', '-') }}"
 
   - name: Add kubeflow user profile
     blockinfile:
