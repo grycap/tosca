@@ -99,6 +99,10 @@
                       number: 80
                 pathType: Exact
 
+  - name: Set fact namespace
+    set_fact:
+      user_namespace: "kubeflow-{{ USER_MAIL | regex_replace('@|\.|_', '-') }}"
+
   - name: Add kubeflow user profile
     blockinfile:
       path: /tmp/kubeflow/kubeflow.yaml
@@ -108,7 +112,7 @@
         apiVersion: kubeflow.org/v1beta1
         kind: Profile
         metadata:
-          name: kubeflow-{{ USER_MAIL | regex_replace('@|\.|_', '-') }}
+          name: {{ user_namespace }}
         spec:
           owner:
             kind: User
@@ -121,11 +125,25 @@
       marker: "#-- {mark} Access Kubeflow Pipelines from Jupyter notebook --"
       block: |
         ---
+        apiVersion: security.istio.io/v1beta1
+        kind: AuthorizationPolicy
+        metadata:
+        name: bind-ml-pipeline-nb-{{ user_namespace }}
+        namespace: kubeflow
+        spec:
+        selector:
+          matchLabels:
+            app: ml-pipeline
+        rules:
+        - from:
+          - source:
+              principals: ["cluster.local/ns/{{ user_namespace }}/sa/default-editor"]
+        ---
         apiVersion: kubeflow.org/v1alpha1
         kind: PodDefault
         metadata:
           name: access-ml-pipeline
-          namespace: "kubeflow-{{ USER_MAIL | regex_replace('@|\.|_', '-') }}"
+          namespace: {{ user_namespace }}
         spec:
           desc: Allow access to Kubeflow Pipelines
           selector:
