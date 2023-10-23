@@ -147,7 +147,8 @@
         spec:
           desc: Allow access to Kubeflow Pipelines
           selector:
-            matchLabels: {}
+            matchLabels:
+              access-ml-pipeline: "true"
           volumes:
             - name: volume-kf-pipeline-token
               projected:
