@@ -115,6 +115,37 @@
             name: {{ USER_MAIL }}
     when: USER_MAIL != "user@example.com"
 
+  - name: Add Access Kubeflow Pipelines from Jupyter notebook
+    blockinfile:
+      path: /tmp/kubeflow/kubeflow.yaml
+      marker: "#-- {mark} Access Kubeflow Pipelines from Jupyter notebook --"
+      block: |
+        ---
+        apiVersion: kubeflow.org/v1alpha1
+        kind: PodDefault
+        metadata:
+          name: access-ml-pipeline
+          namespace: "kubeflow-{{ USER_MAIL | regex_replace('@|\.|_', '-') }}"
+        spec:
+          desc: Allow access to Kubeflow Pipelines
+          selector:
+            matchLabels: {}
+          volumes:
+            - name: volume-kf-pipeline-token
+              projected:
+                sources:
+                  - serviceAccountToken:
+                      path: token
+                      expirationSeconds: 7200
+                      audience: pipelines.kubeflow.org      
+          volumeMounts:
+            - mountPath: /var/run/secrets/kubeflow/pipelines
+              name: volume-kf-pipeline-token
+              readOnly: true
+          env:
+            - name: KF_PIPELINES_SA_TOKEN_PATH
+              value: /var/run/secrets/kubeflow/pipelines/token
+
   - name: Deploy kubeflow
     command: kubectl apply -f kubeflow.yaml
     args:
