@@ -29,6 +29,10 @@ inputs:
     wn_mount_path:
       tab: WNs Features
 
+    slurm_version:
+      tab: SLURM Features
+
 tabs:
   - FE Node Features
   - WNs Features
+  - SLURM Features
