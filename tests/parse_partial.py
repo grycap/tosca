@@ -11,7 +11,14 @@ def _merge_templates(template, new_template):
         if item in new_template["topology_template"]:
             if item not in template["topology_template"]:
                 template["topology_template"][item] = {}
-            template["topology_template"][item].update(new_template["topology_template"][item])
+            if item == "inputs":
+                for k,v in new_template["topology_template"]["inputs"].items():
+                    if k not in template["topology_template"]["inputs"]:
+                        template["topology_template"]["inputs"][k] = v
+                    else:
+                        template["topology_template"]["inputs"][k].update(v)
+            else:
+                template["topology_template"][item].update(new_template["topology_template"][item])
     return template
 
 directory = sys.argv[1]
