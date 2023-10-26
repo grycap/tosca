@@ -25,6 +25,13 @@ topology_template:
       description: Password of the Galaxy admin user
       default: adminpass
 
+    slurm_version:
+      type: string
+      description: Version of SLURM to be installed
+      default: 20.11.9
+      constraints:
+      - valid_values: [ '20.11.9' ]
+
   node_templates:
 
     galaxy_portal:
