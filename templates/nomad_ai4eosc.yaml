@@ -6,7 +6,7 @@ imports:
 description: Deploy an AI4EOSC Nomad Virtual Cluster.
 
 metadata:
-  version: "0.1.0"
+  version: "0.2.0"
   display_name: Deploy an AI4EOSC Nomad Virtual Cluster
   icon: images/nomad.png
 
