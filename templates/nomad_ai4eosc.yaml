@@ -37,24 +37,44 @@ topology_template:
 
     wn_num:
       type: integer
-      description: Number of Nomad Clients in the cluster
+      description: Number of Nomad Clients in the cluster (without public IP)
       default: 1
       required: yes
     wn_cpus:
       type: integer
-      description: Number of CPUs for the WNs
+      description: Number of CPUs for the WNs (without public IP)
       default: 2
       required: yes
       constraints:
       - valid_values: [ 2, 4, 8, 16, 32, 64 ]
     wn_mem:
       type: scalar-unit.size
-      description: Amount of Memory for the WNs
+      description: Amount of Memory for the WNs (without public IP)
       default: 4 GB
       required: yes
       constraints:
       - valid_values: [ 4 GB, 8 GB, 16 GB, 32 GB, 64 GB, 128 GB, 256 GB, 512 GB ]
 
+
+    wn_pub_num:
+      type: integer
+      description: Number of Nomad Clients in the cluster (with public IP)
+      default: 1
+      required: yes
+    wn_pub_cpus:
+      type: integer
+      description: Number of CPUs for the WNs (with public IP)
+      default: 2
+      required: yes
+      constraints:
+      - valid_values: [ 2, 4, 8, 16, 32, 64 ]
+    wn_pub_mem:
+      type: scalar-unit.size
+      description: Amount of Memory for the WNs (with public IP)
+      default: 4 GB
+      required: yes
+      constraints:
+      - valid_values: [ 4 GB, 8 GB, 16 GB, 32 GB, 64 GB, 128 GB, 256 GB, 512 GB ]
 
   node_templates:
 
@@ -135,6 +155,46 @@ topology_template:
           properties:
             num_cpus: { get_input: wn_cpus }
             mem_size: { get_input: wn_mem }
+        os:
+          properties:
+            type: linux
+
+    wn_pub_node:
+      type: tosca.nodes.indigo.LRMS.WorkerNode.Nomad
+      properties:
+        front_end_ip: { get_attribute: [ front, private_address, 0 ] }
+      requirements:
+        - host: wn_pub
+      artifacts:
+        docker_role:
+          file: grycap.docker
+          type: tosca.artifacts.AnsibleGalaxy.role
+        nomad_role:
+          file: grycap.nomad,ai4eosc
+          type: tosca.artifacts.AnsibleGalaxy.role
+        consul_role:
+          file: grycap.consul,ai4eosc
+          type: tosca.artifacts.AnsibleGalaxy.role
+      interfaces:
+        Standard:
+          configure:
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/lrms/nomad_ai4eosc_wn_install.yml
+            inputs:
+              nomad_server_list: { get_attribute: [ front, private_address ] }
+
+    wn_pub:
+      type: tosca.nodes.indigo.Compute
+      capabilities:
+        endpoint:
+          properties:
+            network_name: PUBLIC
+        scalable:
+          properties:
+            count: { get_input: wn_pub_num }
+        host:
+          properties:
+            num_cpus: { get_input: wn_pub_cpus }
+            mem_size: { get_input: wn_pub_mem }
         os:
           properties:
             type: linux
