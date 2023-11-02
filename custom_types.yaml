@@ -391,7 +391,12 @@ node_types:
         required: false
       im_auth:
         type: string
-        description: IM auth data
+        description: IM auth data (deprecated)
+        default: ""
+        required: false
+      auth_token:
+        type: string
+        description: JSON data with the URL and token to get the auth data from IM-Dashboard
         default: ""
         required: false
       config_options:
@@ -439,7 +444,8 @@ node_types:
             clues_queue_system: { get_property: [ SELF, lrms, type ] }
             max_number_of_nodes: { get_property: [ SELF, wn, max_instances] }
             clues_powermanager_plugin: { get_property: [ SELF, powermanager_plugin] }
-            auth: { get_property: [ SELF, im_auth] }
+            auth: { get_property: [ SELF, im_auth] } # deprecated
+            clues_auth_token: { get_property: [ SELF, auth_token] }
             clues_git_branch: im_rest
             clues_config_options: { get_property: [ SELF, config_options] }
             clues_kube_token: { get_property: [ SELF, kube_token] }
