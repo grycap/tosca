@@ -97,12 +97,6 @@ topology_template:
               port_8501:
                 protocol: tcp
                 source: 8501
-              port_80:
-                protocol: tcp
-                source: 80
-              port_443:
-                protocol: tcp
-                source: 443
       artifacts:
         nomad_role:
           file: grycap.nomad,ai4eosc
@@ -202,6 +196,13 @@ topology_template:
         endpoint:
           properties:
             network_name: PUBLIC
+            ports:
+              port_80:
+                protocol: tcp
+                source: 80
+              port_443:
+                protocol: tcp
+                source: 443
         scalable:
           properties:
             count: { get_input: wn_pub_num }
