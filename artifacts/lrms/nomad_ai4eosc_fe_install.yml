@@ -5,6 +5,7 @@
     server_list: "{{ nomad_server_list | default([ansible_default_ipv4.address]) }}"
     server_public_ip: "{{ IM_NODE_PUBLIC_IP | default(ansible_default_ipv4.address) }}"
     server_private_ip: "{{ IM_NODE_PRIVATE_IP | default(ansible_default_ipv4.address) }}"
+    launch_traefik: "{{ nomad_launch_traefik | default(true) }}"
   pre_tasks:
     - name: Convert server_list to list
       set_fact:
@@ -88,88 +89,93 @@
       acl_enabled: true
       acl_bootstrap: true
   tasks:
-    - name: Create traefik job
-      copy:
-        content: |
-          job "traefik" {
-            region      = "global"
-            datacenters = ["dc1"]
-            type        = "service"
-              constraint {
-                attribute  = "${meta.public_ip}"
-                value      = "yes"
-              }
-            group "traefik" {
-              count = 1
-              network {
-                port "http" {
-                  static = 80
+    - block:
+
+      - name: Create traefik job
+        copy:
+          content: |
+            job "traefik" {
+              region      = "global"
+              datacenters = ["dc1"]
+              type        = "service"
+                constraint {
+                  attribute  = "${meta.public_ip}"
+                  value      = "yes"
                 }
-                port "https" {
-                  static = 443
+              group "traefik" {
+                count = 1
+                network {
+                  port "http" {
+                    static = 80
+                  }
+                  port "https" {
+                    static = 443
+                  }
+                  port "api" {
+                    static = 8081
+                  }
                 }
-                port "api" {
-                  static = 8081
+                service {
+                  name = "traefik"
+                  check {
+                    name     = "alive"
+                    type     = "tcp"
+                    port     = "http"
+                    interval = "10s"
+                    timeout  = "2s"
+                  }
                 }
-              }
-              service {
-                name = "traefik"
-                check {
-                  name     = "alive"
-                  type     = "tcp"
-                  port     = "http"
-                  interval = "10s"
-                  timeout  = "2s"
-                }
-              }
-              task "traefik" {
-                driver = "docker"
-                config {
-                  image        = "traefik:v2.10"
-                  network_mode = "host"
-                  volumes = [
-                    "local/traefik.toml:/etc/traefik/traefik.toml",
-                  ]
-                }
-                template {
-                  data = <<EOF
-          [entryPoints]
-              [entryPoints.http]
-              address = ":80"
-              [entryPoints.http]
-              address = ":443"
-              [entryPoints.traefik]
-              address = ":8081"
-          [api]
-              dashboard = true
-              insecure  = true
-              debug = true
-          # Enable Consul Catalog configuration backend.
-          [providers.consulCatalog]
-              prefix           = "traefik"
-              exposedByDefault = false
-          [providers.consulCatalog.endpoint]
-              address = "127.0.0.1:8500"
-              token = "{{ consul_tokens['traefik-dashboard-server-policy'] }}"
-              scheme  = "http"
-          EOF
-                  destination = "local/traefik.toml"
-                }
-                resources {
-                  cpu    = 100
-                  memory = 128
+                task "traefik" {
+                  driver = "docker"
+                  config {
+                    image        = "traefik:v2.10"
+                    network_mode = "host"
+                    volumes = [
+                      "local/traefik.toml:/etc/traefik/traefik.toml",
+                    ]
+                  }
+                  template {
+                    data = <<EOF
+            [entryPoints]
+                [entryPoints.http]
+                address = ":80"
+                [entryPoints.https]
+                address = ":443"
+                [entryPoints.traefik]
+                address = ":8081"
+            [api]
+                dashboard = true
+                insecure  = true
+                debug = true
+            # Enable Consul Catalog configuration backend.
+            [providers.consulCatalog]
+                prefix           = "traefik"
+                exposedByDefault = false
+            [providers.consulCatalog.endpoint]
+                address = "127.0.0.1:8500"
+                token = "{{ consul_tokens['traefik-dashboard-server-policy'] }}"
+                scheme  = "http"
+            EOF
+                    destination = "local/traefik.toml"
+                  }
+                  resources {
+                    cpu    = 100
+                    memory = 128
+                  }
                 }
               }
             }
-          }
-        dest: /opt/nomad/traefik.hcl
-        mode: 0644
+          dest: /opt/nomad/traefik.hcl
+          mode: 0644
 
-    - name: Submit traefik job
-      command: nomad job run -check-index 0 /opt/nomad/traefik.hcl
-      environment:
-        NOMAD_CACERT: /etc/nomad/certs/nomad-agent-ca.pem
-        NOMAD_CLIENT_CERT: /etc/nomad/certs/global-cli-nomad.pem
-        NOMAD_CLIENT_KEY: /etc/nomad/certs/global-cli-nomad-key.pem
-        NOMAD_ADDR: "https://127.0.0.1:4646"
-        NOMAD_TOKEN: "{{ NOMAD_TOKEN }}"
+      - name: Submit traefik job
+        shell: nomad job status traefik || nomad job run /opt/nomad/traefik.hcl
+        environment:
+          NOMAD_CACERT: /etc/nomad/certs/nomad-agent-ca.pem
+          NOMAD_CLIENT_CERT: /etc/nomad/certs/global-cli-nomad.pem
+          NOMAD_CLIENT_KEY: /etc/nomad/certs/global-cli-nomad-key.pem
+          NOMAD_ADDR: "https://127.0.0.1:4646"
+          NOMAD_TOKEN: "{{ NOMAD_TOKEN }}"
+        ignore_Errors: yes
+
+      when: launch_traefik
