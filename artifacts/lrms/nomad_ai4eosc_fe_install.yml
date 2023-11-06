@@ -176,6 +176,6 @@
           NOMAD_CLIENT_KEY: /etc/nomad/certs/global-cli-nomad-key.pem
           NOMAD_ADDR: "https://127.0.0.1:4646"
           NOMAD_TOKEN: "{{ NOMAD_TOKEN }}"
-        ignore_Errors: yes
+        ignore_errors: yes
 
       when: launch_traefik
