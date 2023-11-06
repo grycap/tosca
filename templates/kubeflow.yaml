@@ -29,7 +29,7 @@ topology_template:
       description: Kubeflow Manifests version
       default: "v1.7.0"
       constraints:
-      - valid_values: [ "v1.7.0", "v1.6.1" ]
+      - valid_values: [ "v1.7.0", "v1.8.0", "v1.6.1" ]
 
     # Restrict some K8s input values
 

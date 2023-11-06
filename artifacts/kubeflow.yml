@@ -42,6 +42,13 @@
       remote_src: yes
     when: VERSION == "v1.7.0"
 
+  - name: Install kustomize 5.0.3
+    unarchive:
+      src: https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv5.0.3/kustomize_v5.0.3_linux_amd64.tar.gz
+      dest: /opt/
+      remote_src: yes
+    when: VERSION == "v1.8.0"
+
   - name: Build kubeflow yaml
     shell: /opt/kustomize build example | awk '!/well-defined/' > kubeflow.yaml
     args:
