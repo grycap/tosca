@@ -167,3 +167,9 @@
 
     - name: Submit traefik job
       command: nomad job run -check-index 0 /opt/nomad/traefik.hcl
+      environment:
+        NOMAD_CACERT: /etc/nomad/certs/nomad-agent-ca.pem
+        NOMAD_CLIENT_CERT: /etc/nomad/certs/global-cli-nomad.pem
+        NOMAD_CLIENT_KEY: /etc/nomad/certs/global-cli-nomad-key.pem
+        NOMAD_ADDR: "https://127.0.0.1:4646"
+        NOMAD_TOKEN: "{{ NOMAD_TOKEN }}"
