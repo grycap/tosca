@@ -13,6 +13,7 @@ metadata:
    - slurm_elastic.yaml
    - slurm_galaxy.yml
    - glusterfs.yml
+   - docker_cluster.yaml
 
 topology_template:
   inputs:

@@ -42,3 +42,10 @@
           enabled: "true"
         docker:
           allow_privileged: "true"
+  tasks:
+    - name: Set nomad public_ip key to yes on node
+      command: nomad node meta apply public_ip=yes
+      when: IM_NODE_PUBLIC_IP is defined and IM_NODE_PUBLIC_IP != ""
+    - name: Set nomad public_ip key to no on node
+      command: nomad node meta apply public_ip=no
+      when: IM_NODE_PUBLIC_IP is not defined or IM_NODE_PUBLIC_IP != ""

@@ -1,0 +1,73 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+imports:
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+
+description: >
+  Deploy a set of computing nodes with Docker and Docker Compose installed.
+
+metadata:
+  version: "1.0.0"
+  name: Docker + Compose
+  display_name: Install Docker + Docker Compose
+  icon: images/docker.png
+  tag: SW
+  tag_color: blue
+  parents:
+   - slurm_cluster.yml
+
+topology_template:  
+
+  inputs:
+
+    nvidia_support:
+      type: boolean
+      description: Flag to add the NVIDIA drivers and NVIDIA-Docker packages in the Worker nodes
+      default: false
+      constraints:
+      - valid_values: [ false, true ]
+
+    driver_version:
+      type: string
+      description: NVIDIA Driver version to install in the Worker nodes
+      default: "510"
+
+  node_templates:
+
+    docker_fe:
+      type: tosca.nodes.SoftwareComponent
+      requirements:
+        - host: lrms_server 
+      artifacts:
+        docker_role:
+          file: grycap.docker
+          type: tosca.artifacts.AnsibleGalaxy.role
+      interfaces:
+        Standard:
+          configure:
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/docker.yml
+            inputs:
+              docker_nvidia_support: false
+              docker_nvidia_driver_version: "510"
+              docker_compose_git: ""
+              compose_folder: "master"
+              repo_branch: ""
+
+    docker_wn:
+      type: tosca.nodes.SoftwareComponent
+      requirements:
+        - host: lrms_wn 
+      artifacts:
+        docker_role:
+          file: grycap.docker
+          type: tosca.artifacts.AnsibleGalaxy.role
+      interfaces:
+        Standard:
+          configure:
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/docker.yml
+            inputs:
+              docker_nvidia_support: { get_input: nvidia_support }
+              docker_nvidia_driver_version: { get_input: driver_version }
+              docker_compose_git: ""
+              compose_folder: "master"
+              repo_branch: ""
