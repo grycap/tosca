@@ -395,9 +395,11 @@ node_types:
         default: ""
         required: false
       auth_token:
-        type: string
-        description: JSON data with the URL and token to get the auth data from IM-Dashboard
-        default: ""
+        type: map
+        entry_schema:
+          type: string
+        description: Auth data with the URL and token to get the auth data from IM-Dashboard
+        default: {}
         required: false
       config_options:
         type: list
