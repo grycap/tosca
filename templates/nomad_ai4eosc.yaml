@@ -76,6 +76,13 @@ topology_template:
       constraints:
       - valid_values: [ 4 GB, 8 GB, 16 GB, 32 GB, 64 GB, 128 GB, 256 GB, 512 GB ]
 
+    launch_traefik:
+      type: boolean
+      description: Launch Traefik job as reverse proxy
+      default: false
+      constraints:
+      - valid_values: [ false, true ]
+
   node_templates:
 
     lrms_front_end:
@@ -105,6 +112,7 @@ topology_template:
             implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/lrms/nomad_ai4eosc_fe_install.yml
             inputs:
               nomad_server_list: { get_attribute: [ front, private_address ] }
+              nomad_launch_traefik: { get_input: launch_traefik }
 
     front:
       type: tosca.nodes.indigo.Compute
@@ -188,6 +196,13 @@ topology_template:
         endpoint:
           properties:
             network_name: PUBLIC
+            ports:
+              port_80:
+                protocol: tcp
+                source: 80
+              port_443:
+                protocol: tcp
+                source: 443
         scalable:
           properties:
             count: { get_input: wn_pub_num }
