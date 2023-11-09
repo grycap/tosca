@@ -5,7 +5,6 @@ imports:
 
 description: >
   Deploy a compute node getting the IP and SSH credentials to access via ssh with an extra HD disk.
-  Galaxy, Docker, Add Users and Add SSH Keys addons available.
 
 metadata:
   version: "1.0.0"
