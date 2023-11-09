@@ -13,7 +13,7 @@ metadata:
   tag: deprecated
   tag_color: grey
 
-description: TOSCA template for launching AI-SPRINT Monitorization on top of a Kubernetes Virtual Cluster.
+description: Deploy AI-SPRINT Monitorization on top of a Kubernetes Virtual Cluster.
 
 topology_template:
   inputs:
