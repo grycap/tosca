@@ -6,6 +6,7 @@
     USER_MAIL: "{{ kubeflow_user | default('user@example.com') }}"
     USER_PASS: "{{ kubeflow_pass | default('$2y$12$4K/VkmDd1q1Orb3xAt82zu8gk7Ad6ReFR4LCP9UeYE90NLiN9Df72') }}"
     DEPLOY_MLFLOW: "{{ kubeflow_mlflow | default(false) }}"
+    MLFLOW_DATA_SPACE: "{{ kubeflow_mlflow_data_space | default('10Gi') }}"
   tasks:
   - name: Install Git
     package: name=git
@@ -200,7 +201,7 @@
             - ReadWriteOnce
           resources:
             requests:
-              storage: 10Gi
+              storage: {{ MLFLOW_DATA_SPACE }}}
         ---
         apiVersion: v1
         kind: Service
