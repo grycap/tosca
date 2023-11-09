@@ -30,6 +30,12 @@ topology_template:
       default: "v1.7.0"
       constraints:
       - valid_values: [ "v1.7.0", "v1.8.0", "v1.6.1" ]
+    kubeflow_mlflow:
+      type: boolean
+      description: Deploy MLFlow in Kubeflow instance
+      default: false
+      constraints:
+      - valid_values: [ false, true ]
 
     # Restrict some K8s input values
 
@@ -81,6 +87,7 @@ topology_template:
               kubeflow_user: { get_input: kubeflow_user }
               kubeflow_pass: { get_input: kubeflow_pass }
               kubeflow_manifests_version: { get_input: kubeflow_manifests_version }
+              kubeflow_mlflow: { get_input: kubeflow_mlflow }
 
   outputs:
     kubeflow_url:

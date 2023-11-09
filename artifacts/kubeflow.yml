@@ -5,6 +5,7 @@
     VERSION: "{{ kubeflow_manifests_version | default('v1.6.1') }}"
     USER_MAIL: "{{ kubeflow_user | default('user@example.com') }}"
     USER_PASS: "{{ kubeflow_pass | default('$2y$12$4K/VkmDd1q1Orb3xAt82zu8gk7Ad6ReFR4LCP9UeYE90NLiN9Df72') }}"
+    DEPLOY_MLFLOW: "{{ kubeflow_mlflow | default(false) }}"
   tasks:
   - name: Install Git
     package: name=git
@@ -171,6 +172,126 @@
           env:
             - name: KF_PIPELINES_SA_TOKEN_PATH
               value: /var/run/secrets/kubeflow/pipelines/token
+
+  - name: Add MLFlow deployment
+    blockinfile:
+      path: /tmp/kubeflow/kubeflow.yaml
+      marker: "#-- {mark} MLFLOW --"
+      block: |
+        ---
+        apiVersion: v1
+        kind: Namespace
+        metadata:
+          name: mlflow
+        ---
+        apiVersion: v1
+        kind: ServiceAccount
+        metadata:
+          name: mlflow-sa
+          namespace: mlflow
+        ---
+        kind: PersistentVolumeClaim
+        apiVersion: v1
+        metadata:
+          name: mlflow-pvc
+          namespace: mlflow
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 10Gi
+        ---
+        apiVersion: v1
+        kind: Service
+        metadata:
+          name: mlflow-service
+          namespace: mlflow
+        spec:
+          selector:
+            app: mlflow
+          ports:
+            - protocol: TCP
+              port: 5000
+              targetPort: 5000
+        ---
+        apiVersion: networking.istio.io/v1beta1
+        kind: VirtualService
+        metadata:
+          name: mlflow
+          namespace: mlflow
+        spec:
+          gateways:
+          - kubeflow/kubeflow-gateway
+          hosts:
+          - '*'
+          http:
+          - match:
+            - uri:
+                prefix: /mlflow/
+            rewrite:
+              uri: /
+            route:
+            - destination:
+                host: mlflow-service.mlflow.svc.cluster.local
+                port:
+                  number: 5000
+        ---
+        apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+          name: mlflow-deployment
+          namespace: mlflow
+          labels:
+            app: mlflow
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              app: mlflow
+          template:
+            metadata:
+              labels:
+                app: mlflow
+            spec:
+              serviceAccountName: mlflow-sa
+              containers:
+                - name: mlflow
+                  image: grycap/mlflow:2.7.1
+                  imagePullPolicy: Always
+                  command:
+                    - "mlflow"
+                    - "server"
+                    - "--host"
+                    - "0.0.0.0"
+                    - "--default-artifact-root"
+                    - "/data"
+                    - "--backend-store-uri"
+                    - "sqlite:///data/mlflow.db"
+                  ports:
+                    - containerPort: 5000
+                  volumeMounts:
+                  - name: mlflow
+                    mountPath: /data
+              volumes:
+                - name: mlflow
+                  persistentVolumeClaim:
+                    claimName: mlflow-pvc
+    when: DEPLOY_MLFLOW
+
+  - name: Add MLFlow menu entry
+    blockinfile: 
+      path: /tmp/kubeflow/apps/centraldashboard/upstream/base/configmap.yaml
+      insertafter: '      "menuLinks": \['
+      block: |
+        # mlflow menu entry
+                {
+                  "type": "item",
+                  "link": "/mlflow/",
+                  "text": "MlFlow",
+                  "icon": "icons:cached"
+                },
+    when: DEPLOY_MLFLOW
 
   - name: Deploy kubeflow
     command: kubectl apply -f kubeflow.yaml
