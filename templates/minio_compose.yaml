@@ -51,6 +51,19 @@ topology_template:
       description: Secret generated when registering minio-api.test.fedcloud.changeme via https://nsupdate.fedcloud.eu/
       type: string
   
+    # Restrict some simple-node-disk input values
+
+    storage_size:
+      type: scalar-unit.size
+      description: Size of the extra HD added to the instance
+      default: 50 GB
+      constraints:
+      - valid_values: [ 50 GB, 100 GB, 200 GB, 500 GB, 1 TB, 2 TB, 10 TB, 20 TB, 40 TB, 100 TB ]
+    mount_path:
+      type: string
+      description: Path to mount the extra disk
+      default: /data
+
   node_templates:
 
     minio:

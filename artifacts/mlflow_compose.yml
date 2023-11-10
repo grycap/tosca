@@ -94,7 +94,7 @@
                 networks:
                     - frontend
                     - backend
-                command: mlflow server --app-name basic-auth --backend-store-uri mysql+pymysql://{{ MYSQL_USER }}:{{ MYSQL_PASSWORD }}@db:3306/{{ MYSQL_DATABASE }} --host 0.0.0.0 --default-artifact-root /mlartifacts
+                command: mlflow server --app-name basic-auth --backend-store-uri mysql+pymysql://{{ MYSQL_USER }}:{{ MYSQL_PASSWORD }}@db:3306/{{ MYSQL_DATABASE }} --host 0.0.0.0 --default-artifact-root {{ artifact_root }}
                 volumes:
                   - ./mlartifacts:/mlartifacts
                   - ./basic_auth.ini:/usr/local/lib/python3.8/site-packages/mlflow/server/auth/basic_auth.ini

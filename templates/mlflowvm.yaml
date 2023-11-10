@@ -50,7 +50,7 @@ topology_template:
 
     mlflow_s3_endpoint:
       type: string
-      description: MLFlow S3 endpoint (in case of MinIO server)
+      description: MLFlow S3 endpoint (in case of MinIO server). If not provided, artifacts will be stored in the locally.
       default: ''
       required: no
 
@@ -71,6 +71,13 @@ topology_template:
       description: MLFlow S3 Bucket
       default: 'mlflow'
       required: no
+
+    # Restrict some simple-node-disk input values
+
+    mount_path:
+      type: string
+      description: Path to mount the extra disk
+      default: /opt/mlflow
 
   node_templates:
 
