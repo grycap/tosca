@@ -8,5 +8,8 @@ inputs:
     kubeflow_manifests_version:
       tab: Kubeflow Data
 
+    kubeflow_mlflow:
+      tab: Kubeflow Data
+
 tabs:
   - Kubeflow Data

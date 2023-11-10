@@ -12,7 +12,7 @@ metadata:
     - simple-node-disk.yml
   tag: beta
 
-description: TOSCA template for deploying MLFlow on a VM
+description: Deploy MLFlow on a VM
 
 topology_template:
 
