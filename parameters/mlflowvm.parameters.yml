@@ -14,5 +14,17 @@ inputs:
   mlflow_cert_email:
     tab: MLFlow Data
 
+  mlflow_s3_endpoint:
+    tab: MLFlow Data
+
+  mlflow_s3_ak:
+    tab: MLFlow Data
+
+  mlflow_s3_sk:
+    tab: MLFlow Data
+
+  mlflow_s3_bucket:
+    tab: MLFlow Data
+
 tabs:
   - MLFlow Data
