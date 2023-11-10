@@ -7,6 +7,12 @@
     MYSQL_PASSWORD: mlflowpass
     MYSQL_ROOT_PASSWORD: rootpass
     traefik_host: "{{ ansible_default_ipv4.address }}"
+    s3_endpoint: "{{ mlflow_s3_endpoint | default('') }}"
+    s3_ak: "{{ mlflow_s3_ak | default('') }}"
+    s3_sk: "{{ mlflow_s3_sk | default('') }}"
+    s3_bucket: "{{ mlflow_s3_bucket | default('mlflow') }}"
+    artifact_root: "/mlartifacts"
+    mlflow_environment: ""
   roles:
   - role: 'grycap.docker'
   tasks:
@@ -38,6 +44,25 @@
       traefik_host: "{{ mlflow_dns_hostname }}"
     when: mlflow_dns_hostname is defined and mlflow_dns_hostname != ""
 
+  - name: Set artifact_root to S3 and S3 env vars
+    set_fact:
+      artifact_root: "s3://{{ s3_bucket }}"
+      mlflow_environment: |
+        environment:
+                    - AWS_ACCESS_KEY_ID="{{ s3_ak }}"
+                    - AWS_SECRET_ACCESS_KEY="{{ s3_sk }}"
+    when: s3_ak != "" and s3_sk != ""
+
+  - name: Set also MinIO endpoint
+    set_fact:
+      mlflow_environment: |
+        environment:
+                    - AWS_ACCESS_KEY_ID="{{ s3_ak }}"
+                    - AWS_SECRET_ACCESS_KEY="{{ s3_sk }}"
+                    - MLFLOW_S3_ENDPOINT_URL="{{ s3_endpoint }}"
+                    - MLFLOW_S3_IGNORE_TLS=true
+    when: s3_endpoint != "" and s3_ak != "" and s3_sk != ""
+
   - name: Create docker-compose file
     copy:
       content: |
@@ -63,6 +88,7 @@
                 build: ./mlflow
                 image: mlflow_server
                 container_name: mlflow_server
+                {{ mlflow_environment }}
                 expose:
                     - "5000"
                 networks:

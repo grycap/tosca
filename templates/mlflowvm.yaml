@@ -12,7 +12,7 @@ metadata:
     - simple-node-disk.yml
   tag: beta
 
-description: Deploy MLFlow on a VM
+description: Deploy MLFlow on a VM. Optionally an S3 (or MinIO) bucket can be used to store the MLFlow artifacts.
 
 topology_template:
 
@@ -35,7 +35,7 @@ topology_template:
       description: MLFlow DNS hostname
       default: ''
       required: no
-    
+
     mlflow_cert_email:
       type: string
       description: MLFlow LetsEncrypt certificate email
@@ -46,6 +46,30 @@ topology_template:
       default: ''
       description: Secret generated when registering DNS name via https://nsupdate.fedcloud.eu/
       type: string
+      required: no
+
+    mlflow_s3_endpoint:
+      type: string
+      description: MLFlow S3 endpoint (in case of MinIO server)
+      default: ''
+      required: no
+
+    mlflow_s3_ak:
+      type: string
+      description: MLFlow S3 Access Key
+      default: ''
+      required: no
+
+    mlflow_s3_sk:
+      type: string
+      description: MLFlow S3 Secret Key
+      default: ''
+      required: no
+
+    mlflow_s3_bucket:
+      type: string
+      description: MLFlow S3 Bucket
+      default: 'mlflow'
       required: no
 
   node_templates:
@@ -82,6 +106,14 @@ topology_template:
                 get_input: mlflow_dns_hostname
               mlflow_cert_email:
                 get_input: mlflow_cert_email
+              mlflow_s3_endpoint:
+                get_input: mlflow_s3_endpoint
+              mlflow_s3_ak:
+                get_input: mlflow_s3_ak
+              mlflow_s3_sk:
+                get_input: mlflow_s3_sk
+              mlflow_s3_bucket:
+                get_input: mlflow_s3_bucket
       requirements:
         - host: simple_node
         - dependency: nsupdate_mlflow
@@ -101,6 +133,7 @@ topology_template:
                 get_attribute: [ simple_node, public_address, 0 ]
       requirements:
         - host: simple_node
+
 
   outputs:
     mlflow_endpoint:
