@@ -201,7 +201,7 @@
             - ReadWriteOnce
           resources:
             requests:
-              storage: {{ MLFLOW_DATA_SPACE }}}
+              storage: {{ MLFLOW_DATA_SPACE }}
         ---
         apiVersion: v1
         kind: Service
