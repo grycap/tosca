@@ -57,9 +57,9 @@
     set_fact:
       mlflow_environment: |
         environment:
-                    - AWS_ACCESS_KEY_ID="{{ s3_ak }}"
-                    - AWS_SECRET_ACCESS_KEY="{{ s3_sk }}"
-                    - MLFLOW_S3_ENDPOINT_URL="{{ s3_endpoint }}"
+                    - AWS_ACCESS_KEY_ID={{ s3_ak }}
+                    - AWS_SECRET_ACCESS_KEY={{ s3_sk }}
+                    - MLFLOW_S3_ENDPOINT_URL={{ s3_endpoint }}
                     - MLFLOW_S3_IGNORE_TLS=true
     when: s3_endpoint != "" and s3_ak != "" and s3_sk != ""
 
