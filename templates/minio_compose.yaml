@@ -16,6 +16,10 @@ metadata:
 topology_template:
   inputs:
  
+    minio_release:
+      default: RELEASE.2023-07-21T21-12-44Z
+      description: Check out https://github.com/minio/minio/tags
+      type: string
     minio_accesskey:
       default: changeme
       description: Access key credential for object storage and web access
@@ -30,26 +34,23 @@ topology_template:
       default: minio.test.fedcloud.changeme
       description: DNS hostname to access MinIO console
       type: string
-    minio_dns_api:
-      default: minio-api.test.fedcloud.changeme
-      description: DNS hostname to access MinIO API endpoint
-      type: string
-    minio_letsencrypt_email:
-      default: changeme@email.com
-      description: Email to be used for Let's Encrypt certificates
-      type: string
-    minio_release:
-      default: RELEASE.2023-07-21T21-12-44Z
-      description: Check out https://github.com/minio/minio/tags
-      type: string
     nsupdate_secret_console:
       default: changeme
       description: Secret generated when registering minio.test.fedcloud.changeme via https://nsupdate.fedcloud.eu/
+      type: string
+    minio_dns_api:
+      default: minio-api.test.fedcloud.changeme
+      description: DNS hostname to access MinIO API endpoint
       type: string
     nsupdate_secret_api:
       default: changeme
       description: Secret generated when registering minio-api.test.fedcloud.changeme via https://nsupdate.fedcloud.eu/
       type: string
+    minio_letsencrypt_email:
+      default: changeme@email.com
+      description: Email to be used for Let's Encrypt certificates
+      type: string
+
   
     # Restrict some simple-node-disk input values
 

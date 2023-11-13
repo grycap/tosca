@@ -4,13 +4,12 @@ imports:
   - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
 
 metadata:
-  version: "0.2.0"
+  version: "0.3.0"
   name: MLFlow
   display_name: Deploy MLFlow on a VM
   icon: images/mlflow.png
   parents:
     - simple-node-disk.yml
-  tag: beta
 
 description: Deploy MLFlow on a VM. Optionally an S3 (or MinIO) bucket can be used to store the MLFlow artifacts.
 
@@ -50,7 +49,7 @@ topology_template:
 
     mlflow_s3_endpoint:
       type: string
-      description: MLFlow S3 endpoint (in case of MinIO server). If not provided, artifacts will be stored in the locally.
+      description: MLFlow S3 endpoint (in case of MinIO server). If not provided, artifacts will be stored locally.
       default: ''
       required: no
 
