@@ -281,17 +281,10 @@
     when: DEPLOY_MLFLOW
 
   - name: Add MLFlow menu entry
-    blockinfile: 
-      path: /tmp/kubeflow/apps/centraldashboard/upstream/base/configmap.yaml
+    lineinfile:
+      path: /tmp/kubeflow/kubeflow.yaml
       insertafter: '      "menuLinks": \['
-      block: |
-        # mlflow menu entry
-                {
-                  "type": "item",
-                  "link": "/mlflow/",
-                  "text": "MlFlow",
-                  "icon": "icons:cached"
-                },
+      line: '        {"type": "item", "link": "/mlflow/", "text": "MlFlow", "icon": "icons:cached"},'
     when: DEPLOY_MLFLOW
 
   - name: Deploy kubeflow
