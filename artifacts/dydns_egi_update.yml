@@ -14,3 +14,4 @@
       return_content: true
     register: dydns_update
     changed_when: dydns_update.content.find("good") != -1
+    when: dydns_secret is defined and dydns_secret != "" and dydns_hostname is defined and dydns_hostname != ""
