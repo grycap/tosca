@@ -1,7 +1,7 @@
 tosca_definitions_version: tosca_simple_yaml_1_0
 
 imports:
-  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/devel/custom_types.yaml
 
 description: Deploy a Helm Chart on top of a Kubernetes Virtual Cluster.
 
@@ -26,13 +26,19 @@ topology_template:
       type: string
       description: Name to set to the Helm repository
       default: ''
-      required: yes
+      required: no
 
     helm_repo_url:
       type: string
       description: URL of the Helm repository
       default: ''
-      required: yes
+      required: no
+
+    helm_chart_url:
+      type: string
+      description: The Helm chat file url (if not using a repository)
+      default: ''
+      required: no
 
     helm_chart_name:
       type: string
@@ -51,6 +57,7 @@ topology_template:
       type: tosca.nodes.indigo.Helm.Chart
       properties:
         namespace: { get_input: helm_namespace }
+        chart_url: { get_input: helm_chart_url }
         repository_name: { get_input: helm_repo_name }
         repository_url: { get_input: helm_repo_url }
         name: { get_input: helm_chart_name }
