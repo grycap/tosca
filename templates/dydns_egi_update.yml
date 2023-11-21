@@ -55,4 +55,4 @@ topology_template:
 
   outputs:
     nsupdate_dns:
-      value: { get_input: [ minio_dns_console ] }
+      value: { get_input: [ nsupdate_dns ] }
