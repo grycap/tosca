@@ -1,0 +1,58 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+imports:
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+
+description: Register DNS hostname using https://nsupdate.fedcloud.eu/
+
+metadata:
+  version: "1.0.0"
+  name: DyDNS
+  display_name: Dynamic DNS
+  icon: images/dydns.png
+  parents:
+    - simple-node-disk.yml
+
+topology_template:
+  inputs:
+ 
+    nsupdate_dns:
+      default: myvm.test.fedcloud.changeme
+      description: DNS hostname registered via https://nsupdate.fedcloud.eu/
+      type: string
+    nsupdate_secret:
+      default: changeme
+      description: Secret generated when registering myvm.test.fedcloud.changeme via https://nsupdate.fedcloud.eu/
+      type: string
+  
+  node_templates:
+
+    nsupdate_minio_api:
+      type: tosca.nodes.ec3.Application
+      capabilities:
+        endpoint:
+          properties:
+            ports:
+              port_http:
+                protocol: tcp
+                source: 80
+              port_https:
+                protocol: tcp
+                source: 443
+      interfaces:
+        Standard:
+          configure:
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/dydns_egi_update.yml
+            inputs:
+              dydns_hostname:
+                get_input: nsupdate_dns
+              dydns_secret:
+                get_input: nsupdate_secret
+              new_ip:
+                get_attribute: [ simple_node, public_address, 0 ]
+      requirements:
+        - host: simple_node
+
+  outputs:
+    nsupdate_dns:
+      value: { get_input: [ minio_dns_console ] }
