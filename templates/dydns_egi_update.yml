@@ -12,6 +12,7 @@ metadata:
   icon: images/dydns.png
   parents:
     - simple-node-disk.yml
+    - htcondor_cluster.yml
 
 topology_template:
   inputs:
