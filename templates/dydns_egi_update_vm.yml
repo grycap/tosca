@@ -12,7 +12,6 @@ metadata:
   icon: images/dydns.png
   parents:
     - simple-node-disk.yml
-    - htcondor_cluster.yml
 
 topology_template:
   inputs:
@@ -28,7 +27,7 @@ topology_template:
   
   node_templates:
 
-    nsupdate_minio_api:
+    nsupdate_host:
       type: tosca.nodes.ec3.Application
       capabilities:
         endpoint:

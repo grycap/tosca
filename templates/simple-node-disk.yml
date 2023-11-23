@@ -31,7 +31,7 @@ metadata:
    - mlfowvm.yaml
    - wget.yml
    - sgde.yaml
-   - dydns_egi_update.yml
+   - dydns_egi_update_vm.yml
 
 topology_template:
 
