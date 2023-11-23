@@ -51,6 +51,8 @@ topology_template:
                 get_input: nsupdate_secret
               new_ip:
                 get_attribute: [ simple_node, public_address, 0 ]
+      requirements:
+        - host: simple_node
 
   outputs:
     nsupdate_dns:
