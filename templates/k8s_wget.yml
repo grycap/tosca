@@ -23,6 +23,13 @@ topology_template:
       default: ''
       required: true
 
+    unarchive:
+      type: boolean
+      description: Unarchive the downloaded file.
+      default: false
+      constraints:
+      - valid_values: [ false, true ]
+
     pvc_namespace:
       type: string
       description: Namespace of the PVC
@@ -47,6 +54,7 @@ topology_template:
               data_url: { get_input: data_url }
               k8s_pvc_namespace: { get_input: pvc_namespace }
               k8s_pvc_name: { get_input: pvc_name }
+              unarchive: { get_input: unarchive }
       requirements:
         - host: lrms_front_end
 
