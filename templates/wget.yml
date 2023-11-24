@@ -59,7 +59,7 @@ topology_template:
               local_path: { get_input: local_path }
               wait_to_download: { get_input: wait_to_download }
               max_download_time: { get_input: max_download_time }
-              unarchive: { get_input: unarchive }
+              unarchive_file: { get_input: unarchive }
       requirements:
         - host: simple_node
 
