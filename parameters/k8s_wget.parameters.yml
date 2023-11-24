@@ -2,6 +2,9 @@ inputs:
     data_url:
       tab: Download Data
 
+    unarchive:
+      tab: Download Data
+
     pvc_namespace:
       tab: Download Data
 

@@ -5,6 +5,9 @@ inputs:
     local_path:
       tab: Download Data
 
+    unarchive:
+      tab: Download Data
+
     max_download_time:
       tab: Download Data
 

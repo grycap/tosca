@@ -6,6 +6,7 @@
     max_time: "{{ max_download_time | default(1800) }}"
     pvc_name: "{{ k8s_pvc_name | default('') }}"
     pvc_namespace: "{{ k8s_pvc_namespace | default('') }}"
+    unarchive: "{{ unarchive_file | default(false) }}"
   tasks:
   - name: Download data to a local path
     block:
@@ -20,12 +21,20 @@
         poll_time: 0
       when: wait_to_download | bool
 
-    - name: Download "{{ data_url }}"
+    - name: Download "{{ data_url }}" on "{{ local_path }}"
       get_url: 
         url: "{{ data_url }}"
         dest: "{{ local_path }}"
       async: "{{ max_time }}"
       poll: "{{ poll_time }}"
+      when: not unarchive
+
+    - name: Unarchive "{{ data_url }}" on "{{ local_path }}"
+      unarchive:
+        src: "{{ data_url }}"
+        dest: "{{ local_path }}"
+        remote_src: yes
+      when: unarchive
 
     when: pvc_name == '' or pvc_namespace == ''
 
@@ -35,6 +44,16 @@
     - name: Gen URL hash
       set_fact:
         url_hash: "{{ data_url | hash('md5') }}"
+
+    - name: Set Download and Unarchive job command
+      set_fact:
+        command: apk add 7zip && wget -P /data '{{ data_url }}' && 7z x /data/{{ data_url | basename }} -o/data && rm -rf /data/{{ data_url | basename }}
+      when: unarchive
+
+    - name: Set Download job command
+      set_fact:
+        command: wget -P /data '{{ data_url }}'
+      when: not unarchive
 
     - name: Create job file
       copy:
@@ -58,15 +77,17 @@
                     command:
                     - sh
                     - -c
-                    - wget -P /data '{{ data_url }}'
+                    - {{ command }}
                     volumeMounts:
                       - mountPath: '/data'
                         name: pv-storage
         dest: "/opt/wget_job_{{ url_hash }}.yaml"
+      register: job_file
 
     - name: Create wget job
       command: kubectl apply -f /opt/wget_job_{{ url_hash }}.yaml
       environment:
         KUBECONFIG: "/etc/kubernetes/admin.conf"
+      when: job_file is changed
 
     when: pvc_name != '' and pvc_namespace != ''

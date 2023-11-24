@@ -6,7 +6,7 @@ imports:
 description: Donwload some data available in an URL to a local path
 
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
   name: Download
   display_name: Download File in VM local path
   icon: images/download.png
@@ -26,6 +26,13 @@ topology_template:
       type: string
       description: Local path to download the data (it will be created if not exists)
       default: '/opt'
+
+    unarchive:
+      type: boolean
+      description: Unarchive the downloaded file. (Setting this flag implies that 'Wait to download' will be ignored and set to true)
+      default: false
+      constraints:
+      - valid_values: [ false, true ]
 
     max_download_time:
       type: integer
@@ -52,6 +59,7 @@ topology_template:
               local_path: { get_input: local_path }
               wait_to_download: { get_input: wait_to_download }
               max_download_time: { get_input: max_download_time }
+              unarchive_file: { get_input: unarchive }
       requirements:
         - host: simple_node
 
