@@ -34,8 +34,6 @@
         src: "{{ data_url }}"
         dest: "{{ local_path }}"
         remote_src: yes
-      async: "{{ max_time }}"
-      poll: "{{ poll_time }}"
       when: unarchive
 
     when: pvc_name == '' or pvc_namespace == ''
