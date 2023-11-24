@@ -11,7 +11,7 @@ metadata:
   display_name: Dynamic DNS
   icon: images/dydns.png
   parents:
-    - simple-node-disk.yml
+    - htcondor_cluster.yml
 
 topology_template:
   inputs:
@@ -27,7 +27,7 @@ topology_template:
   
   node_templates:
 
-    nsupdate_minio_api:
+    nsupdate_host:
       type: tosca.nodes.ec3.Application
       capabilities:
         endpoint:
@@ -49,9 +49,9 @@ topology_template:
               dydns_secret:
                 get_input: nsupdate_secret
               new_ip:
-                get_attribute: [ simple_node, public_address, 0 ]
+                get_attribute: [ lrms_server, public_address, 0 ]
       requirements:
-        - host: simple_node
+        - host: lrms_server
 
   outputs:
     nsupdate_dns:

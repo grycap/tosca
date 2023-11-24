@@ -13,6 +13,7 @@ metadata:
   icon: images/htcondor.png
   childs:
    - pulsar.yml
+   - dydns_egi_update_lrms.yml
 
 topology_template:
   inputs:
