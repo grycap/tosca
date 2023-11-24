@@ -41,6 +41,15 @@ topology_template:
               server:
                 root_url: '%(protocol)s://%(domain)s:%(http_port)s/grafana/'
                 serve_from_sub_path: true
+          prometheus:
+            prometheusSpec:
+              storageSpec:
+                volumeClaimTemplate:
+                  spec:
+                    accessModes: ["ReadWriteOnce"]
+                    resources:
+                      requests:
+                        storage: 20Gi
         values: 
           grafana.adminPassword: { get_input: admin_password }
       requirements:
