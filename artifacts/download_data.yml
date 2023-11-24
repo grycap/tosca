@@ -82,10 +82,12 @@
                       - mountPath: '/data'
                         name: pv-storage
         dest: "/opt/wget_job_{{ url_hash }}.yaml"
+      register: job_file
 
     - name: Create wget job
       command: kubectl apply -f /opt/wget_job_{{ url_hash }}.yaml
       environment:
         KUBECONFIG: "/etc/kubernetes/admin.conf"
+      when: job_file is changed
 
     when: pvc_name != '' and pvc_namespace != ''
