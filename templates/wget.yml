@@ -29,7 +29,7 @@ topology_template:
 
     unarchive:
       type: boolean
-      description: Unarchive the downloaded file.
+      description: Unarchive the downloaded file. (If setting this flag 'Wait to download' will be ignored and set to true)
       default: false
       constraints:
       - valid_values: [ false, true ]
