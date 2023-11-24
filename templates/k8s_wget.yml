@@ -38,7 +38,7 @@ topology_template:
 
     pvc_name:
       type: string
-      description: Namespace of the PVC
+      description: Names of the PVC
       default: ''
       required: true
 
