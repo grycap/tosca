@@ -36,7 +36,7 @@
         remote_src: yes
       when: unarchive
 
-    when: pvc_name == '' or pvc_namespace == ''
+    when: data_url != '' and pvc_name == '' or pvc_namespace == ''
 
   - name: Download data to a K8s PVC
     block:
@@ -90,4 +90,4 @@
         KUBECONFIG: "/etc/kubernetes/admin.conf"
       when: job_file is changed
 
-    when: pvc_name != '' and pvc_namespace != ''
+    when: data_url != '' and pvc_name != '' and pvc_namespace != ''
