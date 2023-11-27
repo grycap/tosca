@@ -43,6 +43,12 @@
     copy:
       dest: /opt/jupyter_data_pvc.yaml
       content: |
+        ---
+        apiVersion: v1
+        kind: Namespace
+        metadata:
+          name: jupyter
+        ---
         apiVersion: v1
         kind: PersistentVolumeClaim
         metadata:
