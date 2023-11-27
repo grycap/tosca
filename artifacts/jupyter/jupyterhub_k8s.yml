@@ -7,6 +7,7 @@
     jup_dummy_pass: "{{ dummy_pass | default('dummy_pass') }}"
     jup_admin_user: "{{ admin_user | default('admin') }}"
     dns_name: "{{ kube_public_dns_name | default('') }}"
+    jup_storage_size: "{{ storage_size | default('10Gi') }}"
   tasks:
   - name: Add jupyterhub helm repo
     command: helm repo add jupyterhub https://jupyterhub.github.io/helm-chart/
@@ -38,6 +39,26 @@
                 secretName: {{dns_name}}
     when: dns_name != ''
 
+  - name: Create Jupyter PVC yaml file
+    copy:
+      dest: /opt/jupyter_data_pvc.yaml
+      content: |
+        apiVersion: v1
+        kind: PersistentVolumeClaim
+        metadata:
+          namespace: jupyter
+          name: claim-data
+        spec:
+          accessModes:
+            - ReadWriteMany
+          resources:
+            requests:
+              storage: {{ jup_storage_size }}
+
+  - command: kubectl apply -f /opt/jupyter_data_pvc.yaml
+    environment:
+      KUBECONFIG: "/etc/kubernetes/admin.conf"
+
   - name: "Create values file"
     copy:
       dest: /tmp/config.yaml
@@ -68,6 +89,15 @@
             memory:
               limit: 1G
               guarantee: 1G
+            storage:
+              extraVolumes:
+                - name: vol-data
+                  persistentVolumeClaim:
+                    claimName: claim-data
+              extraVolumeMounts:
+                - name: vol-data
+                  mountPath: /home/jovyan/data
+                  readOnly: True
             profileList:
               - display_name: '1CPU 1GB environment'
                 description: '1CPU 1GB environment'
