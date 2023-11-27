@@ -6,6 +6,7 @@ imports:
 description: Deploy Kubeflow on top of a Kubernetes Virtual Cluster.
 
 metadata:
+  version: '1.1.0'
   name: Kubeflow
   display_name: Deploy Kubeflow on top of a Kubernetes Virtual Cluster
   icon: images/kubeflow.png
