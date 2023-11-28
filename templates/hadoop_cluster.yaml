@@ -8,7 +8,7 @@ description: Deploy a Hadoop Virtual Cluster.
 metadata:
   version: "1.0.0"
   display_name: Deploy a Hadoop Virtual Cluster
-  icon: images/hadoop.jpg
+  icon: images/hadoop.png
   childs:
    - spark_hadoop.yaml
 
