@@ -15,6 +15,8 @@ metadata:
     - oscar_elastic.yaml
     - oscar_function.yaml
     - prometheus.yaml
+    - registry.yaml
+    - nodered.yaml
 
 topology_template:
   inputs:
@@ -236,7 +238,7 @@ topology_template:
 
   outputs:
     oscarui_endpoint:
-      value: { concat: [ 'https://ui.oscar.grycap.net?endpoint=https://', get_input: cluster_name, '.', get_input: domain_name, '&username=admin&password', get_input: oscar_password  ] }
+      value: { concat: [ 'https://ui.oscar.grycap.net?endpoint=https://', get_input: cluster_name, '.', get_input: domain_name, '&username=oscar&password=', get_input: oscar_password  ] }
     dashboard_endpoint:
       value: { concat: [ 'https://', get_input: cluster_name, '.', get_input: domain_name , '/dashboard/' ] }
     local_oscarui_endpoint:

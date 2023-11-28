@@ -35,7 +35,7 @@ topology_template:
       default: '' 
     airflow_dags_branch:
       type: string
-      description: irflow DAGs git repository branch
+      description: Airflow DAGs git repository branch
       default: 'master'
 
   node_templates:

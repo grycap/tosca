@@ -46,7 +46,7 @@ topology_template:
     registry_prefix:
       type: string
       description: Prefix of the container registry
-      default: "ghcr.io/eflows4hpc"
+      default: "ghcr.io/eflows4hpc/"
       required: yes
     registry_user:
       type: string

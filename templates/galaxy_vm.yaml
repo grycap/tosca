@@ -11,7 +11,7 @@ metadata:
   icon: images/galaxy.png
   tag: VM
   link: 
-    parents: simple-node-disk.yml
+    parent: simple-node-disk.yml
     childs:
       - galaxy.yaml
 

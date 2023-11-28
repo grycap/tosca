@@ -6,7 +6,7 @@
   description: Deploy a OpenBioMaps server with a compute node
   
   metadata:
-    version: "0.1.0"
+    version: "0.2.0"
     display_name: Deploy a OpenBioMaps portal and Compute node
     icon: images/obm.png
     tag: beta
@@ -134,7 +134,7 @@
          size: { get_input: disk_size2 }
          volume_id: { get_input: volume_id2 }
 
-      obb_compute:
+      obm_compute:
         type: tosca.nodes.SoftwareComponent
         requirements:
           - host: obm_compute_node 
@@ -171,8 +171,9 @@
     outputs:
       obm_url:
         value: { concat: [ 'http://', get_attribute: [ obm_server, public_address, 0 ], '/' ] }
-      obm_compute_ip:
-        value: { get_attribute: [ obm_compute_node, public_address, 0 ] }
+      obm_compute_url:
+        value: { concat: [ 'http://', get_attribute: [ obm_compute_node, public_address, 0 ], '/api.php' ] }
       supervisor_pass:
         value: { get_attribute: [ obm_server, ansible_output, obm_obm_server_conf_obm_server, tasks, supervisor_pass, output ] }
-
+      compute_pass:
+        value: { get_attribute: [ obm_compute_node, ansible_output, obm_compute_obm_compute_node_conf_obm_compute_node, tasks, compute_pass, output ] }

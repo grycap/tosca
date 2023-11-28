@@ -118,7 +118,7 @@ topology_template:
       description: Flag to set the Badgr server to be installed
       default: false
       constraints:
-      - valid_values: [ true, false ]
+      - valid_values: [ false, true ]
 
   node_templates:
 
