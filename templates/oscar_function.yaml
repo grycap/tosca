@@ -44,12 +44,12 @@ topology_template:
       required: yes
     function_input:
       type: string
-      description: Input path in the MinOI Bucket
+      description: Input path in the MinIO Bucket
       default: "input"
       required: yes
     function_output:
       type: string
-      description: Output path in the MinOI Bucket
+      description: Output path in the MinIO Bucket
       default: "output"
       required: yes
 

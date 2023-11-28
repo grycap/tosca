@@ -45,6 +45,13 @@ topology_template:
             rules:
             - http:
                 paths:
+                - path: /apis
+                  backend:
+                    service:
+                      name: kubeapps
+                      port:
+                        number: 80
+                  pathType: Prefix
                 - path: /kubeapps
                   backend:
                     service:

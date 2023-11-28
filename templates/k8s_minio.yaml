@@ -10,7 +10,7 @@ metadata:
   display_name: Deploy MinIO server on top of a Kubernetes Virtual Cluster
   icon: images/k8s_minio.png
   link: 
-    parents: kubernetes.yaml
+    parent: kubernetes.yaml
     childs:
       - minio.yaml
 
