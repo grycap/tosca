@@ -6,7 +6,7 @@ imports:
 description: Deploy Prometheus + Grafana on top of a Kubernetes Virtual Cluster.
 
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
   name: Prometheus
   display_name: Deploy Prometheus + Grafana  on top of a Kubernetes Virtual Cluster
   icon: images/prometheus.png
@@ -41,6 +41,15 @@ topology_template:
               server:
                 root_url: '%(protocol)s://%(domain)s:%(http_port)s/grafana/'
                 serve_from_sub_path: true
+          prometheus:
+            prometheusSpec:
+              storageSpec:
+                volumeClaimTemplate:
+                  spec:
+                    accessModes: ['ReadWriteOnce']
+                    resources:
+                      requests:
+                        storage: 20Gi
         values: 
           grafana.adminPassword: { get_input: admin_password }
       requirements:

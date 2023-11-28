@@ -6,7 +6,7 @@ imports:
 description: Deploy JupyterHub on top of a Kubernetes Virtual Cluster.
 
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
   name: JupyterHub
   display_name: Deploy JupyterHub on top of a Kubernetes Virtual Cluster
   icon: images/jupyterhub.png
@@ -34,6 +34,18 @@ topology_template:
       description: Username of the Administrator user
       default: admin
 
+    data_url:
+      type: string
+      description: URL of data to be downloaded and stored in the JupyterHub PVC.
+      default: ''
+
+    unarchive:
+      type: boolean
+      description: Unarchive the downloaded file.
+      default: false
+      constraints:
+      - valid_values: [ false, true ]
+
   node_templates:
 
     jupyterhub:
@@ -49,6 +61,20 @@ topology_template:
       requirements:
         - host: front
         - dependency: lrms_front_end
+
+    get_data:
+      type: tosca.nodes.SoftwareComponent
+      interfaces:
+        Standard:
+          configure:
+            implementation:  https://raw.githubusercontent.com/grycap/tosca/main/artifacts/download_data.yml
+            inputs:
+              data_url: { get_input: data_url }
+              k8s_pvc_namespace: jupyter
+              k8s_pvc_name: claim-data
+              unarchive_file: { get_input: unarchive }
+      requirements:
+        - host: lrms_front_end
 
   outputs:
     jupyterhub_endpoint:

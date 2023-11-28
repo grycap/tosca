@@ -6,7 +6,7 @@ imports:
 description: Make SLURM Virtual Cluster Elastic.
 
 metadata:
-  version: "1.0.0"
+  version: "1.0.1"
   name: Elastic
   display_name: Make SLURM Virtual Cluster Elastic
   icon: images/elasticity.png
@@ -54,13 +54,6 @@ topology_template:
                 CLIENT_SECRET: client_secret
           start:
             implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/use_external_im.yml
-
-    lrms_front_end:
-      type: tosca.nodes.indigo.LRMS.FrontEnd.Slurm
-      properties:
-        max_number_of_nodes: { get_input: max_wn_num }
-      requirements:
-        - host: lrms_server
 
     wn_node:
       type: tosca.nodes.indigo.LRMS.WorkerNode.Slurm

@@ -28,10 +28,21 @@ for path, _, files in os.walk(directory):
         with io.open(os.path.join(path, name)) as stream:
             print("Template: " + name)
             template = yaml.full_load(stream)
-            if "metadata" in template and "parents" in template["metadata"]:
-                for parent in template["metadata"]["parents"]:
-                    print("Parent: " + parent)
-                    with io.open(os.path.abspath(os.path.join(path, "..", "templates", parent))) as pstream:
-                        parent_template = yaml.full_load(pstream)
-                        full_template = _merge_templates(template, parent_template)
-                        ToscaTemplate(yaml_dict_tpl=full_template)
+        if "metadata" in template and "parents" in template["metadata"]:
+            for parent in template["metadata"]["parents"]:
+                print("Parent: " + parent)
+                with io.open(os.path.abspath(os.path.join(path, "..", "templates", parent))) as pstream:
+                    parent_template = yaml.full_load(pstream)
+                    full_template = _merge_templates(parent_template, template)
+                ToscaTemplate(yaml_dict_tpl=full_template)
+        if "metadata" in template and "link" in template["metadata"]:
+            parent = template["metadata"]["link"]["parents"]
+            with io.open(os.path.join(path, parent)) as stream:
+                print("Link Parent: " + parent)
+                full_template = yaml.full_load(stream)
+            for child in template["metadata"]["link"]["childs"]:
+                print("Link Child: " + child)
+                with io.open(os.path.abspath(os.path.join(path, "..", "templates", child))) as cstream:
+                    child_template = yaml.full_load(cstream)
+                    full_template = _merge_templates(full_template, child_template)
+            ToscaTemplate(yaml_dict_tpl=full_template)

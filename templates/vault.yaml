@@ -9,7 +9,7 @@ metadata:
   version: "1.0.0" 
   name: Vault
   display_name: Deploy Hashicorp Vault on top of a Kubernetes Virtual Cluster
-  icon: images/vault.png
+  icon: images/vault-logo.png
   parents:
    - kubernetes.yaml
 

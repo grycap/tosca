@@ -6,7 +6,7 @@ imports:
 description: Donwload some data available in an URL to a Kubernetes PVC
 
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
   name: Download in PVC
   display_name: Download file in a Kubernetes PVC
   icon: images/download.png
@@ -23,6 +23,13 @@ topology_template:
       default: ''
       required: true
 
+    unarchive:
+      type: boolean
+      description: Unarchive the downloaded file.
+      default: false
+      constraints:
+      - valid_values: [ false, true ]
+
     pvc_namespace:
       type: string
       description: Namespace of the PVC
@@ -31,7 +38,7 @@ topology_template:
 
     pvc_name:
       type: string
-      description: Namespace of the PVC
+      description: Names of the PVC
       default: ''
       required: true
 
@@ -47,6 +54,7 @@ topology_template:
               data_url: { get_input: data_url }
               k8s_pvc_namespace: { get_input: pvc_namespace }
               k8s_pvc_name: { get_input: pvc_name }
+              unarchive_file: { get_input: unarchive }
       requirements:
         - host: lrms_front_end
 
