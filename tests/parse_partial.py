@@ -29,13 +29,18 @@ for path, _, files in os.walk(directory):
             print("Template: " + name)
             template = yaml.full_load(stream)
         if "metadata" in template and "parents" in template["metadata"]:
+            if "link" in template["metadata"]:
+                raise Exception("Child template cannot have link metadata")
             for parent in template["metadata"]["parents"]:
                 print("Parent: " + parent)
                 with io.open(os.path.abspath(os.path.join(path, "..", "templates", parent))) as pstream:
                     parent_template = yaml.full_load(pstream)
                     full_template = _merge_templates(parent_template, template)
                 ToscaTemplate(yaml_dict_tpl=full_template)
+        # Test also link templates
         if "metadata" in template and "link" in template["metadata"]:
+            if "parents" in template["metadata"]:
+                raise Exception("Link template cannot have parents")
             parent = template["metadata"]["link"]["parents"]
             with io.open(os.path.join(path, parent)) as stream:
                 print("Link Parent: " + parent)
