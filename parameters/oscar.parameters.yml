@@ -26,6 +26,9 @@ inputs:
     admin_token:
       tab: OSCAR parameters
 
+    kube_version:
+      tab: OSCAR parameters
+
     oscar_password:
       tab: OSCAR parameters
 
