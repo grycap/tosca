@@ -6,10 +6,10 @@ imports:
 description: Deploy a Kubernetes Virtual Cluster.
 
 metadata:
-  version: "1.0.0"
+  version: "1.0.1"
   display_name: Deploy a Kubernetes Virtual Cluster
   icon: images/kubernetes.png
-  order: 5
+  order: 3
   childs:
     - kubeapps.yml
     - minio.yaml
@@ -112,10 +112,10 @@ topology_template:
       default: ""
     wn_disk_size:
       type: scalar-unit.size
-      description: Size of the disk to be attached to the WN instances for storing containers
-      default: 0 GB
+      description: Size of the root disk of the WNs
+      default: 20 GB
       constraints:
-      - valid_values: [ 0 GB, 10 GB, 20 GB, 50 GB, 100 GB, 200 GB, 500 GB, 1 TB, 2 TB ]
+      - valid_values: [ 20 GB, 50 GB, 100 GB, 200 GB ]
     wn_kube_nvidia_support:
       type: boolean
       description: Flag to add NVIDIA support in the WN
@@ -138,7 +138,7 @@ topology_template:
       description: CRI Runtime to use with Kubernetes
       default: "containerd"
       constraints:
-      - valid_values: [ containerd, docker ]
+      - valid_values: [ containerd, crio, docker ]
     kube_cert_manager:
       type: boolean
       description: Flag to install Cert-Manager
@@ -153,7 +153,6 @@ topology_template:
       type: string
       description: DNS name of the public interface of the FE node to generate the certificate
       default: ""
-      required: yes
 
     allowed_cidr:
       type: string
@@ -176,10 +175,10 @@ topology_template:
                 protocol: tcp
                 source: 443
                 remote_cidr: { get_input: allowed_cidr }
-              kube_port:
-                protocol: tcp
-                source: 6443
-                remote_cidr: { get_input: allowed_cidr }
+ #             kube_port:
+ #               protocol: tcp
+ #               source: 6443
+ #               remote_cidr: { get_input: allowed_cidr }
       properties:
         admin_username:  kubeuser
         install_nfs_client: true
@@ -242,6 +241,7 @@ topology_template:
             count:  { get_input: wn_num }
         host:
           properties:
+            disk_size: { get_input: wn_disk_size }
             num_cpus: { get_input: wn_cpus }
             mem_size: { get_input: wn_mem }
             num_gpus: { get_input: wn_num_gpus }
@@ -252,18 +252,6 @@ topology_template:
           properties:
             distribution: ubuntu
             type: linux
-      requirements:
-      - local_storage:
-          node: wn_block_storage
-          relationship:
-            type: AttachesTo
-            properties:
-              location: { concat: [ '/var/lib/', get_input: cri_runtime ] }
-
-    wn_block_storage:
-      type: tosca.nodes.BlockStorage
-      properties:
-        size: { get_input: wn_disk_size }
 
   outputs:
     dashboard_endpoint:

@@ -1,0 +1,8 @@
+inputs:
+    nsupdate_dns:
+      tab: DyDNS Data
+
+    nsupdate_secret:
+      tab: DyDNS Data
+tabs:
+  - DyDNS Data

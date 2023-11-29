@@ -8,6 +8,8 @@ description: >
 
 metadata:
   version: "1.0.0"
+  author: Miguel Caballer
+  creation_date: 2020-09-08
   display_name: Deploy a VM
   icon: images/vm-icon-disk.png
   tag: VM
@@ -29,6 +31,7 @@ metadata:
    - mlfowvm.yaml
    - wget.yml
    - sgde.yaml
+   - dydns_egi_update_vm.yml
 
 topology_template:
 

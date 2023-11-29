@@ -10,7 +10,7 @@ metadata:
   display_name: Deploy InfluxDB on top of a Kubernetes Virtual Cluster
   icon: images/k8s_influxdb.png
   link: 
-    parents: kubernetes.yaml
+    parent: kubernetes.yaml
     childs:
       - influxdb.yaml
 

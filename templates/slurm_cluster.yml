@@ -9,8 +9,10 @@ metadata:
   version: "1.0.0"
   display_name: SLURM virtual cluster
   icon: images/slurm.png
+  order: 4
   childs:
    - slurm_elastic.yaml
+   - ssh_keys.yml
    - slurm_galaxy.yml
    - glusterfs.yml
    - docker_cluster.yaml

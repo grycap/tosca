@@ -21,6 +21,11 @@ topology_template:
       description: Maximum Number of WNs in the OSCAR cluster
       default: 1
       required: yes
+    min_wn_num:
+      type: integer
+      description: Min Number of free WNs in the cluster
+      default: 0
+      required: yes
 
   node_templates:
 
@@ -41,7 +46,7 @@ topology_template:
           - { section: 'client', option: 'CLUES_REQUEST_WAIT_TIMEOUT', value: '3000' }
           # These options enable to have always one slot free
           - { section: 'scheduling', option: 'SCHEDULER_CLASSES', value: 'clueslib.schedulers.CLUES_Scheduler_PowOn_Requests, clueslib.schedulers.CLUES_Scheduler_Reconsider_Jobs, clueslib.schedulers.CLUES_Scheduler_PowOff_IDLE, clueslib.schedulers.CLUES_Scheduler_PowOn_Free' }
-          - { section: 'scheduling', option: 'EXTRA_SLOTS_FREE', value: '1' }
+          - { section: 'scheduling', option: 'EXTRA_NODES_FREE', value: { get_input: min_wn_num } }
       capabilities:
         endpoint:
           properties:
@@ -69,7 +74,7 @@ topology_template:
       capabilities:
         wn:
           properties:
-            max_instances: { get_input: wn_num }
+            max_instances: { get_input: max_wn_num }
             min_instances: 0
       requirements:
         - host: wn
@@ -82,7 +87,7 @@ topology_template:
             dns_name: vnode-#N#.localdomain
         scalable:
           properties:
-            count:  1
+            count: { get_input: min_wn_num }
         host:
           properties:
             num_cpus: { get_input: wn_cpus }

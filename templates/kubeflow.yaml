@@ -22,17 +22,17 @@ topology_template:
       default: "user@example.com"
     kubeflow_pass:
       type: string
-      description: Default Kubeflow password (python3 -c 'from passlib.hash import bcrypt; import getpass; print(bcrypt.using(rounds=12, ident="2y").hash(getpass.getpass()))')
+      description: Default Kubeflow password (12341234). Generate a new one with - python3 -c 'from passlib.hash import bcrypt; import getpass; print(bcrypt.using(rounds=12, ident="2y").hash(getpass.getpass()))'
       default: "$2y$12$4K/VkmDd1q1Orb3xAt82zu8gk7Ad6ReFR4LCP9UeYE90NLiN9Df72"
     kubeflow_manifests_version:
       type: string
       description: Kubeflow Manifests version
-      default: "v1.7.0"
+      default: "v1.8.0"
       constraints:
-      - valid_values: [ "v1.7.0", "v1.8.0", "v1.6.1" ]
+      - valid_values: [ "v1.8.0", "v1.7.0", "v1.6.1" ]
     kubeflow_mlflow:
       type: boolean
-      description: Deploy MLFlow in Kubeflow instance
+      description: Deploy embedded MLFlow in Kubeflow instance
       default: false
       constraints:
       - valid_values: [ false, true ]
@@ -42,9 +42,9 @@ topology_template:
     kube_version:
       type: string
       description: Version of Kubernetes to install
-      default: "1.25.14"
+      default: "1.26.8"
       constraints:
-      - valid_values: [ "1.25.14", "1.24.17" ]
+      - valid_values: [ "1.26.8", "1.25.14", "1.24.17" ]
 
     wn_num:
       type: integer

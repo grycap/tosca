@@ -41,7 +41,7 @@ for path, _, files in os.walk(directory):
         if "metadata" in template and "link" in template["metadata"]:
             if "parents" in template["metadata"]:
                 raise Exception("Link template cannot have parents")
-            parent = template["metadata"]["link"]["parents"]
+            parent = template["metadata"]["link"]["parent"]
             with io.open(os.path.join(path, parent)) as stream:
                 print("Link Parent: " + parent)
                 full_template = yaml.full_load(stream)

@@ -26,6 +26,15 @@ topology_template:
         name: vault
         values: 
           ui.enabled: "true"
+          ui.serviceType: "NodePort"
+          ui.serviceNodePort: "8200"
+      capabilities:
+        endpoint:
+          properties:
+            ports:
+              ui_port:
+                protocol: tcp
+                source: 8200
       requirements:
         - host: front
         - dependency: lrms_front_end
@@ -57,5 +66,5 @@ topology_template:
         - host: lrms_front_end
 
   outputs:
-    grafana_endpoint:
+    vault_endpoint:
       value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], '/ui/' ] }

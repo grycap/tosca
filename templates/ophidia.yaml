@@ -17,32 +17,43 @@ topology_template:
     fe_number_cpus:
       type: integer
       description: number of cpus required for the server instance
-      default: 1
+      default: 8
       constraints:
-      - valid_values: [ 1, 2, 4, 8, 16, 32, 64 ]
+      - valid_values: [ 8, 16, 32, 64, 1, 2, 4 ]
     fe_memory_size:
       type: string
       description: ram memory required for the server instance
-      default: 2 GB
+      default: 16 GB
       constraints:
-      - valid_values: [ 2 GB, 4 GB, 8 GB, 16 GB, 32 GB, 64 GB, 128 GB, 256 GB, 512 GB ]
+      - valid_values: [ 16 GB, 32 GB, 64 GB, 128 GB, 256 GB, 512 GB, 2 GB, 4 GB, 8 GB]
     wn_number_cpus:
       type: integer
       description: number of cpus required for the WN instances
-      default: 1
+      default: 8
       constraints:
-      - valid_values: [ 1, 2, 4, 8, 16, 32, 64 ]
+      - valid_values: [ 8, 16, 32, 64, 1, 2, 4 ]
     wn_memory_size:
       type: string
       description: ram memory required for the WN instances
-      default: 2 GB
+      default: 16 GB
       constraints:
-      - valid_values: [ 2 GB, 4 GB, 8 GB, 16 GB, 32 GB, 64 GB, 128 GB, 256 GB, 512 GB ]
+      - valid_values: [ 16 GB, 32 GB, 64 GB, 128 GB, 256 GB, 512 GB, 2 GB, 4 GB, 8 GB ]
     num_of_io_nodes:
       type: integer
       description: number of ophidia oi nodes to launch
       default: 1
-  
+
+    storage_size:
+      type: scalar-unit.size
+      description: Size of the extra HD added to the instance (Set 0 if disk is not needed)
+      default: 0 GB
+      constraints:
+      - valid_values: [ 0 GB, 20 GB, 30 GB, 50 GB, 100 GB, 1 TB, 10 TB, 100 TB ]
+    volume_id:
+      type: string
+      description: "Or URL of the disk to be attached to the instance (format: ost://bulut.truba.gov.tr//<vol_id>"
+      default: "ost://bulut.truba.gov.tr/fab4da5e-0613-4cc3-8152-0e4cbca08a3c"
+
   node_templates:
   
     ophidiafe:
@@ -69,6 +80,9 @@ topology_template:
               data_port:
                 protocol: tcp
                 source: 8080
+              jupyter_port:
+                protocol: tcp
+                source: 443
         host:
          properties:
            num_cpus: { get_input: fe_number_cpus }
@@ -90,7 +104,8 @@ topology_template:
     ophidia_server_block_storage:
       type: tosca.nodes.BlockStorage
       properties:
-        size: 25 GB
+        size: { get_input: storage_size }
+        volume_id: { get_input: volume_id }
 
     ophidia_io:
       type: tosca.nodes.indigo.OphidiaIO
