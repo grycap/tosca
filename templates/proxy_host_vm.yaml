@@ -20,13 +20,13 @@ topology_template:
       description: Number of virtual cpus for the VM
       default: 1
       constraints:
-      - valid_values: [ 1, 2, 4, 8, 16, 32, 64 ]
+        - valid_values: [ 1, 2, 4, 8, 16, 32, 64 ]
     mem_size:
       type: scalar-unit.size
       description: Amount of memory for the VM
       default: 2 GB
       constraints:
-      - valid_values: [ 2 GB, 4 GB, 8 GB, 16 GB, 32 GB, 64 GB, 128 GB, 256 GB, 512 GB ]
+        - valid_values: [ 2 GB, 4 GB, 8 GB, 16 GB, 32 GB, 64 GB, 128 GB, 256 GB, 512 GB ]
     num_instances:
       type: integer
       description: Number of VMs to be spawned

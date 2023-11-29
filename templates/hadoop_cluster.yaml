@@ -10,7 +10,7 @@ metadata:
   display_name: Deploy a Hadoop Virtual Cluster
   icon: images/hadoop.png
   childs:
-   - spark_hadoop.yaml
+    - spark_hadoop.yaml
 
 topology_template:
   inputs:
@@ -25,28 +25,28 @@ topology_template:
       default: 2
       required: yes
       constraints:
-      - valid_values: [ 2, 4, 8, 16, 32, 64 ]
+        - valid_values: [ 2, 4, 8, 16, 32, 64 ]
     fe_mem:
       type: scalar-unit.size
       description: Amount of Memory for the front-end node
       default: 4 GB
       required: yes
       constraints:
-      - valid_values: [ 4 GB, 8 GB, 16 GB, 32 GB, 64 GB, 128 GB, 256 GB, 512 GB ]
+        - valid_values: [ 4 GB, 8 GB, 16 GB, 32 GB, 64 GB, 128 GB, 256 GB, 512 GB ]
     wn_cpus:
       type: integer
       description: Number of CPUs for the WNs
       default: 2
       required: yes
       constraints:
-      - valid_values: [ 2, 4, 8, 16, 32, 64 ]
+        - valid_values: [ 2, 4, 8, 16, 32, 64 ]
     wn_mem:
       type: scalar-unit.size
       description: Amount of Memory for the WNs
       default: 4 GB
       required: yes
       constraints:
-      - valid_values: [ 4 GB, 8 GB, 16 GB, 32 GB, 64 GB, 128 GB, 256 GB, 512 GB ]
+        - valid_values: [ 4 GB, 8 GB, 16 GB, 32 GB, 64 GB, 128 GB, 256 GB, 512 GB ]
 
 
   node_templates:
@@ -89,7 +89,7 @@ topology_template:
       capabilities:
         scalable:
           properties:
-            count:  { get_input: wn_num }
+            count: { get_input: wn_num }
         host:
           properties:
             num_cpus: { get_input: wn_cpus }

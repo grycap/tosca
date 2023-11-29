@@ -69,7 +69,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation:  https://raw.githubusercontent.com/grycap/tosca/main/artifacts/ai-monitoring/ai-sprint-monit.yaml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/ai-monitoring/ai-sprint-monit.yaml
             inputs:
               GITLAB_REGISTRY_TOKEN: { get_input: GITLAB_REGISTRY_TOKEN }
               GITLAB_REPO_TOKEN: { get_input: GITLAB_REPO_TOKEN }

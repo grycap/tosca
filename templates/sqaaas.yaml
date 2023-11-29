@@ -25,14 +25,14 @@ topology_template:
       default: 2
       required: yes
       constraints:
-      - valid_values: [ 2, 4, 8, 16, 32, 64 ]
+        - valid_values: [ 2, 4, 8, 16, 32, 64 ]
     fe_mem:
       type: scalar-unit.size
       description: Amount of Memory for the front-end node
       default: 4 GB
       required: yes
       constraints:
-      - valid_values: [ 4 GB, 8 GB, 16 GB, 32 GB, 64 GB, 128 GB, 256 GB, 512 GB ]
+        - valid_values: [ 4 GB, 8 GB, 16 GB, 32 GB, 64 GB, 128 GB, 256 GB, 512 GB ]
     fe_instance_type:
       type: string
       description: Flavor name of the front-end node
@@ -43,14 +43,14 @@ topology_template:
       default: 2
       required: yes
       constraints:
-      - valid_values: [ 2, 4, 8, 16, 32, 64 ]
+        - valid_values: [ 2, 4, 8, 16, 32, 64 ]
     wn_mem:
       type: scalar-unit.size
       description: Amount of Memory for the WNs
       default: 4 GB
       required: yes
       constraints:
-      - valid_values: [ 4 GB, 8 GB, 16 GB, 32 GB, 64 GB, 128 GB, 256 GB, 512 GB ]
+        - valid_values: [ 4 GB, 8 GB, 16 GB, 32 GB, 64 GB, 128 GB, 256 GB, 512 GB ]
     wn_instance_type:
       type: string
       description: Flavor name for the WNs
@@ -60,7 +60,7 @@ topology_template:
       description: Size of the disk to be attached to the FE instance
       default: 10 GB
       constraints:
-      - valid_values: [ 10 GB, 20 GB, 50 GB, 100 GB, 200 GB, 500 GB, 1 TB, 2 TB ]
+        - valid_values: [ 10 GB, 20 GB, 50 GB, 100 GB, 200 GB, 500 GB, 1 TB, 2 TB ]
     volume_id:
       type: string
       description: "Or URL of the disk to be attached to the instance (format: ost://api.cloud.ifca.es/<vol_id>"
@@ -75,13 +75,13 @@ topology_template:
       description: Version of Kubernetes to install
       default: "1.20.6"
       constraints:
-      - valid_values: [ "1.20.6", "1.19.10", "1.18.19", "1.21.0" ]
+        - valid_values: [ "1.20.6", "1.19.10", "1.18.19", "1.21.0" ]
     kube_cert_manager:
       type: boolean
       description: Flag to install Cert-Manager and manage the generation of TLS certificas with Let's Encrypt
       default: false
       constraints:
-      - valid_values: [ false, true ]
+        - valid_values: [ false, true ]
     kube_cert_user_email:
       type: string
       description: Email to be used in the Let's Encrypt issuer
@@ -118,7 +118,7 @@ topology_template:
       description: Flag to set the Badgr server to be installed
       default: false
       constraints:
-      - valid_values: [ false, true ]
+        - valid_values: [ false, true ]
 
   node_templates:
 
@@ -157,10 +157,10 @@ topology_template:
                 protocol: tcp
                 source: 8443
       properties:
-        admin_username:  kubeuser
+        admin_username: kubeuser
         install_nfs_client: true
         admin_token: { get_input: admin_token }
-        install_kubeapps:  false
+        install_kubeapps: false
         version: { get_input: kube_version }
         nvidia_support: false
         cert_manager: { get_input: kube_cert_manager }
@@ -185,12 +185,12 @@ topology_template:
             distribution: ubuntu
             type: linux
       requirements:
-      - local_storage:
-          node: fe_block_storage
-          relationship:
-            type: AttachesTo
-            properties:
-              location: /pv
+        - local_storage:
+            node: fe_block_storage
+            relationship:
+              type: AttachesTo
+              properties:
+                location: /pv
 
     fe_block_storage:
       type: tosca.nodes.BlockStorage
@@ -212,7 +212,7 @@ topology_template:
       capabilities:
         scalable:
           properties:
-            count:  { get_input: wn_num }
+            count: { get_input: wn_num }
         host:
           properties:
             num_cpus: { get_input: wn_cpus }
@@ -224,13 +224,13 @@ topology_template:
             type: linux
 
   outputs:
-   sqaaas_api_endpoint:
+    sqaaas_api_endpoint:
       value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], '/sqaaas/v1/' ] }
-   sqaaas_web_endpoint:
+    sqaaas_web_endpoint:
       value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], '/sqaaas-web/' ] }
-   kubernetes_dashboard_endpoint:
+    kubernetes_dashboard_endpoint:
       value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], '/dashboard/' ] }
-   badgr_web_endpoint:
+    badgr_web_endpoint:
       value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], '/badgr/' ] }
-   badgr_api_endpoint:
+    badgr_api_endpoint:
       value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], ':8443' ] }

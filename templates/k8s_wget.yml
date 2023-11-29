@@ -28,7 +28,7 @@ topology_template:
       description: Unarchive the downloaded file.
       default: false
       constraints:
-      - valid_values: [ false, true ]
+        - valid_values: [ false, true ]
 
     pvc_namespace:
       type: string
@@ -49,7 +49,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation:  https://raw.githubusercontent.com/grycap/tosca/main/artifacts/download_data.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/download_data.yml
             inputs:
               data_url: { get_input: data_url }
               k8s_pvc_namespace: { get_input: pvc_namespace }
@@ -57,4 +57,3 @@ topology_template:
               unarchive_file: { get_input: unarchive }
       requirements:
         - host: lrms_front_end
-

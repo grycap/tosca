@@ -32,7 +32,7 @@ topology_template:
       description: Unarchive the downloaded file. (Setting this flag implies that 'Wait to download' will be ignored and set to true)
       default: false
       constraints:
-      - valid_values: [ false, true ]
+        - valid_values: [ false, true ]
 
     max_download_time:
       type: integer
@@ -44,7 +44,7 @@ topology_template:
       description: Wait to data to be downloaded, otherwise download in background (in this case no error check)
       default: true
       constraints:
-      - valid_values: [ true, false ]
+        - valid_values: [ true, false ]
 
   node_templates:
 
@@ -53,7 +53,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation:  https://raw.githubusercontent.com/grycap/tosca/main/artifacts/download_data.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/download_data.yml
             inputs:
               data_url: { get_input: data_url }
               local_path: { get_input: local_path }

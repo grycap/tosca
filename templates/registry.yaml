@@ -51,4 +51,3 @@ topology_template:
   outputs:
     registry_internal_url:
       value: "registry.docker-registry"
-

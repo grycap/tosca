@@ -11,7 +11,7 @@ metadata:
   display_name: Deploy Hashicorp Vault on top of a Kubernetes Virtual Cluster
   icon: images/vault-logo.png
   parents:
-   - kubernetes.yaml
+    - kubernetes.yaml
 
 topology_template:
 

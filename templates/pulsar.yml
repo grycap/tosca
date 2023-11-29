@@ -12,7 +12,7 @@ metadata:
   display_name: Configure a Pulsar endpoint
   icon: images/pulsar.png
   parents:
-  - htcondor_cluster.yml
+    - htcondor_cluster.yml
 
 topology_template:
   inputs:

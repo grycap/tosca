@@ -11,7 +11,7 @@ metadata:
   display_name: Deploy a Galaxy portal in a SLURM cluster
   icon: images/galaxy_slurm.png
   parents:
-  - slurm_cluster.yml
+    - slurm_cluster.yml
 
 topology_template:
   inputs:
@@ -30,7 +30,7 @@ topology_template:
       description: Version of SLURM to be installed
       default: 20.11.9
       constraints:
-      - valid_values: [ '20.11.9' ]
+        - valid_values: [ '20.11.9' ]
 
   node_templates:
 

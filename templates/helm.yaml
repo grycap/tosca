@@ -11,7 +11,7 @@ metadata:
   display_name: Deploy a Helm Chart on top of a Kubernetes Virtual Cluster
   icon: images/helm.png
   parents:
-   - kubernetes.yaml
+    - kubernetes.yaml
 
 topology_template:
   inputs:

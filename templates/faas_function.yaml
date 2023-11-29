@@ -46,7 +46,7 @@ topology_template:
       default: "s3"
       required: yes
       constraints:
-      - valid_values: [ "s3", "minio.default" ]
+        - valid_values: [ "s3", "minio.default" ]
     function_input:
       type: string
       description: Path in the input Bucket
@@ -58,7 +58,7 @@ topology_template:
       default: "s3"
       required: yes
       constraints:
-      - valid_values: [ "s3", "minio.default" ]
+        - valid_values: [ "s3", "minio.default" ]
     function_output:
       type: string
       description: Path in the output Bucket

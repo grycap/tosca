@@ -11,7 +11,7 @@ metadata:
   display_name: Deploy Prometheus + Grafana  on top of a Kubernetes Virtual Cluster
   icon: images/prometheus.png
   parents:
-   - kubernetes.yaml
+    - kubernetes.yaml
 
 topology_template:
   inputs:

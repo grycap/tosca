@@ -11,7 +11,7 @@ metadata:
   display_name: Deploy Apache NiFi on top of a Kubernetes Virtual Cluster
   icon: images/nifi.png
   parents:
-   - kubernetes.yaml
+    - kubernetes.yaml
 
 topology_template:
   inputs:

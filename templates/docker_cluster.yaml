@@ -14,7 +14,7 @@ metadata:
   tag: SW
   tag_color: blue
   parents:
-   - slurm_cluster.yml
+    - slurm_cluster.yml
 
 topology_template:
 
@@ -25,7 +25,7 @@ topology_template:
       description: Flag to add the NVIDIA drivers and NVIDIA-Docker packages in the Worker nodes
       default: false
       constraints:
-      - valid_values: [ false, true ]
+        - valid_values: [ false, true ]
 
     driver_version:
       type: string

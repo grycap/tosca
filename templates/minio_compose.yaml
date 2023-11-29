@@ -26,7 +26,7 @@ topology_template:
       type: string
     minio_secretkey:
       constraints:
-      - min_length: 8
+        - min_length: 8
       default: changeme123
       description: Secret key credential for object storage and web access
       type: string
@@ -58,7 +58,7 @@ topology_template:
       description: Size of the extra HD added to the instance
       default: 50 GB
       constraints:
-      - valid_values: [ 50 GB, 100 GB, 200 GB, 500 GB, 1 TB, 2 TB, 10 TB, 20 TB, 40 TB, 100 TB ]
+        - valid_values: [ 50 GB, 100 GB, 200 GB, 500 GB, 1 TB, 2 TB, 10 TB, 20 TB, 40 TB, 100 TB ]
     mount_path:
       type: string
       description: Path to mount the extra disk
