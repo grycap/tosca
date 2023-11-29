@@ -1,9 +1,9 @@
 inputs:
   mlflow_admin_user:
-      tab: MLFlow Data
+    tab: MLFlow Data
 
   mlflow_admin_password:
-      tab: MLFlow Data
+    tab: MLFlow Data
 
   mlflow_dns_hostname:
     tab: MLFlow Data

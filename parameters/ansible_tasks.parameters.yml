@@ -1,8 +1,8 @@
 inputs:
 
-    ansible_tasks:
-      tab: Ansible Tasks
-      tag_type: textarea
+  ansible_tasks:
+    tab: Ansible Tasks
+    tag_type: textarea
 
 tabs:
   - Ansible Tasks

@@ -1,8 +1,8 @@
 inputs:
-    kafka_user:
-      tab: Kafka Data
+  kafka_user:
+    tab: Kafka Data
 
-    kafka_pass:
-      tab: Kafka Data
+  kafka_pass:
+    tab: Kafka Data
 tabs:
   - Kafka Data

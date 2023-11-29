@@ -1,7 +1,6 @@
 inputs:
-    driver_version:
-      tab: GPU Data
+  driver_version:
+    tab: GPU Data
 
 tabs:
   - GPU Data
-
