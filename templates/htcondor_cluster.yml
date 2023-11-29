@@ -28,7 +28,7 @@ topology_template:
       default: 1
       required: yes
       constraints:
-      - valid_values: [ 1, 2, 4, 8, 16, 32, 64 ]      
+      - valid_values: [ 1, 2, 4, 8, 16, 32, 64 ]
     fe_mem:
       type: scalar-unit.size
       description: Amount of Memory for the front-end node

@@ -75,7 +75,7 @@ topology_template:
             mem_size: { get_input: fe_mem }
         os:
           properties:
-            type: linux 
+            type: linux
 
     hadoop_slave:
       type: tosca.nodes.indigo.HadoopSlave
@@ -96,7 +96,7 @@ topology_template:
             mem_size: { get_input: wn_mem }
         os:
           properties:
-            type: linux 
+            type: linux
 
   outputs:
     cluster_ip:

@@ -16,7 +16,7 @@ metadata:
   parents:
    - simple-node-disk.yml
 
-topology_template:  
+topology_template:
 
   inputs:
 
@@ -52,7 +52,7 @@ topology_template:
     docker:
       type: tosca.nodes.SoftwareComponent
       requirements:
-        - host: simple_node 
+        - host: simple_node
       artifacts:
         docker_role:
           file: grycap.docker

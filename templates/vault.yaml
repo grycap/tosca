@@ -6,7 +6,7 @@ imports:
 description: Deploy Hashicorp Vault on top of a Kubernetes Virtual Cluster.
 
 metadata:
-  version: "1.0.0" 
+  version: "1.0.0"
   name: Vault
   display_name: Deploy Hashicorp Vault on top of a Kubernetes Virtual Cluster
   icon: images/vault-logo.png
@@ -24,7 +24,7 @@ topology_template:
         repository_name: hashicorp
         repository_url: "https://helm.releases.hashicorp.com"
         name: vault
-        values: 
+        values:
           ui.enabled: "true"
           ui.serviceType: "NodePort"
           ui.serviceNodePort: "8200"

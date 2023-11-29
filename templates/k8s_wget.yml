@@ -15,7 +15,7 @@ metadata:
 
 topology_template:
 
-  inputs:        
+  inputs:
 
     data_url:
       type: string

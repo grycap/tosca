@@ -12,7 +12,7 @@ metadata:
 
 topology_template:
 
-  inputs:        
+  inputs:
     tosca:
       type: string
       description: TOSCA template

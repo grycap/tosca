@@ -15,7 +15,7 @@ metadata:
 
 topology_template:
   inputs:
- 
+
     minio_release:
       default: RELEASE.2023-07-21T21-12-44Z
       description: Check out https://github.com/minio/minio/tags
@@ -51,7 +51,6 @@ topology_template:
       description: Email to be used for Let's Encrypt certificates
       type: string
 
-  
     # Restrict some simple-node-disk input values
 
     storage_size:

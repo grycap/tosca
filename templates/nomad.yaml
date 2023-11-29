@@ -87,14 +87,13 @@ topology_template:
             distribution: ubuntu
             type: linux
 
-
     wn_node:
       type: tosca.nodes.indigo.LRMS.WorkerNode.Nomad
       properties:
         front_end_ip: { get_attribute: [ front, private_address, 0 ] }
       requirements:
         - host: wn
-            
+
     wn:
       type: tosca.nodes.indigo.Compute
       capabilities:

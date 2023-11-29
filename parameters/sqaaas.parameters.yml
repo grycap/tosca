@@ -55,7 +55,7 @@ inputs:
 
     sqaaas_github_org:
       tab: SQAaaS Data
-    
+
     install_badgr:
       tab: SQAaaS Data
 

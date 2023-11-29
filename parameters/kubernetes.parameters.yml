@@ -20,7 +20,7 @@ inputs:
 
     wn_num:
       tab: WNs Features
-  
+
     wn_cpus:
       tab: WNs Features
 
@@ -29,7 +29,7 @@ inputs:
 
     wn_num_gpus:
       tab: WNs Features
-  
+
     wn_gpu_vendor:
       tab: WNs Features
 

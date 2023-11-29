@@ -58,8 +58,10 @@ topology_template:
                   namespace: ai-sprint-mon
                 stringData:
                   admin-user: grafana
-                  admin-password: 
+                  admin-password: "
             - get_input: grafana_password
+            - |-
+                "
       requirements:
         - host: lrms_front_end
         - dependency: influxdb
@@ -119,8 +121,10 @@ topology_template:
             - get_input: bucket_name
             - |-
                 "
-                  INFLUXDB_ORG: 
+                  INFLUXDB_ORG: "
             - get_input: org_name
+            - |-
+                "
       requirements:
         - host: lrms_front_end
         - dependency: influxdb
@@ -193,7 +197,7 @@ topology_template:
         repository_name: bitnami
         repository_url: "https://charts.bitnami.com/bitnami"
         name: influxdb
-        values: 
+        values:
           auth.admin.username: { get_input: admin_username }
           auth.admin.password: { get_input: admin_password }
           auth.admin.token: { get_input: admin_token }

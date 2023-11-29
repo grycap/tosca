@@ -4,7 +4,7 @@ inputs:
 
     kubeflow_pass:
       tab: Kubeflow Data
-    
+
     kubeflow_manifests_version:
       tab: Kubeflow Data
 

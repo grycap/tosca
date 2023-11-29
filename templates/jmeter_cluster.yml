@@ -106,7 +106,7 @@ topology_template:
           file: grycap.nfs
           type: tosca.artifacts.AnsibleGalaxy.role
       requirements:
-        - host: front 
+        - host: front
       interfaces:
         Standard:
           configure:
@@ -146,7 +146,7 @@ topology_template:
           file: grycap.nfs
           type: tosca.artifacts.AnsibleGalaxy.role
       requirements:
-        - host: wn 
+        - host: wn
       interfaces:
         Standard:
           configure:

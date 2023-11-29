@@ -12,7 +12,7 @@ metadata:
   icon: images/hadoop_spark.png
   parents:
    - hadoop_cluster.yaml
- 
+
 topology_template:
 
   node_templates:
@@ -20,7 +20,7 @@ topology_template:
     spark_wn:
       type: tosca.nodes.SoftwareComponent
       requirements:
-        - host: hadoop_wn 
+        - host: hadoop_wn
       artifacts:
         docker_role:
           file: grycap.spark
@@ -33,7 +33,7 @@ topology_template:
     spark_master:
       type: tosca.nodes.SoftwareComponent
       requirements:
-        - host: hadoop_server 
+        - host: hadoop_server
       artifacts:
         docker_role:
           file: grycap.spark

@@ -179,7 +179,7 @@ topology_template:
         cri_runtime: { get_input: cri_runtime }
       requirements:
         - host: wn
-            
+
     wn:
       type: tosca.nodes.indigo.Compute
       capabilities:

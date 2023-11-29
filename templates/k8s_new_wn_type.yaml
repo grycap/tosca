@@ -63,14 +63,14 @@ topology_template:
       default: 0 GB
       constraints:
       - valid_values: [ 0 GB, 10 GB, 20 GB, 50 GB, 100 GB, 200 GB, 500 GB, 1 TB, 2 TB ]
-    
+
     wng_kube_nvidia_support:
       type: boolean
       description: Flag to add NVIDIA support
       default: false
       constraints:
       - valid_values: [ false, true ]
-  
+
   node_templates:
 
     wng_node:
@@ -82,7 +82,7 @@ topology_template:
         cri_runtime: { get_input: cri_runtime }
       requirements:
         - host: wng
-            
+
     wng:
       type: tosca.nodes.indigo.Compute
       capabilities:

@@ -15,7 +15,7 @@ metadata:
 
 topology_template:
 
-  inputs:        
+  inputs:
 
     data_url:
       type: string
@@ -62,4 +62,3 @@ topology_template:
               unarchive_file: { get_input: unarchive }
       requirements:
         - host: simple_node
-

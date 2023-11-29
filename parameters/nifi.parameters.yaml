@@ -1,7 +1,7 @@
 inputs:
     nifi_ui_auth:
       tab: Nifi
-    
+
     nifi_replicas:
       tab: Nifi
 

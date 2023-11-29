@@ -1,10 +1,10 @@
   tosca_definitions_version: tosca_simple_yaml_1_0
-  
+
   imports:
   - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
-  
+
   description: Deploy a OpenBioMaps server with a compute node
-  
+
   metadata:
     version: "0.2.0"
     display_name: Deploy a OpenBioMaps portal and Compute node
@@ -71,7 +71,7 @@
               port: 80
               protocol: tcp
         requirements:
-          - host: obm_server 
+          - host: obm_server
         artifacts:
           galaxy_role:
             file: grycap.docker
@@ -115,13 +115,13 @@
                 location: /mnt/disk
                 # device: hdb
         - local_storage:
-            node: my_block_storage2    
+            node: my_block_storage2
             relationship:
               type: AttachesTo
               properties:
                 location: /mnt/disk2
                 # device: hdc
-  
+
       my_block_storage:
         type: tosca.nodes.BlockStorage
         properties:
@@ -137,7 +137,7 @@
       obm_compute:
         type: tosca.nodes.SoftwareComponent
         requirements:
-          - host: obm_compute_node 
+          - host: obm_compute_node
         artifacts:
           docker_role:
             file: grycap.docker

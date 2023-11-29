@@ -17,7 +17,7 @@ metadata:
 
 topology_template:
 
-  inputs:        
+  inputs:
 
     ssh_key:
       type: string
@@ -29,7 +29,7 @@ topology_template:
     create_users:
       type: tosca.nodes.SoftwareComponent
       requirements:
-        - host: simple_node 
+        - host: simple_node
       interfaces:
         Standard:
           configure:

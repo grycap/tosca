@@ -50,7 +50,7 @@ topology_template:
                     resources:
                       requests:
                         storage: 20Gi
-        values: 
+        values:
           grafana.adminPassword: { get_input: admin_password }
       requirements:
         - host: front

@@ -18,7 +18,7 @@ metadata:
 
 topology_template:
   inputs:
- 
+
     ansible_tasks:
       type: string
       description: Ansible tasks (In case of using double quotes you have to escape it with \)

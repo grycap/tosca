@@ -15,7 +15,7 @@ metadata:
 
 topology_template:
   inputs:
- 
+
     minio_accesskey:
       type: string
       description: Access key credential for object storage and web access

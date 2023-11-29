@@ -191,7 +191,7 @@ topology_template:
             # 1. Setting `jupyterhub.singleuser.serviceAccountName: daskkubernetes`.
             # 2. Ensuring that `dask-kubernetes` is in your singleuser environment.
             enabled: false
-        values: 
+        values:
           jupyterhub.singleuser.image.name: { get_input: jupyterhub_image_name }
           jupyterhub.singleuser.image.tag: latest
           #jupyterhub.proxy.secretToken: { get_input: jupyterhub_token }

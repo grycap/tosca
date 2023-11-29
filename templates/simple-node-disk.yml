@@ -35,7 +35,7 @@ metadata:
 
 topology_template:
 
-  inputs:        
+  inputs:
     num_cpus:
       type: integer
       description: Number of virtual cpus for the VM

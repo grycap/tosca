@@ -16,7 +16,7 @@ metadata:
   parents:
    - slurm_cluster.yml
 
-topology_template:  
+topology_template:
 
   inputs:
 
@@ -37,7 +37,7 @@ topology_template:
     docker_fe:
       type: tosca.nodes.SoftwareComponent
       requirements:
-        - host: lrms_server 
+        - host: lrms_server
       artifacts:
         docker_role:
           file: grycap.docker
@@ -56,7 +56,7 @@ topology_template:
     docker_wn:
       type: tosca.nodes.SoftwareComponent
       requirements:
-        - host: lrms_wn 
+        - host: lrms_wn
       artifacts:
         docker_role:
           file: grycap.docker

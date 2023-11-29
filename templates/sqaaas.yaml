@@ -136,7 +136,7 @@ topology_template:
               sqaaas_gh_token: { get_input: sqaaas_gh_token }
               sqaaas_repo_type: "github"
               sqaaas_jenkins_url: { get_input: sqaaas_jenkins_url }
-              sqaaas_jenkins_admin: { get_input: sqaaas_jenkins_admin } 
+              sqaaas_jenkins_admin: { get_input: sqaaas_jenkins_admin }
               sqaaas_jenkins_github_org_name: { get_input: sqaaas_jenkins_github_org_name }
               sqaaas_github_org: { get_input: sqaaas_github_org }
               install_badgr: { get_input: install_badgr }
@@ -206,7 +206,7 @@ topology_template:
         nvidia_support: false
       requirements:
         - host: wn
-            
+
     wn:
       type: tosca.nodes.indigo.Compute
       capabilities:

@@ -257,7 +257,7 @@ topology_template:
                   name: nifi
                   namespace: nifi
                 spec:
-                  replicas: 
+                  replicas:
             - get_input: nifi_replicas
             - "\n"
             - |-
@@ -300,7 +300,7 @@ topology_template:
                               memory: 10Mi
                       containers:
                         - name: nifi
-                          image: 
+                          image:
             - get_input: nifi_docker_image
             - "\n"
             - |-

@@ -15,12 +15,12 @@ metadata:
 
 topology_template:
   inputs:
- 
+
     sgde_jwt_secret:
       default: Tr8J+bw+XIf0LWIXpPQ+0Rt3h2UITT2XHM2/Vc/j1lfBeuDqqrJFcCm/f9pvTgbd
       description: SGDE JWT secret
       type: string
-  
+
   node_templates:
 
     minio:

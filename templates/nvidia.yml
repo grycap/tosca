@@ -17,7 +17,7 @@ metadata:
 
 topology_template:
 
-  inputs:        
+  inputs:
 
     driver_version:
       type: string
@@ -29,7 +29,7 @@ topology_template:
     nvidia:
       type: tosca.nodes.SoftwareComponent
       requirements:
-        - host: simple_node 
+        - host: simple_node
       interfaces:
         Standard:
           configure:

@@ -18,7 +18,7 @@ metadata:
 
 topology_template:
 
-  inputs:        
+  inputs:
 
     ssh_oidc_my_vo:
       type: boolean
@@ -46,7 +46,7 @@ topology_template:
             port: 8080
             protocol: tcp
       requirements:
-        - host: simple_node 
+        - host: simple_node
       interfaces:
         Standard:
           configure:
