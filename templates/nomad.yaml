@@ -24,28 +24,28 @@ topology_template:
       default: 2
       required: yes
       constraints:
-      - valid_values: [ 2, 4, 8, 16, 32, 64 ]
+        - valid_values: [ 2, 4, 8, 16, 32, 64 ]
     fe_mem:
       type: scalar-unit.size
       description: Amount of Memory for the front-end node
       default: 4 GB
       required: yes
       constraints:
-      - valid_values: [ 4 GB, 8 GB, 16 GB, 32 GB, 64 GB, 128 GB, 256 GB, 512 GB ]
+        - valid_values: [ 4 GB, 8 GB, 16 GB, 32 GB, 64 GB, 128 GB, 256 GB, 512 GB ]
     wn_cpus:
       type: integer
       description: Number of CPUs for the WNs
       default: 2
       required: yes
       constraints:
-      - valid_values: [ 2, 4, 8, 16, 32, 64 ]
+        - valid_values: [ 2, 4, 8, 16, 32, 64 ]
     wn_mem:
       type: scalar-unit.size
       description: Amount of Memory for the WNs
       default: 4 GB
       required: yes
       constraints:
-      - valid_values: [ 4 GB, 8 GB, 16 GB, 32 GB, 64 GB, 128 GB, 256 GB, 512 GB ]
+        - valid_values: [ 4 GB, 8 GB, 16 GB, 32 GB, 64 GB, 128 GB, 256 GB, 512 GB ]
 
 
   node_templates:
@@ -87,14 +87,13 @@ topology_template:
             distribution: ubuntu
             type: linux
 
-
     wn_node:
       type: tosca.nodes.indigo.LRMS.WorkerNode.Nomad
       properties:
         front_end_ip: { get_attribute: [ front, private_address, 0 ] }
       requirements:
         - host: wn
-            
+
     wn:
       type: tosca.nodes.indigo.Compute
       capabilities:
@@ -117,5 +116,3 @@ topology_template:
       value: { get_attribute: [ front, public_address, 0 ] }
     cluster_creds:
       value: { get_attribute: [ front, endpoint, credential, 0 ] }
-
-

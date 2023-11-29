@@ -1,12 +1,12 @@
 inputs:
-    nifi_ui_auth:
-      tab: Nifi
-    
-    nifi_replicas:
-      tab: Nifi
+  nifi_ui_auth:
+    tab: Nifi
 
-    nifi_docker_image:
-      tab: Nifi
+  nifi_replicas:
+    tab: Nifi
+
+  nifi_docker_image:
+    tab: Nifi
 
 tabs:
   - Nifi

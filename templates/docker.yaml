@@ -14,9 +14,9 @@ metadata:
   tag: SW
   tag_color: blue
   parents:
-   - simple-node-disk.yml
+    - simple-node-disk.yml
 
-topology_template:  
+topology_template:
 
   inputs:
 
@@ -25,7 +25,7 @@ topology_template:
       description: Flag to add the NVIDIA drivers and NVIDIA-Docker packages
       default: false
       constraints:
-      - valid_values: [ false, true ]
+        - valid_values: [ false, true ]
 
     driver_version:
       type: string
@@ -52,7 +52,7 @@ topology_template:
     docker:
       type: tosca.nodes.SoftwareComponent
       requirements:
-        - host: simple_node 
+        - host: simple_node
       artifacts:
         docker_role:
           file: grycap.docker
@@ -67,4 +67,3 @@ topology_template:
               docker_compose_git: { get_input: git_repo }
               compose_folder: { get_input: git_folder }
               repo_branch: { get_input: git_branch }
-

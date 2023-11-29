@@ -26,7 +26,7 @@ topology_template:
       description: Daskhub version
       default: 2022.5.0
       constraints:
-      - valid_values: [ "2022.5.0", "2022.4.1", "2022.3.0", "2022.2.1" ]
+        - valid_values: [ "2022.5.0", "2022.4.1", "2022.3.0", "2022.2.1" ]
     jupyterhub_token:
       type: string
       description: Jupyterhub auth token
@@ -191,10 +191,10 @@ topology_template:
             # 1. Setting `jupyterhub.singleuser.serviceAccountName: daskkubernetes`.
             # 2. Ensuring that `dask-kubernetes` is in your singleuser environment.
             enabled: false
-        values: 
+        values:
           jupyterhub.singleuser.image.name: { get_input: jupyterhub_image_name }
           jupyterhub.singleuser.image.tag: latest
-          #jupyterhub.proxy.secretToken: { get_input: jupyterhub_token }
+          # jupyterhub.proxy.secretToken: { get_input: jupyterhub_token }
           dask-gateway.gateway.auth.jupyterhub.apiToken: { get_input: jupyterhub_token }
           services.dask-gateway.apiToken: { get_input: jupyterhub_token }
       requirements:
@@ -204,4 +204,3 @@ topology_template:
   outputs:
     pangeo_jupyter_hub_url:
       value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], '/jupyterhub/' ] }
-

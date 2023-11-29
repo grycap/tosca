@@ -11,7 +11,7 @@ metadata:
   display_name: Deploy Kubeapps on top of a Kubernetes Virtual Cluster
   icon: images/kubeapps-logo.png
   parents:
-   - kubernetes.yaml
+    - kubernetes.yaml
 
 topology_template:
 
@@ -65,4 +65,3 @@ topology_template:
   outputs:
     kubeapps_endpoint:
       value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], '/kubeapps/' ] }
-

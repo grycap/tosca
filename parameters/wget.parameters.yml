@@ -1,19 +1,18 @@
 inputs:
-    data_url:
-      tab: Download Data
+  data_url:
+    tab: Download Data
 
-    local_path:
-      tab: Download Data
+  local_path:
+    tab: Download Data
 
-    unarchive:
-      tab: Download Data
+  unarchive:
+    tab: Download Data
 
-    max_download_time:
-      tab: Download Data
+  max_download_time:
+    tab: Download Data
 
-    wait_to_download:
-      tab: Download Data
+  wait_to_download:
+    tab: Download Data
 
 tabs:
   - Download Data
-

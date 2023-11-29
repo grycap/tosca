@@ -15,7 +15,7 @@ description: TOSCA template for launching Apache Airflow on top of a Kubernetes 
 
 topology_template:
 
-  inputs:        
+  inputs:
 
     airflow_admin_password:
       type: string
@@ -32,7 +32,7 @@ topology_template:
     airflow_dags_repo_subpath:
       type: string
       description: Airflow DAGs git repository subpath
-      default: '' 
+      default: ''
     airflow_dags_branch:
       type: string
       description: Airflow DAGs git repository branch

@@ -1,10 +1,9 @@
 inputs:
-    gluster_mount_path:
-      tab: GlusterFS Data
+  gluster_mount_path:
+    tab: GlusterFS Data
 
-    gluster_replicas:
-      tab: GlusterFS Data
+  gluster_replicas:
+    tab: GlusterFS Data
 
 tabs:
   - GlusterFS Data
-

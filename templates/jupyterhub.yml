@@ -22,7 +22,7 @@ topology_template:
       description: Athenticator class
       default: dummy
       constraints:
-      - valid_values: [ "dummy", "nativeauthenticator.NativeAuthenticator" ]
+        - valid_values: [ "dummy", "nativeauthenticator.NativeAuthenticator" ]
 
     dummy_password:
       type: string
@@ -44,7 +44,7 @@ topology_template:
       description: Unarchive the downloaded file.
       default: false
       constraints:
-      - valid_values: [ false, true ]
+        - valid_values: [ false, true ]
 
   node_templates:
 
@@ -53,7 +53,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation:  https://raw.githubusercontent.com/grycap/tosca/main/artifacts/jupyter/jupyterhub_k8s.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/jupyter/jupyterhub_k8s.yml
             inputs:
               authenticator_class: { get_input: [ auth_class ] }
               dummy_pass: { get_input: [ dummy_password ] }
@@ -67,7 +67,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation:  https://raw.githubusercontent.com/grycap/tosca/main/artifacts/download_data.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/download_data.yml
             inputs:
               data_url: { get_input: data_url }
               k8s_pvc_namespace: jupyter
@@ -79,4 +79,3 @@ topology_template:
   outputs:
     jupyterhub_endpoint:
       value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], '/jupyterhub/' ] }
-

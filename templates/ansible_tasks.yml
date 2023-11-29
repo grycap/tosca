@@ -18,7 +18,7 @@ metadata:
 
 topology_template:
   inputs:
- 
+
     ansible_tasks:
       type: string
       description: Ansible tasks (In case of using double quotes you have to escape it with \)
@@ -36,10 +36,10 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation:  https://raw.githubusercontent.com/grycap/tosca/main/artifacts/ansible_tasks.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/ansible_tasks.yml
             inputs:
-                ansible_tasks: { get_input: ansible_tasks }
-                ansible_url: { get_input: ansible_url }
-                ansible_name: 'im_dash_tasks'
+              ansible_tasks: { get_input: ansible_tasks }
+              ansible_url: { get_input: ansible_url }
+              ansible_name: 'im_dash_tasks'
       requirements:
         - host: simple_node

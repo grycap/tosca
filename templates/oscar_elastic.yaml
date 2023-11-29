@@ -12,7 +12,7 @@ metadata:
   icon: images/elasticity.png
   tag: elastic
   parents:
-   - oscar.yaml
+    - oscar.yaml
 
 topology_template:
   inputs:
@@ -60,8 +60,8 @@ topology_template:
           configure:
             implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/refresh_install.yml
             inputs:
-                CLIENT_ID: client_id
-                CLIENT_SECRET: client_secret
+              CLIENT_ID: client_id
+              CLIENT_SECRET: client_secret
           start:
             implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/use_external_im.yml
 

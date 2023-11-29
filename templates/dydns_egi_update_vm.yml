@@ -15,7 +15,7 @@ metadata:
 
 topology_template:
   inputs:
- 
+
     nsupdate_dns:
       default: myvm.test.fedcloud.changeme
       description: DNS hostname registered via https://nsupdate.fedcloud.eu/
@@ -24,7 +24,7 @@ topology_template:
       default: changeme
       description: Secret generated when registering myvm.test.fedcloud.changeme via https://nsupdate.fedcloud.eu/
       type: string
-  
+
   node_templates:
 
     nsupdate_host:

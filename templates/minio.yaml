@@ -15,7 +15,7 @@ metadata:
 
 topology_template:
   inputs:
- 
+
     minio_accesskey:
       type: string
       description: Access key credential for object storage and web access
@@ -48,11 +48,11 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation:  https://raw.githubusercontent.com/grycap/tosca/main/artifacts/minio.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/minio.yml
             inputs:
-                minio_accesskey: { get_input: minio_accesskey }
-                minio_secretkey: { get_input: minio_secretkey }
-                enable_tls: true
+              minio_accesskey: { get_input: minio_accesskey }
+              minio_secretkey: { get_input: minio_secretkey }
+              enable_tls: true
       requirements:
         - host: front
         - dependency: lrms_front_end
@@ -62,4 +62,3 @@ topology_template:
       value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], ':30300/' ] }
     minio_console_endpoint:
       value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], ':30303/' ] }
-

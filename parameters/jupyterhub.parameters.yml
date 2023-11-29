@@ -1,19 +1,18 @@
 inputs:
-    auth_class:
-      tab: JupyterHub Data
+  auth_class:
+    tab: JupyterHub Data
 
-    dummy_password:
-      tab: JupyterHub Data
+  dummy_password:
+    tab: JupyterHub Data
 
-    admin_user:
-      tab: JupyterHub Data
+  admin_user:
+    tab: JupyterHub Data
 
-    data_url:
-      tab: JupyterHub Data
+  data_url:
+    tab: JupyterHub Data
 
-    unarchive:
-      tab: JupyterHub Data
+  unarchive:
+    tab: JupyterHub Data
 
 tabs:
   - JupyterHub Data
-

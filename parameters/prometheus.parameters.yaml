@@ -1,7 +1,6 @@
 inputs:
-    admin_password:
-      tab: Grafana Data
+  admin_password:
+    tab: Grafana Data
 
 tabs:
   - Grafana Data
-

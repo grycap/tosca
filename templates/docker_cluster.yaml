@@ -14,9 +14,9 @@ metadata:
   tag: SW
   tag_color: blue
   parents:
-   - slurm_cluster.yml
+    - slurm_cluster.yml
 
-topology_template:  
+topology_template:
 
   inputs:
 
@@ -25,7 +25,7 @@ topology_template:
       description: Flag to add the NVIDIA drivers and NVIDIA-Docker packages in the Worker nodes
       default: false
       constraints:
-      - valid_values: [ false, true ]
+        - valid_values: [ false, true ]
 
     driver_version:
       type: string
@@ -37,7 +37,7 @@ topology_template:
     docker_fe:
       type: tosca.nodes.SoftwareComponent
       requirements:
-        - host: lrms_server 
+        - host: lrms_server
       artifacts:
         docker_role:
           file: grycap.docker
@@ -56,7 +56,7 @@ topology_template:
     docker_wn:
       type: tosca.nodes.SoftwareComponent
       requirements:
-        - host: lrms_wn 
+        - host: lrms_wn
       artifacts:
         docker_role:
           file: grycap.docker

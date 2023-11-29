@@ -18,7 +18,7 @@ metadata:
 
 topology_template:
 
-  inputs:        
+  inputs:
 
     cernvmfs_repositories:
       type: string
@@ -30,7 +30,7 @@ topology_template:
     cenrvmfs:
       type: tosca.nodes.ec3.Application
       requirements:
-        - host: simple_node 
+        - host: simple_node
       interfaces:
         Standard:
           configure:

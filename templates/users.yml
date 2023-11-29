@@ -4,7 +4,7 @@ imports:
   - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
 
 description: >
-  Add a set of users to the VM. 
+  Add a set of users to the VM.
   (Search passwords in /var/tmp/passwordfile_userXX)
 
 metadata:
@@ -19,7 +19,7 @@ metadata:
 
 topology_template:
 
-  inputs:        
+  inputs:
 
     user_num:
       type: integer
@@ -31,7 +31,7 @@ topology_template:
     create_users:
       type: tosca.nodes.SoftwareComponent
       requirements:
-        - host: simple_node 
+        - host: simple_node
       interfaces:
         Standard:
           configure:

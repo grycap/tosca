@@ -10,4 +10,4 @@ inputs:
       tag_type: textarea
 
 tabs:
-  - Binderhub Data
+   - Binderhub Data

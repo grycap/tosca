@@ -102,7 +102,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation:  https://raw.githubusercontent.com/grycap/tosca/main/artifacts/mlflow_compose.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/mlflow_compose.yml
             inputs:
               mlflow_admin_user:
                 get_input: mlflow_admin_user

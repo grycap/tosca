@@ -11,7 +11,7 @@ metadata:
   display_name: Deploy Prometheus + Grafana  on top of a Kubernetes Virtual Cluster
   icon: images/prometheus.png
   parents:
-   - kubernetes.yaml
+    - kubernetes.yaml
 
 topology_template:
   inputs:
@@ -50,7 +50,7 @@ topology_template:
                     resources:
                       requests:
                         storage: 20Gi
-        values: 
+        values:
           grafana.adminPassword: { get_input: admin_password }
       requirements:
         - host: front

@@ -32,7 +32,7 @@ topology_template:
       description: Size of the FE root disk.
       default: 20 GB
       constraints:
-      - valid_values: [ 20 GB, 30 GB, 40 GB, 50 GB, 100 GB, 200 GB, 500 GB, 1 TB, 2 TB ]
+        - valid_values: [ 20 GB, 30 GB, 40 GB, 50 GB, 100 GB, 200 GB, 500 GB, 1 TB, 2 TB ]
 
     wn_cpus:
       type: integer
@@ -49,7 +49,7 @@ topology_template:
       description: Size of the WN root disk.
       default: 20 GB
       constraints:
-      - valid_values: [ 20 GB, 30 GB, 40 GB, 50 GB, 100 GB, 200 GB, 500 GB, 1 TB, 2 TB ]
+        - valid_values: [ 20 GB, 30 GB, 40 GB, 50 GB, 100 GB, 200 GB, 500 GB, 1 TB, 2 TB ]
 
     jmeter_version:
       type: string
@@ -106,7 +106,7 @@ topology_template:
           file: grycap.nfs
           type: tosca.artifacts.AnsibleGalaxy.role
       requirements:
-        - host: front 
+        - host: front
       interfaces:
         Standard:
           configure:
@@ -146,7 +146,7 @@ topology_template:
           file: grycap.nfs
           type: tosca.artifacts.AnsibleGalaxy.role
       requirements:
-        - host: wn 
+        - host: wn
       interfaces:
         Standard:
           configure:

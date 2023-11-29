@@ -13,7 +13,7 @@ metadata:
   tag: SW
   tag_color: blue
   parents:
-   - simple-node-disk.yml
+    - simple-node-disk.yml
 
 topology_template:
 

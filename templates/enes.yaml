@@ -3,7 +3,7 @@ tosca_definitions_version: tosca_simple_yaml_1_0
 imports:
   - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
 
-description: > 
+description: >
   Install ENES Data Space service. on top of a Kubernetes Cluster.
   (Remember to set Cert-Manager and DNS name in Kubernetes Data).
 
@@ -35,10 +35,10 @@ topology_template:
       default: 'https://aai.egi.eu/auth/realms/egi'
       required: yes
       constraints:
-      - valid_values:
-        - 'https://aai.egi.eu/auth/realms/egi'
-        - 'https://aai-demo.egi.eu/auth/realms/egi'
-        - 'https://aai-dev.egi.eu/auth/realms/egi'
+        - valid_values:
+            - 'https://aai.egi.eu/auth/realms/egi'
+            - 'https://aai-demo.egi.eu/auth/realms/egi'
+            - 'https://aai-dev.egi.eu/auth/realms/egi'
     enes_client_id:
       type: string
       description: OIDC Client ID
@@ -89,4 +89,3 @@ topology_template:
   outputs:
     enes_web:
       value: { concat: [ 'https://', get_input: kube_public_dns_name, '/' ] }
-
