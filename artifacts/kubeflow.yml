@@ -258,7 +258,7 @@
               serviceAccountName: mlflow-sa
               containers:
                 - name: mlflow
-                  image: grycap/mlflow:2.7.1
+                  image: ghcr.io/mlflow/mlflow
                   imagePullPolicy: Always
                   command:
                     - "mlflow"

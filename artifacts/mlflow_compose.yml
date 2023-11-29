@@ -13,6 +13,7 @@
     s3_bucket: "{{ mlflow_s3_bucket | default('mlflow') }}"
     artifact_root: "/mlartifacts"
     mlflow_environment: ""
+    mlflow_image_tag: "{{ mlflow_version | default('latest') }}"
   roles:
   - role: 'grycap.docker'
   tasks:
@@ -85,8 +86,7 @@
                     - ./db:/var/lib/mysql
             web:
                 restart: always
-                build: ./mlflow
-                image: mlflow_server
+                image: ghcr.io/mlflow/mlflow:{{ mlflow_image_tag }}
                 container_name: mlflow_server
                 {{ mlflow_environment }}
                 expose:
@@ -157,14 +157,6 @@
       path: /opt/mlflow/mlflow
       state: directory
       mode: '0755'
-
-  - name: Create mlflow/Dockerfile file
-    copy:
-      content: |
-        FROM python:3.8-slim-buster
-        # Install python packages
-        RUN pip install "mlflow>=2.7.1" boto3 pymysql
-      dest: /opt/mlflow/mlflow/Dockerfile
 
   - name: docker-compose up
     docker_compose:
