@@ -19,7 +19,7 @@ metadata:
     - galaxy.yaml
     - users.yml
     - ssh_keys.yml
-    - proxy_host.yaml
+    - proxy_host_vm.yaml
     - minio_compose.yaml
     - nvidia.yml
     - ansible_tasks.yml
@@ -28,7 +28,7 @@ metadata:
     - cernvmfs.yaml
     - image-service.yaml
     - ai4eoscvm.yaml
-    - mlfowvm.yaml
+    - mlflowvm.yaml
     - wget.yml
     - sgde.yaml
     - dydns_egi_update_vm.yml

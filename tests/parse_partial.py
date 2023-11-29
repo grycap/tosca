@@ -28,6 +28,10 @@ for path, _, files in os.walk(directory):
         with io.open(os.path.join(path, name)) as stream:
             print("Template: " + name)
             template = yaml.full_load(stream)
+        if "metadata" in template and "childs" in template["metadata"]:
+            for child in template["metadata"]["childs"]:
+                if not os.path.isfile(os.path.abspath(os.path.join(path, "..", "templates", child))):
+                    raise Exception("Child template %s not found" % child)
         if "metadata" in template and "parents" in template["metadata"]:
             if "link" in template["metadata"]:
                 raise Exception("Child template cannot have link metadata")
