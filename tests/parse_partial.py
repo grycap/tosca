@@ -28,13 +28,20 @@ for path, _, files in os.walk(directory):
         with io.open(os.path.join(path, name)) as stream:
             print("Template: " + name)
             template = yaml.full_load(stream)
+        # Check if all child templates are present
         if "metadata" in template and "childs" in template["metadata"]:
             for child in template["metadata"]["childs"]:
                 if not os.path.isfile(os.path.abspath(os.path.join(path, "..", "templates", child))):
                     raise Exception("Child template %s not found" % child)
+        # Check all child templates meging with parents
         if "metadata" in template and "parents" in template["metadata"]:
             if "link" in template["metadata"]:
                 raise Exception("Child template cannot have link metadata")
+            # Check if the template has set a name and a display name
+            if "name" not in template["metadata"]:
+                raise Exception("Child template must have a name")
+            if "display_name" not in template["metadata"]:
+                raise Exception("Child template must have a display name")
             for parent in template["metadata"]["parents"]:
                 print("Parent: " + parent)
                 with io.open(os.path.abspath(os.path.join(path, "..", "templates", parent))) as pstream:

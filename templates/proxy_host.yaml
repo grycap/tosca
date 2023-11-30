@@ -7,6 +7,7 @@ description: Deploy a set of virtual machines in an private network accessible u
 
 metadata:
   version: "1.0.0"
+  name: Proxy/Bastion host
   display_name: Deploy a set virtual machine using a Proxy/Bastion host.
   icon: images/bastion.png
   tag: VM
