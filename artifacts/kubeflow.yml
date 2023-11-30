@@ -290,10 +290,10 @@
     when: DEPLOY_MLFLOW
 
   - name: Add MLFlow menu entry
-    lineinfile:
+    replace:
       path: /tmp/kubeflow/kubeflow.yaml
-      insertafter: '      "menuLinks": \['
-      line: '        {"type": "item", "link": "/mlflow/", "text": "MlFlow", "icon": "icons:cached"},'
+      regexp: '      "externalLinks": \[ \],'
+      replace: '      "externalLinks": [{"type": "item", "link": "/mlflow/", "text": "MlFlow", "icon": "icons:cached"}],'
     when: DEPLOY_MLFLOW
 
   - name: Deploy kubeflow
@@ -330,7 +330,7 @@
                   command:
                   - sh
                   - -c
-                  - mc config host add minio http://minio-service:9000 minio minio123 && mc mb minio/mlflow
+                  - mc config host add minio http://minio-service:9000 minio minio123 && mc ls minio/mlflow || mc mb minio/mlflow
       dest: "/opt/pv-create-mlflow-bucket.yaml"
     register: job_file
     when: DEPLOY_MLFLOW
