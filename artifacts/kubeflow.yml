@@ -265,10 +265,19 @@
                     - "server"
                     - "--host"
                     - "0.0.0.0"
-                    - "--default-artifact-root"
-                    - "/data"
+                    - --artifacts-destination
+                    - s3://mlflow
                     - "--backend-store-uri"
                     - "sqlite:///data/mlflow.db"
+                  env:
+                  - name: AWS_ACCESS_KEY_ID
+                    value: minio
+                  - name: AWS_SECRET_ACCESS_KEY
+                    value: minio123
+                  - name: MLFLOW_S3_ENDPOINT_URL
+                    value: http://minio-service.kubeflow:9000
+                  - name: MLFLOW_S3_IGNORE_TLS
+                    value: "true"
                   ports:
                     - containerPort: 5000
                   volumeMounts:
@@ -302,3 +311,32 @@
     shell: kubectl get sa -n kubeflow-user default-editor || kubectl -n kubeflow-user create serviceaccount default-editor
     environment:
       KUBECONFIG: /etc/kubernetes/admin.conf
+
+  - name: Create job to create mlflow bucket in minio
+    copy:
+      content: |
+        apiVersion: batch/v1
+        kind: Job
+        metadata:
+          namespace: kubeflow
+          name: pv-create-mlflow-bucket
+        spec:
+          template:
+            spec:
+              restartPolicy: OnFailure
+              containers:
+                - name: create-bucket
+                  image: minio/mc
+                  command:
+                  - sh
+                  - -c
+                  - mc config host add minio http://minio-service:9000 minio minio123 && mc mb minio/mlflow
+      dest: "/opt/pv-create-mlflow-bucket.yaml"
+    register: job_file
+    when: DEPLOY_MLFLOW
+
+  - name: Create mlflow bucket job
+    command: kubectl apply -f /opt/pv-create-mlflow-bucket.yaml
+    environment:
+      KUBECONFIG: "/etc/kubernetes/admin.conf"
+    when: DEPLOY_MLFLOW and job_file is changed
