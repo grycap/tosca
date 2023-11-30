@@ -265,10 +265,19 @@
                     - "server"
                     - "--host"
                     - "0.0.0.0"
-                    - "--default-artifact-root"
-                    - "/data"
+                    - --artifacts-destination
+                    - s3://mlflow
                     - "--backend-store-uri"
                     - "sqlite:///data/mlflow.db"
+                  env:
+                  - name: AWS_ACCESS_KEY_ID
+                    value: minio
+                  - name: AWS_SECRET_ACCESS_KEY
+                    value: minio123
+                  - name: MLFLOW_S3_ENDPOINT_URL
+                    value: http://minio-service.kubeflow:9000
+                  - name: MLFLOW_S3_IGNORE_TLS
+                    value: "true"
                   ports:
                     - containerPort: 5000
                   volumeMounts:
@@ -281,10 +290,10 @@
     when: DEPLOY_MLFLOW
 
   - name: Add MLFlow menu entry
-    lineinfile:
+    replace:
       path: /tmp/kubeflow/kubeflow.yaml
-      insertafter: '      "menuLinks": \['
-      line: '        {"type": "item", "link": "/mlflow/", "text": "MlFlow", "icon": "icons:cached"},'
+      regexp: '      "externalLinks": \[ \],'
+      replace: '      "externalLinks": [{"type": "item", "link": "/mlflow/", "text": "MlFlow", "icon": "icons:cached"}],'
     when: DEPLOY_MLFLOW
 
   - name: Deploy kubeflow
@@ -302,3 +311,21 @@
     shell: kubectl get sa -n kubeflow-user default-editor || kubectl -n kubeflow-user create serviceaccount default-editor
     environment:
       KUBECONFIG: /etc/kubernetes/admin.conf
+
+  - name: Download Minio Client binary
+    get_url:
+      url: https://dl.minio.io/client/mc/release/linux-amd64/mc
+      dest: /usr/local/bin/mc
+      mode: 0755
+    when: DEPLOY_MLFLOW
+
+  - name: Get minio service IP
+    command: kubectl get -n kubeflow service/minio-service -o jsonpath='{.spec.clusterIP}'
+    register: minio_service
+    environment:
+      KUBECONFIG: /etc/kubernetes/admin.conf
+    when: DEPLOY_MLFLOW
+
+  - name: Create MLFlow bucket in minio
+    shell: mc config host add minio http://{{ minio_service.stdout }}:9000 minio minio123 && mc ls minio/mlflow || mc mb minio/mlflow
+    when: DEPLOY_MLFLOW
