@@ -3,12 +3,12 @@ tosca_definitions_version: tosca_simple_yaml_1_0
 imports:
   - indigo_custom_types: https://raw.githubusercontent.com/indigo-dc/tosca-types/master/custom_types.yaml
 
-description: Deploy a set of virtual machines in an private network accessible using a Proxy/Bastion host.
+description: Enable to access the VM in an private network trought a Proxy/Bastion host.
 
 metadata:
   version: "1.0.0"
   name: Proxy/Bastion host
-  display_name: Deploy a set virtual machine using a Proxy/Bastion host.
+  display_name: Enable to access the VM trought a Proxy/Bastion host.
   icon: images/bastion.png
   tag: VM
   parents:
