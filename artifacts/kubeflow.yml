@@ -317,15 +317,15 @@
       url: https://dl.minio.io/client/mc/release/linux-amd64/mc
       dest: /usr/local/bin/mc
       mode: 0755
-    whe: DEPLOY_MLFLOW
+    when: DEPLOY_MLFLOW
 
   - name: Get minio service IP
     command: kubectl get -n kubeflow service/minio-service -o jsonpath='{.spec.clusterIP}'
     register: minio_service
     environment:
       KUBECONFIG: /etc/kubernetes/admin.conf
-    whe: DEPLOY_MLFLOW
+    when: DEPLOY_MLFLOW
 
   - name: Create MLFlow bucket in minio
     shell: mc config host add minio http://{{ minio_service.stdout }}:9000 minio minio123 && mc ls minio/mlflow || mc mb minio/mlflow
-    whe: DEPLOY_MLFLOW
+    when: DEPLOY_MLFLOW
