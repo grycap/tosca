@@ -19,7 +19,7 @@ metadata:
     - galaxy.yaml
     - users.yml
     - ssh_keys.yml
-    - proxy_host_vm.yaml
+    - proxy_host.yaml
     - minio_compose.yaml
     - nvidia.yml
     - ansible_tasks.yml

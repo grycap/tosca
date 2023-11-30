@@ -1,10 +1,4 @@
 inputs:
-  num_cpus:
-    tab: VMs features
-  mem_size:
-    tab: VMs features
-  num_instances:
-    tab: VMs features
   proxy_host:
     tab: Proxy Host Info
   user:
@@ -14,5 +8,4 @@ inputs:
     tab: Proxy Host Info
 
 tabs:
-  - VMs features
   - Proxy Host Info
