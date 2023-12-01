@@ -10,6 +10,7 @@ metadata:
   name: Kubeflow
   display_name: Deploy Kubeflow on top of a Kubernetes Virtual Cluster
   icon: images/kubeflow.png
+  order: 5
   parents:
     - kubernetes.yaml
 
