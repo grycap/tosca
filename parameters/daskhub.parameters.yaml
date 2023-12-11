@@ -1,14 +1,17 @@
 inputs:
-  dask_password:
-    tab: Dask Data
-
-  jupyterhub_token:
-    tab: Dask Data
-
   dask_version:
     tab: Dask Data
-
+  jupyterhub_token:
+    tab: Dask Data
   jupyterhub_image_name:
+    tab: Dask Data
+  jupyterhub_image_tag:
+    tab: Dask Data
+  jupyterhub_storage_volume:
+    tab: Dask Data
+  data_url:
+    tab: Dask Data
+  unarchive:
     tab: Dask Data
 
 tabs:
