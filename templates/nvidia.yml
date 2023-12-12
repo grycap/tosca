@@ -12,6 +12,9 @@ metadata:
   icon: images/nvidia.png
   tag: SW
   tag_color: blue
+  tabs:
+    NVIDIA:
+      - driver_version
   parents:
     - simple-node-disk.yml
 

@@ -11,6 +11,17 @@ metadata:
   icon: images/mesos.png
   tag: deprecated
   tag_color: grey
+  tabs:
+    Mesos:
+      - mesos_password
+      - marathon_password
+      - chronos_password
+    HW data:
+      - slave_num
+      - slave_cpus
+      - slave_mem
+      - master_cpus
+      - master_mem
 
 topology_template:
 

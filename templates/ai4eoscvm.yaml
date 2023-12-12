@@ -8,6 +8,8 @@ metadata:
   name: AI4EOSC DEEPaaS
   display_name: Deploy a DEEPaaS AI model
   icon: images/ai4eosc.png
+  tabs:
+    AI4EOSC: ai4eosc_.*
   parents:
     - simple-node-disk.yml
 

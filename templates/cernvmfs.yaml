@@ -13,6 +13,8 @@ metadata:
   tag: SYS
   web: https://cernvm.cern.ch/fs/
   tag_color: purple
+  tabs:
+    CernVM-FS: cernvmfs_.*
   parents:
     - simple-node-disk.yml
 

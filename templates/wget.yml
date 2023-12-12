@@ -12,6 +12,8 @@ metadata:
   icon: images/download.png
   parents:
     - simple-node-disk.yml
+  tabs:
+    Download Data: .*
 
 topology_template:
 

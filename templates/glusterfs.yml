@@ -11,6 +11,8 @@ metadata:
   display_name: Add a GlusterFS shared Volume.
   icon: images/slurm_glusterfs.png
   tag: beta
+  tabs:
+    GlusterFS Data: gluster_.*
   parents:
     - slurm_cluster.yml
 

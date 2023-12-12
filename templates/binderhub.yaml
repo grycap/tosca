@@ -8,6 +8,13 @@ metadata:
   name: Binderhub
   display_name: Deploy Binderhub on top of a Kubernetes Virtual Cluster
   icon: https://binderhub.readthedocs.io/en/latest/_static/logo.png
+  tabs:
+    Binderhub Data:
+      - host
+      - version
+      - config:
+          tag_type: textarea
+
   parents:
     - kubernetes.yaml
 

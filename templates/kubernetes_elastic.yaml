@@ -11,6 +11,8 @@ metadata:
   display_name: Make Kubernetes Virtual Cluster Elastic
   icon: images/elasticity.png
   tag: elastic
+  tabs:
+    Elastic: .*
   parents:
     - kubernetes.yaml
 

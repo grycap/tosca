@@ -13,6 +13,8 @@ metadata:
   display_name: ENES Data Space service on top of Kubernetes
   icon: https://github.com/grycap/im-dashboard/raw/devel/app/static/images/eds.png
   vos: ['vo.enes.org']
+  tabs:
+    ENES Data: .*
   parents:
     - kubernetes.yaml
 

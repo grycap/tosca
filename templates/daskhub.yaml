@@ -10,6 +10,8 @@ metadata:
   name: Daskhub
   display_name: Deploy Daskhub on top of a Kubernetes Virtual Cluster
   icon: images/dask.png
+  tabs:
+    Dask Data: .*
   parents:
     - kubernetes.yaml
 

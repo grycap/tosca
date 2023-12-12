@@ -11,6 +11,12 @@ metadata:
   display_name: Enable to access the VM trought a Proxy/Bastion host.
   icon: images/bastion.png
   tag: VM
+  tabs:
+    Proxy/Bastion host:
+      - proxy_host
+      - private_key:
+          tag_type: textarea
+      - user
   parents:
     - simple-node-disk.yml
 

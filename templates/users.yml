@@ -16,6 +16,9 @@ metadata:
   tag_color: purple
   parents:
     - simple-node-disk.yml
+  tabs:
+    Users:
+      - user_num
 
 topology_template:
 

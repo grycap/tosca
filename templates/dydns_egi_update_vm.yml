@@ -10,6 +10,8 @@ metadata:
   name: DyDNS
   display_name: Dynamic DNS
   icon: images/dydns.png
+  tabs:
+    DyDNS: nsupdate_.*
   parents:
     - simple-node-disk.yml
 

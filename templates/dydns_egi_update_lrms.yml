@@ -12,6 +12,8 @@ metadata:
   icon: images/dydns.png
   parents:
     - htcondor_cluster.yml
+  tabs:
+    DyDNS: nsupdate_.*
 
 topology_template:
   inputs:

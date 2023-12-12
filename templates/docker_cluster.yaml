@@ -13,6 +13,8 @@ metadata:
   icon: images/docker.png
   tag: SW
   tag_color: blue
+  tabs:
+    Docker Data: .*
   parents:
     - slurm_cluster.yml
 

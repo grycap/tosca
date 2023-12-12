@@ -10,6 +10,15 @@ metadata:
   name: Helm Chart
   display_name: Deploy a Helm Chart on top of a Kubernetes Virtual Cluster
   icon: images/helm.png
+  tabs:
+    Helm Chart Data:
+      - helm_namespace
+      - helm_repo_name
+      - helm_repo_url
+      - helm_chart_url
+      - helm_chart_name
+      - helm_values:
+          tag_type: textarea
   parents:
     - kubernetes.yaml
 

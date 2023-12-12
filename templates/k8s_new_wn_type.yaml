@@ -10,6 +10,8 @@ metadata:
   name: New WN Type
   display_name: Add a new WN type with diferent features
   icon: images/k8swn.png
+  tabs:
+    Second WNs Features: wng_.*
   parents:
     - kubernetes.yaml
 

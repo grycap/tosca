@@ -14,6 +14,15 @@ metadata:
   icon: images/vm-icon-disk.png
   tag: VM
   order: 1
+  tabs:
+    VM Data:
+      - num_cpus
+      - mem_size
+      - num_instances
+      - storage_size
+      - mount_path
+      - ports
+    GPU Data: .*gpu.*
   childs:
     - docker.yaml
     - galaxy.yaml

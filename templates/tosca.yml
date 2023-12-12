@@ -9,6 +9,11 @@ metadata:
   tag: TOSCA
   tag_color: orange
   order: 6
+  tabs:
+    TOSCA:
+      - tosca
+      - tosca_url:
+          tag_type: textarea
 
 topology_template:
 

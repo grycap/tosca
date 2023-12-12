@@ -12,6 +12,8 @@ metadata:
   icon: images/nifi.png
   parents:
     - kubernetes.yaml
+  tabs:
+    Nifi: nifi_.*
 
 topology_template:
   inputs:

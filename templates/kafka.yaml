@@ -10,6 +10,8 @@ metadata:
   name: Apache Kafka
   display_name: Deploy Apache Kafka on top of a Kubernetes Virtual Cluster
   icon: images/kafka.png
+  tabs:
+    Kafka: kafka_.*
   parents:
     - kubernetes.yaml
 

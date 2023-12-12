@@ -11,6 +11,8 @@ metadata:
   name: Pulsar
   display_name: Configure a Pulsar endpoint
   icon: images/pulsar.png
+  tabs:
+    Pulsar configuration: message_queue_.*
   parents:
     - htcondor_cluster.yml
 
