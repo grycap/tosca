@@ -31,14 +31,13 @@ for path, _, files in os.walk(parameters_directory):
             print("Template file: " + name)
             template = yaml.full_load(stream)
 
-            for key, value in parameters["inputs"].items():
-                if "tab" not in value:
-                    print("Parametes input without tab")
-                    sys.exit(1)
-                elif value["tab"] not in parameters["tabs"]:
-                    print("Tab %s not found in parameters file" % value["tab"])
-                    sys.exit(1)
-                if key not in template.get("topology_template", {}).get("inputs", {}):
-                    print("Parameter input %s not found in template" % key)
-                    sys.exit(1)
-
+        for key, value in parameters["inputs"].items():
+            if "tab" not in value:
+                print("Parametes input without tab")
+                sys.exit(1)
+            elif value["tab"] not in parameters["tabs"]:
+                print("Tab %s not found in parameters file" % value["tab"])
+                sys.exit(1)
+            if key not in template.get("topology_template", {}).get("inputs", {}):
+                print("Parameter input %s not found in template" % key)
+                sys.exit(1)
