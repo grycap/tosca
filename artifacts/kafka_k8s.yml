@@ -110,7 +110,7 @@
               clientPasswords: ["{{password}}"]
 
   - name: Install (or upgrade) the chart
-    command: helm upgrade kafka --install bitnami/kafka --namespace kafka --values /tmp/kafka-values.yaml
+    command: helm upgrade kafka --install bitnami/kafka --namespace kafka --values /tmp/kafka-values.yaml --version 23.0.7
     environment:
       KUBECONFIG: /etc/kubernetes/admin.conf
 
