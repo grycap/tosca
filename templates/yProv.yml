@@ -1,0 +1,99 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+imports:
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+
+metadata:
+  version: "0.1.0"
+  name: yProv
+  display_name: Deploy yProv service
+  # icon: images/yprov.png
+  web: https://github.com/HPCI-Lab/yProv
+  tag: beta
+  parents:
+    - kubernetes.yaml
+  tabs:
+    yProv: .*
+
+
+description: Deploy yProv service on top of a Kubernetes Virtual Cluster.
+
+topology_template:
+
+  inputs:
+
+    neo4j_auth:
+      type: string
+      description: Neo4j credentials
+      default: neo4j/password
+    neo4j_license:
+      type: string
+      description: Neo4j license type
+      default: eval
+    storage_dimension:
+      type: string
+      description: Neo4j storage capacity
+      default: 10Gi
+
+  node_templates:
+
+    yprov:
+      type: tosca.nodes.indigo.Helm.Chart
+      capabilities:
+        endpoint:
+          properties:
+            ports:
+              port_neo4j:
+                protocol: tcp
+                source: 7687
+      properties:
+        namespace: yprov
+        chart_url:  "https://github.com/HPCI-Lab/yProv/raw/kubernetes/yProv.tgz"
+        name: yProv
+        values:
+          db.env.auth.value: { get_input: neo4j_auth }
+          db.env.license.value: { get_input: neo4j_license }
+          neo4j.resources.requirements.storage: { get_input: storage_dimension }
+      requirements:
+        - host: lrms_front_end
+
+    yprov_ingress:
+      type: tosca.nodes.indigo.KubernetesObject
+      properties:
+        spec: |
+          apiVersion: networking.k8s.io/v1
+          kind: Ingress
+          metadata:
+            name: yprov-ingress
+            namespace: yprov
+          spec:
+            ingressClassName: nginx
+            rules:
+            - http:
+                paths:
+                - path: /
+                  backend:
+                    service:
+                      name: web
+                      port:
+                        number: 3000
+                  pathType: ImplementationSpecific
+            - http:
+                paths:
+                - path: /browser
+                  backend:
+                    service:
+                      name: db
+                      port:
+                        number: 7474
+                  pathType: ImplementationSpecific
+      requirements:
+        - host: lrms_front_end
+        - dependency: yprov
+
+
+  outputs:
+    neo4j_browser_endpoint:
+      value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], '/browser' ] }
+    yprov_endpoint:
+      value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], '/' ] }
