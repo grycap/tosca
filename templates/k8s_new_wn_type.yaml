@@ -81,7 +81,7 @@ topology_template:
         front_end_ip: { get_attribute: [ front, private_address, 0 ] }
         version: { get_input: kube_version }
         nvidia_support: { get_input: wng_kube_nvidia_support }
-        cri_runtime: { get_input: cri_runtime }
+        cri_runtime: { get_input: kube_cri_runtime }
       requirements:
         - host: wng
 
@@ -93,6 +93,7 @@ topology_template:
             count: { get_input: wng_num }
         host:
           properties:
+            disk_size: { get_input: wng_disk_size }
             num_cpus: { get_input: wng_cpus }
             mem_size: { get_input: wng_mem }
             num_gpus: { get_input: wng_num_gpus }
@@ -101,17 +102,4 @@ topology_template:
             instance_type: { get_input: wng_instance_type }
         os:
           properties:
-            distribution: ubuntu
             type: linux
-      requirements:
-        - local_storage:
-            node: wng_block_storage
-            relationship:
-              type: AttachesTo
-              properties:
-                location: { concat: [ '/var/lib/', get_input: cri_runtime ] }
-
-    wng_block_storage:
-      type: tosca.nodes.BlockStorage
-      properties:
-        size: { get_input: wng_disk_size }
