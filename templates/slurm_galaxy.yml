@@ -12,6 +12,8 @@ metadata:
   icon: images/galaxy_slurm.png
   parents:
     - slurm_cluster.yml
+  tabs:
+    Galaxy Data: admin_.*
 
 topology_template:
   inputs:

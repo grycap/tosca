@@ -10,6 +10,8 @@ metadata:
   name: Nifi Registry
   display_name: Deploy Apache NiFi registry on top of a Kubernetes Virtual Cluster
   icon: images/nifi-registry.png
+  tabs:
+    Nifi Registry: nifi_reg_.*
   parents:
     - kubernetes.yaml
 

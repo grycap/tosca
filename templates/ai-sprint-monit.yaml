@@ -12,6 +12,8 @@ metadata:
     - kubernetes.yaml
   tag: deprecated
   tag_color: grey
+  tabs:
+    InfluxDB Data: .*
 
 description: Deploy AI-SPRINT Monitorization on top of a Kubernetes Virtual Cluster.
 

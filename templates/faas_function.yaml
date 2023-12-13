@@ -11,6 +11,20 @@ metadata:
   icon: images/faas.png
   tag: FaaS
   tag_color: purple
+  tabs:
+    FaaS function:
+      - function_name
+      - function_memory:
+          pattern: ^([+-]?[0-9.]+)([eEinumkKMGTP]*[-+]?[0-9]*)$
+          tag_type: text
+      - function_cpu
+      - function_image
+      - function_script:
+          tag_type: textarea
+      - function_input_provider
+      - function_input
+      - function_output_provider
+      - function_output
 
 topology_template:
   inputs:

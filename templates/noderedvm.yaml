@@ -9,7 +9,9 @@ metadata:
   version: "1.0.0"
   name: Node-RED
   display_name: Deploy Node-RED on a VM
-  icon: https://github.com/grycap/im-dashboard/raw/devel/app/static/images/nodered.png
+  icon: images/nodered.png
+  tabs:
+    Node-RED: nodered_.*
   parents:
     - simple-node-disk.yml
 

@@ -10,6 +10,8 @@ metadata:
   name: JupyterHub
   display_name: Deploy JupyterHub on top of a Kubernetes Virtual Cluster
   icon: images/jupyterhub.png
+  tabs:
+    JupyterHub: .*
   parents:
     - kubernetes.yaml
 

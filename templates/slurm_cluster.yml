@@ -10,6 +10,10 @@ metadata:
   display_name: SLURM virtual cluster
   icon: images/slurm.png
   order: 4
+  tabs:
+    FE Node Features: fe_.*
+    WNs Features: wn_.*
+    SLURM Features: slurm_.*
   childs:
     - slurm_elastic.yaml
     - ssh_keys.yml

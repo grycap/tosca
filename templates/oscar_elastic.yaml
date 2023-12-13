@@ -11,6 +11,10 @@ metadata:
   display_name: Make OSCAR Virtual Cluster Elastic
   icon: images/elasticity.png
   tag: elastic
+  tabs:
+    Elastic Data:
+      - max_wn_num
+      - min_wn_num
   parents:
     - oscar.yaml
 

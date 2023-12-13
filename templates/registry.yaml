@@ -9,7 +9,7 @@ metadata:
   version: "1.0.0"
   name: Private Docker Registry
   display_name: Private Docker Registry on top of Kubernetes
-  icon: https://github.com/grycap/im-dashboard/raw/devel/app/static/images/registry.png
+  icon: images/registry.png
   parents:
     - kubernetes.yaml
 

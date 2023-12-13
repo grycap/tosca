@@ -10,6 +10,8 @@ metadata:
   name: eflows4hpc image creation service
   display_name: Deploy the flows4hpc image creation service on a VM
   icon: images/eflows4HPCcics.png
+  tabs:
+    Image Creation Data: .*
   parents:
     - simple-node-disk.yml
 

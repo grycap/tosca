@@ -11,6 +11,8 @@ metadata:
   display_name: Make Kubernetes Virtual Cluster Elastic
   icon: images/elasticity.png
   tag: elastic
+  tabs:
+    Elastic: .*
   parents:
     - kubernetes.yaml
 
@@ -34,7 +36,7 @@ topology_template:
       properties:
         im_auth: ""
         powermanager_plugin: im
-        kube_token: { get_input: admin_token }
+        kube_token: { get_input: kube_admin_token }
         kube_wn_cpus: { get_input: wn_cpus }
         kube_wn_mem: { get_input: wn_mem }
         config_options:
@@ -76,6 +78,6 @@ topology_template:
         front_end_ip: { get_attribute: [ front, private_address, 0 ] }
         version: { get_input: kube_version }
         nvidia_support: { get_input: wn_kube_nvidia_support }
-        cri_runtime: { get_input: cri_runtime }
+        cri_runtime: { get_input: kube_cri_runtime }
       requirements:
         - host: wn

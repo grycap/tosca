@@ -11,6 +11,18 @@ metadata:
   display_name: Deploy a FaaS function on top of the OSCAR Virtual Cluster
   icon: images/oscar.png
   tag: FaaS
+  tabs:
+    OSCAR function:
+      - function_name
+      - function_memory:
+          pattern: ^([+-]?[0-9.]+)([eEinumkKMGTP]*[-+]?[0-9]*)$
+          tag_type: text
+      - function_cpu
+      - function_image
+      - function_script:
+          tag_type: textarea
+      - function_input
+      - function_output
   parents:
     - oscar.yaml
 

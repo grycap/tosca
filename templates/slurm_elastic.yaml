@@ -11,6 +11,9 @@ metadata:
   display_name: Make SLURM Virtual Cluster Elastic
   icon: images/elasticity.png
   tag: elastic
+  tabs:
+    Elastic Data:
+      - max_wn_num
   parents:
     - slurm_cluster.yml
 

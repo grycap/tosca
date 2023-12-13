@@ -8,6 +8,8 @@ metadata:
   name: Apache Airflow
   display_name: Deploy Apache Airflow on top of a Kubernetes Virtual Cluster
   icon: images/airflow.png
+  tabs:
+    Airflow Data: airflow_.*
   parents:
     - kubernetes.yaml
 

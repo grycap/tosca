@@ -1,9 +1,0 @@
-inputs:
-  nvidia_support:
-    tab: Docker Data
-
-  driver_version:
-    tab: Docker Data
-
-tabs:
-  - Docker Data

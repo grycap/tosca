@@ -10,6 +10,16 @@ metadata:
   name: MinIO
   display_name: Deploy MinIO server
   icon: images/minio.png
+  tabs:
+    MinIO Data:
+      - minio_release
+      - minio_accesskey
+      - minio_secretkey
+      - minio_dns_console
+      - nsupdate_secret_console
+      - minio_dns_api
+      - nsupdate_secret_api
+      - minio_letsencrypt_email
   parents:
     - simple-node-disk.yml
 

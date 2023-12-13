@@ -13,6 +13,11 @@ metadata:
   icon: images/ansible.png
   tag: SW
   tag_color: blue
+  tabs:
+    Ansible Tasks:
+      - ansible_tasks:
+          tag_type: textarea
+      - ansible_url
   parents:
     - simple-node-disk.yml
 

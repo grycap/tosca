@@ -8,6 +8,8 @@ metadata:
   name: MLFlow
   display_name: Deploy MLFlow on a VM
   icon: images/mlflow.png
+  tabs:
+    MLFlow: mlflow_.*
   parents:
     - simple-node-disk.yml
 

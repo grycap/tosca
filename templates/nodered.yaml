@@ -10,6 +10,8 @@ metadata:
   name: Node-RED
   display_name: Deploy a Node-RED on top of a Kubernetes Virtual Cluster
   icon: images/nodered.png
+  tabs:
+    Node-RED: nodered_.*
   parents:
     - kubernetes.yaml
 

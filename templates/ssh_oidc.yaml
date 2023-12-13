@@ -15,6 +15,11 @@ metadata:
   tag_color: purple
   parents:
     - simple-node-disk.yml
+  tabs:
+    SSH Data:
+      - ssh_oidc_my_vo
+      - ssh_oidc_other_vos:
+          tag_type: vo_list
 
 topology_template:
 

@@ -11,6 +11,32 @@ metadata:
   icon: images/oscar.png
   order: 2
   web: https://grycap.github.io/oscar/
+  tabs:
+    HW Data:
+      - wn_num
+      - fe_cpus
+      - fe_mem
+      - fe_instance_type
+      - wn_cpus
+      - wn_mem
+      - wn_instance_type
+      - storage_size
+    OSCAR Data:
+      - admin_token
+      - kube_version
+      - oscar_password
+      - minio_password
+      - cert_user_email
+      - user_id:
+          tag_type: userid
+      - selected_vo:
+          tag_type: vo_list
+      - cluster_name:
+          tag_type: random
+      - domain_name:
+          tag_type: hidden
+      - kube_nvidia_support
+      - kube_install_yunikorn
   childs:
     - oscar_elastic.yaml
     - oscar_function.yaml
