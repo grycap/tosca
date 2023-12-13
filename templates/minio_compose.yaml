@@ -20,7 +20,6 @@ metadata:
       - minio_dns_api
       - nsupdate_secret_api
       - minio_letsencrypt_email
-      
   parents:
     - simple-node-disk.yml
 
