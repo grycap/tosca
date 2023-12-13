@@ -24,6 +24,9 @@ for path, _, files in os.walk(templates_directory):
                     all_inputs = list(template_inputs.keys())
                     res = [elem for elem in all_inputs if re.match(input_elems, elem)]
                     input_elems = res
+                elif not isinstance(input_elems, list):
+                    print("Invalid type for input %s." % input_elems)
+                    sys.exit(1)
                 if not input_elems:
                     print("Tab %s has no inputs" % tab)
                     sys.exit(1)
@@ -31,6 +34,10 @@ for path, _, files in os.walk(templates_directory):
                     input_name = input_elem
                     if isinstance(input_elem, dict):
                         input_name = list(input_elem.keys())[0]
+                        input_params = list(input_elem.values())[0]
+                        if not isinstance(input_params, dict):
+                            print("Invalid type for input parameters %s." % input_name)
+                            sys.exit(1)
                     if input_name not in template_inputs:
                         print("Tab input %s not found in template" % input_name)
                         sys.exit(1)

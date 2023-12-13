@@ -13,7 +13,7 @@ metadata:
   tag: elastic
   tabs:
     Elastic Data:
-      - max_wn_num:
+      - max_wn_num
   parents:
     - slurm_cluster.yml
 
