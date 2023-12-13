@@ -93,6 +93,8 @@ topology_template:
 
   outputs:
     neo4j_browser_endpoint:
-      value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], '/browser' ] }
+      value: { concat: [ 'http://', get_attribute: [ front, public_address, 0 ], '/browser' ] }
+    neo4j_db_endpoint:
+      value: { concat: [ 'neo4j://', get_attribute: [ front, public_address, 0 ] ] }
     yprov_endpoint:
-      value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], '/' ] }
+      value: { concat: [ 'http://', get_attribute: [ front, public_address, 0 ], '/' ] }
