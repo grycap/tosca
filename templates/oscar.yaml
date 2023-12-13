@@ -43,6 +43,7 @@ metadata:
     - prometheus.yaml
     - registry.yaml
     - nodered.yaml
+    - kafka.yaml
 
 topology_template:
   inputs:

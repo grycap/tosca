@@ -38,6 +38,7 @@ metadata:
     - helm.yaml
     - airflow.yaml
     - k8s_wget.yml
+    - yProv.yml
 
 topology_template:
   inputs:
