@@ -215,8 +215,7 @@ topology_template:
       properties:
         admin_username: kubeuser
         install_nfs_client: true
-        admin_token: { get_input: admin_token }
-        install_kubeapps: { get_input: install_kubeapps }
+        admin_token: { get_input: kube_admin_token }
         version: { get_input: kube_version }
         nvidia_support: { get_input: kube_nvidia_support }
         cert_manager: { get_input: kube_cert_manager }
