@@ -6,7 +6,7 @@ import os
 import yaml
 import re
 
-templates_directory = sys.argv[1    ]
+templates_directory = sys.argv[1]
 
 for path, _, files in os.walk(templates_directory):
     for name in files:
