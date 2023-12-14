@@ -6,7 +6,8 @@ imports:
 description: Deploy a FaaS function on top of an OSCAR Cluster or AWS Lambda
 
 metadata:
-  version: "1.0.0"
+  template_name: FaaS function
+  template_version: "1.0.0"
   display_name: Deploy a FaaS function on top of an OSCAR Cluster or AWS Lambda
   icon: images/faas.png
   tag: FaaS

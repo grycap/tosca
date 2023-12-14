@@ -4,8 +4,8 @@ imports:
   - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
 
 metadata:
-  version: "1.0.0"
-  name: Binderhub
+  template_version: "1.0.0"
+  template_name: Binderhub
   display_name: Deploy Binderhub on top of a Kubernetes Virtual Cluster
   icon: https://binderhub.readthedocs.io/en/latest/_static/logo.png
   tabs:

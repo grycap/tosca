@@ -6,8 +6,8 @@ imports:
 description: Deploy Apache NiFi on top of a Kubernetes Virtual Cluster.
 
 metadata:
-  version: "1.0.0"
-  name: Nifi
+  template_version: "1.0.0"
+  template_name: Nifi
   display_name: Deploy Apache NiFi on top of a Kubernetes Virtual Cluster
   icon: images/nifi.png
   parents:

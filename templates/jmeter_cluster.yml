@@ -6,7 +6,8 @@ imports:
 description: Deploy a JMeter Virtual Cluster.
 
 metadata:
-  version: "1.0.0"
+  template_name: JMeter
+  template_version: "1.0.0"
   display_name: Deploy a JMeter virtual cluster
   icon: images/jmeter.png
 

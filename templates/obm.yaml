@@ -6,7 +6,8 @@ imports:
 description: Deploy a OpenBioMaps server with a compute node
 
 metadata:
-  version: "0.2.0"
+  template_name: OpenBioMaps
+  template_version: "0.2.0"
   display_name: Deploy a OpenBioMaps portal and Compute node
   icon: images/obm.png
   tag: beta

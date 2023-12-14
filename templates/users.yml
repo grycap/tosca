@@ -8,8 +8,8 @@ description: >
   (Search passwords in /var/tmp/passwordfile_userXX)
 
 metadata:
-  version: "1.0.0"
-  name: Add Users
+  template_version: "1.0.0"
+  template_name: Add Users
   display_name: Add a set of users
   icon: images/user-icon.png
   tag: SYS

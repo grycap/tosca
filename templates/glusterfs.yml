@@ -6,8 +6,8 @@ imports:
 description: Add a GlusterFS shared Volume to a SLURM cluster.
 
 metadata:
-  version: "0.1.0"
-  name: GlusterFS
+  template_version: "0.1.0"
+  template_name: GlusterFS
   display_name: Add a GlusterFS shared Volume.
   icon: images/slurm_glusterfs.png
   tag: beta

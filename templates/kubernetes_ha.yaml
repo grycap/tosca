@@ -6,7 +6,8 @@ imports:
 description: Deploy a HA Kubernetes Virtual Cluster with 3 control plane nodes.
 
 metadata:
-  version: "0.1.0"
+  template_name: Kubernetes HA
+  template_version: "0.1.0"
   display_name: Deploy a HA Kubernetes Virtual Cluster with
   icon: images/kubernetes.png
   tag: deprecated

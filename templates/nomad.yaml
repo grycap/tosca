@@ -6,7 +6,8 @@ imports:
 description: Deploy a Nomad Virtual Cluster.
 
 metadata:
-  version: "1.0.0"
+  template_name: Nomad
+  template_version: "1.0.0"
   display_name: Deploy a Nomad Virtual Cluster
   icon: images/nomad.png
 

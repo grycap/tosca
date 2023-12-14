@@ -6,7 +6,8 @@ imports:
 description: Deploy the EOSC-Synergy SQAaaS platform on top of a Kubernetes Virtual Cluster
 
 metadata:
-  version: "0.1.0"
+  template_name: SQAaaS
+  template_version: "0.1.0"
   display_name: Deploy EOSC-Synergy SQAaaS platform on top of a Kubernetes Virtual Cluster
   icon: images/sqaaas.png
   tag: deprecated

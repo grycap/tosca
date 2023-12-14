@@ -4,8 +4,8 @@ imports:
   - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
 
 metadata:
-  version: "1.0.0"
-  name: Apache Airflow
+  template_version: "1.0.0"
+  template_name: Apache Airflow
   display_name: Deploy Apache Airflow on top of a Kubernetes Virtual Cluster
   icon: images/airflow.png
   tabs:

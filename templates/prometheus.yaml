@@ -6,8 +6,8 @@ imports:
 description: Deploy Prometheus + Grafana on top of a Kubernetes Virtual Cluster.
 
 metadata:
-  version: "1.1.0"
-  name: Prometheus
+  template_version: "1.1.0"
+  template_name: Prometheus
   display_name: Deploy Prometheus + Grafana  on top of a Kubernetes Virtual Cluster
   icon: images/prometheus.png
   tabs:

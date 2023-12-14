@@ -6,8 +6,8 @@ imports:
 description: Deploy a FaaS function on top of the OSCAR Virtual Cluster
 
 metadata:
-  version: "1.0.0"
-  name: OSCAR Function
+  template_version: "1.0.0"
+  template_name: OSCAR Function
   display_name: Deploy a FaaS function on top of the OSCAR Virtual Cluster
   icon: images/oscar.png
   tag: FaaS

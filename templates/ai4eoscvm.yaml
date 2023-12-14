@@ -4,8 +4,8 @@ imports:
   - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
 
 metadata:
-  version: "1.0.0"
-  name: AI4EOSC DEEPaaS
+  template_version: "1.0.0"
+  template_name: AI4EOSC DEEPaaS
   display_name: Deploy a DEEPaaS AI model
   icon: images/ai4eosc.png
   tabs:

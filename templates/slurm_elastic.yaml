@@ -6,8 +6,8 @@ imports:
 description: Make SLURM Virtual Cluster Elastic.
 
 metadata:
-  version: "1.0.1"
-  name: Elastic
+  template_version: "1.0.1"
+  template_name: Elastic
   display_name: Make SLURM Virtual Cluster Elastic
   icon: images/elasticity.png
   tag: elastic

@@ -4,8 +4,8 @@ imports:
   - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
 
 metadata:
-  version: "0.1.0"
-  name: yProv
+  template_version: "0.1.0"
+  template_name: yProv
   display_name: Deploy yProv service
   # icon: images/yprov.png
   web: https://github.com/HPCI-Lab/yProv

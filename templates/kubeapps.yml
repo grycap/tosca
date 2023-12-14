@@ -6,8 +6,8 @@ imports:
 description: Deploy Kubeapps on top of a Kubernetes Virtual Cluster.
 
 metadata:
-  version: "1.0.0"
-  name: Kubeapps
+  template_version: "1.0.0"
+  template_name: Kubeapps
   display_name: Deploy Kubeapps on top of a Kubernetes Virtual Cluster
   icon: images/kubeapps-logo.png
   parents:

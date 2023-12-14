@@ -7,8 +7,9 @@ description: >
   Deploy a compute node getting the IP and SSH credentials to access via ssh with an extra HD disk.
 
 metadata:
-  version: "1.0.0"
-  author: Miguel Caballer
+  template_name: VM
+  template_version: "1.0.0"
+  template_author: Miguel Caballer
   creation_date: 2020-09-08
   display_name: Deploy a VM
   icon: images/vm-icon-disk.png

@@ -6,8 +6,8 @@ imports:
 description: Register DNS hostname using https://nsupdate.fedcloud.eu/
 
 metadata:
-  version: "1.0.0"
-  name: DyDNS
+  template_version: "1.0.0"
+  template_name: DyDNS
   display_name: Dynamic DNS
   icon: images/dydns.png
   tabs:

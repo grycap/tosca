@@ -7,8 +7,8 @@ description: >
   Deploy a set of computing nodes with Docker and Docker Compose installed.
 
 metadata:
-  version: "1.0.0"
-  name: Docker + Compose
+  template_version: "1.0.0"
+  template_name: Docker + Compose
   display_name: Install Docker + Docker Compose
   icon: images/docker.png
   tag: SW

@@ -6,7 +6,8 @@ imports:
 description: Deploy a SLURM Virtual Cluster.
 
 metadata:
-  version: "1.0.0"
+  template_name: SLURM
+  template_version: "1.0.0"
   display_name: SLURM virtual cluster
   icon: images/slurm.png
   order: 4
