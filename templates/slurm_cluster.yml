@@ -79,9 +79,9 @@ topology_template:
     slurm_version:
       type: string
       description: Version of SLURM to be installed
-      default: 23.11.0
+      default: 23.11.1
       constraints:
-        - valid_values: [ '20.11.9', '21.08.5', '21.08.8', '22.05.10', '23.11.0' ]
+        - valid_values: [ '23.11.1', '20.11.9', '21.08.5', '21.08.8', '22.05.10' ]
 
   node_templates:
 
