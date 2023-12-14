@@ -38,7 +38,7 @@ for path, _, files in os.walk(directory):
             if "link" in template["metadata"]:
                 raise Exception("Child template cannot have link metadata")
             # Check if the template has set a name and a display name
-            if "name" not in template["metadata"]:
+            if "template_name" not in template["metadata"]:
                 raise Exception("Child template must have a name")
             if "display_name" not in template["metadata"]:
                 raise Exception("Child template must have a display name")
