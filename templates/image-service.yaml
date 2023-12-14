@@ -6,8 +6,8 @@ imports:
 description: Deploy the eflows4hpc image creation service on a VM
 
 metadata:
-  version: "1.0.0"
-  name: eflows4hpc image creation service
+  template_version: "1.0.0"
+  template_name: eflows4hpc image creation service
   display_name: Deploy the flows4hpc image creation service on a VM
   icon: images/eflows4HPCcics.png
   tabs:

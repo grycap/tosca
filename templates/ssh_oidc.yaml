@@ -6,8 +6,8 @@ imports:
 description: Enable SSH OIDC access to the VM
 
 metadata:
-  version: "1.0.0"
-  name: SSH OIDC
+  template_version: "1.0.0"
+  template_name: SSH OIDC
   display_name: Enable SSH OIDC access to the VM
   icon: images/motley-cue.png
   tag: SYS

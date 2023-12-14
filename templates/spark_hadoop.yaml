@@ -6,8 +6,8 @@ imports:
 description: Deploy a Hadoop Cluster with Spark.
 
 metadata:
-  version: "1.0.0"
-  name: Spark
+  template_version: "1.0.0"
+  template_name: Spark
   display_name: Add Spark to the Hadoop Virtual Cluster
   icon: images/hadoop_spark.png
   parents:

@@ -6,8 +6,8 @@ imports:
 description: Deploy Apache Kafka on top of a Kubernetes Virtual Cluster.
 
 metadata:
-  version: "1.0.0"
-  name: Apache Kafka
+  template_version: "1.0.0"
+  template_name: Apache Kafka
   display_name: Deploy Apache Kafka on top of a Kubernetes Virtual Cluster
   icon: images/kafka.png
   tabs:

@@ -4,7 +4,9 @@ imports:
 description: >
   Deploy a cluster with Scipion via VNC
 metadata:
-  version: "1.0.0"
+  template_name: Scipion
+  template_version: "1.0.0"
+  template_author: Laura del Cano
   display_name: Scipion on SLURM cluster
   icon: images/scipion.png
 topology_template:

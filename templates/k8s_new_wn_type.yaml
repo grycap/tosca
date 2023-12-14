@@ -6,8 +6,8 @@ imports:
 description: Add a new WN type to the Kubernetes cluster (Heterogeneous cluster). Not compatible with Elasticity (yet).
 
 metadata:
-  version: "1.0.0"
-  name: New WN Type
+  template_version: "1.0.0"
+  template_name: New WN Type
   display_name: Add a new WN type with diferent features
   icon: images/k8swn.png
   tabs:

@@ -4,8 +4,8 @@ imports:
   - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
 
 metadata:
-  version: "0.1.0"
-  name: AI-SPRINT Mon
+  template_version: "0.1.0"
+  template_name: AI-SPRINT Mon
   display_name: Deploy AI-SPRINT Monitorization on top of a Kubernetes Virtual Cluster
   icon: images/k8s_influxdb.png
   parents:

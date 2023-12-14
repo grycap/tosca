@@ -4,8 +4,8 @@ imports:
   - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
 
 metadata:
-  version: "1.0.0"
-  name: MLFlow
+  template_version: "1.0.0"
+  template_name: MLFlow
   display_name: Deploy MLFlow on a VM
   icon: images/mlflow.png
   tabs:

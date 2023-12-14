@@ -7,8 +7,8 @@ description: >
   TOSCA for configuring a Pulsar endpoint
 
 metadata:
-  version: "1.0.0"
-  name: Pulsar
+  template_version: "1.0.0"
+  template_name: Pulsar
   display_name: Configure a Pulsar endpoint
   icon: images/pulsar.png
   tabs:

@@ -6,8 +6,8 @@ imports:
 description: Deploy MinIO server.
 
 metadata:
-  version: "1.0.0"
-  name: MinIO
+  template_version: "1.0.0"
+  template_name: MinIO
   display_name: Deploy MinIO server
   icon: images/minio.png
   tabs:

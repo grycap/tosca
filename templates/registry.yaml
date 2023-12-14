@@ -6,8 +6,8 @@ imports:
 description: Install a Private Docker Registry on top of a Kubernetes Cluster
 
 metadata:
-  version: "1.0.0"
-  name: Private Docker Registry
+  template_version: "1.0.0"
+  template_name: Private Docker Registry
   display_name: Private Docker Registry on top of Kubernetes
   icon: images/registry.png
   parents:

@@ -6,8 +6,8 @@ imports:
 description: Install and configure CernVM-FS
 
 metadata:
-  version: "1.0.0"
-  name: CernVM-FS
+  template_version: "1.0.0"
+  template_name: CernVM-FS
   display_name: Install and configure CernVM-FS
   icon: images/cernvmfs.png
   tag: SYS

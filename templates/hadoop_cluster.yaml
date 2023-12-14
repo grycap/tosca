@@ -6,7 +6,8 @@ imports:
 description: Deploy a Hadoop Virtual Cluster.
 
 metadata:
-  version: "1.0.0"
+  template_name: Hadoop
+  template_version: "1.0.0"
   display_name: Deploy a Hadoop Virtual Cluster
   icon: images/hadoop.png
   childs:

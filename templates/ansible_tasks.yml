@@ -7,8 +7,8 @@ description: Deploy user defined Ansible tasks.
 
 
 metadata:
-  version: "1.0.0"
-  name: Ansible
+  template_version: "1.0.0"
+  template_name: Ansible
   display_name: Ansible tasks
   icon: images/ansible.png
   tag: SW

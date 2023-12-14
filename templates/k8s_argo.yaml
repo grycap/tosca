@@ -4,7 +4,8 @@ imports:
   - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
 
 metadata:
-  version: "1.0.0"
+  template_name: Argo Workflows K8s
+  template_version: "1.0.0"
   display_name: Deploy Argo Workflows on top of a Kubernetes Virtual Cluster
   icon: images/k8s_argo.png
   link:

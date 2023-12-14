@@ -6,8 +6,8 @@ imports:
 description: Add a set of SSH Public Keys to the VMs
 
 metadata:
-  version: "1.0.0"
-  name: SSH Keys
+  template_version: "1.0.0"
+  template_name: SSH Keys
   display_name: Add a set of SSH Public Keys
   icon: images/ssh-icon.png
   tag: SYS

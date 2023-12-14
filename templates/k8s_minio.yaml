@@ -6,7 +6,8 @@ imports:
 description: Deploy MinIO server on top of a Kubernetes Virtual Cluster.
 
 metadata:
-  version: "1.0.0"
+  template_name: MinIO K8s
+  template_version: "1.0.0"
   display_name: Deploy MinIO server on top of a Kubernetes Virtual Cluster
   icon: images/k8s_minio.png
   link:

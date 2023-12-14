@@ -6,8 +6,8 @@ imports:
 description: Deploy a Helm Chart on top of a Kubernetes Virtual Cluster.
 
 metadata:
-  version: "1.0.0"
-  name: Helm Chart
+  template_version: "1.0.0"
+  template_name: Helm Chart
   display_name: Deploy a Helm Chart on top of a Kubernetes Virtual Cluster
   icon: images/helm.png
   tabs:

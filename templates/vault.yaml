@@ -6,8 +6,8 @@ imports:
 description: Deploy Hashicorp Vault on top of a Kubernetes Virtual Cluster.
 
 metadata:
-  version: "1.0.0"
-  name: Vault
+  template_version: "1.0.0"
+  template_name: Vault
   display_name: Deploy Hashicorp Vault on top of a Kubernetes Virtual Cluster
   icon: images/vault-logo.png
   parents:

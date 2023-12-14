@@ -6,8 +6,8 @@ imports:
 description: Donwload some data available in an URL to a local path
 
 metadata:
-  version: "1.1.0"
-  name: Download
+  template_version: "1.1.0"
+  template_name: Download
   display_name: Download File in VM local path
   icon: images/download.png
   parents:

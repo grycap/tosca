@@ -6,8 +6,8 @@ imports:
 description: Deploy a Node-RED on top of a Kubernetes Virtual Cluster.
 
 metadata:
-  version: "1.0.0"
-  name: Node-RED
+  template_version: "1.0.0"
+  template_name: Node-RED
   display_name: Deploy a Node-RED on top of a Kubernetes Virtual Cluster
   icon: images/nodered.png
   tabs:

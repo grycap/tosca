@@ -6,7 +6,8 @@ imports:
 description: Deploy a Ophidia Cluster (on CentOS 7)
 
 metadata:
-  version: "1.0.0"
+  template_name: Ophidia
+  template_version: "1.0.0"
   display_name: Deploy a Ophidia cluster
   icon: images/ophidia.png
   tag: deprecated

@@ -6,8 +6,8 @@ imports:
 description: Install NVIDIA Drivers
 
 metadata:
-  version: "1.0.0"
-  name: NVIDIA Drivers
+  template_version: "1.0.0"
+  template_name: NVIDIA Drivers
   display_name: Install NVIDIA Drivers
   icon: images/nvidia.png
   tag: SW

@@ -6,7 +6,8 @@ imports:
 description: Deploy a Mesos Cluster (with Marathon and Chronos frameworks) on top of Virtual machines
 
 metadata:
-  version: "1.0.0"
+  template_name: Mesos
+  template_version: "1.0.0"
   display_name: Deploy a Mesos cluster
   icon: images/mesos.png
   tag: deprecated

@@ -6,7 +6,8 @@ imports:
 description: Deploy an Apache Storm cluster
 
 metadata:
-  version: "1.0.0"
+  template_name: Storm
+  template_version: "1.0.0"
   display_name: Deploy a Storm Virtual Cluster
   icon: images/storm.png
 
