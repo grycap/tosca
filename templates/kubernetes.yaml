@@ -40,6 +40,7 @@ metadata:
     - airflow.yaml
     - k8s_wget.yml
     - yProv.yml
+    - flink.yaml
 
 topology_template:
   inputs:
