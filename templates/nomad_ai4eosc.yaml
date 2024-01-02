@@ -234,3 +234,5 @@ topology_template:
       value: { get_attribute: [ front, public_address, 0 ] }
     cluster_creds:
       value: { get_attribute: [ front, endpoint, credential, 0 ] }
+    traefik_endpoint:
+      value: { concat: [ 'https://', get_attribute: [ wn_pub, public_address, 0 ] ] }
