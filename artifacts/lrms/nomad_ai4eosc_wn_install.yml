@@ -45,7 +45,13 @@
   tasks:
     - name: Set nomad public_ip key to no on node
       command: nomad node meta apply public_ip=no
+      environment:
+        NOMAD_CACERT: /etc/nomad/certs/nomad-agent-ca.pem
+        NOMAD_ADDR: "https://127.0.0.1:4646"
       when: IM_NODE_PUBLIC_IP is not defined or IM_NODE_PUBLIC_IP == ""
     - name: Set nomad public_ip key to yes on node
       command: nomad node meta apply public_ip=yes
+      environment:
+        NOMAD_CACERT: /etc/nomad/certs/nomad-agent-ca.pem
+        NOMAD_ADDR: "https://127.0.0.1:4646"
       when: IM_NODE_PUBLIC_IP is defined and IM_NODE_PUBLIC_IP != ""
