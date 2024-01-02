@@ -22,7 +22,6 @@ topology_template:
       type: string
       description: Flink version
       default: "1.18.0"
-
   node_templates:
 
     flink:
@@ -39,4 +38,4 @@ topology_template:
 
   outputs:
     flink_endpoint:
-      value: { concat: [ get_attribute: [ front, public_address, 0 ], '/flink/' ] }
+      value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], '/flink/' ] }
