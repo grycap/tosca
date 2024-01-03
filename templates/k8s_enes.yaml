@@ -8,7 +8,7 @@ metadata:
   template_version: "1.0.0"
   display_name: ENES Data Space service on top of Kubernetes
   icon: images/eds.png
-  link: 
+  link:
     parent: kubernetes.yaml
     childs:
       - enes.yaml
