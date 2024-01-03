@@ -97,6 +97,7 @@
             job "traefik" {
               region      = "global"
               datacenters = ["dc1"]
+              priority = 100
               type        = "service"
                 constraint {
                   attribute  = "${meta.public_ip}"
@@ -177,5 +178,7 @@
           NOMAD_ADDR: "https://127.0.0.1:4646"
           NOMAD_TOKEN: "{{ NOMAD_TOKEN }}"
         ignore_errors: yes
+        async: 60
+        poll: 5
 
       when: launch_traefik
