@@ -97,6 +97,7 @@
             job "traefik" {
               region      = "global"
               datacenters = ["dc1"]
+              priority = 100
               type        = "service"
                 constraint {
                   attribute  = "${meta.public_ip}"
