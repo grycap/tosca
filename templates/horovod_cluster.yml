@@ -77,7 +77,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/devel/artifacts/horovod/horovod_fe.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/horovod/horovod_fe.yml
 
     front:
       type: tosca.nodes.indigo.Compute
@@ -112,7 +112,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/devel/artifacts/horovod/horovod_wn.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/horovod/horovod_wn.yml
             inputs:
               horovod_front_end_ip: { get_attribute: [ front, private_address, 0 ] }
 
