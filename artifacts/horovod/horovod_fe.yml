@@ -28,13 +28,13 @@
       when: ansible_os_family == "Debian"
 
     - name: Install epel in RedHat
-    - package:
+      package:
         name: epel-release
         state: present
       when: ansible_os_family == "RedHat"
 
     - name: Install system dependencies in RedHat
-    - package:
+      package:
         name:
           - python3
           - python3-devel
