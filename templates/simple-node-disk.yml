@@ -19,6 +19,7 @@ metadata:
     VM Data:
       - num_cpus
       - mem_size
+      - disk_size
       - num_instances
       - storage_size
       - mount_path
@@ -58,6 +59,12 @@ topology_template:
       default: 2 GB
       constraints:
         - valid_values: [ 2 GB, 4 GB, 8 GB, 16 GB, 32 GB, 64 GB, 128 GB, 256 GB, 512 GB ]
+    disk_size:
+      type: scalar-unit.size
+      description: Size of the root disk of the WNs
+      default: 20 GB
+      constraints:
+        - valid_values: [ 20 GB, 50 GB, 100 GB, 200 GB ]
     num_instances:
       type: integer
       description: Number of VMs to be spawned
@@ -117,6 +124,7 @@ topology_template:
             count: { get_input: num_instances }
         host:
           properties:
+            disk_size: { get_input: disk_size }
             num_cpus: { get_input: num_cpus }
             mem_size: { get_input: mem_size }
             num_gpus: { get_input: num_gpus }
