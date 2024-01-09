@@ -96,7 +96,6 @@ topology_template:
           configure:
             implementation: https://raw.githubusercontent.com/grycap/tosca/devel/artifacts/horovod/horovod_fe.yml
 
-
     front:
       type: tosca.nodes.indigo.Compute
       capabilities:
