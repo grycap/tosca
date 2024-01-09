@@ -1,0 +1,107 @@
+---
+- hosts: localhost
+  connection: local
+  vars:
+    gpu_support: "{{ horovod_gpu_support | default(false) }}"
+    horovod_install_env_vars:
+      HOROVOD_WITH_MPI: 1
+      HOROVOD_WITH_PYTORCH: 1
+      HOROVOD_WITH_TENSORFLOW: 1
+  tasks:
+    - name: Install system dependencies in Debian
+      apt:
+        pkg:
+          - python3
+          - python3-dev
+          - openmpi-bin
+          - openmpi-common
+          - libopenmpi-dev
+          - gcc-10
+          - g++-10
+          - make
+          - cmake
+          - python3-pip
+        state: present
+      when: ansible_os_family == "Debian"
+
+    - name: Install epel in RedHat
+      package:
+        name: epel-release
+        state: present
+      when: ansible_os_family == "RedHat"
+
+    - name: Install system dependencies in RedHat
+      package:
+        name:
+          - python3
+          - python3-devel
+          - gcc
+          - gcc-c++
+          - make
+          - cmake
+          - python3-pip
+          - openmpi
+          - openmpi-devel
+        state: present
+      when: ansible_os_family == "RedHat"
+
+    - block:
+
+      - name: Install NVIDIA drivers
+        include_role:
+          name: NVIDIA.nvidia_driver
+
+      - name: Install NVIDIA repo
+        apt:
+          deb: https://developer.download.nvidia.com/compute/cuda/repos/{{ ansible_distribution | lower }}{{ ansible_distribution_version | replace('.', '') }}/x86_64/cuda-keyring_1.1-1_all.deb
+        when: ansible_os_family == "Debian"
+
+      - name: Apt install CUDA & NCCL libraries
+        apt:
+          pkg:
+            - cuda-toolkit
+            - libnccl2
+            - libnccl-dev
+          update_cache: yes
+        when: ansible_os_family == "Debian"
+
+      - name: Set HOROVOD_GPU_OPERATIONS var
+        set_fact:
+          horovod_install_env_vars: "{{ horovod_install_env_vars | combine({'HOROVOD_GPU_OPERATIONS': 'NCCL'}) }}"
+
+      - name: Set HOROVOD_NCCL_INCLUDE and HOROVOD_NCCL_LIB vars
+        set_fact:
+          horovod_install_env_vars: "{{ horovod_install_env_vars | combine({'HOROVOD_NCCL_INCLUDE': '/usr/include', 'HOROVOD_NCCL_LIB': '/usr/lib64'}) }}"
+        when: ansible_os_family == "RedHat"
+
+      when: gpu_support
+
+    - name: Install python dependencies
+      pip:
+        name:
+          - "tensorflow==2.13.1"
+          - "keras==2.13.1"
+          - "torch==1.13.1"
+        state: present
+        executable: pip3
+      environment:
+        # This is only needed for RedHat
+        PATH: "{{ ansible_env.PATH }}:/usr/lib64/openmpi/bin"
+
+    - name: Set openmpi in PATH for RedHat
+      set_fact:
+        horovod_install_env_vars: "{{ horovod_install_env_vars | combine({'PATH': ansible_env.PATH + '/usr/lib64/openmpi/bin'}) }}"
+      when: ansible_os_family == "RedHat"
+
+    - name: Set CC and CXX for Debian to gcc-10 and g++-10
+      set_fact:
+        horovod_install_env_vars: "{{ horovod_install_env_vars | combine({'CC': '/usr/bin/gcc-10 ', 'CXX': '/usr/bin/g++-10'}) }}"
+      when: ansible_os_family == "Debian"
+
+    - name: Install horovod
+      pip:
+        name: "horovod[keras,pytorch,tensorflow]"
+        state: present
+        executable: pip3
+        extra_args: --no-cache-dir --no-binary horovod
+      environment: "{{ horovod_install_env_vars }}"
