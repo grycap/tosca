@@ -3,22 +3,20 @@ tosca_definitions_version: tosca_simple_yaml_1_0
 imports:
   - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
 
-description: Deploy a Horovod Virtual Cluster.
+description: Deploy a Horovod Virtual Cluster (with Tensorflow, Keras and PyTorck) with a shared NFS filesystem.
 
 metadata:
   template_name: Horovod
-  template_version: "0.1.0"
+  template_version: "0.3.0"
   tag: beta
   display_name: Deploy a Horovod virtual cluster
   icon: https://horovod.readthedocs.io/en/latest/_static/logo.png
+  tabs:
+    FE Data: fe.*
+    WN Data: wn.*
 
 topology_template:
   inputs:
-    wn_num:
-      type: integer
-      description: Number of WNs in the cluster
-      default: 1
-      required: yes
     fe_cpus:
       type: integer
       description: Number of CPUs for the front-end node
@@ -36,10 +34,15 @@ topology_template:
     fe_disk_size:
       type: scalar-unit.size
       description: Size of the FE root disk.
-      default: 20 GB
+      default: 40 GB
       constraints:
-        - valid_values: [ 20 GB, 30 GB, 40 GB, 50 GB, 100 GB, 200 GB, 500 GB, 1 TB, 2 TB ]
+        - valid_values: [ 40 GB, 50 GB, 100 GB, 200 GB, 500 GB, 1 TB, 2 TB ]
 
+    wn_num:
+      type: integer
+      description: Number of WNs in the cluster
+      default: 1
+      required: yes
     wn_cpus:
       type: integer
       description: Number of CPUs for the WNs
@@ -57,9 +60,21 @@ topology_template:
     wn_disk_size:
       type: scalar-unit.size
       description: Size of the WN root disk.
-      default: 20 GB
+      default: 40 GB
       constraints:
-        - valid_values: [ 20 GB, 30 GB, 40 GB, 50 GB, 100 GB, 200 GB, 500 GB, 1 TB, 2 TB ]
+        - valid_values: [ 40 GB, 50 GB, 100 GB, 200 GB, 500 GB, 1 TB, 2 TB ]
+    wn_num_gpus:
+      type: integer
+      description: Number of GPUs to assing to this VM
+      default: 0
+      constraints:
+        - valid_values: [ 0, 1, 2, 3, 4 ]
+    wn_gpu_support:
+      type: boolean
+      description: Flag to add GPU support in the WN (install NCCL, CUDA and NVIDIA drivers)
+      default: false
+      constraints:
+        - valid_values: [ false, true ]
 
   node_templates:
 
@@ -76,8 +91,11 @@ topology_template:
         - host: front
       interfaces:
         Standard:
+          create:
+            implementation: https://raw.githubusercontent.com/grycap/tosca/devel/artifacts/horovod/horovod.yml
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/horovod/horovod_fe.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/devel/artifacts/horovod/horovod_fe.yml
+
 
     front:
       type: tosca.nodes.indigo.Compute
@@ -111,8 +129,12 @@ topology_template:
         - host: wn
       interfaces:
         Standard:
+          create:
+            implementation: https://raw.githubusercontent.com/grycap/tosca/devel/artifacts/horovod/horovod.yml
+            inputs:
+              horovod_gpu_support: { get_input: horovod_gpu_support }
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/horovod/horovod_wn.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/devel/artifacts/horovod/horovod_wn.yml
             inputs:
               horovod_front_end_ip: { get_attribute: [ front, private_address, 0 ] }
 
