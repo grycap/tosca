@@ -151,6 +151,7 @@ topology_template:
             disk_size: { get_input: wn_disk_size }
             num_cpus: { get_input: wn_cpus }
             mem_size: { get_input: wn_mem }
+            num_gpus: { get_input: wn_num_gpus }
         os:
           properties:
             type: linux
