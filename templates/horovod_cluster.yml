@@ -3,7 +3,7 @@ tosca_definitions_version: tosca_simple_yaml_1_0
 imports:
   - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
 
-description: Deploy a Horovod Virtual Cluster (with Tensorflow, Keras and PyTorck) with a shared NFS filesystem.
+description: Deploy a Horovod Virtual Cluster (with MPI, Tensorflow, Keras and PyTorck) with a shared NFS filesystem.
 
 metadata:
   template_name: Horovod
@@ -132,7 +132,7 @@ topology_template:
           create:
             implementation: https://raw.githubusercontent.com/grycap/tosca/devel/artifacts/horovod/horovod.yml
             inputs:
-              horovod_gpu_support: { get_input: horovod_gpu_support }
+              horovod_gpu_support: { get_input: wn_gpu_support }
           configure:
             implementation: https://raw.githubusercontent.com/grycap/tosca/devel/artifacts/horovod/horovod_wn.yml
             inputs:
