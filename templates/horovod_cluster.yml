@@ -27,10 +27,10 @@ topology_template:
     fe_mem:
       type: scalar-unit.size
       description: Amount of Memory for the front-end node
-      default: 4 GB
+      default: 8 GB
       required: yes
       constraints:
-        - valid_values: [ 4 GB, 8 GB, 16 GB, 32 GB, 64 GB, 128 GB, 256 GB, 512 GB ]
+        - valid_values: [ 8 GB, 16 GB, 32 GB, 64 GB, 128 GB, 256 GB, 512 GB ]
     fe_disk_size:
       type: scalar-unit.size
       description: Size of the FE root disk.
@@ -53,10 +53,10 @@ topology_template:
     wn_mem:
       type: scalar-unit.size
       description: Amount of Memory for the WNs
-      default: 4 GB
+      default: 8 GB
       required: yes
       constraints:
-        - valid_values: [ 4 GB, 8 GB, 16 GB, 32 GB, 64 GB, 128 GB, 256 GB, 512 GB ]
+        - valid_values: [ 8 GB, 16 GB, 32 GB, 64 GB, 128 GB, 256 GB, 512 GB ]
     wn_disk_size:
       type: scalar-unit.size
       description: Size of the WN root disk.
@@ -92,9 +92,9 @@ topology_template:
       interfaces:
         Standard:
           create:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/devel/artifacts/horovod/horovod.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/horovod/horovod.yml
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/devel/artifacts/horovod/horovod_fe.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/horovod/horovod_fe.yml
 
     front:
       type: tosca.nodes.indigo.Compute
@@ -132,11 +132,11 @@ topology_template:
       interfaces:
         Standard:
           create:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/devel/artifacts/horovod/horovod.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/horovod/horovod.yml
             inputs:
               horovod_gpu_support: { get_input: wn_gpu_support }
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/devel/artifacts/horovod/horovod_wn.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/horovod/horovod_wn.yml
             inputs:
               horovod_front_end_ip: { get_attribute: [ front, private_address, 0 ] }
 
