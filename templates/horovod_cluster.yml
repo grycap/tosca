@@ -125,6 +125,9 @@ topology_template:
         nfs_role:
           file: grycap.nfs
           type: tosca.artifacts.AnsibleGalaxy.role
+        nvidia_role:
+          file: NVIDIA.nvidia_driver
+          type: tosca.artifacts.AnsibleGalaxy.role
       requirements:
         - host: wn
       interfaces:
