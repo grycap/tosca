@@ -69,6 +69,16 @@ topology_template:
       default: 0
       constraints:
         - valid_values: [ 0, 1, 2, 3, 4 ]
+    wn_gpu_vendor:
+      type: string
+      description: GPU Vendor
+      default: ''
+      constraints:
+        - valid_values: [ '', 'NVIDIA', 'AMD' ]
+    wn_gpu_model:
+      type: string
+      description: GPU Model
+      default: ''
     wn_gpu_support:
       type: boolean
       description: Flag to add GPU support in the WN (install NCCL, CUDA and NVIDIA drivers)
@@ -151,6 +161,9 @@ topology_template:
             disk_size: { get_input: wn_disk_size }
             num_cpus: { get_input: wn_cpus }
             mem_size: { get_input: wn_mem }
+            num_gpus: { get_input: wn_num_gpus }
+            gpu_vendor: { get_input: wn_gpu_vendor }
+            gpu_model: { get_input: wn_gpu_model }
         os:
           properties:
             type: linux

@@ -6,7 +6,7 @@ imports:
 description: Install NVIDIA Drivers
 
 metadata:
-  template_version: "1.0.0"
+  template_version: "1.1.0"
   template_name: NVIDIA Drivers
   display_name: Install NVIDIA Drivers
   icon: images/nvidia.png
@@ -25,12 +25,16 @@ topology_template:
     driver_version:
       type: string
       description: NVIDIA Driver version to install
-      default: "510"
+      default: "515"
 
   node_templates:
 
     nvidia:
       type: tosca.nodes.SoftwareComponent
+      artifacts:
+        nvidia_role:
+          file: NVIDIA.nvidia_driver
+          type: tosca.artifacts.AnsibleGalaxy.role
       requirements:
         - host: simple_node
       interfaces:
