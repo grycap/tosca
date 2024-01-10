@@ -59,10 +59,18 @@
         apt:
           pkg:
             - cuda-toolkit-11-8
-            - libnccl2
-            - libnccl-dev
-          update_cache: yes
+            - libnccl2=2.15.5-1+cuda11.8
+            - libnccl-dev=2.15.5-1+cuda11.8
         when: ansible_os_family == "Debian"
+
+      - name: Yum install CUDA & NCCL libraries
+        package:
+          name:
+            - libnccl-2.15.1-1+cuda11.8
+            - libnccl-devel-2.15.1-1+cuda11.8
+            - libnccl-static-2.15.1-1+cuda11.8
+            - cuda-toolkit-11-8
+        when: ansible_os_family == "RedHat"
 
       - name: Set HOROVOD_GPU_OPERATIONS var
         set_fact:
