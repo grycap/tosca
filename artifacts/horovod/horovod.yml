@@ -7,6 +7,7 @@
       HOROVOD_WITH_MPI: 1
       HOROVOD_WITH_PYTORCH: 1
       HOROVOD_WITH_TENSORFLOW: 1
+      HOROVOD_WITHOUT_MXNET: 1
   tasks:
     - name: Install system dependencies in Debian
       apt:
