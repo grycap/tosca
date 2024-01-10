@@ -50,16 +50,14 @@
       - name: Install NVIDIA drivers
         include_role:
           name: NVIDIA.nvidia_driver
-
-      - name: Install NVIDIA repo
-        apt:
-          deb: https://developer.download.nvidia.com/compute/cuda/repos/{{ ansible_distribution | lower }}{{ ansible_distribution_version | replace('.', '') }}/x86_64/cuda-keyring_1.1-1_all.deb
-        when: ansible_os_family == "Debian"
+        vars:
+          nvidia_driver_ubuntu_install_from_cuda_repo: yes
+          nvidia_driver_ubuntu_cuda_keyring_package: "cuda-keyring_1.1-1_all.deb"
 
       - name: Apt install CUDA & NCCL libraries
         apt:
           pkg:
-            - cuda-toolkit
+            - cuda-toolkit-11-8
             - libnccl2
             - libnccl-dev
           update_cache: yes
@@ -95,7 +93,7 @@
 
     - name: Set CC and CXX for Debian to gcc-10 and g++-10
       set_fact:
-        horovod_install_env_vars: "{{ horovod_install_env_vars | combine({'CC': '/usr/bin/gcc-10 ', 'CXX': '/usr/bin/g++-10'}) }}"
+        horovod_install_env_vars: "{{ horovod_install_env_vars | combine({'CC': '/usr/bin/gcc-10', 'CXX': '/usr/bin/g++-10'}) }}"
       when: ansible_os_family == "Debian"
 
     - name: Install horovod
