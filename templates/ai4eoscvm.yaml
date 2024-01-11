@@ -23,6 +23,10 @@ topology_template:
       description: Docker image of the model to be deployed
       default: deephdc/deep-oc-plants-classification-tf
       required: yes
+    ai4eosc_gpu_support:
+      type: boolean
+      description: Enable GPU support (install nvidia drivers and nvidia-docker)
+      default: false
 
   node_templates:
 
@@ -45,6 +49,7 @@ topology_template:
             implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/ai4eosc.yml
             inputs:
               ai4eosc_model_image: { get_input: ai4eosc_model_image }
+              docker_nvidia_support: { get_input: ai4eosc_gpu_support }
       requirements:
         - host: simple_node
 
