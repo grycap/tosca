@@ -4,6 +4,7 @@
   vars:
     image: "{{ ai4eosc_model_image | default('deephdc/deep-oc-plants-classification-tf') }}"
     traefik_host: "{{ ansible_default_ipv4.address }}"
+    cert_email: "{{ ai4eosc_cert_email | default('johndoe@server.com') }}"
   roles:
   - role: 'grycap.docker'
   tasks:
@@ -54,7 +55,7 @@
                 - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
                 - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
                 #- "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
-                - "--certificatesresolvers.myresolver.acme.email={{ mlflow_cert_email }}"
+                - "--certificatesresolvers.myresolver.acme.email={{ cert_email }}"
                 - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
               ports:
                 - "80:80"
