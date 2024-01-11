@@ -27,6 +27,7 @@ roles:
   - name: grycap.kubeoscar
   - name: grycap.motley_cue
   - name: grycap.kuberegistry
+  - name: grycap.horovod
 
 collections:
   - name: community.crypto
