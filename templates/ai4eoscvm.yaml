@@ -13,7 +13,7 @@ metadata:
   parents:
     - simple-node-disk.yml
 
-description: TOSCA template for deploying a DEEPaaS AI model
+description: TOSCA template for deploying a DEEPaaS AI model (combime it with Dynamic DNS to set a DNS name)
 
 topology_template:
 
