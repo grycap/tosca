@@ -7,7 +7,7 @@ description: Deploy a Horovod Virtual Cluster (with MPI, Tensorflow, Keras and P
 
 metadata:
   template_name: Horovod
-  template_version: "0.3.0"
+  template_version: "0.4.0"
   tag: beta
   display_name: Deploy a Horovod virtual cluster
   icon: https://horovod.readthedocs.io/en/latest/_static/logo.png
