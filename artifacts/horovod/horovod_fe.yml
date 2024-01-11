@@ -11,3 +11,4 @@
     - role: 'grycap.ssh'
       ssh_type_of_node: 'front'
       ssh_user: "{{ horovod_user }}"
+    - role: 'grycap.horovod'

@@ -1,6 +1,8 @@
 ---
 - hosts: localhost
   connection: local
+  vars:
+    gpu_support: "{{ horovod_gpu_support | default(false) }}"
   roles:
     - role: grycap.nfs
       nfs_mode: 'wn'
@@ -8,3 +10,4 @@
     - role: 'grycap.ssh'
       ssh_type_of_node: 'wn'
       ssh_user: horovod
+    - role: 'grycap.horovod'

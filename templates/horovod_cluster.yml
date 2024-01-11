@@ -101,8 +101,6 @@ topology_template:
         - host: front
       interfaces:
         Standard:
-          create:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/horovod/horovod.yml
           configure:
             implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/horovod/horovod_fe.yml
 
@@ -141,15 +139,11 @@ topology_template:
         - host: wn
       interfaces:
         Standard:
-          create:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/horovod/horovod.yml
-            inputs:
-              horovod_gpu_support: { get_input: wn_gpu_support }
           configure:
             implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/horovod/horovod_wn.yml
             inputs:
               horovod_front_end_ip: { get_attribute: [ front, private_address, 0 ] }
-
+              horovod_gpu_support: { get_input: wn_gpu_support }
     wn:
       type: tosca.nodes.indigo.Compute
       capabilities:
