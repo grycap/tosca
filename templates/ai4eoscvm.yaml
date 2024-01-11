@@ -4,7 +4,7 @@ imports:
   - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
 
 metadata:
-  template_version: "1.0.0"
+  template_version: "1.1.0"
   template_name: AI4EOSC DEEPaaS
   display_name: Deploy a DEEPaaS AI model
   icon: images/ai4eosc.png
@@ -13,7 +13,7 @@ metadata:
   parents:
     - simple-node-disk.yml
 
-description: TOSCA template for deploying a DEEPaaS AI model
+description: TOSCA template for deploying a DEEPaaS AI model (combime it with Dynamic DNS to set a DNS name)
 
 topology_template:
 
@@ -29,9 +29,6 @@ topology_template:
     ai4eosc_model:
       type: tosca.nodes.ec3.Application
       artifacts:
-        community_crypto:
-          file: community.crypto
-          type: tosca.artifacts.AnsibleGalaxy.collection
         docker_role:
           file: grycap.docker
           type: tosca.artifacts.AnsibleGalaxy.role
