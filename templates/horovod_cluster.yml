@@ -97,6 +97,9 @@ topology_template:
         nfs_role:
           file: grycap.nfs
           type: tosca.artifacts.AnsibleGalaxy.role
+        horovod_role:
+          file: grycap.horovod
+          type: tosca.artifacts.AnsibleGalaxy.role
       requirements:
         - host: front
       interfaces:
@@ -132,8 +135,8 @@ topology_template:
         nfs_role:
           file: grycap.nfs
           type: tosca.artifacts.AnsibleGalaxy.role
-        nvidia_role:
-          file: NVIDIA.nvidia_driver
+        horovod_role:
+          file: grycap.horovod
           type: tosca.artifacts.AnsibleGalaxy.role
       requirements:
         - host: wn
