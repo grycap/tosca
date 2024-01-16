@@ -124,6 +124,9 @@ topology_template:
     front:
       type: tosca.nodes.indigo.Compute
       capabilities:
+        scalable:
+          properties:
+            count: { get_input: fe_num }
         endpoint:
           properties:
             dns_name: server#N#
@@ -135,7 +138,6 @@ topology_template:
         os:
           properties:
             type: linux
-
 
     wn_node:
       type: tosca.nodes.indigo.LRMS.WorkerNode.Nomad
