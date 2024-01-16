@@ -7,7 +7,7 @@ description: Deploy an AI4EOSC Nomad Virtual Cluster.
 
 metadata:
   template_name: Nomad
-  template_version: "0.2.0"
+  template_version: "0.3.0"
   display_name: Deploy an AI4EOSC Nomad Virtual Cluster
   icon: images/nomad.png
 
