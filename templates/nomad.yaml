@@ -11,7 +11,7 @@ metadata:
   display_name: Deploy a Nomad Virtual Cluster
   icon: images/nomad.png
   tag: deprecated
-
+  tag_color: grey
 
 topology_template:
   inputs:
