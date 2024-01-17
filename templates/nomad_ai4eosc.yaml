@@ -3,13 +3,21 @@ tosca_definitions_version: tosca_simple_yaml_1_0
 imports:
   - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
 
-description: Deploy an AI4EOSC Nomad Virtual Cluster.
+description: Deploy an Consul + Nomad Virtual Cluster (AI4EOSC).
 
 metadata:
   template_name: Nomad
-  template_version: "0.3.0"
-  display_name: Deploy an AI4EOSC Nomad Virtual Cluster
+  template_version: "1.0.0"
+  display_name: Deploy a Consul + Nomad Virtual Cluster
   icon: images/nomad.png
+  tabs:
+    Server Features: fe_.*
+    WNs Features: wn_.*
+    Pub WNs Features: wn_pub_.*
+    Nomad Data:
+      - launch_traefik
+      - consul_version
+      - nomad_version
 
 topology_template:
   inputs:
@@ -83,6 +91,16 @@ topology_template:
       default: false
       constraints:
         - valid_values: [ false, true ]
+    consul_version:
+      type: string
+      description: Consul version to install
+      default: 1.17.1
+      required: yes
+    nomad_version:
+      type: string
+      description: Nomad version to install
+      default: 1.7.3
+      required: yes
 
   node_templates:
 
@@ -120,6 +138,8 @@ topology_template:
             inputs:
               nomad_server_list: { get_attribute: [ front, private_address ] }
               nomad_launch_traefik: { get_input: launch_traefik }
+              nomad_version: { get_input: nomad_version }
+              consul_version: { get_input: consul_version }
 
     front:
       type: tosca.nodes.indigo.Compute
@@ -161,6 +181,8 @@ topology_template:
             implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/lrms/nomad_ai4eosc_wn_install.yml
             inputs:
               nomad_server_list: { get_attribute: [ front, private_address ] }
+              nomad_version: { get_input: nomad_version }
+              consul_version: { get_input: consul_version }
 
     wn:
       type: tosca.nodes.indigo.Compute
@@ -198,6 +220,8 @@ topology_template:
             implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/lrms/nomad_ai4eosc_wn_install.yml
             inputs:
               nomad_server_list: { get_attribute: [ front, private_address ] }
+              nomad_version: { get_input: nomad_version }
+              consul_version: { get_input: consul_version }
 
     wn_pub:
       type: tosca.nodes.indigo.Compute

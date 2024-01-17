@@ -10,6 +10,7 @@ metadata:
   template_version: "1.0.0"
   display_name: Deploy a Nomad Virtual Cluster
   icon: images/nomad.png
+  tag: deprecated
 
 
 topology_template:
