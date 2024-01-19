@@ -6,7 +6,7 @@ imports:
 description: Deploy Apache NiFi on top of a Kubernetes Virtual Cluster.
 
 metadata:
-  template_version: "1.0.0"
+  template_version: "1.1.0"
   template_name: Nifi
   display_name: Deploy Apache NiFi on top of a Kubernetes Virtual Cluster
   icon: images/nifi.png
@@ -260,6 +260,7 @@ topology_template:
                   namespace: nifi
                 spec:
                   replicas:
+            - ' '
             - get_input: nifi_replicas
             - "\n"
             - |-
@@ -302,9 +303,9 @@ topology_template:
                               memory: 10Mi
                       containers:
                         - name: nifi
-                          image:
+                          image: '
             - get_input: nifi_docker_image
-            - "\n"
+            - "'\n"
             - |-
                 # image
                           ports:
