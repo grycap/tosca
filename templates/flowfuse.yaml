@@ -23,7 +23,6 @@ topology_template:
           type: tosca.artifacts.AnsibleGalaxy.role
       properties:
         port: 3000
-        protocol: tcp
       requirements:
         - host: simple_node
 
