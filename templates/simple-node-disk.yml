@@ -43,7 +43,7 @@ metadata:
     - wget.yml
     - sgde.yaml
     - dydns_egi_update_vm.yml
-    - flowfuse.yml
+    - flowfuse.yaml
 
 topology_template:
 
