@@ -27,7 +27,7 @@
             allow_privileged: "true"
           nomad-device-nvidia:
             enabled: "true"
-            fingerprint_period: "1m"
+            fingerprint_period: '"1m"'
       when: nvidia_support
   roles:
     - role: 'grycap.docker'
