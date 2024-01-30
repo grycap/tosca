@@ -51,7 +51,7 @@ topology_template:
               dydns_secret:
                 get_input: nsupdate_secret
               new_ip:
-                get_attribute: [ lrms_server, public_address, 0 ]
+                get_attribute: [ front, public_address, 0 ]
       requirements:
         - host: front
 
