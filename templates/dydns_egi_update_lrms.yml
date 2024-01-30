@@ -12,6 +12,7 @@ metadata:
   icon: images/dydns.png
   parents:
     - htcondor_cluster.yml
+    - kubernetes.yaml
   tabs:
     DyDNS: nsupdate_.*
 
