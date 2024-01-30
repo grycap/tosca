@@ -59,6 +59,7 @@
       consul_ACL_token_set: true
       consul_token: "{{ consul_tokens['nomad-client-policy'] }}"
       nomad_plugins: "{{ nomad_plugins_var }}"
+      nvidia_plugin_enabled: "{{ nvidia_support }}"
   tasks:
     - name: Set nomad public_ip key to no on node
       command: nomad node meta apply public_ip=no
