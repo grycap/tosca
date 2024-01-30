@@ -308,7 +308,7 @@ topology_template:
               nomad_server_list: { get_attribute: [ front, private_address ] }
               nomad_version: { get_input: nomad_version }
               consul_version: { get_input: consul_version }
-              nvidia_support: true
+              nomad_nvidia_support: true
 
     wn_gpu:
       type: tosca.nodes.indigo.Compute
