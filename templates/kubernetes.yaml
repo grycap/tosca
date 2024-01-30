@@ -41,7 +41,6 @@ metadata:
     - k8s_wget.yml
     - yProv.yml
     - flink.yaml
-    - dydns_egi_update_lrms.yml
 
 topology_template:
   inputs:
@@ -196,9 +195,9 @@ topology_template:
         public_dns_name: { get_input: kube_public_dns_name}
         cri_runtime: { get_input: kube_cri_runtime }
       requirements:
-        - host: lrms_server
+        - host: front
 
-    lrms_server:
+    front:
       type: tosca.nodes.indigo.Compute
       capabilities:
         endpoint:
@@ -231,14 +230,14 @@ topology_template:
     wn_node:
       type: tosca.nodes.indigo.LRMS.WorkerNode.Kubernetes
       properties:
-        front_end_ip: { get_attribute: [ lrms_server, private_address, 0 ] }
+        front_end_ip: { get_attribute: [ front, private_address, 0 ] }
         version: { get_input: kube_version }
         nvidia_support: { get_input: wn_kube_nvidia_support }
         cri_runtime: { get_input: kube_cri_runtime }
       requirements:
-        - host: lrms_wn
+        - host: wn
 
-    lrms_wn:
+    wn:
       type: tosca.nodes.indigo.Compute
       capabilities:
         scalable:
@@ -260,10 +259,10 @@ topology_template:
 
   outputs:
     dashboard_endpoint:
-      value: { concat: [ 'https://', get_attribute: [ lrms_server, public_address, 0 ], '/dashboard/' ] }
+      value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], '/dashboard/' ] }
     dashboard_dns_endpoint:
       value: { concat: [ 'https://', get_input: kube_public_dns_name, '/dashboard/' ] }
     api_endpoint:
-      value: { concat: [ 'https://', get_attribute: [ lrms_server, public_address, 0 ], ':6443' ] }
+      value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], ':6443' ] }
     kubeconfig:
-      value: { get_attribute: [ lrms_server, ansible_output, lrms_front_end_front_conf_front, tasks, kube_conf, output ] }
+      value: { get_attribute: [ front, ansible_output, lrms_front_end_front_conf_front, tasks, kube_conf, output ] }

@@ -13,7 +13,6 @@ metadata:
   parents:
     - htcondor_cluster.yml
     - slurm_cluster.yml
-    - kubernetes.yaml
   tabs:
     DyDNS: nsupdate_.*
 
