@@ -16,7 +16,7 @@ description: Deploy FlowFuse service on a VM.
 topology_template:
   node_templates:
     flowfuse:
-      type: tosca.nodes.SoftwareComponent
+      type: tosca.nodes.ec3.Application
       artifacts:
         docker_role:
           file: grycap.flowfuse
