@@ -13,6 +13,7 @@ metadata:
   tabs:
     Server Features: fe_.*
     WNs Features: wn_.*
+    GPU WNs Features: wn_gpu_.*
     Pub WNs Features: wn_pub_.*
     Nomad Data:
       - launch_traefik
@@ -64,7 +65,6 @@ topology_template:
       constraints:
         - valid_values: [ 4 GB, 8 GB, 16 GB, 32 GB, 64 GB, 128 GB, 256 GB, 512 GB ]
 
-
     wn_pub_num:
       type: integer
       description: Number of Nomad Clients in the cluster (with public IP)
@@ -84,6 +84,43 @@ topology_template:
       required: yes
       constraints:
         - valid_values: [ 4 GB, 8 GB, 16 GB, 32 GB, 64 GB, 128 GB, 256 GB, 512 GB ]
+
+    wn_gpu_num:
+      type: integer
+      description: Number of Nomad Clients in the cluster (with GPU)
+      default: 0
+      required: yes
+    wn_gpu_cpus:
+      type: integer
+      description: Number of CPUs for the GPU WNs
+      default: 2
+      required: yes
+      constraints:
+        - valid_values: [ 2, 4, 8, 16, 32, 64 ]
+    wn_gpu_mem:
+      type: scalar-unit.size
+      description: Amount of Memory for the GPU WNs
+      default: 4 GB
+      required: yes
+      constraints:
+        - valid_values: [ 4 GB, 8 GB, 16 GB, 32 GB, 64 GB, 128 GB, 256 GB, 512 GB ]
+    wn_gpu_num_gpus:
+      type: integer
+      description: Number of GPUs to assing to this VM
+      default: 1
+      constraints:
+        - valid_values: [ 1, 2, 3, 4 ]
+    wn_gpu_vendor:
+      type: string
+      description: GPU Vendor
+      default: ''
+      constraints:
+        - valid_values: [ '', 'NVIDIA', 'AMD' ]
+    wn_gpu_model:
+      type: string
+      description: GPU Model
+      default: ''
+
 
     launch_traefik:
       type: boolean
@@ -243,6 +280,49 @@ topology_template:
           properties:
             num_cpus: { get_input: wn_pub_cpus }
             mem_size: { get_input: wn_pub_mem }
+        os:
+          properties:
+            type: linux
+
+    wn_gpu_node:
+      type: tosca.nodes.indigo.LRMS.WorkerNode.Nomad
+      properties:
+        front_end_ip: { get_attribute: [ front, private_address, 0 ] }
+      requirements:
+        - host: wn_gpu
+      artifacts:
+        docker_role:
+          file: grycap.docker
+          type: tosca.artifacts.AnsibleGalaxy.role
+        nomad_role:
+          file: grycap.nomad,ai4eosc
+          type: tosca.artifacts.AnsibleGalaxy.role
+        consul_role:
+          file: grycap.consul,ai4eosc
+          type: tosca.artifacts.AnsibleGalaxy.role
+      interfaces:
+        Standard:
+          configure:
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/lrms/nomad_ai4eosc_wn_install.yml
+            inputs:
+              nomad_server_list: { get_attribute: [ front, private_address ] }
+              nomad_version: { get_input: nomad_version }
+              consul_version: { get_input: consul_version }
+              nvidia_support: true
+
+    wn_gpu:
+      type: tosca.nodes.indigo.Compute
+      capabilities:
+        scalable:
+          properties:
+            count: { get_input: wn_gpu_num }
+        host:
+          properties:
+            num_cpus: { get_input: wn_gpu_cpus }
+            mem_size: { get_input: wn_gpu_mem }
+            num_gpus: { get_input: wn_gpu_num_gpus }
+            gpu_vendor: { get_input: wn_gpu_vendor }
+            gpu_model: { get_input: wn_gpu_model }
         os:
           properties:
             type: linux
