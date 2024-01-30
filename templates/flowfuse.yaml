@@ -21,8 +21,11 @@ topology_template:
         docker_role:
           file: grycap.flowfuse
           type: tosca.artifacts.AnsibleGalaxy.role
-      properties:
-        port: 3000
+      capabilities:
+        endpoint:
+          properties:
+            port: 3000
+            protocol: tcp
       requirements:
         - host: simple_node
 
