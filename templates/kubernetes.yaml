@@ -196,9 +196,9 @@ topology_template:
         public_dns_name: { get_input: kube_public_dns_name}
         cri_runtime: { get_input: kube_cri_runtime }
       requirements:
-        - host: front
+        - host: lrms_server
 
-    front:
+    lrms_server:
       type: tosca.nodes.indigo.Compute
       capabilities:
         endpoint:
@@ -236,9 +236,9 @@ topology_template:
         nvidia_support: { get_input: wn_kube_nvidia_support }
         cri_runtime: { get_input: kube_cri_runtime }
       requirements:
-        - host: wn
+        - host: lrms_wn
 
-    wn:
+    lrms_wn:
       type: tosca.nodes.indigo.Compute
       capabilities:
         scalable:
