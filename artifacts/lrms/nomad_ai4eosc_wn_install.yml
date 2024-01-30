@@ -4,13 +4,34 @@
   vars:
     server_list: "{{ nomad_server_list | default([ansible_default_ipv4.address]) }}"
     client_private_ip: "{{ IM_NODE_PRIVATE_IP | default(ansible_default_ipv4.address) }}"
+    nvidia_support: "{{ nomad_nvidia_support | default(false) }}"
   pre_tasks:
     - name: Convert server_list to list
       set_fact:
         server_list: [server_list]
       when: server_list is string
+    - name: Set nomad plugins var
+      set_fact:
+        nomad_plugins_var:
+          raw_exec:
+            enabled: "true"
+          docker:
+            allow_privileged: "true"
+      when: not nvidia_support
+    - name: Set nomad plugins var with nvidia support
+      set_fact:
+        nomad_plugins_var:
+          raw_exec:
+            enabled: "true"
+          docker:
+            allow_privileged: "true"
+          nomad-device-nvidia:
+            enabled: "true"
+            fingerprint_period: "1m"
+      when: nvidia_support
   roles:
     - role: 'grycap.docker'
+      docker_nvidia_support: "{{ nvidia_support }}"
     - role: 'grycap.consul'
       consul_server: false
       consul_dns: false
@@ -37,11 +58,7 @@
       create_nomad_service: true
       consul_ACL_token_set: true
       consul_token: "{{ consul_tokens['nomad-client-policy'] }}"
-      nomad_plugins:
-        raw_exec:
-          enabled: "true"
-        docker:
-          allow_privileged: "true"
+      nomad_plugins: "{{ nomad_plugins_var }}"
   tasks:
     - name: Set nomad public_ip key to no on node
       command: nomad node meta apply public_ip=no
