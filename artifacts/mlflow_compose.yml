@@ -14,159 +14,162 @@
     artifact_root: "/mlartifacts"
     mlflow_environment: ""
   roles:
-  - role: 'grycap.docker'
+    - role: 'grycap.docker'
   tasks:
-  - name: Create mlflow directory
-    file:
-      path: /opt/mlflow
-      state: directory
-      mode: '0755'
+    - name: Create mlflow directory
+      file:
+        path: /opt/mlflow
+        state: directory
+        mode: '0755'
 
-  - name: Create mlartifacts directory
-    file:
-      path: /opt/mlflow/mlartifacts
-      state: directory
-      mode: '0755'
+    - name: Create mlartifacts directory
+      file:
+        path: /opt/mlflow/mlartifacts
+        state: directory
+        mode: '0755'
 
-  - name: Create db directory
-    file:
-      path: /opt/mlflow/db
-      state: directory
-      mode: '0755'
+    - name: Create db directory
+      file:
+        path: /opt/mlflow/db
+        state: directory
+        mode: '0755'
 
-  - name: Set traefik_host to Public IP
-    set_fact:
-      traefik_host: "{{ IM_NODE_PUBLIC_IP }}"
-    when: IM_NODE_PUBLIC_IP is defined and IM_NODE_PUBLIC_IP != ""
+    - name: Set traefik_host to Public IP
+      set_fact:
+        traefik_host: "{{ IM_NODE_PUBLIC_IP }}"
+      when: IM_NODE_PUBLIC_IP is defined and IM_NODE_PUBLIC_IP != ""
 
-  - name: Set traefik_host to DNS name
-    set_fact:
-      traefik_host: "{{ mlflow_dns_hostname }}"
-    when: mlflow_dns_hostname is defined and mlflow_dns_hostname != ""
+    - name: Set traefik_host to DNS name
+      set_fact:
+        traefik_host: "{{ mlflow_dns_hostname }}"
+      when: mlflow_dns_hostname is defined and mlflow_dns_hostname != ""
 
-  - name: Set artifact_root to S3 and S3 env vars
-    set_fact:
-      artifact_root: "s3://{{ s3_bucket }}"
-      mlflow_environment: |
-        environment:
-                    - AWS_ACCESS_KEY_ID="{{ s3_ak }}"
-                    - AWS_SECRET_ACCESS_KEY="{{ s3_sk }}"
-    when: s3_ak != "" and s3_sk != ""
+    - name: Set artifact_root to S3 and S3 env vars
+      set_fact:
+        artifact_root: "s3://{{ s3_bucket }}"
+        mlflow_environment: |
+          environment:
+                      - AWS_ACCESS_KEY_ID="{{ s3_ak }}"
+                      - AWS_SECRET_ACCESS_KEY="{{ s3_sk }}"
+      when: s3_ak != "" and s3_sk != ""
 
-  - name: Set also MinIO endpoint
-    set_fact:
-      mlflow_environment: |
-        environment:
-                    - AWS_ACCESS_KEY_ID={{ s3_ak }}
-                    - AWS_SECRET_ACCESS_KEY={{ s3_sk }}
-                    - MLFLOW_S3_ENDPOINT_URL={{ s3_endpoint }}
-                    - MLFLOW_S3_IGNORE_TLS=true
-    when: s3_endpoint != "" and s3_ak != "" and s3_sk != ""
+    - name: Set also MinIO endpoint
+      set_fact:
+        mlflow_environment: |
+          environment:
+                      - AWS_ACCESS_KEY_ID={{ s3_ak }}
+                      - AWS_SECRET_ACCESS_KEY={{ s3_sk }}
+                      - MLFLOW_S3_ENDPOINT_URL={{ s3_endpoint }}
+                      - MLFLOW_S3_IGNORE_TLS=true
+      when: s3_endpoint != "" and s3_ak != "" and s3_sk != ""
 
-  - name: Create docker-compose file
-    copy:
-      content: |
-        version: '3.3'
-        services:
-            db:
-                restart: always
-                image: mysql/mysql-server:5.7.41
-                container_name: mlflow_db
-                expose:
-                    - "3306"
-                networks:
-                    - backend
-                environment:
-                    - MYSQL_DATABASE={{ MYSQL_DATABASE }}
-                    - MYSQL_USER={{ MYSQL_USER }}
-                    - MYSQL_PASSWORD={{ MYSQL_PASSWORD }}
-                    - MYSQL_ROOT_PASSWORD={{ MYSQL_ROOT_PASSWORD }}
-                volumes:
-                    - ./db:/var/lib/mysql
-            web:
-                restart: always
-                build: ./mlflow
-                image: mlflow_server
-                container_name: mlflow_server
-                {{ mlflow_environment }}
-                expose:
-                    - "5000"
-                networks:
+    - name: Create docker-compose file
+      copy:
+        content: |
+          version: '3.3'
+          services:
+              db:
+                  restart: always
+                  image: mysql/mysql-server:5.7.41
+                  container_name: mlflow_db
+                  expose:
+                      - "3306"
+                  networks:
+                      - backend
+                  environment:
+                      - MYSQL_DATABASE={{ MYSQL_DATABASE }}
+                      - MYSQL_USER={{ MYSQL_USER }}
+                      - MYSQL_PASSWORD={{ MYSQL_PASSWORD }}
+                      - MYSQL_ROOT_PASSWORD={{ MYSQL_ROOT_PASSWORD }}
+                  volumes:
+                      - ./db:/var/lib/mysql
+              web:
+                  restart: always
+                  build: ./mlflow
+                  image: mlflow_server
+                  container_name: mlflow_server
+                  {{ mlflow_environment }}
+                  expose:
+                      - "5000"
+                  networks:
+                      - frontend
+                      - backend
+                  command: mlflow server --app-name basic-auth --host 0.0.0.0 --default-artifact-root {{ artifact_root }} --backend-store-uri mysql+pymysql://{{ MYSQL_USER }}:{{ MYSQL_PASSWORD }}@db:3306/{{ MYSQL_DATABASE }}
+                  volumes:
+                    - ./mlartifacts:/mlartifacts
+                    - ./basic_auth.ini:/usr/local/lib/python3.8/site-packages/mlflow/server/auth/basic_auth.ini
+                    - ./mlflow/auth_db:/auth_db
+                  labels:
+                    - "traefik.enable=true"
+                    - "traefik.http.routers.web.service=web"
+                    - "traefik.http.routers.web.rule=Host(`{{ traefik_host }}`)"
+                    - "traefik.http.routers.web.entrypoints=websecure"
+                    - "traefik.http.routers.web.tls.certresolver=myresolver"
+                    - "traefik.http.services.web.loadbalancer.server.port=5000"
+                    - "traefik.docker.network=mlflow_frontend"
+              traefik:
+                  image: "traefik:v2.10"
+                  container_name: "traefik"
+                  command:
+                    #- "--log.level=DEBUG"
+                    - "--api.insecure=true"
+                    - "--providers.docker=true"
+                    - "--providers.docker.exposedbydefault=false"
+                    - "--entrypoints.web.address=:80"
+                    - "--entrypoints.websecure.address=:443"
+                    - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+                    - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+                    - "--entrypoints.web.http.redirections.entrypoint.permanent=true"
+                    - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
+                    - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+                    #- "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+                    - "--certificatesresolvers.myresolver.acme.email={{ mlflow_cert_email }}"
+                    - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+                  ports:
+                    - "80:80"
+                    - "443:443"
+                    - "8080:8080"
+                  volumes:
+                    - "./letsencrypt:/letsencrypt"
+                    - "/var/run/docker.sock:/var/run/docker.sock:ro"
+                  networks:
                     - frontend
-                    - backend
-                command: mlflow server --app-name basic-auth --backend-store-uri mysql+pymysql://{{ MYSQL_USER }}:{{ MYSQL_PASSWORD }}@db:3306/{{ MYSQL_DATABASE }} --host 0.0.0.0 --default-artifact-root {{ artifact_root }}
-                volumes:
-                  - ./mlartifacts:/mlartifacts
-                  - ./basic_auth.ini:/usr/local/lib/python3.8/site-packages/mlflow/server/auth/basic_auth.ini
-                  - ./mlflow/auth_db:/auth_db
-                labels:
-                  - "traefik.enable=true"
-                  - "traefik.http.routers.web.service=web"
-                  - "traefik.http.routers.web.rule=Host(`{{ traefik_host }}`)"
-                  - "traefik.http.routers.web.entrypoints=websecure"
-                  - "traefik.http.routers.web.tls.certresolver=myresolver"
-                  - "traefik.http.services.web.loadbalancer.server.port=5000"
-                  - "traefik.docker.network=mlflow_frontend"
-            traefik:
-                image: "traefik:v2.10"
-                container_name: "traefik"
-                command:
-                  #- "--log.level=DEBUG"
-                  - "--api.insecure=true"
-                  - "--providers.docker=true"
-                  - "--providers.docker.exposedbydefault=false"
-                  - "--entrypoints.web.address=:80"
-                  - "--entrypoints.websecure.address=:443"
-                  - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
-                  - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
-                  - "--entrypoints.web.http.redirections.entrypoint.permanent=true"
-                  - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
-                  - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
-                  #- "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
-                  - "--certificatesresolvers.myresolver.acme.email={{ mlflow_cert_email }}"
-                  - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
-                ports:
-                  - "80:80"
-                  - "443:443"
-                  - "8080:8080"
-                volumes:
-                  - "./letsencrypt:/letsencrypt"
-                  - "/var/run/docker.sock:/var/run/docker.sock:ro"
-                networks:
-                  - frontend
-        networks:
-            frontend:
-                driver: bridge
-            backend:
-                driver: bridge
-      dest: /opt/mlflow/docker-compose.yaml
+          networks:
+              frontend:
+                  driver: bridge
+              backend:
+                  driver: bridge
+        dest: /opt/mlflow/docker-compose.yaml
+        mode: '644'
 
-  - name: Create mlflow basic_auth.ini file
-    copy:
-      content: |
-        [mlflow]
-        default_permission = READ
-        database_uri = sqlite:///auth_db/basic_auth.db
-        admin_username = {{ mlflow_admin_user }}
-        admin_password = {{ mlflow_admin_password }}
-        authorization_function = mlflow.server.auth:authenticate_request_basic_auth
-      dest: /opt/mlflow/basic_auth.ini
+    - name: Create mlflow basic_auth.ini file
+      copy:
+        content: |
+          [mlflow]
+          default_permission = READ
+          database_uri = sqlite:///auth_db/basic_auth.db
+          admin_username = {{ mlflow_admin_user }}
+          admin_password = {{ mlflow_admin_password }}
+          authorization_function = mlflow.server.auth:authenticate_request_basic_auth
+        dest: /opt/mlflow/basic_auth.ini
+        mode: '644'
 
-  - name: Create mlflow image build directory
-    file:
-      path: /opt/mlflow/mlflow
-      state: directory
-      mode: '0755'
+    - name: Create mlflow image build directory
+      file:
+        path: /opt/mlflow/mlflow
+        state: directory
+        mode: '755'
 
-  - name: Create mlflow/Dockerfile file
-    copy:
-      content: |
-        FROM python:3.8-slim-buster
-        # Install python packages
-        RUN pip install "mlflow>=2.7.1" boto3 pymysql
-      dest: /opt/mlflow/mlflow/Dockerfile
+    - name: Create mlflow/Dockerfile file
+      copy:
+        content: |
+          FROM python:3.8-slim-buster
+          # Install python packages
+          RUN pip install "mlflow>=2.7.1" boto3 pymysql
+        dest: /opt/mlflow/mlflow/Dockerfile
+        mode: '644'
 
-  - name: docker-compose up
-    docker_compose:
-      project_src: /opt/mlflow/
-      state: present
+    - name: Exec docker-compose up
+      docker_compose:
+        project_src: /opt/mlflow/
+        state: present
