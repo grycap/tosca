@@ -18,7 +18,7 @@
 
     - name: Install Singularity
       apt:
-        deb: https://github.com/sylabs/singularity/releases/download/v{{singularity_version}}/singularity-ce_{{singularity_version}}-{{ansible_distribution_release}}_amd64.deb
+        deb: https://github.com/sylabs/singularity/releases/download/v{{ singularity_version }}/singularity-ce_{{ singularity_version }}-{{ ansible_distribution_release }}_amd64.deb
 
     - name: Clone git repo
       git:
@@ -36,15 +36,18 @@
       git:
         repo: "{{ SOFTWARE_CATALOG_GIT }}"
         dest: /opt/software-catalog
+        version: "main"
 
     - name: Clone worflow registry git repo
       git:
         repo: "{{ WORKFLOW_REGISTRY_GIT }}"
         dest: /opt/workflow-registry
+        version: "main"
 
     - name: Create config file
       copy:
         dest: /opt/image_creation/config/configuration.py
+        mode: '755'
         content: |
           registry_cfg = {
               "url" : "{{ REGISTRY_URL }}",
@@ -88,48 +91,48 @@
         name: mod_wsgi
         state: present
 
-    - block:
+    - when: HTTPS | bool and DNS_NAME != ''
+      block:
 
-      - name: Create private key (RSA, 4096 bits)
-        community.crypto.openssl_privatekey:
-          path: /opt/image_creation/certificate.key
-          mode: 0644
-          format: pkcs8
+        - name: Create private key (RSA, 4096 bits)
+          community.crypto.openssl_privatekey:
+            path: /opt/image_creation/certificate.key
+            mode: '644'
+            format: pkcs8
 
-      - name: Generate an OpenSSL Certificate Signing Request with Subject information
-        community.crypto.openssl_csr:
-          path: /opt/image_creation/certificate.csr
-          privatekey_path: /opt/image_creation/certificate.key
-          country_name: ES
-          organization_name: eflows4hpc
-          common_name: "{{ DNS_NAME }}"
+        - name: Generate an OpenSSL Certificate Signing Request with Subject information
+          community.crypto.openssl_csr:
+            path: /opt/image_creation/certificate.csr
+            privatekey_path: /opt/image_creation/certificate.key
+            country_name: ES
+            organization_name: eflows4hpc
+            common_name: "{{ DNS_NAME }}"
 
-      - name: Create simple self-signed certificate
-        community.crypto.x509_certificate:
-          path: /opt/image_creation/certificate.pem
-          privatekey_path: /opt/image_creation/certificate.key
-          provider: selfsigned
-          csr_path: /opt/image_creation/certificate.csr
+        - name: Create simple self-signed certificate
+          community.crypto.x509_certificate:
+            path: /opt/image_creation/certificate.pem
+            privatekey_path: /opt/image_creation/certificate.key
+            provider: selfsigned
+            csr_path: /opt/image_creation/certificate.csr
 
-      - name: Set https params
-        set_fact:
-          https_params: "--https-port 443 --ssl-certificate-file /opt/image_creation/certificate.pem --ssl-certificate-key-file /opt/image_creation/certificate.key --server-name {{ DNS_NAME }}"
-
-      when: HTTPS | bool and DNS_NAME != ''
+        - name: Set https params
+          set_fact:
+            https_params: "--https-port 443 --ssl-certificate-file /opt/image_creation/certificate.pem --ssl-certificate-key-file /opt/image_creation/certificate.key --server-name {{ DNS_NAME }}"
 
     - name: Create db init file
       copy:
         dest: /opt/image_creation/init_db.py
+        mode: '755'
         content: |
           from builder_service import db, User
           db.drop_all()
           db.create_all()
           user = User(username='{{ default_user_name }}', email='{{ default_user_mail }}')
-          user.hash_password('{{ default_user_pass}}')
+          user.hash_password('{{ default_user_pass }}')
           db.session.add(user)
           db.session.commit()
       register: init_db
-      
+
     - name: Init DB
       command: python /opt/image_creation/init_db.py
       args:
@@ -142,13 +145,13 @@
         content: |
           #!/bin/bash
           mod_wsgi-express start-server --port 80 --processes=4 --enable-sendfile --url-alias /image_creation/images/download /tmp/images/ wsgi.py --user www-data --group www-data {{ https_params }} &
-        mode: 0755
+        mode: '755'
 
     - name: Change dir owner /opt/image_creation
       file:
         path: /opt/image_creation
         state: directory
-        recurse: yes
+        recurse: true
         owner: www-data
         group: www-data
 
@@ -158,21 +161,23 @@
         state: directory
         owner: www-data
         group: www-data
+        mode: '755'
 
     - name: Change dir owner /var/www
       file:
         path: /var/www
         state: directory
-        recurse: yes
+        recurse: true
         owner: www-data
         group: www-data
+        mode: '755'
 
     - name: Adding docker group to user www-data
       user:
         name: www-data
         group: www-data
         groups: docker
-        append: yes
+        append: true
 
     - name: Launch service with mod_wsgi
       shell: pgrep apache2 || /opt/image_creation/launch.sh

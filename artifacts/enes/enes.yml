@@ -12,6 +12,7 @@
     - name: Create ENES yaml file
       copy:
         dest: /opt/enes_apache.yaml
+        mode: '644'
         content: |
           ---
           apiVersion: v1
@@ -46,7 +47,7 @@
             accessModes:
               - ReadWriteMany
             resources:
-              requests:       
+              requests:
                 storage: {{ storage_size }}
           ---
           apiVersion: v1
@@ -141,6 +142,7 @@
     - name: Create Job to load web page
       copy:
         dest: /opt/load_web.yaml
+        mode: '644'
         content: |
           apiVersion: batch/v1
           kind: Job
@@ -173,6 +175,7 @@
     - name: Create Job to set ssmtp-conf
       copy:
         dest: /opt/load_ssmtp.yaml
+        mode: '644'
         content: |
           apiVersion: batch/v1
           kind: Job
@@ -193,12 +196,12 @@
                     - sh
                     - -c
                     - >-
-                      echo 'root={{admin_email}}' > /ssmtp/ssmtp.conf;
-                      echo 'normaluser={{admin_email}}' >> /ssmtp/ssmtp.conf;
-                      echo 'www-data={{admin_email}}' >> /ssmtp/ssmtp.conf;
-                      echo 'mailhub={{mailhub}}' >> /ssmtp/ssmtp.conf;
-                      echo 'AuthUser={{admin_email}}' >> /ssmtp/ssmtp.conf;
-                      echo 'AuthPass={{email_pass}}' >> /ssmtp/ssmtp.conf;
+                      echo 'root={{ admin_email }}' > /ssmtp/ssmtp.conf;
+                      echo 'normaluser={{ admin_email }}' >> /ssmtp/ssmtp.conf;
+                      echo 'www-data={{ admin_email }}' >> /ssmtp/ssmtp.conf;
+                      echo 'mailhub={{ mailhub }}' >> /ssmtp/ssmtp.conf;
+                      echo 'AuthUser={{ admin_email }}' >> /ssmtp/ssmtp.conf;
+                      echo 'AuthPass={{ email_pass }}' >> /ssmtp/ssmtp.conf;
                       echo 'UseTLS=YES' >> /ssmtp/ssmtp.conf;
                       echo 'UseSTARTTLS=YES' >> /ssmtp/ssmtp.conf
                     volumeMounts:
@@ -213,6 +216,7 @@
     - name: Create Jupyter Values yaml file
       copy:
         dest: /opt/config_jupyter.yaml
+        mode: '644'
         content: |
           cull:
             enabled: true
@@ -280,7 +284,7 @@
             startTimeout: 3600
           hub:
             extraEnv:
-              JUPYTERHUB_CRYPT_KEY: "{{jupyterhub_crypt_key}}"   
+              JUPYTERHUB_CRYPT_KEY: "{{ jupyterhub_crypt_key }}"
             extraVolumeMounts:
               - name: jupyterhub-config
                 mountPath: /etc/jupyterhub/jupyterhub_config_custom.py
@@ -288,16 +292,16 @@
             extraVolumes:
               - name: jupyterhub-config
                 configMap:
-                  name: jupyterhub-config        
+                  name: jupyterhub-config
             baseUrl: /jupyter
             config:
               GenericOAuthenticator:
-                client_id: "{{enes_client_id}}"
-                client_secret: "{{enes_client_secret}}"
+                client_id: "{{ enes_client_id }}"
+                client_secret: "{{ enes_client_secret }}"
                 oauth_callback_url: "https://{{ dns_name }}/jupyter/hub/oauth_callback"
-                authorize_url: "{{enes_oidc_issuer}}/protocol/openid-connect/auth"
-                token_url: "{{enes_oidc_issuer}}/protocol/openid-connect/token"
-                userdata_url: "{{enes_oidc_issuer}}/protocol/openid-connect/userinfo"
+                authorize_url: "{{ enes_oidc_issuer }}/protocol/openid-connect/auth"
+                token_url: "{{ enes_oidc_issuer }}/protocol/openid-connect/token"
+                userdata_url: "{{ enes_oidc_issuer }}/protocol/openid-connect/userinfo"
                 scope:
                   - openid
                   - voperson_id
@@ -312,7 +316,7 @@
                   - urn:mace:egi.eu:group:vo.enes.org:role=member#aai.egi.eu
               CryptKeeper:
                 keys:
-                  - {{jupyterhub_crypt_key}}
+                  - {{ jupyterhub_crypt_key }}
             extraConfig:
               01-custom-config: |
                 config_py = open('/etc/jupyterhub/jupyterhub_config_custom.py').read()
@@ -323,6 +327,7 @@
     - name: Create Jupyter Custom config file
       copy:
         dest: /opt/jupyterhub_config_custom.py
+        mode: '644'
         content: |
           import os,sys
           import socket
@@ -545,6 +550,7 @@
     - name: Create PV patch file
       copy:
         dest: /opt/jhub_pv_patch.yaml
+        mode: '644'
         content: |
           spec:
             mountOptions:
@@ -552,6 +558,6 @@
             - nolock
 
     - name: Patch jhub db PV with nolock option
-      command: kubectl patch pv {{pv_name.stdout}} --patch-file /opt/jhub_pv_patch.yaml
+      command: kubectl patch pv {{ pv_name.stdout }} --patch-file /opt/jhub_pv_patch.yaml
       environment:
         KUBECONFIG: "/etc/kubernetes/admin.conf"

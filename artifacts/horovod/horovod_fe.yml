@@ -2,8 +2,8 @@
 - hosts: localhost
   connection: local
   vars:
-     vnode_prefix: vnode-
-     horovod_user: horovod
+    vnode_prefix: vnode-
+    horovod_user: horovod
   roles:
     - role: grycap.nfs
       nfs_mode: 'front'

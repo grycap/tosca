@@ -2,7 +2,7 @@
 - hosts: localhost
   connection: local
   vars:
-     vnode_prefix: vnode-
+    vnode_prefix: vnode-
   roles:
     - role: 'grycap.nfs'
       nfs_mode: 'wn'
