@@ -1,7 +1,8 @@
 ---
-- hosts: localhost
+- name: Install Minio on Kubernetes
+  hosts: localhost
   connection: local
   roles:
-  - role: 'grycap.kubeminio'
-    master_deploy: false
-    enable_ingress: false
+    - role: 'grycap.kubeminio'
+      master_deploy: false
+      enable_ingress: false
