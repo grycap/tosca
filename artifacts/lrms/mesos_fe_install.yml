@@ -2,12 +2,12 @@
 - hosts: localhost
   connection: local
   vars:
-     vnode_prefix: vnode-
+    vnode_prefix: vnode-
   roles:
-  - role: grycap.mesos
-    mesos_type_of_node: 'front'
+    - role: grycap.mesos
+      mesos_type_of_node: 'front'
 
-  - role: grycap.marathon
-    marathon_lb: true
+    - role: grycap.marathon
+      marathon_lb: true
 
-  - role: grycap.chronos
+    - role: grycap.chronos

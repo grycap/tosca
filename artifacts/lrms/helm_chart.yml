@@ -8,72 +8,72 @@
     timeout: "{{ helm_timeout | default('15m') }}"
   tasks:
 
-  - name: "Check if {{ helm_app_name }} is already deployed"
-    command: helm status {{ helm_app_name | lower }} -n {{ helm_app_name | lower }}
-    register: deployed
-    failed_when: deployed.rc != 0 and deployed.rc != 1
-    environment:
-      KUBECONFIG: /etc/kubernetes/admin.conf
+    - name: "Check if {{ helm_app_name }} is already deployed"
+      command: helm status {{ helm_app_name | lower }} -n {{ helm_app_name | lower }}
+      register: deployed
+      failed_when: deployed.rc != 0 and deployed.rc != 1
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
 
-  - block:
+    - when: deployed.rc == 1
+      block:
 
-      - block:
+        - when: helm_repo_name is defined and helm_repo_name != "" and helm_repo_url is defined and helm_repo_url != ""
+          block:
 
-        - name: Add helm repo {{ helm_repo_name }}
-          command: helm repo add {{ helm_repo_name }} {{ helm_repo_url }}
+            - name: Add helm repo {{ helm_repo_name }}
+              command: helm repo add {{ helm_repo_name }} {{ helm_repo_url }}
 
-        - name: Update helm repositories
-          command: helm repo update
+            - name: Update helm repositories
+              command: helm repo update
 
-        - name: Set helm install name from repo
+            - name: Set helm install name from repo
+              set_fact:
+                helm_install_name: "{{ helm_repo_name }}/{{ helm_app_name }}"
+
+
+        - when: helm_chart_url is defined and helm_chart_url != ""
+          block:
+
+            - name: Download chart
+              get_url:
+                url: "{{ helm_chart_url }}"
+                dest: /opt/{{ helm_app_name }}.tgz
+                mode: '644'
+
+            - name: Set helm install name from chart url
+              set_fact:
+                helm_install_name: "/opt/{{ helm_app_name }}.tgz"
+
+
+        - name: Create params fact
           set_fact:
-            helm_install_name: "{{ helm_repo_name }}/{{ helm_app_name }}"
+            helm_params: "{{ item.key }}={{ item.value }},{{ helm_params }}"
+          with_dict: "{{ helm_values }}"
 
-        when: helm_repo_name is defined and helm_repo_name != "" and helm_repo_url is defined and helm_repo_url != ""
+        - name: Create values file
+          copy:
+            content: "{{ helm_values_file }}"
+            mode: '644'
+            dest: /tmp/{{ helm_namespace }}_{{ helm_app_name }}_values.yml
 
+        - name: Deploy {{ helm_app_name }} app
+          command: >
+            helm upgrade {{ helm_app_name | lower }} --install {{ helm_install_name }} {{ '' if helm_version == 'latest' else ('--version ' + helm_version) }}
+            --namespace {{ namespace }} --create-namespace -f /tmp/{{ helm_namespace }}_{{ helm_app_name }}_values.yml
+            --set {{ helm_params }} --timeout {{ timeout }}
+          environment:
+            KUBECONFIG: /etc/kubernetes/admin.conf
+          async: 900
+          poll: 5
+          ignore_errors: true
+          register: helm_install
 
-      - block:
+        - name: Undeploy {{ helm_app_name }} app
+          command: helm uninstall --namespace {{ namespace }} {{ helm_app_name | lower }}
+          when: helm_install is failed
 
-        - name: Download chart
-          get_url:
-            url: "{{ helm_chart_url }}"
-            dest: /opt/{{ helm_app_name }}.tgz
-
-        - name: Set helm install name from chart url
-          set_fact:
-            helm_install_name: "/opt/{{ helm_app_name }}.tgz"
-
-        when: helm_chart_url is defined and helm_chart_url != ""
-
-      - name: Create params fact
-        set_fact:
-          helm_params: "{{ item.key }}={{ item.value }},{{ helm_params }}"
-        with_dict: "{{ helm_values }}"
-
-      - name: Create values file
-        copy:
-          content: "{{ helm_values_file }}"
-          dest: /tmp/{{helm_namespace}}_{{helm_app_name}}_values.yml
-
-      - name: Deploy {{ helm_app_name }} app
-        command: >
-          helm upgrade {{ helm_app_name | lower }} --install {{ helm_install_name }} {{ '' if helm_version == 'latest' else ('--version ' + helm_version) }}
-          --namespace {{ namespace }} --create-namespace -f /tmp/{{helm_namespace}}_{{helm_app_name}}_values.yml
-          --set {{ helm_params }} --timeout {{ timeout }}
-        environment:
-          KUBECONFIG: /etc/kubernetes/admin.conf
-        async: 900
-        poll: 5
-        ignore_errors: yes
-        register: helm_install
-
-      - name: Undeploy {{ helm_app_name }} app
-        command: helm uninstall --namespace {{ namespace }} {{ helm_app_name | lower }} 
-        when: helm_install is failed
-
-      - name: Undeploy {{ helm_app_name }} app
-        fail:
-          msg: "Error installing {{ helm_app_name }} helm chat"
-        when: helm_install is failed
-
-    when: deployed.rc == 1
+        - name: Undeploy {{ helm_app_name }} app
+          fail:
+            msg: "Error installing {{ helm_app_name }} helm chat"
+          when: helm_install is failed
