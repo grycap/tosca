@@ -6,75 +6,74 @@
     compute_id: "{{ obm_compute_name | default('compute_id') }}"
     compute_key: "{{ lookup('password', '/var/tmp/compute_key length=8 chars=digits') }}"
   roles:
-  - role: grycap.docker
+    - role: grycap.docker
 
   tasks:
-  - name: Install Git
-    package: name=git
+    - name: Install Git
+      package: name=git
 
-  - name: Git Dowload
-    git:
-      repo: https://gitlab.com/openbiomaps/docker/obm-composer.git
-      dest: /opt/openbiomaps
-      version: master
-      update: no
+    - name: Git Dowload
+      git:
+        repo: https://gitlab.com/openbiomaps/docker/obm-composer.git
+        dest: /opt/openbiomaps
+        version: master
+        update: false
 
-  - name: Create obm_web network
-    docker_network:
-      name: obm_web
+    - name: Create obm_web network
+      docker_network:
+        name: obm_web
 
-  - name: OBM pre install
-    command: ./obm_pre_install.sh
-    args:
-      chdir: /opt/openbiomaps
-
-  - name: OBM compose up
-    command: docker-compose up -d
-    args:
-      chdir: /opt/openbiomaps
-
-  - block:
-
-    - name: OBM compose set computational server
-      command: docker-compose exec -T app bash -c 'sed -i "s/.*COMPUTATIONAL_SERVERS.*/define('\''COMPUTATIONAL_SERVERS'\'',array('\''http:\/\/{{obm_compute_node_ip}}\/api.php'\''));/g" /etc/openbiomaps/system_vars.php.inc'
+    - name: OBM pre install
+      command: ./obm_pre_install.sh
       args:
         chdir: /opt/openbiomaps
 
-    - name: OBM compose set computational name
-      command: docker-compose exec -T app bash -c 'sed -i "s/.*COMPUTATIONAL_CLIENT_NAME.*/define('\''COMPUTATIONAL_CLIENT_NAME'\'','\''{{compute_name}}'\'');/g" /etc/openbiomaps/system_vars.php.inc'
+    - name: OBM compose up
+      command: docker-compose up -d
       args:
         chdir: /opt/openbiomaps
 
-    - name: OBM compose set computational id
-      command: docker-compose exec -T app bash -c 'sed -i "s/.*COMPUTATIONAL_CLIENT_KEY.*/define('\''COMPUTATIONAL_CLIENT_KEY'\'','\''{{compute_id}}'\'');/g" /etc/openbiomaps/system_vars.php.inc'
+    - when: obm_compute_node_ip is defined and obm_compute_node_ip != ""
+      block:
+
+        - name: OBM compose set computational server
+          command: docker-compose exec -T app bash -c 'sed -i "s/.*COMPUTATIONAL_SERVERS.*/define('\''COMPUTATIONAL_SERVERS'\'',array('\''http:\/\/{{ obm_compute_node_ip }}\/api.php'\''));/g" /etc/openbiomaps/system_vars.php.inc'
+          args:
+            chdir: /opt/openbiomaps
+
+        - name: OBM compose set computational name
+          command: docker-compose exec -T app bash -c 'sed -i "s/.*COMPUTATIONAL_CLIENT_NAME.*/define('\''COMPUTATIONAL_CLIENT_NAME'\'','\''{{ compute_name }}'\'');/g" /etc/openbiomaps/system_vars.php.inc'
+          args:
+            chdir: /opt/openbiomaps
+
+        - name: OBM compose set computational id
+          command: docker-compose exec -T app bash -c 'sed -i "s/.*COMPUTATIONAL_CLIENT_KEY.*/define('\''COMPUTATIONAL_CLIENT_KEY'\'','\''{{ compute_id }}'\'');/g" /etc/openbiomaps/system_vars.php.inc'
+          args:
+            chdir: /opt/openbiomaps
+
+        - name: OBM compose set computational key
+          command: docker-compose exec -T app bash -c 'sed -i "s/.*COMPUTATIONAL_CLIENT_SEC.*/define('\''COMPUTATIONAL_CLIENT_SEC'\'','\''{{ compute_key }}'\'');/g" /etc/openbiomaps/system_vars.php.inc'
+          args:
+            chdir: /opt/openbiomaps
+
+        - name: OBM compose restart
+          command: docker-compose restart
+          args:
+            chdir: /opt/openbiomaps
+
+    - name: OBM post install
+      shell: ./obm_post_install.sh && touch /opt/openbiomaps/post
       args:
         chdir: /opt/openbiomaps
+        creates: /opt/openbiomaps/post
+      register: post_install
 
-    - name: OBM compose set computational key
-      command: docker-compose exec -T app bash -c 'sed -i "s/.*COMPUTATIONAL_CLIENT_SEC.*/define('\''COMPUTATIONAL_CLIENT_SEC'\'','\''{{compute_key}}'\'');/g" /etc/openbiomaps/system_vars.php.inc'
-      args:
-        chdir: /opt/openbiomaps
+    - name: Get Supervisor pass value
+      set_fact: supervisor_pass={{ item }}
+      when: '"" == ansible_loop.previtem | default(None) and "" == ansible_loop.nextitem | default(None) and "Supervisor" not in item'
+      loop: "{{ post_install.stdout_lines }}"
+      loop_control:
+        extended: true
 
-    - name: OBM compose restart
-      command: docker-compose restart
-      args:
-        chdir: /opt/openbiomaps
-
-    when: obm_compute_node_ip is defined and obm_compute_node_ip != ""
-
-  - name: OBM post install
-    shell: ./obm_post_install.sh && touch /opt/openbiomaps/post
-    args:
-      chdir: /opt/openbiomaps
-      creates: /opt/openbiomaps/post
-    register: post_install
-
-  - name: Get Supervisor pass value
-    set_fact: supervisor_pass={{ item }}
-    when: '"" == ansible_loop.previtem | default(None) and "" == ansible_loop.nextitem | default(None) and "Supervisor" not in item'
-    loop: "{{ post_install.stdout_lines }}"
-    loop_control:
-      extended: yes
-
-  - name: supervisor_pass
-    debug: msg={{ supervisor_pass }}
+    - name: supervisor_pass
+      debug: msg={{ supervisor_pass }}
