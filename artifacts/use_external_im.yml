@@ -4,7 +4,7 @@
   tasks:
     # Reconfigure clues to use IM_SERVER
     - set_fact:
-        IM_SERVER: "https://appsgrycap.i3m.upv.es:31443/im"
+        IM_SERVER: "https://appsgrycap.i3m.upv.es/im"
       when: IM_SERVER is undefined
 
     - name: Set IM plugin configuration file values

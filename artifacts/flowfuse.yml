@@ -1,0 +1,7 @@
+---
+- hosts: localhost
+  connection: local
+  tasks:
+    - name: Install FlowFuse service
+      include_role:
+        name: grycap.flowfuse
