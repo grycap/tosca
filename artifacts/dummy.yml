@@ -2,8 +2,5 @@
 - hosts: localhost
   connection: local
   tasks:
-  - name: Empty task
-    debug: msg="Empty task"
-
-
-
+    - name: Empty task
+      debug: msg="Empty task"

@@ -2,9 +2,9 @@
 - hosts: localhost
   connection: local
   vars:
-     username: "{{ user | default(ansible_user) }}"
+    username: "{{ user | default(ansible_user) }}"
   tasks:
     - name: Add the authorized_key to the nodes
-      authorized_key: user={{username}} key="{{ ssh_key }}"
-
-
+      authorized_key:
+        user: "{{ username }}"
+        key: "{{ ssh_key }}"
