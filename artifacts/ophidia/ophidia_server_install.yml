@@ -8,10 +8,10 @@
     - name: stop service firewalld
       systemd: name=firewalld state=stopped
     - name: Creates NFS shared directory
-      file: path=/data state=directory owner=root group=root
+      file: path=/data state=directory owner=root group=root mode='644'
 
   roles:
-    - role: 'OphidiaBigData.ophidia-cluster' 
+    - role: 'OphidiaBigData.ophidia-cluster'
       node_type: 'server'
       deploy_type: 'complete'
       server_hostname: "slurmserver"

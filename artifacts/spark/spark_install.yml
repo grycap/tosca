@@ -2,4 +2,4 @@
 - hosts: localhost
   connection: local
   roles:
-  - role: grycap.spark
+    - role: grycap.spark

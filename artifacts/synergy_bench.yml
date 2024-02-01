@@ -7,4 +7,4 @@
     - name: Set SITE_NAME environment variable
       lineinfile:
         dest: /etc/environment
-        line: "SITE_NAME={{site_name}}"
+        line: "SITE_NAME={{ site_name }}"

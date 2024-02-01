@@ -2,21 +2,20 @@
 - hosts: localhost
   connection: local
   vars:
-     vnode_prefix: vnode-
+    vnode_prefix: vnode-
   pre_tasks:
-  - name: stop firewalld
-    service: name=firewalld state=stopped
-    ignore_errors: yes
+    - name: stop firewalld
+      service: name=firewalld state=stopped
+      ignore_errors: true
   roles:
-  - role: grycap.nfs
-    nfs_mode: 'front'
-    nfs_exports: [{path: "/home", export: "{{ vnode_prefix }}*.localdomain(rw,async,no_root_squash,no_subtree_check,insecure,crossmnt)"}]
-    when: slurm_nfs is undefined or slurm_nfs
-  - role: grycap.slurm
-    slurm_type_of_node: 'front'
-    slurm_wn_num: '{{ wn_num }}'
-    slurm_wn_ips: '{{ wn_ips }}'
-    slurm_vnode_prefix: '{{ vnode_prefix }}'
-    slurm_wn_nodenames: '{{ groups["wn"]|map("extract", hostvars, "ansible_hostname")|list if "wn" in groups else [] }}'
-    slurm_server_ip: '{{ slurm_front_end_ip }}'
-
+    - role: grycap.nfs
+      nfs_mode: 'front'
+      nfs_exports: [{path: "/home", export: "{{ vnode_prefix }}*.localdomain(rw,async,no_root_squash,no_subtree_check,insecure,crossmnt)"}]
+      when: slurm_nfs is undefined or slurm_nfs
+    - role: grycap.slurm
+      slurm_type_of_node: 'front'
+      slurm_wn_num: '{{ wn_num }}'
+      slurm_wn_ips: '{{ wn_ips }}'
+      slurm_vnode_prefix: '{{ vnode_prefix }}'
+      slurm_wn_nodenames: '{{ groups["wn"]|map("extract", hostvars, "ansible_hostname")|list if "wn" in groups else [] }}'
+      slurm_server_ip: '{{ slurm_front_end_ip }}'

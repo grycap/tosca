@@ -17,7 +17,7 @@
       file:
         path: "/opt/kafka/certs"
         state: directory
-        recurse: yes
+        recurse: true
 
     - name: Generate certificate requesst
       copy:
