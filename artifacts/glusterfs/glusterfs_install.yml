@@ -1,12 +1,12 @@
 ---
 - hosts: localhost
   connection: local
-  vars: 
+  vars:
     gluster_nodes: '{{ gluster_wn_ips + [ gluster_fe_ip ]  }}'
   pre_tasks:
-  - name: stop firewalld
-    service: name=firewalld state=stopped
-    ignore_errors: yes
+    - name: stop firewalld
+      service: name=firewalld state=stopped
+      ignore_errors: true
   roles:
     - role: 'geerlingguy.glusterfs'
   tasks:
@@ -25,9 +25,9 @@
         cluster: "{{ gluster_nodes | join(',') }}"
         host: "{{ ansible_hostname }}"
         options: "{{ gluster_options }}"
-        force: yes
+        force: true
       run_once: true
-      ignore_errors: yes
+      ignore_errors: true
 
     - name: Ensure Gluster volume is mounted.
       mount:

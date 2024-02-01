@@ -2,4 +2,4 @@
 - hosts: localhost
   connection: local
   roles:
-  - grycap.motley_cue
+    - grycap.motley_cue

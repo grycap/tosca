@@ -3,10 +3,14 @@
   connection: local
   tasks:
     - name: Copy jupyter.yaml
-      get_url: url=https://raw.githubusercontent.com/amcaar/ansible-role-jupyter/master/jupyter.yaml dest=/tmp/jupyter-tensorflow-notebook.yaml
+      get_url:
+        url: https://raw.githubusercontent.com/amcaar/ansible-role-jupyter/master/jupyter.yaml
+        dest: /tmp/jupyter-tensorflow-notebook.yaml
+        mode: '644'
 
-    - name: Create Kubernetes jupyter namespace 
+    - name: Create Kubernetes jupyter namespace
       command: kubectl create namespace jupyter
+      ignore_errors: true
 
-    - name:  Apply deployment to jupyter namespace  
+    - name: Apply deployment to jupyter namespace
       command: kubectl apply -f /tmp/jupyter-tensorflow-notebook.yaml --namespace jupyter
