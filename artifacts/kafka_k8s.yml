@@ -11,6 +11,7 @@
     ssl_organization: UPV
     ssl_organizational_unit: GRyCAP
     external_dns_name: "{{ kafka_external_dns_name| default('') }}"
+    image_tag: "{{ kafka_image_tag | default('2.8.1-debian-11-r6') }}"
   tasks:
 
     - name: Create directory for the kafka certs
@@ -108,6 +109,9 @@
           replicaCount: 1
           zookeeper:
             replicaCount: 1
+          logsDirs: /tmp/logs/
+          image:
+            tag: {{ image_tag }}
           externalAccess:
             enabled: true
             service:
