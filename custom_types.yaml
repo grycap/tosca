@@ -1729,7 +1729,7 @@ node_types:
             k8s_secret_email: { get_property: [ SELF, email ] }
 
   tosca.nodes.Container.Application.Docker:
-    derived_from: tosca.nodes.Containertosca.nodes.Container.Application
+    derived_from: tosca.nodes.Container.Application
     requirements:
       - host:
           capability: tosca.capabilities.Container.Docker
