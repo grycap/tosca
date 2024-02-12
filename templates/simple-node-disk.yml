@@ -147,7 +147,6 @@ topology_template:
               type: tosca.relationships.AttachesTo
               properties:
                 location: { get_input: mount_path }
-                device: hdb
 
     my_block_storage:
       type: tosca.nodes.BlockStorage

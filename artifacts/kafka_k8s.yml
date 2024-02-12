@@ -10,7 +10,8 @@
     ssl_location: Valencia
     ssl_organization: UPV
     ssl_organizational_unit: GRyCAP
-    external_dns_name: "{{ kafka_external_dns_name| default('kubeserverpublic') }}"
+    external_dns_name: "{{ kafka_external_dns_name| default('') }}"
+    image_tag: "{{ kafka_image_tag | default('2.8.1-debian-11-r6') }}"
   tasks:
 
     - name: Create directory for the kafka certs
@@ -18,6 +19,22 @@
         path: "/opt/kafka/certs"
         state: directory
         recurse: true
+
+    - when: external_dns_name == ""
+      block:
+
+        - pip:
+            name: dnspython
+          ignore_errors: true
+
+        - name: Try to get the DNS name of the node
+          set_fact:
+            external_dns_name: "{{ lookup('dig', public_ip + '/PTR', '@8.8.8.8')[:-1] }}"
+          ignore_errors: true
+
+    - set_fact:
+        external_dns_name: "kubeserverpublic"
+      when: external_dns_name == ""
 
     - name: Generate certificate requesst
       copy:
@@ -94,6 +111,9 @@
           replicaCount: 1
           zookeeper:
             replicaCount: 1
+          logsDirs: /tmp/logs/
+          image:
+            tag: {{ image_tag }}
           externalAccess:
             enabled: true
             service:
