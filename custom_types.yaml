@@ -1734,7 +1734,7 @@ node_types:
       host:
         type: tosca.capabilities.Container.Docker
         valid_source_types: [tosca.nodes.Container.Application.Docker]
-
+        relationship: tosca.relationships.HostedOn
 
 policy_types:
 
