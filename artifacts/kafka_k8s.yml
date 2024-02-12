@@ -20,15 +20,17 @@
         state: directory
         recurse: true
 
-    - block:
-      - pip:
-          name: dnspython
-        ignore_errors: yes
-      - name: Try to get the DNS name of the node
-        set_fact:
-          external_dns_name: "{{ lookup('dig', public_ip + '/PTR', '@8.8.8.8')[:-1] }}"
-        ignore_errors: yes
-      when: external_dns_name == ""
+    - when: external_dns_name == ""
+      block:
+
+        - pip:
+            name: dnspython
+          ignore_errors: true
+
+        - name: Try to get the DNS name of the node
+          set_fact:
+            external_dns_name: "{{ lookup('dig', public_ip + '/PTR', '@8.8.8.8')[:-1] }}"
+          ignore_errors: true
 
     - set_fact:
         external_dns_name: "kubeserverpublic"
