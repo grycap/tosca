@@ -1730,6 +1730,13 @@ node_types:
 
   tosca.nodes.Container.Application.Docker:
     derived_from: tosca.nodes.Container.Application
+    properties:
+      environment:
+        type: map
+        description: Environment variables
+        entry_schema:
+          type: string
+        required: false
     requirements:
       - host:
           capability: tosca.capabilities.Container.Docker
