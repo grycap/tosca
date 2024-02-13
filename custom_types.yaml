@@ -1728,13 +1728,28 @@ node_types:
             k8s_secret_password: { get_property: [ SELF, password ] }
             k8s_secret_email: { get_property: [ SELF, email ] }
 
+  tosca.nodes.Container.Application.Docker:
+    derived_from: tosca.nodes.Container.Application
+    properties:
+      environment:
+        type: map
+        description: Environment variables
+        entry_schema:
+          type: string
+        required: false
+    requirements:
+      - host:
+          capability: tosca.capabilities.Container.Docker
+          node: tosca.nodes.Container.Runtime
+          relationship: tosca.relationships.HostedOn
+
   tosca.nodes.Container.Runtime.Docker:
     derived_from: tosca.nodes.Container.Runtime
     capabilities:
       host:
         type: tosca.capabilities.Container.Docker
         valid_source_types: [tosca.nodes.Container.Application.Docker]
-
+        relationship: tosca.relationships.HostedOn
 
 policy_types:
 
