@@ -1,0 +1,75 @@
+name: Tests
+
+on:
+
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  test-templates:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the codebase.
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: pip install --no-color tosca-parser yamllint
+
+      - name: Check Yamllint in templates
+        run: |
+          yamllint -f standard -d "{extends: default, rules: {truthy: disable, document-start: disable, line-length: disable, braces: {max-spaces-inside: 1}, brackets: {max-spaces-inside: 1}}}" templates/*
+
+      - name: Parse TOSCA templates
+        run: |
+          for TEMPLATE in `grep -L 'parents:' templates/*`
+          do
+            echo $TEMPLATE
+            tosca-parser --template-file=$TEMPLATE
+          done
+
+      - name: Check partial templates
+        run: python tests/parse_partial.py templates/
+
+      - name: Check paramters in templates
+        run: python tests/parse_parameters.py templates/
+
+
+  test-artifacts:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the codebase.
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: pip install --no-color tosca-parser ansible ansible-lint
+
+      - name: Installing Ansible roles and collections for test.
+        run: |
+          export LC_ALL=C.UTF-8 
+          ansible-galaxy install -r tests/requirements.yaml
+
+      - name: Check Ansible lint
+        run: |
+          for ARTIFACT in `find artifacts -type f -name "*.y*ml"`
+          do
+            echo $ARTIFACT
+            ansible-lint --nocolor --profile production -x var-naming,no-free-form,risky-shell-pipe,name,yaml[line-length],fqcn[action-core],fqcn[action],ignore-errors,no-changed-when,no-handler $ARTIFACT
+          done
+  
+      - name: Check Ansible syntax
+        run: |
+          for ARTIFACT in `find artifacts -type f -name "*.y*ml"`
+          do
+            echo $ARTIFACT
+            ansible-playbook --syntax-check $ARTIFACT
+          done
