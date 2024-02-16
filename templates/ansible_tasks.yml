@@ -11,8 +11,6 @@ metadata:
   template_name: Ansible
   display_name: Ansible tasks
   icon: images/ansible.png
-  tag: SW
-  tag_color: blue
   tabs:
     Ansible Tasks:
       - ansible_tasks:

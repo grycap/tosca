@@ -10,8 +10,8 @@ metadata:
   template_name: NVIDIA Drivers
   display_name: Install NVIDIA Drivers
   icon: images/nvidia.png
-  tag: SW
-  tag_color: blue
+  tag: SYS
+  tag_color: purple
   tabs:
     NVIDIA:
       - driver_version
