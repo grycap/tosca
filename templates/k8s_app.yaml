@@ -92,3 +92,7 @@ topology_template:
         size: { get_input: pvc_size }
         # Set the PV name in this field
         # volume_id: "PV name"
+
+  outputs:
+    mysql_service_url:
+      value: { get_attribute: [ container_app, endpoints, 0 ] }
