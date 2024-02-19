@@ -32,7 +32,7 @@ topology_template:
     image:
       type: string
       description: The image to be used in the container
-      default: "mysql:5.7"
+      default: "mysql:8"
 
     pvc_size:
       type: scalar-unit.size
