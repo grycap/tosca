@@ -1730,6 +1730,12 @@ node_types:
 
   tosca.nodes.Container.Application.Docker:
     derived_from: tosca.nodes.Container.Application
+    attributes:
+      endpoints:
+        type: list
+        description: List of service endpoints
+        entry_schema:
+          type: string
     properties:
       environment:
         type: map

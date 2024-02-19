@@ -1,0 +1,98 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+imports:
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/devel/custom_types.yaml
+
+description: TOSCA test for K8s
+
+metadata:
+  template_name: Containerized App
+  template_version: "0.1.0"
+  template_author: Miguel Caballer
+  creation_date: 2024-02-16
+  display_name: Deploy a Containerized App
+  icon: images/contapp.png
+  tag: Container
+  tag_color: blue
+  tabs:
+    Container Data: .*
+
+topology_template:
+
+  inputs:
+    cpu:
+      type: float
+      description: Number of virtual cpus for the container
+      default: 1.0
+    memory:
+      type: scalar-unit.size
+      description: Memory size for the container
+      default: 512 MB
+
+    image:
+      type: string
+      description: The image to be used in the container
+      default: "mysql:5.7"
+
+    pvc_size:
+      type: scalar-unit.size
+      description: Size of the Persistent Volume Claim
+      default: 10 GB
+    pvc_mount_path:
+      type: string
+      description: Path to mount the Persistent Volume Claim
+      default: "/var/lib/mysql"
+
+    environment:
+      type: map
+      entry_schema:
+        type: string
+      description: Environment variables to be set in the container
+      default:
+        MYSQL_ROOT_PASSWORD: my-secret
+
+    ports:
+      type: list
+      entry_schema:
+        type: PortSpec
+      description: List of ports to be published in the container (ContarinerPort - PublishedPort)
+      default:
+        - target: 3306
+          source: 33306
+
+
+  node_templates:
+
+    container_app:
+      type: tosca.nodes.Container.Application.Docker
+      properties:
+        environment: { get_input: environment }
+      requirements:
+        - host: container_runtime
+      artifacts:
+        my_image:
+          file: { get_input: image }
+          type: tosca.artifacts.Deployment.Image.Container.Docker
+
+    # The properties of the runtime to host the container
+    container_runtime:
+      type: tosca.nodes.Container.Runtime.Docker
+      capabilities:
+        host:
+          properties:
+            num_cpus: { get_input: cpu }
+            mem_size: { get_input: memory }
+            publish_ports: { get_input: ports }
+            volumes:
+              - { concat: [ "container_vol:", { get_input: pvc_mount_path } ] }
+
+    container_vol:
+      type: tosca.nodes.BlockStorage
+      properties:
+        size: { get_input: pvc_size }
+        # Set the PV name in this field
+        # volume_id: "PV name"
+
+  outputs:
+    mysql_service_url:
+      value: { get_attribute: [ container_app, endpoints, 0 ] }
