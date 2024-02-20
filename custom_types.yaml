@@ -303,6 +303,46 @@ capability_types:
         entry_schema:
           type: tosca.datatypes.Credential
 
+  tosca.capabilities.Container.Docker:
+    derived_from: tosca.capabilities.Container
+    properties:
+      # Overriding the default num_cpus property to allow float values
+      num_cpus:
+        type: float
+        required: false
+        constraints:
+          - greater_than: 0
+      version:
+        type: list
+        required: false
+        entry_schema:
+          type: version
+      publish_all:
+        type: boolean
+        default: false
+        required: false
+      publish_ports:
+        type: list
+        entry_schema:
+          type: tosca.datatypes.network.PortSpec
+        required: false
+      expose_ports:
+        type: list
+        entry_schema:
+          type: tosca.datatypes.network.PortSpec
+        required: false
+      volumes:
+        type: list
+        entry_schema:
+          type: string
+        required: false
+      host_id:
+        type: string
+        required: false
+      volume_id:
+        type: string
+        required: false
+
 artifact_types:
 
   tosca.artifacts.Implementation.YAML:
