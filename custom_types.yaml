@@ -322,11 +322,11 @@ capability_types:
         required: false
       publish_ports:
         type: list
-        entry_schema: PortSpec
+        entry_schema: tosca.datatypes.network.PortSpec
         required: false
       expose_ports:
         type: list
-        entry_schema: PortSpec
+        entry_schema: tosca.datatypes.network.PortSpec
         required: false
       volumes:
         type: list
