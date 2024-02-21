@@ -109,6 +109,10 @@ data_types:
         description: CIDR of the remote allowed IPs.
         type: string
         required: no
+      endpoint:
+        description: The endpoint to which the port is associated
+        type: string
+        required: no
 
 capability_types:
 
@@ -321,10 +325,12 @@ capability_types:
         type: boolean
         default: false
         required: false
+      # In publish_ports, use the type tosca.datatypes.indigo.network.PortSpec
+      # to enable to specify the endpoint to which the port is associated
       publish_ports:
         type: list
         entry_schema:
-          type: tosca.datatypes.network.PortSpec
+          type: tosca.datatypes.indigo.network.PortSpec
         required: false
       expose_ports:
         type: list
