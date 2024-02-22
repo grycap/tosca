@@ -7,7 +7,7 @@ description: Deploy a SLURM Virtual Cluster.
 
 metadata:
   template_name: SLURM
-  template_version: "1.0.0"
+  template_version: "1.0.1"
   display_name: SLURM virtual cluster
   icon: images/slurm.png
   order: 4
