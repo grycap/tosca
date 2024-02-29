@@ -17,7 +17,6 @@ metadata:
     SLURM Features: slurm_.*
   childs:
     - slurm_elastic.yaml
-    - ssh_keys.yml
     - slurm_galaxy.yml
     - glusterfs.yml
     - docker_cluster.yaml
