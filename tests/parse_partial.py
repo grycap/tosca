@@ -33,6 +33,12 @@ for path, _, files in os.walk(directory):
             for child in template["metadata"]["childs"]:
                 if not os.path.isfile(os.path.abspath(os.path.join(path, "..", "templates", child))):
                     raise Exception("Child template %s not found" % child)
+                with io.open(os.path.abspath(os.path.join(path, "..", "templates", child))) as cstream:
+                    child_template = yaml.full_load(cstream)
+                    # Check if the parent template has this template as child
+                    if "metadata" in child_template and "parents" in child_template["metadata"]:
+                        if name not in child_template["metadata"]["parents"]:
+                            raise Exception("Child template %s does not have this template as parent" % child)
         # Check all child templates meging with parents
         if "metadata" in template and "parents" in template["metadata"]:
             if "link" in template["metadata"]:
@@ -46,6 +52,10 @@ for path, _, files in os.walk(directory):
                 print("Parent: " + parent)
                 with io.open(os.path.abspath(os.path.join(path, "..", "templates", parent))) as pstream:
                     parent_template = yaml.full_load(pstream)
+                    # Check if the parent template has this template as child
+                    if "metadata" in parent_template and "childs" in parent_template["metadata"]:
+                        if name not in parent_template["metadata"]["childs"]:
+                            raise Exception("Parent template %s does not have this template as child" % parent)
                     full_template = _merge_templates(parent_template, template)
                 ToscaTemplate(yaml_dict_tpl=full_template)
         # Test also link templates
