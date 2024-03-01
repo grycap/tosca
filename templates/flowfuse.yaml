@@ -8,6 +8,8 @@ metadata:
   template_name: FlowFuse
   display_name: Deploy FlowFuse on a VM
   icon: images/flowfuse.png
+  tag: devel
+  tag_color: purple
   parents:
     - simple-node-disk.yml
 
