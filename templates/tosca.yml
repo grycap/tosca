@@ -4,7 +4,7 @@ description: Deploy your own TOSCA template
 
 metadata:
   template_name: TOSCA
-  template_version: "1.0.0"
+  template_version: "1.0.1"
   display_name: TOSCA Template
   icon: images/tosca.png
   tag: TOSCA
@@ -12,9 +12,9 @@ metadata:
   order: 6
   tabs:
     TOSCA:
-      - tosca
-      - tosca_url:
+      - tosca:
           tag_type: textarea
+      - tosca_url
 
 topology_template:
 
