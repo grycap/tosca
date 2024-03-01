@@ -12,6 +12,7 @@ metadata:
   icon: images/registry.png
   parents:
     - kubernetes.yaml
+    - oscar.yaml
 
 topology_template:
 

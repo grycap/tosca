@@ -14,6 +14,7 @@ metadata:
     Kafka: kafka_.*
   parents:
     - kubernetes.yaml
+    - oscar.yaml
 
 topology_template:
 
