@@ -138,9 +138,9 @@ topology_template:
     kube_version:
       type: string
       description: Version of Kubernetes to install
-      default: "1.27.6"
+      default: "1.28.7"
       constraints:
-        - valid_values: [ "1.27.6", "1.28.2", "1.26.9", "1.25.14", "1.24.17" ]
+        - valid_values: [ "1.28.7", "1.29.2", "1.27.11", "1.26.14", "1.25.15", "1.24.17" ]
     kube_cri_runtime:
       type: string
       description: CRI Runtime to use with Kubernetes

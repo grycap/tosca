@@ -17,7 +17,6 @@ metadata:
     SLURM Features: slurm_.*
   childs:
     - slurm_elastic.yaml
-    - ssh_keys.yml
     - slurm_galaxy.yml
     - glusterfs.yml
     - docker_cluster.yaml
@@ -83,6 +82,18 @@ topology_template:
       constraints:
         - valid_values: [ '23.11.1', '20.11.9', '21.08.5', '21.08.8', '22.05.10' ]
 
+    fe_ports:
+      type: map
+      entry_schema:
+        type: PortSpec
+      description: |
+        List of ports to be Opened in FE node (eg. 22,80,443,2000:2100).
+        You can also include the remote CIDR (eg. 8.8.0.0/24).
+      default:
+        ssh_port:
+          source: 22
+          protocol: tcp
+
   node_templates:
 
 
@@ -101,10 +112,7 @@ topology_template:
           properties:
             dns_name: slurmserver
             network_name: PUBLIC
-            ports:
-              http_port:
-                protocol: tcp
-                source: 80
+            ports: { get_input: fe_ports }
         host:
           properties:
             num_cpus: { get_input: fe_cpus }
