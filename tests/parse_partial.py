@@ -35,7 +35,7 @@ for path, _, files in os.walk(directory):
                     raise Exception("Child template %s not found" % child)
                 with io.open(os.path.abspath(os.path.join(path, "..", "templates", child))) as cstream:
                     child_template = yaml.full_load(cstream)
-                    # Check if the parent template has this template as child
+                    # Check if the child template has this template as parent
                     if "metadata" in child_template and "parents" in child_template["metadata"]:
                         if name not in child_template["metadata"]["parents"]:
                             raise Exception("Child template %s does not have this template as parent" % child)
