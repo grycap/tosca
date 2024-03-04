@@ -3,7 +3,6 @@
   hosts: localhost
   connection: local
   vars:
-    VERSION: "{{ kubeflow_manifests_version | default('v1.6.1') }}"
     NAMESPACE: galaxy
     admin_users: "{{ galaxy_admin_users | default('admin@galaxy.com') }}"
   tasks:
@@ -15,12 +14,14 @@
         repo: https://github.com/CloudVE/galaxy-cvmfs-csi-helm
         dest: /opt/galaxy-cvmfs-csi-helm
         update: false
+        version: "master"
 
     - name: Clone galaxy-helm git repo
       git:
         repo: https://github.com/galaxyproject/galaxy-helm
         dest: /opt/galaxy-helm
         update: false
+        version: "master"
 
     - name: "Check if galaxy-cvmfs is already deployed"
       command: helm status galaxy-cvmfs -n {{ NAMESPACE }}
@@ -32,7 +33,7 @@
 
     - when: deployed.rc == 1
       block:
-  
+
         - name: Update Galaxy CVMFS CSI chart dependencies
           command: helm dep up
           args:
@@ -67,13 +68,12 @@
           environment:
             KUBECONFIG: /etc/kubernetes/admin.conf
 
-
         - name: Create flink K8s resources file
           copy:
             dest: /opt/galaxy_values.yaml
             mode: '644'
             content: |
-              persistebnce: 
+              persistence:
                 accessMode: ReadWriteOnce
               cvmfs:
                 deploy: false
