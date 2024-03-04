@@ -10,13 +10,13 @@
     - name: Install Git
       package: name=git
 
-    - name: Git clone galaxy-cvmfs-csi-helm repo
+    - name: Clone galaxy-cvmfs-csi-helm git repo
       git:
         repo: https://github.com/CloudVE/galaxy-cvmfs-csi-helm
         dest: /opt/galaxy-cvmfs-csi-helm
         update: false
 
-    - name: Git clone galaxy-helm repo
+    - name: Clone galaxy-helm git repo
       git:
         repo: https://github.com/galaxyproject/galaxy-helm
         dest: /opt/galaxy-helm
