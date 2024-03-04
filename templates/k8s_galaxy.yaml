@@ -12,6 +12,8 @@ metadata:
   icon: images/galaxy.png
   parents:
     - kubernetes.yaml
+  tabs:
+    Galaxy: galaxy_.*
 
 topology_template:
 
