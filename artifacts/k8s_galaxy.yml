@@ -68,7 +68,7 @@
           environment:
             KUBECONFIG: /etc/kubernetes/admin.conf
 
-        - name: Create flink K8s resources file
+        - name: Create galaxy helm chart values file
           copy:
             dest: /opt/galaxy_values.yaml
             mode: '644'
@@ -85,11 +85,21 @@
                     brand: IM Deployed Galaxy K8s Cluster
 
         - name: Deploy Galaxy
-          command: helm install --create-namespace -n {{ NAMESPACE }} my-galaxy . --timeout 10m -f /opt/galaxy_values.yaml
+          command: helm install --create-namespace -n {{ NAMESPACE }} galaxy . --timeout 15m -f /opt/galaxy_values.yaml
           args:
             chdir: /opt/galaxy-helm/galaxy
           environment:
             KUBECONFIG: /etc/kubernetes/admin.conf
+          ignore_errors: true
+          register: helm_install
+
+        - name: Undeploy galaxy app
+          command: helm uninstall --namespace {{ NAMESPACE }} galaxy
+          when: helm_install is failed
+
+        - fail:
+            msg: "Error installing galaxy helm chat"
+          when: helm_install is failed
 
         - name: Wait a bit for pods to start
           pause:
