@@ -82,6 +82,7 @@
                 galaxy.yaml:
                   galaxy:
                     admin_users: {{ admin_users }}
+                    brand: IM Deployed Galaxy K8s Cluster
 
         - name: Deploy Galaxy
           command: helm install --create-namespace -n {{ NAMESPACE }} my-galaxy . --timeout 10m -f /opt/galaxy_values.yaml
