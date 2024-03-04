@@ -1,0 +1,100 @@
+---
+- name: Install Galaxy
+  hosts: localhost
+  connection: local
+  vars:
+    VERSION: "{{ kubeflow_manifests_version | default('v1.6.1') }}"
+    NAMESPACE: galaxy
+    admin_users: "{{ galaxy_admin_users | default('admin@galaxy.com') }}"
+  tasks:
+    - name: Install Git
+      package: name=git
+
+    - name: Git clone galaxy-cvmfs-csi-helm repo
+      git:
+        repo: https://github.com/CloudVE/galaxy-cvmfs-csi-helm
+        dest: /opt/galaxy-cvmfs-csi-helm
+        update: false
+
+    - name: Git clone galaxy-helm repo
+      git:
+        repo: https://github.com/galaxyproject/galaxy-helm
+        dest: /opt/galaxy-helm
+        update: false
+
+    - name: "Check if galaxy-cvmfs is already deployed"
+      command: helm status galaxy-cvmfs -n {{ NAMESPACE }}
+      register: deployed
+      failed_when: deployed.rc != 0 and deployed.rc != 1
+      changed_when: false
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+
+    - when: deployed.rc == 1
+      block:
+  
+        - name: Update Galaxy CVMFS CSI chart dependencies
+          command: helm dep up
+          args:
+            chdir: /opt/galaxy-cvmfs-csi-helm/galaxy-cvmfs-csi
+            creates: /opt/galaxy-cvmfs-csi-helm/galaxy-cvmfs-csi/charts
+          environment:
+            KUBECONFIG: /etc/kubernetes/admin.conf
+
+        - name: Deploy Galaxy CVMFS CSI
+          command: helm install --create-namespace -n {{ NAMESPACE }} galaxy-cvmfs . --wait --set storageClassName="galaxy-cvmfs" --set cvmfscsi.cache.alien.pvc.storageClass=managed-nfs-storage --set cvmfscsi.cache.alien.pvc.name="cvmfs-alien-cache"
+          args:
+            chdir: /opt/galaxy-cvmfs-csi-helm/galaxy-cvmfs-csi
+          environment:
+            KUBECONFIG: /etc/kubernetes/admin.conf
+
+    - name: "Check if galaxy is already deployed"
+      command: helm status galaxy -n {{ NAMESPACE }}
+      register: deployed
+      changed_when: false
+      failed_when: deployed.rc != 0 and deployed.rc != 1
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+
+    - when: deployed.rc == 1
+      block:
+
+        - name: Update Galaxy chart dependencies
+          command: helm dep up
+          args:
+            chdir: /opt/galaxy-helm/galaxy
+            creates: /opt/galaxy-helm/galaxy/charts
+          environment:
+            KUBECONFIG: /etc/kubernetes/admin.conf
+
+
+        - name: Create flink K8s resources file
+          copy:
+            dest: /opt/galaxy_values.yaml
+            mode: '644'
+            content: |
+              persistebnce: 
+                accessMode: ReadWriteOnce
+              cvmfs:
+                deploy: false
+                storageClassName: galaxy-cvmfs
+              configs:
+                galaxy.yaml:
+                  galaxy:
+                    admin_users: {{ admin_users }}
+
+        - name: Deploy Galaxy
+          command: helm install --create-namespace -n {{ NAMESPACE }} my-galaxy . --timeout 10m -f /opt/galaxy_values.yaml
+          args:
+            chdir: /opt/galaxy-helm/galaxy
+          environment:
+            KUBECONFIG: /etc/kubernetes/admin.conf
+
+        - name: Wait a bit for pods to start
+          pause:
+            seconds: 120
+
+        - name: Delete CreateContainerConfigError pods
+          command: kubectl delete pods -n {{ NAMESPACE }} --field-selector="status.phase=Pending"
+          register: error_pods
+          changed_when: error_pods.stdout_lines | length > 1

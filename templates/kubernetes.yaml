@@ -41,6 +41,7 @@ metadata:
     - k8s_wget.yml
     - yProv.yml
     - flink.yaml
+    - k8s_galaxy.yaml
     - dydns_egi_update_k8s.yml
 
 topology_template:
