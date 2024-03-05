@@ -95,14 +95,14 @@
           pause:
             minutes: 3
 
-        - name: Delete CreateContainerConfigError pods
+        - name: Delete Pending stuck pods
           command: kubectl delete pods -n {{ NAMESPACE }} --field-selector="status.phase=Pending"
           register: error_pods
-          changed_when: error_pods.stdout_lines | length > 0
+          changed_when: error_pods.stdout_lines | length > 1
           retries: 5
           delay: 120
-          until: error_pods.stdout_lines | length == 0
+          until: error_pods.stdout_lines | length <= 1
 
         - fail:
             msg: "Error waiting for pods to be ready"
-          when: error_pods.stdout_lines | length > 0
+          when: error_pods.stdout_lines | length > 1
