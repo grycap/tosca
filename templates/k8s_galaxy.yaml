@@ -23,6 +23,15 @@ topology_template:
       description: Administrative users - set this to a comma-separated list of valid Galaxy users (email addresses).
       default: 'admin@admin.com'
 
+    # Restrict some K8s input values
+
+    kube_cri_runtime:
+      type: string
+      description: CRI Runtime to use with Kubernetes
+      default: "docker"
+      constraints:
+        - valid_values: [ docker ]
+
   node_templates:
 
     galaxy:
