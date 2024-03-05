@@ -5,6 +5,7 @@
   vars:
     NAMESPACE: galaxy
     admin_users: "{{ galaxy_admin_users | default('admin@galaxy.com') }}"
+    brand: "{{ galaxy_brand | default('IM Deployed Galaxy K8s Cluster') }}"
   tasks:
     - name: Install Git
       package: name=git
@@ -82,7 +83,7 @@
                 galaxy.yml:
                   galaxy:
                     admin_users: {{ admin_users }}
-                    brand: IM Deployed Galaxy K8s Cluster
+                    brand: {{ brand }}
 
         - name: Deploy Galaxy
           command: helm install --create-namespace -n {{ NAMESPACE }} galaxy . --timeout 15m -f /opt/galaxy_values.yaml
