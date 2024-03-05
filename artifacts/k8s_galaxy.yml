@@ -79,7 +79,7 @@
                 deploy: false
                 storageClassName: galaxy-cvmfs
               configs:
-                galaxy.yaml:
+                galaxy.yml:
                   galaxy:
                     admin_users: {{ admin_users }}
                     brand: IM Deployed Galaxy K8s Cluster
