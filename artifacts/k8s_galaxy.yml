@@ -90,22 +90,19 @@
             chdir: /opt/galaxy-helm/galaxy
           environment:
             KUBECONFIG: /etc/kubernetes/admin.conf
-          ignore_errors: true
-          register: helm_install
 
-        - name: Undeploy galaxy app
-          command: helm uninstall --namespace {{ NAMESPACE }} galaxy
-          when: helm_install is failed
-
-        - fail:
-            msg: "Error installing galaxy helm chat"
-          when: helm_install is failed
-
-        - name: Wait a bit for pods to start
+        - name: Wait pods to be ready
           pause:
-            seconds: 120
+            minutes: 3
 
         - name: Delete CreateContainerConfigError pods
           command: kubectl delete pods -n {{ NAMESPACE }} --field-selector="status.phase=Pending"
           register: error_pods
           changed_when: error_pods.stdout_lines | length > 1
+          retries: 5
+          delay: 120
+          until: error_pods.stdout_lines | length > 1
+
+        - fail:
+            msg: "Error waiting for pods to be ready"
+          when: error_pods.stdout_lines | length > 1
