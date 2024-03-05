@@ -48,5 +48,5 @@ topology_template:
 
 
   outputs:
-    grafana_endpoint:
+    galaxy_endpoint:
       value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], '/galaxy/' ] }
