@@ -6,6 +6,8 @@
     NAMESPACE: galaxy
     admin_users: "{{ galaxy_admin_users | default('admin@galaxy.com') }}"
     brand: "{{ galaxy_brand | default('IM Deployed Galaxy K8s Cluster') }}"
+    max_mem: "{{ galaxy_max_mem | default(0) }}"
+    max_cores: "{{ galaxy_max_cores | default(0) }}"
   tasks:
     - name: Install Git
       package: name=git
@@ -69,6 +71,11 @@
           environment:
             KUBECONFIG: /etc/kubernetes/admin.conf
 
+        - name: Remove GB from max_mem
+          set_fact:
+            max_mem: "{{ max_mem[:-2] | float - 0.5 }}"
+          when: max_mem and "GB" in max_mem
+
         - name: Create galaxy helm chart values file
           copy:
             dest: /opt/galaxy_values.yaml
@@ -84,6 +91,14 @@
                   galaxy:
                     admin_users: {{ admin_users }}
                     brand: {{ brand }}
+              jobs:
+                rules:
+                  tpv_rules_local.yml:
+                    destinations:
+                      k8s:
+                        runner: k8s
+                        {{ 'max_cores: ' ~ max_cores if max_cores else '' }}
+                        {{ 'max_mem: ' ~ max_mem if max_mem else '' }}
 
         - name: Deploy Galaxy
           command: helm install --create-namespace -n {{ NAMESPACE }} galaxy . --timeout 15m -f /opt/galaxy_values.yaml

@@ -70,6 +70,8 @@ topology_template:
             inputs:
               galaxy_admin_users: { get_input: galaxy_admin_users }
               galaxy_brand: { get_input: galaxy_brand }
+              galaxy_max_memory: { get_input: wn_mem }
+              galaxy_max_cores: { get_input: wn_cpus }
 
   outputs:
     galaxy_endpoint:
