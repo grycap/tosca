@@ -134,6 +134,12 @@
                   - weight: 100
                     podAffinityTerm:
                       topologyKey: "kubernetes.io/hostname"
+                      labelSelector:
+                        matchExpressions:
+                        - key: app.kubernetes.io/instance
+                          operator: In
+                          values:
+                          - galaxy
               postgresql:
                 affinity:
                   podAffinity:
@@ -141,6 +147,12 @@
                     - weight: 100
                       podAffinityTerm:
                         topologyKey: "kubernetes.io/hostname"
+                        labelSelector:
+                          matchExpressions:
+                          - key: app.kubernetes.io/instance
+                            operator: In
+                            values:
+                            - galaxy
               rabbitmq:
                 affinity:
                   podAffinity:
@@ -148,6 +160,12 @@
                     - weight: 100
                       podAffinityTerm:
                         topologyKey: "kubernetes.io/hostname"
+                        labelSelector:
+                          matchExpressions:
+                          - key: app.kubernetes.io/instance
+                            operator: In
+                            values:
+                            - galaxy
 
         - name: Deploy Galaxy
           command: helm install --create-namespace -n {{ NAMESPACE }} galaxy . --timeout 15m -f /opt/galaxy_values.yaml
