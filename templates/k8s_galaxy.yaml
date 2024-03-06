@@ -37,8 +37,8 @@ topology_template:
         - valid_values: [ docker ]
     wn_num:
       type: integer
-      description: Number of WNs in the cluster
-      default: 2
+      description: "Number of WNs in the cluster (Minimum recommended: 3)"
+      default: 3
       required: yes
     wn_cpus:
       type: integer
@@ -70,7 +70,7 @@ topology_template:
             inputs:
               galaxy_admin_users: { get_input: galaxy_admin_users }
               galaxy_brand: { get_input: galaxy_brand }
-              galaxy_max_memory: { get_input: wn_mem }
+              galaxy_max_mem: { get_input: wn_mem }
               galaxy_max_cores: { get_input: wn_cpus }
 
   outputs:

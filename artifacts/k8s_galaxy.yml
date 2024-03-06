@@ -97,8 +97,8 @@
                     destinations:
                       k8s:
                         runner: k8s
-                        {{ 'max_cores: ' ~ max_cores if max_cores else '' }}
-                        {{ 'max_mem: ' ~ max_mem if max_mem else '' }}
+                        {{ 'max_cores: ' ~ max_cores if max_cores | int > 0 else '' }}
+                        {{ 'max_mem: ' ~ max_mem if max_mem | int > 0 else '' }}
 
         - name: Deploy Galaxy
           command: helm install --create-namespace -n {{ NAMESPACE }} galaxy . --timeout 15m -f /opt/galaxy_values.yaml
