@@ -37,6 +37,34 @@
     - when: deployed.rc == 1
       block:
 
+        - name: Create galaxy helm chart values file
+          copy:
+            dest: /opt/galaxy-cvmfs-csi_values.yaml
+            mode: '644'
+            content: |
+              storageClassName: galaxy-cvmfs
+              cvmfscsi:
+                cache:
+                  alien:
+                    pvc:
+                      storageClass: managed-nfs-storage
+                      name: cvmfs-alien-cache
+                # try to pack all the pods in the same nodes
+                controllerplugin:
+                  affinity:
+                    podAffinity:
+                      preferredDuringSchedulingIgnoredDuringExecution:
+                      - weight: 100
+                        podAffinityTerm:
+                          topologyKey: "kubernetes.io/hostname"
+                nodeplugin:
+                  affinity:
+                    podAffinity:
+                      preferredDuringSchedulingIgnoredDuringExecution:
+                      - weight: 100
+                        podAffinityTerm:
+                          topologyKey: "kubernetes.io/hostname"
+
         - name: Update Galaxy CVMFS CSI chart dependencies
           command: helm dep up
           args:
@@ -46,7 +74,7 @@
             KUBECONFIG: /etc/kubernetes/admin.conf
 
         - name: Deploy Galaxy CVMFS CSI
-          command: helm install --create-namespace -n {{ NAMESPACE }} galaxy-cvmfs . --wait --set storageClassName="galaxy-cvmfs" --set cvmfscsi.cache.alien.pvc.storageClass=managed-nfs-storage --set cvmfscsi.cache.alien.pvc.name="cvmfs-alien-cache"
+          command: helm install --create-namespace -n {{ NAMESPACE }} galaxy-cvmfs . --wait -f  /opt/galaxy-cvmfs-csi_values.yaml
           args:
             chdir: /opt/galaxy-cvmfs-csi-helm/galaxy-cvmfs-csi
           environment:
@@ -99,6 +127,27 @@
                         runner: k8s
                         {{ 'max_cores: ' ~ max_cores if max_cores | int > 0 else '# no max_cores' }}
                         {{ 'max_mem: ' ~ max_mem if max_mem | int > 0 else '# no max_mem' }}
+              # try to pack all the pods in the same nodes
+              affinity:
+                podAffinity:
+                  preferredDuringSchedulingIgnoredDuringExecution:
+                  - weight: 100
+                    podAffinityTerm:
+                      topologyKey: "kubernetes.io/hostname"
+              postgresql:
+                affinity:
+                  podAffinity:
+                    preferredDuringSchedulingIgnoredDuringExecution:
+                    - weight: 100
+                      podAffinityTerm:
+                        topologyKey: "kubernetes.io/hostname"
+              rabbitmq:
+                affinity:
+                  podAffinity:
+                    preferredDuringSchedulingIgnoredDuringExecution:
+                    - weight: 100
+                      podAffinityTerm:
+                        topologyKey: "kubernetes.io/hostname"
 
         - name: Deploy Galaxy
           command: helm install --create-namespace -n {{ NAMESPACE }} galaxy . --timeout 15m -f /opt/galaxy_values.yaml
