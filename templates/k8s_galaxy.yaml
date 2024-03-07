@@ -6,10 +6,11 @@ imports:
 description: Deploy Galaxy on top of a Kubernetes Virtual Cluster.
 
 metadata:
-  template_version: "0.1.0"
+  template_version: "1.0.0"
   template_name: Galaxy
   display_name: Galaxy on top of a Kubernetes Virtual Cluster
   icon: images/galaxy.png
+  web: https://galaxyproject.org/
   parents:
     - kubernetes.yaml
   tabs:
