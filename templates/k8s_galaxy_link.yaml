@@ -9,7 +9,7 @@ metadata:
   template_version: "1.0.0"
   template_name: Galaxy K8s
   display_name: Galaxy on top of a Kubernetes Virtual Cluster
-  icon: images/galaxy.png
+  icon: images/k8s_galaxy.png
   order: 7
   link:
     parent: kubernetes.yaml
