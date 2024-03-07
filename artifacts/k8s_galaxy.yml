@@ -4,27 +4,84 @@
   connection: local
   vars:
     NAMESPACE: galaxy
+    AFFINITY:
+      affinity:
+        podAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              topologyKey: "kubernetes.io/hostname"
+              labelSelector:
+                matchExpressions:
+                - key: app.kubernetes.io/instance
+                  operator: In
+                  values:
+                  - galaxy
+                  - postgres-operator
+                  - rabbitmq-operator
     admin_users: "{{ galaxy_admin_users | default('admin@galaxy.com') }}"
     brand: "{{ galaxy_brand | default('IM Deployed Galaxy K8s Cluster') }}"
     max_mem: "{{ galaxy_max_mem | default(0) }}"
     max_cores: "{{ galaxy_max_cores | default(0) }}"
   tasks:
-    - name: Install Git
-      package: name=git
 
-    - name: Clone galaxy-cvmfs-csi-helm git repo
-      git:
-        repo: https://github.com/CloudVE/galaxy-cvmfs-csi-helm
-        dest: /opt/galaxy-cvmfs-csi-helm
-        update: false
-        version: "master"
+    - name: "Check if postgres-operator is already deployed"
+      command: helm status postgres-operator -n {{ NAMESPACE }}
+      register: deployed
+      failed_when: deployed.rc != 0 and deployed.rc != 1
+      changed_when: false
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
 
-    - name: Clone galaxy-helm git repo
-      git:
-        repo: https://github.com/galaxyproject/galaxy-helm
-        dest: /opt/galaxy-helm
-        update: false
-        version: "master"
+    - when: deployed.rc == 1
+      block:
+
+        - name: Create postgres-operator helm chart values file
+          copy:
+            dest: /opt/postgres_values.yaml
+            mode: '644'
+            content: "{{ AFFINITY | to_nice_yaml }}"
+
+        - name: Add helm repo postgres-operator-charts
+          command: helm repo add postgres-operator-charts https://opensource.zalando.com/postgres-operator/charts/postgres-operator
+          environment:
+            KUBECONFIG: /etc/kubernetes/admin.conf
+
+        - name: Deploy postgres-operator
+          command:  helm install -n {{ NAMESPACE }} --create-namespace postgres-operator postgres-operator-charts/postgres-operator --version 1.9.0 -f /opt/postgres_values.yaml --wait
+          environment:
+            KUBECONFIG: /etc/kubernetes/admin.conf
+
+    - name: "Check if rabbitmq-operator is already deployed"
+      command: helm status rabbitmq-operator -n {{ NAMESPACE }}
+      register: deployed
+      failed_when: deployed.rc != 0 and deployed.rc != 1
+      changed_when: false
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+
+    - when: deployed.rc == 1
+      block:
+
+        - name: Create rabbitmq-operator helm chart values file
+          copy:
+            dest: /opt/rabbitmq_values.yaml
+            mode: '644'
+            content: |
+              clusterOperator:
+              {{ AFFINITY | to_nice_yaml(indent=2) }}
+              msgTopologyOperator:
+              {{ AFFINITY | to_nice_yaml(indent=2) }}
+
+        - name: Add helm repo bitnami
+          command: helm repo add bitnami https://charts.bitnami.com/bitnami
+          environment:
+            KUBECONFIG: /etc/kubernetes/admin.conf
+
+        - name: Deploy postgres-operator
+          command:  helm install -n {{ NAMESPACE }} --create-namespace rabbitmq-operator bitnami/rabbitmq-cluster-operator --version 2.6.12 -f /opt/rabbitmq_values.yaml
+          environment:
+            KUBECONFIG: /etc/kubernetes/admin.conf
 
     - name: "Check if galaxy-cvmfs is already deployed"
       command: helm status galaxy-cvmfs -n {{ NAMESPACE }}
@@ -51,32 +108,17 @@
                       name: cvmfs-alien-cache
                 # try to pack all the pods in the same nodes
                 controllerplugin:
-                  affinity:
-                    podAffinity:
-                      preferredDuringSchedulingIgnoredDuringExecution:
-                      - weight: 100
-                        podAffinityTerm:
-                          topologyKey: "kubernetes.io/hostname"
+                {{ AFFINITY | to_nice_yaml(indent=2) }}
                 nodeplugin:
-                  affinity:
-                    podAffinity:
-                      preferredDuringSchedulingIgnoredDuringExecution:
-                      - weight: 100
-                        podAffinityTerm:
-                          topologyKey: "kubernetes.io/hostname"
+                {{ AFFINITY | to_nice_yaml(indent=2) }}
 
-        - name: Update Galaxy CVMFS CSI chart dependencies
-          command: helm dep up
-          args:
-            chdir: /opt/galaxy-cvmfs-csi-helm/galaxy-cvmfs-csi
-            creates: /opt/galaxy-cvmfs-csi-helm/galaxy-cvmfs-csi/charts
+        - name: Add helm repo galaxy
+          command: helm repo add galaxy https://raw.githubusercontent.com/CloudVE/helm-charts/master/
           environment:
             KUBECONFIG: /etc/kubernetes/admin.conf
 
         - name: Deploy Galaxy CVMFS CSI
-          command: helm install --create-namespace -n {{ NAMESPACE }} galaxy-cvmfs . --wait -f  /opt/galaxy-cvmfs-csi_values.yaml
-          args:
-            chdir: /opt/galaxy-cvmfs-csi-helm/galaxy-cvmfs-csi
+          command: helm install --create-namespace -n {{ NAMESPACE }} galaxy-cvmfs galaxy/galaxy-cvmfs-csi --wait -f  /opt/galaxy-cvmfs-csi_values.yaml --version 2.2.0
           environment:
             KUBECONFIG: /etc/kubernetes/admin.conf
 
@@ -90,14 +132,6 @@
 
     - when: deployed.rc == 1
       block:
-
-        - name: Update Galaxy chart dependencies
-          command: helm dep up
-          args:
-            chdir: /opt/galaxy-helm/galaxy
-            creates: /opt/galaxy-helm/galaxy/charts
-          environment:
-            KUBECONFIG: /etc/kubernetes/admin.conf
 
         - name: Remove GB from max_mem
           set_fact:
@@ -114,6 +148,10 @@
               cvmfs:
                 deploy: false
                 storageClassName: galaxy-cvmfs
+              postgresql:
+                deploy: false
+              rabbitmq:
+                deploy: false
               configs:
                 galaxy.yml:
                   galaxy:
@@ -128,47 +166,15 @@
                         {{ 'max_cores: ' ~ max_cores if max_cores | int > 0 else '# no max_cores' }}
                         {{ 'max_mem: ' ~ max_mem if max_mem | int > 0 else '# no max_mem' }}
               # try to pack all the pods in the same nodes
-              affinity:
-                podAffinity:
-                  preferredDuringSchedulingIgnoredDuringExecution:
-                  - weight: 100
-                    podAffinityTerm:
-                      topologyKey: "kubernetes.io/hostname"
-                      labelSelector:
-                        matchExpressions:
-                        - key: app.kubernetes.io/instance
-                          operator: In
-                          values:
-                          - galaxy
-              postgresql:
-                affinity:
-                  podAffinity:
-                    preferredDuringSchedulingIgnoredDuringExecution:
-                    - weight: 100
-                      podAffinityTerm:
-                        topologyKey: "kubernetes.io/hostname"
-                        labelSelector:
-                          matchExpressions:
-                          - key: app.kubernetes.io/instance
-                            operator: In
-                            values:
-                            - galaxy
-              rabbitmq:
-                affinity:
-                  podAffinity:
-                    preferredDuringSchedulingIgnoredDuringExecution:
-                    - weight: 100
-                      podAffinityTerm:
-                        topologyKey: "kubernetes.io/hostname"
-                        labelSelector:
-                          matchExpressions:
-                          - key: app.kubernetes.io/instance
-                            operator: In
-                            values:
-                            - galaxy
+              {{ AFFINITY | to_nice_yaml(indent=2) }}
+
+        - name: Add helm repo galaxy
+          command: helm repo add galaxy https://raw.githubusercontent.com/CloudVE/helm-charts/master/
+          environment:
+            KUBECONFIG: /etc/kubernetes/admin.conf
 
         - name: Deploy Galaxy
-          command: helm install --create-namespace -n {{ NAMESPACE }} galaxy . --timeout 15m -f /opt/galaxy_values.yaml
+          command: helm install --create-namespace -n {{ NAMESPACE }} galaxy galaxy/galaxy --timeout 15m -f /opt/galaxy_values.yaml --version 5.9.0
           args:
             chdir: /opt/galaxy-helm/galaxy
           environment:
