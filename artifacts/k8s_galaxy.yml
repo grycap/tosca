@@ -163,7 +163,7 @@
                     destinations:
                       k8s:
                         runner: k8s
-                        {{ 'max_cores: ' ~ max_cores if max_cores | int > 0 else '# no max_cores' }}
+                        {{ 'max_cores: ' ~ (max_cores | int - 1) if max_cores | int > 0 else '# no max_cores' }}
                         {{ 'max_mem: ' ~ max_mem if max_mem | int > 0 else '# no max_mem' }}
               # try to pack all the pods in the same nodes
               {{ AFFINITY | to_yaml }}
@@ -174,9 +174,10 @@
             KUBECONFIG: /etc/kubernetes/admin.conf
 
         - name: Deploy Galaxy
-          command: helm install --create-namespace -n {{ NAMESPACE }} galaxy galaxy/galaxy --timeout 15m -f /opt/galaxy_values.yaml --version 5.9.0
+          command: helm install --create-namespace -n {{ NAMESPACE }} galaxy galaxy/galaxy --timeout 10m -f /opt/galaxy_values.yaml --version 5.9.0
           environment:
             KUBECONFIG: /etc/kubernetes/admin.conf
+          ignore_errors: yes
 
         - name: Wait pods to be ready
           pause:
