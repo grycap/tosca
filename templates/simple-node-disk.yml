@@ -20,6 +20,7 @@ metadata:
       - num_cpus
       - mem_size
       - disk_size
+      - instance_type
       - num_instances
       - storage_size
       - mount_path
@@ -66,6 +67,10 @@ topology_template:
       default: 20 GB
       constraints:
         - valid_values: [ 20 GB, 50 GB, 100 GB, 200 GB ]
+    instance_type:
+      type: string
+      description: Flavor name of the instance
+      default: ""
     num_instances:
       type: integer
       description: Number of VMs to be spawned
@@ -131,6 +136,7 @@ topology_template:
             num_gpus: { get_input: num_gpus }
             gpu_vendor: { get_input: gpu_vendor }
             gpu_model: { get_input: gpu_model }
+            instance_type: { get_input: instance_type }
         os:
           properties:
             type: linux
