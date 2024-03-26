@@ -977,7 +977,7 @@ node_types:
           relationship: tosca.relationships.HostedOn
     artifacts:
       arc_role:
-        file: git+https://github.com/nordugrid/arc-ansible|arc
+        file: git+https://github.com/sebastian-luna-valero/arc-ansible|arc
         type: tosca.artifacts.AnsibleGalaxy.role
     interfaces:
       Standard:
