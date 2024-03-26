@@ -12,6 +12,7 @@ metadata:
   icon: images/nifi.png
   parents:
     - kubernetes.yaml
+    - oscar.yaml
   tabs:
     Nifi: nifi_.*
 

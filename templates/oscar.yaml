@@ -44,6 +44,7 @@ metadata:
     - registry.yaml
     - nodered.yaml
     - kafka.yaml
+    - nifi.yaml
 
 topology_template:
   inputs:
