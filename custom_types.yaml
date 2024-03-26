@@ -982,7 +982,7 @@ node_types:
     interfaces:
       Standard:
         configure:
-          implementation: https://raw.githubusercontent.com/grycap/tosca/arc/artifacts/arc.yml
+          implementation: https://raw.githubusercontent.com/sebastian-luna-valero/tosca-upv/arc/artifacts/arc.yml
 
   tosca.nodes.indigo.LRMS.WorkerNode.Mesos:
     derived_from: tosca.nodes.indigo.LRMS.WorkerNode
