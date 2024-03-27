@@ -31,7 +31,7 @@ topology_template:
     nifi_docker_image:
       type: string
       description: Nifi Docker image (apache/nifi)
-      default: ghcr.io/grycap/dcnios
+      default: ghcr.io/grycap/nifi-sse
 
   node_templates:
 
