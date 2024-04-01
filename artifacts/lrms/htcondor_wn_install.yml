@@ -8,7 +8,7 @@
       nfs_mode: 'wn'
       nfs_client_imports: [{ local: "/home", remote: "/home", server_host: "{{ htcondor_front_end_ip }}" }]
       when: htcondor_nfs is undefined or htcondor_nfs
-    - role: grycap.htcondor
+    - role: htcondor
       htcondor_server: '{{ htcondor_front_end_ip }}'
       htcondor_domain: 'localdomain'
       htcondor_role_execute: true

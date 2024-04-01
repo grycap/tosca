@@ -822,7 +822,7 @@ node_types:
         file: ansible.posix
         type: tosca.artifacts.AnsibleGalaxy.collection
       htcondor_role:
-        file: grycap.htcondor
+        file: git+https://github.com/sebastian-luna-valero/ansible-role-htcondor|htcondor
         type: tosca.artifacts.AnsibleGalaxy.role
       nfs_role:
         file: grycap.nfs
@@ -866,7 +866,7 @@ node_types:
         file: ansible.posix
         type: tosca.artifacts.AnsibleGalaxy.collection
       htcondor_role:
-        file: grycap.htcondor
+        file: git+https://github.com/sebastian-luna-valero/ansible-role-htcondor|htcondor
         type: tosca.artifacts.AnsibleGalaxy.role
       nfs_role:
         file: grycap.nfs
