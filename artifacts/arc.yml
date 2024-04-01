@@ -3,6 +3,6 @@
   connection: local
   roles:
     - role: arc
-      sessionbasename: '/home/sessiondir'
-      cachebasename:   '/home/cachedir'
+      sessionbasename: '/home'
+      cachebasename:   '/home'
       lrms:            'slurm'
