@@ -802,11 +802,6 @@ node_types:
   tosca.nodes.indigo.LRMS.WorkerNode.HTCondor:
     derived_from: tosca.nodes.indigo.LRMS.WorkerNode
     properties:
-      version:
-        type: string
-        description: Version of HTCondor to install
-        required: false
-        default: 23.0
       nfs:
         type: boolean
         description: Install and mount NFS
@@ -817,6 +812,11 @@ node_types:
         description: Store HTCondor credentials
         required: true
         default: changeme
+      htcondor_version:
+        type: string
+        description: Version of HTCondor to install
+        required: false
+        default: 23.0
     artifacts:
       posix_collection:
         file: ansible.posix
@@ -841,11 +841,6 @@ node_types:
   tosca.nodes.indigo.LRMS.FrontEnd.HTCondor:
     derived_from: tosca.nodes.indigo.LRMS.FrontEnd
     properties:
-      version:
-        type: string
-        description: Version of HTCondor to install
-        required: false
-        default: 23.0
       nfs:
         type: boolean
         description: Install and mount NFS
@@ -856,6 +851,11 @@ node_types:
         description: Store HTCondor credentials
         required: true
         default: changeme
+      htcondor_version:
+        type: string
+        description: Version of HTCondor to install
+        required: false
+        default: 23.0
       wn_num:
         type: integer
         description: Number of WNs
