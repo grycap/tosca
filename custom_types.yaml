@@ -802,6 +802,11 @@ node_types:
   tosca.nodes.indigo.LRMS.WorkerNode.HTCondor:
     derived_from: tosca.nodes.indigo.LRMS.WorkerNode
     properties:
+      version:
+        type: string
+        description: Version of HTCondor to install
+        required: false
+        default: 23.0
       nfs:
         type: boolean
         description: Install and mount NFS
@@ -825,16 +830,22 @@ node_types:
     interfaces:
       Standard:
         configure:
-          implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/lrms/htcondor_wn_install.yml
+          implementation: https://raw.githubusercontent.com/sebastian-luna-valero/tosca-upv/htcondor/artifacts/lrms/htcondor_wn_install.yml
           inputs:
             htcondor_front_end_ip: { get_property: [ SELF, front_end_ip ] }
             htcondor_public_front_end_ip: { get_property: [ SELF, public_front_end_ip ] }
             htcondor_nfs: { get_property: [ SELF, nfs ] }
             htcondor_password: { get_property: [ SELF, htcondor_password ] }
+            htcondor_version: { get_property: [ SELF, htcondor_version] }
 
   tosca.nodes.indigo.LRMS.FrontEnd.HTCondor:
     derived_from: tosca.nodes.indigo.LRMS.FrontEnd
     properties:
+      version:
+        type: string
+        description: Version of HTCondor to install
+        required: false
+        default: 23.0
       nfs:
         type: boolean
         description: Install and mount NFS
@@ -866,11 +877,12 @@ node_types:
     interfaces:
       Standard:
         configure:
-          implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/lrms/htcondor_fe_install.yml
+          implementation: https://raw.githubusercontent.com/sebastian-luna-valero/tosca-upv/htcondor/artifacts/lrms/htcondor_fe_install.yml
           inputs:
             front_end_ip: { get_attribute: [ HOST, private_address, 0 ] }
             htcondor_nfs: { get_property: [ SELF, nfs ] }
             htcondor_password: { get_property: [ SELF, htcondor_password ] }
+            htcondor_version: { get_property: [ SELF, htcondor_version] }
 
   tosca.nodes.indigo.GalaxyPortal:
     derived_from: tosca.nodes.WebServer

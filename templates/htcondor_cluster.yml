@@ -88,14 +88,21 @@ topology_template:
       default: changeme
       required: yes
 
-  node_templates:
+    htcondor_version:
+      type: string
+      description: Version of HTCondor to be installed
+      default: 23.0
+      constraints:
+      - valid_values: [ '10.0', '10.x', '23.0', '23.x' ]
 
+  node_templates:
 
     lrms_front_end:
       type: tosca.nodes.indigo.LRMS.FrontEnd.HTCondor
       properties:
         wn_ips: { get_attribute: [ lrms_wn, private_address ] }
         htcondor_password: { get_input: htcondor_password }
+        htcondor_version: { get_input: htcondor_version }
       requirements:
         - host: lrms_server
 
@@ -138,6 +145,7 @@ topology_template:
         front_end_ip: { get_attribute: [ lrms_server, private_address, 0 ] }
         public_front_end_ip: { get_attribute: [ lrms_server, public_address, 0 ] }
         htcondor_password: { get_input: htcondor_password }
+        htcondor_version: { get_input: htcondor_version }
       requirements:
         - host: lrms_wn
 
