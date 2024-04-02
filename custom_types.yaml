@@ -816,7 +816,7 @@ node_types:
         type: string
         description: Version of HTCondor to install
         required: false
-        default: 23.0
+        default: "23.x"
     artifacts:
       posix_collection:
         file: ansible.posix
@@ -855,7 +855,7 @@ node_types:
         type: string
         description: Version of HTCondor to install
         required: false
-        default: 23.0
+        default: "23.x"
       wn_num:
         type: integer
         description: Number of WNs
