@@ -822,7 +822,7 @@ node_types:
         file: ansible.posix
         type: tosca.artifacts.AnsibleGalaxy.collection
       htcondor_role:
-        file: git+https://github.com/sebastian-luna-valero/ansible-role-htcondor|htcondor
+        file: grycap.htcondor
         type: tosca.artifacts.AnsibleGalaxy.role
       nfs_role:
         file: grycap.nfs
@@ -830,7 +830,7 @@ node_types:
     interfaces:
       Standard:
         configure:
-          implementation: https://raw.githubusercontent.com/sebastian-luna-valero/tosca-upv/htcondor/artifacts/lrms/htcondor_wn_install.yml
+          implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/lrms/htcondor_wn_install.yml
           inputs:
             htcondor_front_end_ip: { get_property: [ SELF, front_end_ip ] }
             htcondor_public_front_end_ip: { get_property: [ SELF, public_front_end_ip ] }
@@ -866,7 +866,7 @@ node_types:
         file: ansible.posix
         type: tosca.artifacts.AnsibleGalaxy.collection
       htcondor_role:
-        file: git+https://github.com/sebastian-luna-valero/ansible-role-htcondor|htcondor
+        file: grycap.htcondor
         type: tosca.artifacts.AnsibleGalaxy.role
       nfs_role:
         file: grycap.nfs
@@ -877,7 +877,7 @@ node_types:
     interfaces:
       Standard:
         configure:
-          implementation: https://raw.githubusercontent.com/sebastian-luna-valero/tosca-upv/htcondor/artifacts/lrms/htcondor_fe_install.yml
+          implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/lrms/htcondor_fe_install.yml
           inputs:
             front_end_ip: { get_attribute: [ HOST, private_address, 0 ] }
             htcondor_nfs: { get_property: [ SELF, nfs ] }
