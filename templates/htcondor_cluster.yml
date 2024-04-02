@@ -93,7 +93,7 @@ topology_template:
       description: Version of HTCondor to be installed
       default: "23.x"
       constraints:
-      - valid_values: [ '10.0', '10.x', '23.0', '23.x' ]
+        - valid_values: [ '10.0', '10.x', '23.0', '23.x' ]
 
   node_templates:
 
