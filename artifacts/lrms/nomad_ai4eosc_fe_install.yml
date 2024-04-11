@@ -3,181 +3,97 @@
   connection: local
   vars:
     server_list: "{{ nomad_server_list | default([ansible_default_ipv4.address]) }}"
-    server_public_ip: "{{ IM_NODE_PUBLIC_IP | default(ansible_default_ipv4.address) }}"
     server_private_ip: "{{ IM_NODE_PRIVATE_IP | default(ansible_default_ipv4.address) }}"
     launch_traefik: "{{ nomad_launch_traefik | default(true) }}"
+    nomad_input_version: "{{ nomad_version | default('1.7.3') }}"
+    consul_input_version: "{{ consul_version | default('1.17.1') }}"
   pre_tasks:
     - name: Convert server_list to list
       set_fact:
         server_list: [server_list]
       when: server_list is string
-  roles:
-    - role: 'grycap.consul'
-      consul_server: true
-      consul_dns: false
-      consul_config_dir: /etc/consul
-      consul_join_ips: "{{ server_list }}"
-      consul_bootstrap_expect: "{{ server_list | length }}"
-      consul_advertise_addr: "{{ server_private_ip }}"
-      consul_policies:
-        - name: nomad-client-policy
-          description: Consul Nomad Client Policy
-          rules: |
-            agent_prefix "" {
-              policy = "read"
-            }
-            node_prefix "" {
-              policy = "read"
-            }
-            service_prefix "" {
-              policy = "write"
-            }
-            key_prefix "" {
-              policy = "read"
-            }
-        - name: nomad-server-policy
-          description: Consul Nomad Server Policy
-          rules: |
-            agent_prefix "" {
-              policy = "read"
-            }
-            node_prefix "" {
-              policy = "read"
-            }
-            service_prefix "" {
-              policy = "write"
-            }
-            acl = "write"
-        - name: traefik-dashboard-server-policy
-          description: Consul Traefik dashboard Policy
-          rules: |
-            key_prefix "traefik" {
-              policy = "write"
-            }
-            service "traefik" {
-              policy = "write"
-            }
-            agent_prefix "" {
-              policy = "read"
-            }
-            node_prefix "" {
-              policy = "read"
-            }
-            service_prefix "" {
-              policy = "read"
-            }
-    - role: grycap.nomad
-      nomad_name: "{{ ansible_hostname }}"
-      server_enabled: true
-      client_enabled: false
-      use_tls: true
-      tls_http: true
-      tls_rpc: true
-      generate_tls: true
-      tls_public_ip: "{{ server_public_ip }}"
-      tls_private_ip: "{{ server_private_ip }}"
-      bind_address: "0.0.0.0"
-      use_consul: true
-      consul_address: "127.0.0.1:8501"
-      consul_ssl: true
-      consul_verify_ssl: false
-      consul_ca_file: "/etc/consul/certs/consul-agent-ca.pem"
-      create_nomad_service: true
-      consul_ACL_token_set: true
-      consul_token: "{{ consul_tokens['nomad-server-policy'] }}"
-      server_bootstrap_expect: "{{ server_list | length }}"
-      acl_enabled: true
-      acl_bootstrap: true
   tasks:
-    - when: launch_traefik
-      block:
+  - name: Install git
+    package:
+      name: git
+      state: present
 
-        - name: Create traefik job
-          copy:
-            content: |
-              job "traefik" {
-                region      = "global"
-                datacenters = ["dc1"]
-                priority = 100
-                type        = "service"
-                  constraint {
-                    attribute  = "${meta.public_ip}"
-                    value      = "yes"
-                  }
-                group "traefik" {
-                  count = 1
-                  network {
-                    port "http" {
-                      static = 80
-                    }
-                    port "https" {
-                      static = 443
-                    }
-                    port "api" {
-                      static = 8081
-                    }
-                  }
-                  service {
-                    name = "traefik"
-                    check {
-                      name     = "alive"
-                      type     = "tcp"
-                      port     = "http"
-                      interval = "10s"
-                      timeout  = "2s"
-                    }
-                  }
-                  task "traefik" {
-                    driver = "docker"
-                    config {
-                      image        = "traefik:v2.10"
-                      network_mode = "host"
-                      volumes = [
-                        "local/traefik.toml:/etc/traefik/traefik.toml",
-                      ]
-                    }
-                    template {
-                      data = <<EOF
-              [entryPoints]
-                  [entryPoints.http]
-                  address = ":80"
-                  [entryPoints.https]
-                  address = ":443"
-                  [entryPoints.traefik]
-                  address = ":8081"
-              [api]
-                  dashboard = true
-                  insecure  = true
-                  debug = true
-              # Enable Consul Catalog configuration backend.
-              [providers.consulCatalog]
-                  prefix           = "traefik"
-                  exposedByDefault = false
-              [providers.consulCatalog.endpoint]
-                  address = "127.0.0.1:8500"
-                  token = "{{ consul_tokens['traefik-dashboard-server-policy'] }}"
-                  scheme  = "http"
-              EOF
-                      destination = "local/traefik.toml"
-                    }
-                    resources {
-                      cpu    = 100
-                      memory = 128
-                    }
-                  }
-                }
-              }
-            dest: /opt/nomad/traefik.hcl
-            mode: '644'
+  - name: Download Ansible roles
+    git:
+      repo: https://github.com/ai4os/ai4-ansible
+      dest: /opt/ai4-ansible
+      version: fix_ssl_traefik
+    
+  - name: Add groups to Server node
+    add_host:
+      name: '{{ inventory_hostname  }}'
+      groups:
+      - consul_master
+      - nomad_master
+      - nomad_servers
+      - consul_servers
+      - consul
+      - nomad
 
-        - name: Submit traefik job
-          shell: nomad job status traefik || nomad job run /opt/nomad/traefik.hcl
-          environment:
-            NOMAD_CACERT: /etc/nomad/certs/nomad-agent-ca.pem
-            NOMAD_CLIENT_CERT: /etc/nomad/certs/global-cli-nomad.pem
-            NOMAD_CLIENT_KEY: /etc/nomad/certs/global-cli-nomad-key.pem
-            NOMAD_ADDR: "https://127.0.0.1:4646"
-            NOMAD_TOKEN: "{{ NOMAD_TOKEN }}"
-          ignore_errors: true
-          async: 60
-          poll: 5
+  - name: Enable Traefik
+    add_host:
+      name: '{{ inventory_hostname  }}'
+      groups:
+      - traefik_master
+    when: launch_traefik
+
+  - name: Add non used groups
+    add_host:
+      name: "none"
+      groups:
+      - nomad_cpu_clients
+      - nomad_gpu_clients
+      - nomad_clients
+      - consul_clients
+
+  - name: Create Ansible roles dir
+    file:
+      path: /etc/ansible/roles
+      state: directory
+      mode: 0755
+
+  - name: Install Nomad role
+    copy:
+      src: /opt/ai4-ansible/roles/nomad/
+      dest: /etc/ansible/roles/nomad
+      mode: 0755
+      remote_src: yes
+
+  - name: Install Consul role
+    copy:
+      src: /opt/ai4-ansible/roles/consul/
+      dest: /etc/ansible/roles/consul
+      mode: 0755
+      remote_src: yes
+
+  - name: Include roles vars
+    include_vars:
+      file: /opt/ai4-ansible/group_vars/all.yml
+
+  - name: Set facts
+    set_fact:
+      consul_public_ip: "{{ server_list[0] }}"
+      my_ip: "{{ server_private_ip }}"
+      username: cloudadm
+      path: /opt/cloudadm/
+      nomad_dc: ifca-ai4eosc
+      domain: ifca
+      nomad_namespaces:
+        - ai4eosc
+        - imagine
+        - tutorials
+      nomad_version: nomad_input_version
+      consul_version: consul_input_version
+
+  - name: Invoke consul role
+    include_role:
+      name: consul
+
+  - name: Invoke nomad role
+    include_role:
+      name: nomad

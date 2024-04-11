@@ -5,72 +5,93 @@
     server_list: "{{ nomad_server_list | default([ansible_default_ipv4.address]) }}"
     client_private_ip: "{{ IM_NODE_PRIVATE_IP | default(ansible_default_ipv4.address) }}"
     nvidia_support: "{{ nomad_nvidia_support | default(false) }}"
+    nomad_input_version: "{{ nomad_version | default('1.7.3') }}"
+    consul_input_version: "{{ consul_version | default('1.17.1') }}"
   pre_tasks:
     - name: Convert server_list to list
       set_fact:
         server_list: [server_list]
       when: server_list is string
-    - name: Set nomad plugins var
-      set_fact:
-        nomad_plugins_var:
-          raw_exec:
-            enabled: "true"
-          docker:
-            allow_privileged: "true"
-      when: not nvidia_support
-    - name: Set nomad plugins var with nvidia support
-      set_fact:
-        nomad_plugins_var:
-          raw_exec:
-            enabled: "true"
-          docker:
-            allow_privileged: "true"
-          nomad-device-nvidia:
-            enabled: "true"
-            fingerprint_period: '"1m"'
-      when: nvidia_support
   roles:
     - role: 'grycap.docker'
       docker_nvidia_support: "{{ nvidia_support }}"
-    - role: 'grycap.consul'
-      consul_server: false
-      consul_dns: false
-      consul_config_dir: /etc/consul
-      consul_join_ips: "{{ server_list }}"
-      consul_policies:
-        - name: nomad-client-policy
-        - name: nomad-server-policy
-    - role: grycap.nomad
-      # needed to make docker plugin work
-      nomad_user: root
-      nomad_group: root
-      nomad_name: "{{ ansible_hostname }}"
-      use_tls: true
-      tls_http: true
-      tls_rpc: true
-      generate_tls: true
-      tls_private_ip: "{{ client_private_ip }}"
-      bind_address: "0.0.0.0"
-      server_enabled: false
-      client_enabled: true
-      use_consul: true
-      consul_address: "127.0.0.1:8500"
-      create_nomad_service: true
-      consul_ACL_token_set: true
-      consul_token: "{{ consul_tokens['nomad-client-policy'] }}"
-      nomad_plugins: "{{ nomad_plugins_var }}"
-      nvidia_plugin_enabled: "{{ nvidia_support }}"
-      nomad_install_cni: true
-  tasks:
-    - name: Set nomad public_ip key to no on node
-      command: nomad node meta apply public_ip=no
-      environment:
-        NOMAD_CACERT: /etc/nomad/certs/nomad-agent-ca.pem
-        NOMAD_ADDR: "https://127.0.0.1:4646"
-      when: IM_NODE_PUBLIC_IP is not defined or IM_NODE_PUBLIC_IP == ""
-    - name: Set nomad public_ip key to yes on node
-      command: nomad node meta apply public_ip=yes
-      environment:
-        NOMAD_CACERT: /etc/nomad/certs/nomad-agent-ca.pem
-        NOMAD_ADDR: "https://127.0.0.1:4646"
-      when: IM_NODE_PUBLIC_IP is defined and IM_NODE_PUBLIC_IP != ""
+
+    - name: Install git
+      package:
+        name: git
+        state: present
+
+    - name: Download Ansible roles
+      git:
+        repo: https://github.com/ai4os/ai4-ansible
+        dest: /opt/ai4-ansible
+        version: fix_ssl_traefik
+      
+    - name: Add groups to Server node
+      add_host:
+        name: '{{ server_list[0]  }}'
+        groups:
+        - consul_master
+        - nomad_master
+
+    - name: Add groups to Client node
+      add_host:
+        name: "{{ inventory_hostname }}"
+        groups:
+        - nomad_cpu_clients
+        - nomad_clients
+        - consul_clients
+
+    - name: Enable GPU support
+      add_host:
+        name: '{{ inventory_hostname  }}'
+        groups:
+        - nomad_gpu_clients
+      when: nvidia_support
+
+    - name: Create Ansible roles dir
+      file:
+        path: /etc/ansible/roles
+        state: directory
+        mode: 0755
+
+    - name: Install Nomad role
+      copy:
+        src: /opt/ai4-ansible/roles/nomad/
+        dest: /etc/ansible/roles/nomad
+        mode: 0755
+        remote_src: yes
+
+    - name: Install Consul role
+      copy:
+        src: /opt/ai4-ansible/roles/consul/
+        dest: /etc/ansible/roles/consul
+        mode: 0755
+        remote_src: yes
+
+    - name: Include roles vars
+      include_vars:
+        file: /opt/ai4-ansible/group_vars/all.yml
+
+    - name: Set facts
+      set_fact:
+        consul_public_ip: "{{ server_list[0] }}"
+        my_ip: "{{ server_private_ip }}"
+        username: cloudadm
+        path: /opt/cloudadm/
+        nomad_dc: ifca-ai4eosc
+        domain: ifca
+        nomad_namespaces:
+          - ai4eosc
+          - imagine
+          - tutorials
+        nomad_version: nomad_input_version
+        consul_version: consul_input_version
+
+    - name: Invoke consul role
+      include_role:
+        name: consul
+
+    - name: Invoke nomad role
+      include_role:
+        name: nomad
