@@ -13,6 +13,14 @@ metadata:
   icon: images/pulsar.png
   tabs:
     Pulsar configuration: message_queue_.*
+
+  tabs:
+    Pulsar configuration:
+      - message_queue_user:
+          reconfigure: true
+      - message_queue_password:
+          reconfigure: true
+
   parents:
     - htcondor_cluster.yml
 

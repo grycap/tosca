@@ -18,7 +18,8 @@ metadata:
     - simple-node-disk.yml
   tabs:
     Users:
-      - user_num
+      - user_num:
+          reconfigure: true
 
 topology_template:
 
