@@ -85,8 +85,8 @@
           - ai4eosc
           - imagine
           - tutorials
-        nomad_version: nomad_input_version
-        consul_version: consul_input_version
+      nomad_version: "{{ nomad_input_version }}"
+      consul_version: "{{ consul_input_version }}"
 
     - name: Invoke consul role
       include_role:
