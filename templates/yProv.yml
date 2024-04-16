@@ -44,11 +44,11 @@ topology_template:
       type: tosca.nodes.indigo.Helm.Chart
       capabilities:
         endpoint:
-            properties:
-                ports:
-                    port_neo4j:
-                        protocol: tcp
-                        source: 7687
+          properties:
+            ports:
+              port_neo4j:
+                protocol: tcp
+                source: 7687
       properties:
         namespace: yprov
         chart_url: "https://github.com/HPCI-Lab/yProv/raw/yprov_v2/cloud/yProv.tgz"
