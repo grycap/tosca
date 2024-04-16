@@ -36,7 +36,7 @@ topology_template:
     neo4j_plugins:
       type: string
       description: neo4j plugins to be enabled
-      default: '[graph-data-science]'
+      default: '[apoc, graph-data-science]'
     storage_dimension:
       type: string
       description: Neo4j storage capacity
