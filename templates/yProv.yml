@@ -32,7 +32,7 @@ topology_template:
     neo4j_plugins:
       type: string
       description: neo4j plugins to be enabled
-      default: '["graph-data-science"]'
+      default: '[graph-data-science]'
     storage_dimension:
       type: string
       description: Neo4j storage capacity
@@ -53,13 +53,25 @@ topology_template:
         namespace: yprov
         chart_url: "https://github.com/HPCI-Lab/yProv/raw/yprov_v2/cloud/yProv.tgz"
         name: yProv
+        values_file:
+          concat:
+            - |-
+                db:
+                  env:
+                    auth:
+                      name: NEO4J_AUTH
+                    license:
+                      name: NEO4J_ACCEPT_LICENSE_AGREEMENT
+                    plugins:
+                      name: NEO4J_PLUGINS
+                      value: |
+                        '
+            - get_input: neo4j_plugins
+            - |-
+                '
         values:
-          db.env.auth.name: NEO4J_AUTH
           db.env.auth.value: { get_input: neo4j_auth }
-          db.env.license.name: NEO4J_ACCEPT_LICENSE_AGREEMENT
           db.env.license.value: { get_input: neo4j_license }
-          db.env.plugins.name: NEO4J_PLUGINS
-          db.env.plugins.value: { get_input: neo4j_plugins }
           storage.neo4j.data.resources.requirements.storage: { get_input: storage_dimension }
           storage.neo4j.logs.resources.requirements.storage: { get_input: storage_dimension }
           storage.yprov.resources.requirements.storage: { get_input: storage_dimension }
