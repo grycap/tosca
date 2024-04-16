@@ -4,7 +4,7 @@ imports:
   - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
 
 metadata:
-  template_version: "0.1.0"
+  template_version: "1.0.1"
   template_name: yProv
   display_name: Deploy yProv service
   # icon: images/yprov.png
@@ -15,7 +15,7 @@ metadata:
   tabs:
     yProv: .*
 
-description: Deploy yProv service on top of a Kubernetes Virtual Cluster.
+description: TOSCA template for launching yProv service on top of a Kubernetes Virtual Cluster.
 
 topology_template:
 
@@ -29,10 +29,14 @@ topology_template:
       type: string
       description: Neo4j license type
       default: eval
+    neo4j_plugins:
+      type: string
+      description: neo4j plugins to be enabled
+      default: '["graph-data-science"]'
     storage_dimension:
       type: string
       description: Neo4j storage capacity
-      default: 10Gi
+      default: 100Mi
 
   node_templates:
 
@@ -47,12 +51,18 @@ topology_template:
                 source: 7687
       properties:
         namespace: yprov
-        chart_url: "https://github.com/HPCI-Lab/yProv/raw/kubernetes/yProv.tgz"
+        chart_url: "https://github.com/HPCI-Lab/yProv/raw/yprov_v2/cloud/yProv.tgz"
         name: yProv
         values:
+          db.env.auth.name: NEO4J_AUTH
           db.env.auth.value: { get_input: neo4j_auth }
+          db.env.license.name: NEO4J_ACCEPT_LICENSE_AGREEMENT
           db.env.license.value: { get_input: neo4j_license }
-          neo4j.resources.requirements.storage: { get_input: storage_dimension }
+          db.env.plugins.name: NEO4J_PLUGINS
+          db.env.plugins.value: { get_input: neo4j_plugins }
+          storage.neo4j.data.resources.requirements.storage: { get_input: storage_dimension }
+          storage.neo4j.logs.resources.requirements.storage: { get_input: storage_dimension }
+          storage.yprov.resources.requirements.storage: { get_input: storage_dimension }
       requirements:
         - host: lrms_front_end
 
@@ -71,21 +81,21 @@ topology_template:
             - http:
                 paths:
                 - path: /
+                  pathType: ImplementationSpecific
                   backend:
                     service:
                       name: web
                       port:
                         number: 3000
-                  pathType: ImplementationSpecific
             - http:
                 paths:
                 - path: /browser
+                  pathType: ImplementationSpecific
                   backend:
                     service:
                       name: db
                       port:
                         number: 7474
-                  pathType: ImplementationSpecific
       requirements:
         - host: lrms_front_end
         - dependency: yprov
@@ -93,8 +103,8 @@ topology_template:
 
   outputs:
     neo4j_browser_endpoint:
-      value: { concat: [ 'http://', get_attribute: [ front, public_address, 0 ], '/browser' ] }
+      value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], '/browser' ] }
     neo4j_db_endpoint:
       value: { concat: [ 'neo4j://', get_attribute: [ front, public_address, 0 ] ] }
     yprov_endpoint:
-      value: { concat: [ 'http://', get_attribute: [ front, public_address, 0 ], '/' ] }
+      value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], '/' ] }
