@@ -35,7 +35,7 @@ topology_template:
       default: eval
     neo4j_plugins:
       type: string
-      description: neo4j plugins to be enabled (remebmer to escape quotes with backslashes)
+      description: neo4j plugins to be enabled (remember to escape quotes with backslashes)
       default: '[\"apoc\", \"graph-data-science\"]'
     storage_dimension:
       type: string
