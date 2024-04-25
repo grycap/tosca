@@ -10,7 +10,7 @@
     - name: Convert server_list to list
       set_fact:
         server_list: [server_list]
-      when: 
+      when:
         - consul_server_join is not defined or consul_server_join == ''
         - server_list is string
 
