@@ -282,6 +282,9 @@ topology_template:
               nomad_server_list: { get_attribute: [ front, private_address ] }
               nomad_version: { get_input: nomad_version }
               consul_version: { get_input: consul_version }
+              consul_certs_url: { get_input: consul_cert_url }
+              nomad_certs_url: { get_input: nomad_cert_url }
+              consul_server_join: { get_input: consul_server_join }
 
     wn_pub:
       type: tosca.nodes.indigo.Compute
@@ -332,6 +335,9 @@ topology_template:
               nomad_version: { get_input: nomad_version }
               consul_version: { get_input: consul_version }
               nomad_nvidia_support: true
+              consul_certs_url: { get_input: consul_cert_url }
+              nomad_certs_url: { get_input: nomad_cert_url }
+              consul_server_join: { get_input: consul_server_join }
 
     wn_gpu:
       type: tosca.nodes.indigo.Compute

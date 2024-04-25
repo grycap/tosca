@@ -8,8 +8,18 @@
   pre_tasks:
     - name: Convert server_list to list
       set_fact:
-        server_list: [server_list]
-      when: server_list is string
+        server_list:
+          - "{{ server_list }}"
+      when:
+        - consul_server_join is not defined or consul_server_join == ''
+        - server_list is string
+
+    - name: Use consul_server_join to join the consul cluster
+      set_fact:
+        server_list:
+          - "{{ consul_server_join }}"
+      when: consul_server_join is defined and consul_server_join != ''
+
     - name: Set nomad plugins var
       set_fact:
         nomad_plugins_var:
