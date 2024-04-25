@@ -17,8 +17,11 @@ metadata:
     Pub WNs Features: wn_pub_.*
     Nomad Data:
       - launch_traefik
-      - consul_.*
-      - nomad_.*
+      - consul_version
+      - nomad_version
+      - consul_cert_url  
+      - nomad_cert_url
+      - consul_server_join
 
 topology_template:
   inputs:
