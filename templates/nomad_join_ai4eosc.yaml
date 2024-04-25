@@ -19,7 +19,7 @@ metadata:
       - launch_traefik
       - consul_version
       - nomad_version
-      - consul_cert_url  
+      - consul_cert_url
       - nomad_cert_url
       - consul_server_join
 
