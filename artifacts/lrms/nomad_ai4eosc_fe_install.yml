@@ -23,33 +23,49 @@
       repo: https://github.com/ai4os/ai4-ansible
       dest: /opt/ai4-ansible
       version: fix_hostnames
+      force: no
     
-  - name: Add groups to Server node
+  - name: Set consul_master
     add_host:
-      name: '{{ inventory_hostname  }}'
+      name: "{{ groups['front'][0] }}"
       groups:
       - consul_master
+
+  - name: Add servers to other server nodes
+    add_host:
+      name: '{{ item  }}'
+      groups:
       - nomad_master
       - nomad_servers
       - consul_servers
       - consul
       - nomad
+    with_items: "{{ groups['front'] }}"
 
   - name: Enable Traefik
     add_host:
-      name: '{{ inventory_hostname  }}'
+      name: "{{ groups['wn_pub'][0] }}"
       groups:
       - traefik_master
-    when: launch_traefik
+    when: launch_traefik and groups['wn_pub'] | length > 0
 
-  - name: Add non used groups
+  - name: Add client groups
     add_host:
-      name: "none"
+      name: '{{ item }}'
       groups:
       - nomad_cpu_clients
-      - nomad_gpu_clients
       - nomad_clients
       - consul_clients
+      - consul
+      - nomad
+    with_items: "{{ groups['wn'] + groups['wn_pub'] + groups['wn_gpu'] }}"
+
+  - name: Add gpu clients
+    add_host:
+      name: '{{ item }}'
+      groups:
+      - nomad_gpu_clients
+    with_items: "{{ groups['wn_gpu'] }}"
 
   - name: Create Ansible roles dir
     file:
