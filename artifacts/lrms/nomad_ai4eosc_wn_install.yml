@@ -77,7 +77,7 @@
     - name: Set facts
       set_fact:
         consul_public_ip: "{{ server_list[0] }}"
-        my_ip: "{{ server_private_ip }}"
+        my_ip: "{{ client_private_ip }}"
         username: cloudadm
         path: /opt/cloudadm/
         nomad_dc: ifca-ai4eosc
