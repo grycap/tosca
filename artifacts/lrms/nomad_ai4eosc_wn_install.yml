@@ -16,6 +16,7 @@
     - role: 'grycap.docker'
       docker_nvidia_support: "{{ nvidia_support }}"
 
+  tasks:
     - name: Install git
       package:
         name: git
