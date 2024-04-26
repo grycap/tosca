@@ -22,7 +22,7 @@
     git:
       repo: https://github.com/ai4os/ai4-ansible
       dest: /opt/ai4-ansible
-      version: fix_ssl_traefik
+      version: fix_hostnames
     
   - name: Add groups to Server node
     add_host:
