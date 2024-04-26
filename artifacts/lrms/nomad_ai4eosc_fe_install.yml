@@ -47,7 +47,21 @@
       name: "{{ groups['wn_pub'][0] }}"
       groups:
       - traefik_master
-    when: launch_traefik and groups['wn_pub'] | length > 0
+    when: launch_traefik and 'wn_pub' in groups and groups['wn_pub'] | length > 0
+
+  - name: Set all_wn
+    set_fact:
+      all_wn: "{{ groups['wn'] }}"
+
+  - name: Add pub nodes to all_wn
+    set_fact:
+      all_wn: "{{ all_wn + groups['wn_pub'] }}"
+    when: "{{ 'wn_pub' in groups }}"
+
+  - name: Add gpu nodes to all_wn
+    set_fact:
+      all_wn: "{{ all_wn + groups['wn_gpu'] }}"
+    when: "{{ 'wn_gpu' in groups }}"
 
   - name: Add client groups
     add_host:
@@ -58,14 +72,14 @@
       - consul_clients
       - consul
       - nomad
-    with_items: "{{ groups['wn'] + groups['wn_pub'] + groups['wn_gpu'] }}"
+    with_items: "{{ all_wn }}"
 
   - name: Add gpu clients
     add_host:
-      name: '{{ item }}'
+      name: '{{ inventory_hostname }}'
       groups:
       - nomad_gpu_clients
-    with_items: "{{ groups['wn_gpu'] }}"
+    when: nvidia_support
 
   - name: Create Ansible roles dir
     file:
