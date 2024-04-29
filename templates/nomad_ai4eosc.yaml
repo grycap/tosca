@@ -155,6 +155,8 @@ topology_template:
       required: yes
     nomad_namespaces:
       type: list
+      entry_schema:
+        type: string
       description: List of Nomad namespaces
       default: [ ai4eosc, imagine, tutorials ]
       required: yes
