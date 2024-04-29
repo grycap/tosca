@@ -19,6 +19,9 @@ metadata:
       - launch_traefik
       - consul_version
       - nomad_version
+      - nomad_dc
+      - nomad_domain
+      - nomad_namespaces
 
 topology_template:
   inputs:
@@ -50,6 +53,8 @@ topology_template:
       description: Number of Nomad Clients in the cluster (without public IP)
       default: 1
       required: yes
+      constraints:
+        - greater_or_equal: 1
     wn_cpus:
       type: integer
       description: Number of CPUs for the WNs (without public IP)
@@ -138,6 +143,21 @@ topology_template:
       description: Nomad version to install
       default: 1.7.3
       required: yes
+    nomad_dc:
+      type: string
+      description: Nomad datacenter name
+      default: ifca-ai4eosc
+      required: yes
+    nomad_domain:
+      type: string
+      description: Nomad domain name
+      default: ifca
+      required: yes
+    nomad_namespaces:
+      type: list
+      description: List of Nomad namespaces
+      default: [ ai4eosc, imagine, tutorials ]
+      required: yes
 
   node_templates:
 
@@ -170,6 +190,9 @@ topology_template:
               nomad_launch_traefik: { get_input: launch_traefik }
               nomad_version: { get_input: nomad_version }
               consul_version: { get_input: consul_version }
+              nomad_dc: { get_input: nomad_dc }
+              nomad_domain: { get_input: nomad_domain }
+              nomad_namespaces: { get_input: nomad_namespaces }
 
     front:
       type: tosca.nodes.indigo.Compute
@@ -207,6 +230,8 @@ topology_template:
               nomad_server_list: { get_attribute: [ front, private_address ] }
               nomad_version: { get_input: nomad_version }
               consul_version: { get_input: consul_version }
+              nomad_dc: { get_input: nomad_dc }
+              nomad_domain: { get_input: nomad_domain }
 
     wn:
       type: tosca.nodes.indigo.Compute
@@ -240,6 +265,8 @@ topology_template:
               nomad_server_list: { get_attribute: [ front, private_address ] }
               nomad_version: { get_input: nomad_version }
               consul_version: { get_input: consul_version }
+              nomad_dc: { get_input: nomad_dc }
+              nomad_domain: { get_input: nomad_domain }
 
     wn_pub:
       type: tosca.nodes.indigo.Compute
@@ -290,6 +317,8 @@ topology_template:
               nomad_version: { get_input: nomad_version }
               consul_version: { get_input: consul_version }
               nomad_nvidia_support: true
+              nomad_dc: { get_input: nomad_dc }
+              nomad_domain: { get_input: nomad_domain }
 
     wn_gpu:
       type: tosca.nodes.indigo.Compute
@@ -309,14 +338,14 @@ topology_template:
             type: linux
 
   outputs:
-    nomad_ui:
-      value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], ':4646' ] }
-    consul_ui:
-      value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], ':8501' ] }
-    nomad_token:
-      value: { get_attribute: [ front, ansible_output, lrms_front_end_front_conf_front, tasks, 'grycap.nomad : nomad_secret_id', output ] }
-    consul_token:
-      value: { get_attribute: [ front, ansible_output, lrms_front_end_front_conf_front, tasks, 'grycap.consul : consul_secret_id', output ] }
+#    nomad_ui:
+#      value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], ':4646' ] }
+#    consul_ui:
+#      value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], ':8501' ] }
+#    nomad_token:
+#      value: { get_attribute: [ front, ansible_output, lrms_front_end_front_conf_front, tasks, 'grycap.nomad : nomad_secret_id', output ] }
+#    consul_token:
+#      value: { get_attribute: [ front, ansible_output, lrms_front_end_front_conf_front, tasks, 'grycap.consul : consul_secret_id', output ] }
     cluster_ip:
       value: { get_attribute: [ front, public_address, 0 ] }
     cluster_creds:
