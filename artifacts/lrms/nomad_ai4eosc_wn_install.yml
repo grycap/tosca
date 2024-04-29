@@ -7,6 +7,7 @@
     nvidia_support: "{{ nomad_nvidia_support | default(false) }}"
     nomad_input_version: "{{ nomad_version | default('1.7.3') }}"
     consul_input_version: "{{ consul_version | default('1.17.1') }}"
+    launch_traefik: "{{ nomad_launch_traefik | default(false) }}"
   pre_tasks:
     - name: Convert server_list to list
       set_fact:
