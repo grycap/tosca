@@ -190,11 +190,11 @@ topology_template:
             inputs:
               nomad_server_list: { get_attribute: [ front, private_address ] }
               nomad_launch_traefik: { get_input: launch_traefik }
-              nomad_version: { get_input: nomad_version }
-              consul_version: { get_input: consul_version }
-              nomad_dc: { get_input: nomad_dc }
-              nomad_domain: { get_input: nomad_domain }
-              nomad_namespaces: { get_input: nomad_namespaces }
+              nomad_input_version: { get_input: nomad_version }
+              consul_input_version: { get_input: consul_version }
+              nomad_input_dc: { get_input: nomad_dc }
+              nomad_input_domain: { get_input: nomad_domain }
+              nomad_input_namespaces: { get_input: nomad_namespaces }
 
     front:
       type: tosca.nodes.indigo.Compute
@@ -230,10 +230,10 @@ topology_template:
             implementation: https://raw.githubusercontent.com/grycap/tosca/ai4eosc/artifacts/lrms/nomad_ai4eosc_wn_install.yml
             inputs:
               nomad_server_list: { get_attribute: [ front, private_address ] }
-              nomad_version: { get_input: nomad_version }
-              consul_version: { get_input: consul_version }
-              nomad_dc: { get_input: nomad_dc }
-              nomad_domain: { get_input: nomad_domain }
+              nomad_input_version: { get_input: nomad_version }
+              consul_input_version: { get_input: consul_version }
+              nomad_input_dc: { get_input: nomad_dc }
+              nomad_input_domain: { get_input: nomad_domain }
 
     wn:
       type: tosca.nodes.indigo.Compute
@@ -265,11 +265,11 @@ topology_template:
             implementation: https://raw.githubusercontent.com/grycap/tosca/ai4eosc/artifacts/lrms/nomad_ai4eosc_wn_install.yml
             inputs:
               nomad_server_list: { get_attribute: [ front, private_address ] }
-              nomad_version: { get_input: nomad_version }
-              consul_version: { get_input: consul_version }
               nomad_launch_traefik: { get_input: launch_traefik }
-              nomad_dc: { get_input: nomad_dc }
-              nomad_domain: { get_input: nomad_domain }
+              nomad_input_version: { get_input: nomad_version }
+              consul_input_version: { get_input: consul_version }
+              nomad_input_dc: { get_input: nomad_dc }
+              nomad_input_domain: { get_input: nomad_domain }
 
     wn_pub:
       type: tosca.nodes.indigo.Compute
@@ -317,11 +317,11 @@ topology_template:
             implementation: https://raw.githubusercontent.com/grycap/tosca/ai4eosc/artifacts/lrms/nomad_ai4eosc_wn_install.yml
             inputs:
               nomad_server_list: { get_attribute: [ front, private_address ] }
-              nomad_version: { get_input: nomad_version }
-              consul_version: { get_input: consul_version }
               nomad_nvidia_support: true
-              nomad_dc: { get_input: nomad_dc }
-              nomad_domain: { get_input: nomad_domain }
+              nomad_input_version: { get_input: nomad_version }
+              consul_input_version: { get_input: consul_version }
+              nomad_input_dc: { get_input: nomad_dc }
+              nomad_input_domain: { get_input: nomad_domain }
 
     wn_gpu:
       type: tosca.nodes.indigo.Compute
