@@ -267,6 +267,7 @@ topology_template:
               nomad_server_list: { get_attribute: [ front, private_address ] }
               nomad_version: { get_input: nomad_version }
               consul_version: { get_input: consul_version }
+              nomad_launch_traefik: { get_input: launch_traefik }
               nomad_dc: { get_input: nomad_dc }
               nomad_domain: { get_input: nomad_domain }
 
