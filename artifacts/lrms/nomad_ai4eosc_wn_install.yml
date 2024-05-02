@@ -6,11 +6,22 @@
     client_private_ip: "{{ IM_NODE_PRIVATE_IP | default(ansible_default_ipv4.address) }}"
     nvidia_support: "{{ nomad_nvidia_support | default(false) }}"
     launch_traefik: "{{ nomad_launch_traefik | default(false) }}"
+    certs_url: "{{ consul_cert_url | default('') }}"
+    consul_join: "{{ consul_server_join | default('') }}"
   pre_tasks:
     - name: Convert server_list to list
       set_fact:
-        server_list: [server_list]
-      when: server_list is string
+        server_list:
+          - "{{ server_list }}"
+      when:
+        - consul_join == ''
+        - server_list is string
+
+    - name: Use consul_join to join the consul cluster
+      set_fact:
+        server_list:
+          - "{{ consul_join }}"
+      when: consul_join != ''
   roles:
     - role: 'grycap.docker'
       docker_nvidia_support: "{{ nvidia_support }}"
@@ -28,30 +39,6 @@
         version: fix_hostnames
         force: no
 
-    - name: Set consul_master
-      add_host:
-        name: "{{ groups['front'][0] }}"
-        groups:
-        - consul_master
-
-    - name: Add servers to other server nodes
-      add_host:
-        name: '{{ item  }}'
-        groups:
-        - nomad_master
-        - nomad_servers
-        - consul_servers
-        - consul
-        - nomad
-      with_items: "{{ groups['front'] }}"
-
-    - name: Enable Traefik
-      add_host:
-        name: "{{ groups['wn_pub'][0] }}"
-        groups:
-        - traefik_master
-      when: launch_traefik and 'wn_pub' in groups and groups['wn_pub'] | length > 0
-
     - name: Set all_wn
       set_fact:
         all_wn: "{{ groups['wn'] }}"
@@ -66,22 +53,87 @@
         all_wn: "{{ all_wn + groups['wn_gpu'] }}"
       when: "{{ 'wn_gpu' in groups }}"
 
-    - name: Add client groups
-      add_host:
-        name: '{{ item }}'
-        groups:
-        - nomad_cpu_clients
-        - nomad_clients
-        - consul_clients
-        - consul
-        - nomad
-      with_items: "{{ all_wn }}"
 
-    - name: Add gpu clients
-      add_host:
-        name: 'none'
-        groups:
-        - nomad_gpu_clients
+    - when: consul_join != ''
+      block:
+
+      - name: Set consul_master
+        add_host:
+          name: "{{ groups['front'][0] }}"
+          groups:
+          - consul_master
+          - nomad_master
+
+      - name: Add servers to other server nodes
+        add_host:
+          name: '{{ item  }}'
+          groups:
+          - nomad_servers
+          - consul_servers
+          - consul
+          - nomad
+        with_items: "{{ groups['front'] }}"
+
+      - name: Enable Traefik
+        add_host:
+          name: "{{ groups['wn_pub'][0] }}"
+          groups:
+          - traefik_master
+        when: launch_traefik and 'wn_pub' in groups and groups['wn_pub'] | length > 0
+
+      - name: Add client groups
+        add_host:
+          name: '{{ item }}'
+          groups:
+          - nomad_cpu_clients
+          - nomad_clients
+          - consul_clients
+          - consul
+          - nomad
+        with_items: "{{ all_wn }}"
+
+      - name: Add gpu clients
+        add_host:
+          name: 'none'
+          groups:
+          - nomad_gpu_clients
+
+    - when: consul_join == ''
+      block:
+
+      - name: Add servers to other server nodes
+        add_host:
+          name: '{{ item  }}'
+          groups:
+          - nomad_new_servers
+          - consul_new_servers
+          - consul_new
+          - nomad_new
+        with_items: "{{ groups['front'] }}"
+
+      - name: Enable Traefik
+        add_host:
+          name: "{{ groups['wn_pub'][0] }}"
+          groups:
+          - traefik_new_master
+        when: launch_traefik and 'wn_pub' in groups and groups['wn_pub'] | length > 0
+
+      - name: Add client groups
+        add_host:
+          name: '{{ item }}'
+          groups:
+          - nomad_new_cpu_clients
+          - nomad_new_clients
+          - consul_new_clients
+          - consul_new
+          - nomad_new
+        with_items: "{{ all_wn }}"
+
+      - name: Add gpu clients
+        add_host:
+          name: 'none'
+          groups:
+          - nomad_new_gpu_clients
 
     - name: Create Ansible roles dir
       file:
@@ -106,6 +158,12 @@
     - name: Include roles vars
       include_vars:
         file: /opt/ai4-ansible/group_vars/all.yml
+
+    - name: Download consul + nomad certs
+      get_url:
+        url: "{{ certs_url }}"
+        dest: "{{ path }}{{ new_certs }}.zip"
+      when: certs_url != ''
 
     - name: Set facts
       set_fact:
