@@ -54,7 +54,7 @@
       when: groups['wn_gpu'] is defined
 
 
-    - when: consul_join != ''
+    - when: consul_join == ''
       block:
 
         - name: Set consul_master
@@ -98,7 +98,7 @@
             groups:
               - nomad_gpu_clients
 
-    - when: consul_join == ''
+    - when: consul_join != ''
       block:
 
         - name: Add new servers to other server nodes
