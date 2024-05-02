@@ -27,161 +27,164 @@
 
       # TODO: consul_bootstrap_expect
   tasks:
-  - name: Install git
-    package:
-      name: git
-      state: present
+    - name: Install git
+      package:
+        name: git
+        state: present
 
-  - name: Download Ansible roles
-    git:
-      repo: https://github.com/ai4os/ai4-ansible
-      dest: /opt/ai4-ansible
-      version: fix_hostnames
-      force: no
+    - name: Download Ansible roles
+      git:
+        repo: https://github.com/ai4os/ai4-ansible
+        dest: /opt/ai4-ansible
+        version: fix_hostnames
+        force: false
 
-  - name: Set all_wn
-    set_fact:
-      all_wn: "{{ groups['wn'] }}"
+    - name: Set all_wn
+      set_fact:
+        all_wn: "{{ groups['wn'] }}"
 
-  - name: Add pub nodes to all_wn
-    set_fact:
-      all_wn: "{{ all_wn + groups['wn_pub'] }}"
-    when: "{{ 'wn_pub' in groups }}"
+    - name: Add pub nodes to all_wn
+      set_fact:
+        all_wn: "{{ all_wn + groups['wn_pub'] }}"
+      when: groups['wn_pub'] is defined
 
-  - name: Add gpu nodes to all_wn
-    set_fact:
-      all_wn: "{{ all_wn + groups['wn_gpu'] }}"
-    when: "{{ 'wn_gpu' in groups }}"
+    - name: Add gpu nodes to all_wn
+      set_fact:
+        all_wn: "{{ all_wn + groups['wn_gpu'] }}"
+      when: groups['wn_gpu'] is defined
 
-  - when: consul_join != ''
-    block:
 
-      - name: Add servers to other server nodes
-        add_host:
-          name: '{{ item  }}'
-          groups:
-          - nomad_new_servers
-          - consul_new_servers
-          - consul_new
-          - nomad_new
-        with_items: "{{ groups['front'] }}"
+    - when: consul_join != ''
+      block:
 
-      - name: Enable Traefik
-        add_host:
-          name: "{{ groups['wn_pub'][0] }}"
-          groups:
-          - traefik_new_master
-        when: launch_traefik and 'wn_pub' in groups and groups['wn_pub'] | length > 0
+        - name: Add servers to other server nodes
+          add_host:
+            name: '{{ item }}'
+            groups:
+              - nomad_new_servers
+              - consul_new_servers
+              - consul_new
+              - nomad_new
+          with_items: "{{ groups['front'] }}"
 
-      - name: Add client groups
-        add_host:
-          name: '{{ item }}'
-          groups:
-          - nomad_new_cpu_clients
-          - nomad_new_clients
-          - consul_new_clients
-          - consul_new
-          - nomad_new
-        with_items: "{{ all_wn }}"
+        - name: Enable Traefik
+          add_host:
+            name: "{{ groups['wn_pub'][0] }}"
+            groups:
+              - traefik_new_master
+          when: launch_traefik and 'wn_pub' in groups and groups['wn_pub'] | length > 0
 
-      - name: Add gpu clients
-        add_host:
-          name: '{{ inventory_hostname }}'
-          groups:
-          - nomad_new_gpu_clients
-        when: nvidia_support
+        - name: Add client groups
+          add_host:
+            name: '{{ item }}'
+            groups:
+              - nomad_new_cpu_clients
+              - nomad_new_clients
+              - consul_new_clients
+              - consul_new
+              - nomad_new
+          with_items: "{{ all_wn }}"
 
-  - when: consul_join == ''
-    block:
+        - name: Add gpu clients
+          add_host:
+            name: '{{ inventory_hostname }}'
+            groups:
+              - nomad_new_gpu_clients
+          when: nvidia_support
 
-      - name: Set consul_master and nomad_master
-        add_host:
-          name: "{{ groups['front'][0] }}"
-          groups:
-          - consul_master
-          - nomad_master
+    - when: consul_join == ''
+      block:
 
-      - name: Add servers to other server nodes
-        add_host:
-          name: '{{ item  }}'
-          groups:
-          - nomad_servers
-          - consul_servers
-          - consul
-          - nomad
-        with_items: "{{ groups['front'] }}"
+        - name: Set consul_master and nomad_master
+          add_host:
+            name: "{{ groups['front'][0] }}"
+            groups:
+              - consul_master
+              - nomad_master
 
-      - name: Enable Traefik
-        add_host:
-          name: "{{ groups['wn_pub'][0] }}"
-          groups:
-          - traefik_master
-        when: launch_traefik and 'wn_pub' in groups and groups['wn_pub'] | length > 0
+        - name: Add servers to other server nodes
+          add_host:
+            name: '{{ item }}'
+            groups:
+              - nomad_servers
+              - consul_servers
+              - consul
+              - nomad
+          with_items: "{{ groups['front'] }}"
 
-      - name: Add client groups
-        add_host:
-          name: '{{ item }}'
-          groups:
-          - nomad_cpu_clients
-          - nomad_clients
-          - consul_clients
-          - consul
-          - nomad
-        with_items: "{{ all_wn }}"
+        - name: Enable Traefik
+          add_host:
+            name: "{{ groups['wn_pub'][0] }}"
+            groups:
+              - traefik_master
+          when: launch_traefik and 'wn_pub' in groups and groups['wn_pub'] | length > 0
 
-      - name: Add gpu clients
-        add_host:
-          name: '{{ inventory_hostname }}'
-          groups:
-          - nomad_gpu_clients
-        when: nvidia_support
+        - name: Add client groups
+          add_host:
+            name: '{{ item }}'
+            groups:
+              - nomad_cpu_clients
+              - nomad_clients
+              - consul_clients
+              - consul
+              - nomad
+          with_items: "{{ all_wn }}"
 
-  - name: Create Ansible roles dir
-    file:
-      path: /etc/ansible/roles
-      state: directory
-      mode: 0755
+        - name: Add gpu clients
+          add_host:
+            name: '{{ inventory_hostname }}'
+            groups:
+              - nomad_gpu_clients
+          when: nvidia_support
 
-  - name: Install Nomad role
-    copy:
-      src: /opt/ai4-ansible/roles/nomad/
-      dest: /etc/ansible/roles/nomad
-      mode: 0755
-      remote_src: yes
+    - name: Create Ansible roles dir
+      file:
+        path: /etc/ansible/roles
+        state: directory
+        mode: '755'
 
-  - name: Install Consul role
-    copy:
-      src: /opt/ai4-ansible/roles/consul/
-      dest: /etc/ansible/roles/consul
-      mode: 0755
-      remote_src: yes
+    - name: Install Nomad role
+      copy:
+        src: /opt/ai4-ansible/roles/nomad/
+        dest: /etc/ansible/roles/nomad
+        mode: '755'
+        remote_src: true
 
-  - name: Include roles vars
-    include_vars:
-      file: /opt/ai4-ansible/group_vars/all.yml
+    - name: Install Consul role
+      copy:
+        src: /opt/ai4-ansible/roles/consul/
+        dest: /etc/ansible/roles/consul
+        mode: '755'
+        remote_src: true
 
-  - name: Download consul + nomad certs
-    get_url:
-      url: "{{ certs_url }}"
-      dest: "{{ path }}{{ new_certs }}.zip"
-    when: certs_url != ''
+    - name: Include roles vars
+      include_vars:
+        file: /opt/ai4-ansible/group_vars/all.yml
 
-  - name: Set facts
-    set_fact:
-      consul_public_ip: "{{ server_list[0] }}"
-      my_ip: "{{ server_private_ip }}"
-      username: cloudadm
-      path: /opt/cloudadm/
-      nomad_dc: "{{ nomad_input_dc | default('ifca-ai4eosc') }}"
-      domain: "{{ nomad_input_domain | default('ifca') }}"
-      nomad_namespaces: "{{ nomad_input_namespaces | default(['ai4eosc', 'imagine', 'tutorials']) }}"
-      nomad_version: "{{ nomad_input_version | default('1.7.3') }}"
-      consul_version: "{{ consul_input_version | default('1.17.1') }}"
+    - name: Download consul + nomad certs
+      get_url:
+        url: "{{ certs_url }}"
+        dest: "{{ path }}{{ new_certs }}.zip"
+        owner: cloudadm
+        mode: '0755'
+      when: certs_url != ''
 
-  - name: Invoke consul role
-    include_role:
-      name: consul
+    - name: Set facts
+      set_fact:
+        consul_public_ip: "{{ server_list[0] }}"
+        my_ip: "{{ server_private_ip }}"
+        username: cloudadm
+        path: /opt/cloudadm/
+        nomad_dc: "{{ nomad_input_dc | default('ifca-ai4eosc') }}"
+        domain: "{{ nomad_input_domain | default('ifca') }}"
+        nomad_namespaces: "{{ nomad_input_namespaces | default(['ai4eosc', 'imagine', 'tutorials']) }}"
+        nomad_version: "{{ nomad_input_version | default('1.7.3') }}"
+        consul_version: "{{ consul_input_version | default('1.17.1') }}"
 
-  - name: Invoke nomad role
-    include_role:
-      name: nomad
+    - name: Invoke consul role
+      include_role:
+        name: consul
+
+    - name: Invoke nomad role
+      include_role:
+        name: nomad
