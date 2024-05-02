@@ -57,7 +57,7 @@
     - when: consul_join != ''
       block:
 
-        - name: Add servers to other server nodes
+        - name: Add new servers to other server nodes
           add_host:
             name: '{{ item }}'
             groups:
@@ -67,14 +67,14 @@
               - nomad_new
           with_items: "{{ groups['front'] }}"
 
-        - name: Enable Traefik
+        - name: Enable new Traefik
           add_host:
             name: "{{ groups['wn_pub'][0] }}"
             groups:
               - traefik_new_master
           when: launch_traefik and 'wn_pub' in groups and groups['wn_pub'] | length > 0
 
-        - name: Add client groups
+        - name: Add new client groups
           add_host:
             name: '{{ item }}'
             groups:
@@ -85,7 +85,7 @@
               - nomad_new
           with_items: "{{ all_wn }}"
 
-        - name: Add gpu clients
+        - name: Add new gpu clients
           add_host:
             name: '{{ inventory_hostname }}'
             groups:
