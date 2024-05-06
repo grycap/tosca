@@ -161,14 +161,6 @@
       include_vars:
         file: /opt/ai4-ansible/group_vars/all.yml
 
-    - name: Download consul + nomad certs
-      get_url:
-        url: "{{ certs_url }}"
-        dest: "{{ path }}{{ new_certs }}.zip"
-        owner: cloudadm
-        mode: '0755'
-      when: certs_url != ''
-
     - name: Set facts
       set_fact:
         consul_public_ip: "{{ server_list[0] }}"
@@ -180,6 +172,14 @@
         nomad_namespaces: "{{ nomad_input_namespaces | default(['ai4eosc', 'imagine', 'tutorials']) }}"
         nomad_version: "{{ nomad_input_version | default('1.7.3') }}"
         consul_version: "{{ consul_input_version | default('1.17.1') }}"
+
+    - name: Download consul + nomad certs
+      get_url:
+        url: "{{ certs_url }}"
+        dest: "{{ path }}{{ new_certs }}.zip"
+        owner: cloudadm
+        mode: '0755'
+      when: certs_url != ''
 
     - name: Invoke consul role
       include_role:
