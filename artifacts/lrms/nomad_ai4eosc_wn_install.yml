@@ -169,6 +169,7 @@
         domain: "{{ nomad_input_domain | default('ifca') }}"
         nomad_version: "{{ nomad_input_version | default('1.7.3') }}"
         consul_version: "{{ consul_input_version | default('1.17.1') }}"
+        roles_dir: /opt/ai4-ansible/
 
     - name: Download consul + nomad certs
       get_url:
