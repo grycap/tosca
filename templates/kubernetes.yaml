@@ -7,7 +7,7 @@ description: Deploy a Kubernetes Virtual Cluster.
 
 metadata:
   template_name: Kubernetes
-  template_version: "1.1.0"
+  template_version: "1.2.0"
   display_name: Deploy a Kubernetes Virtual Cluster
   icon: images/kubernetes.png
   order: 3
