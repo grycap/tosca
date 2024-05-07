@@ -40,5 +40,5 @@ topology_template:
         - dependency: lrms_front_end
 
   outputs:
-    jupyterhub_endpoint:
+    ogc_api_endpoint:
       value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], '/ogc-api/' ] }
