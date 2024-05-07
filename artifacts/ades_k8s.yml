@@ -19,7 +19,7 @@
 
     - name: Create ADES Helm values file
       copy:
-        dest: /tmp/config.yaml 
+        dest: /tmp/config.yaml
         mode: '644'
         content: |
           ades-longhorn:

@@ -7,7 +7,7 @@ description: Deploy EOEPCA ADES Helm Chart on top of a Kubernetes Virtual Cluste
 
 metadata:
   template_version: "1.0.0"
-  template_name: EOEPCA ADES 
+  template_name: EOEPCA ADES
   display_name: Deploy EOEPCA ADES Helm Chart on top of a Kubernetes Virtual Cluster
   icon: https://raw.githubusercontent.com/EOEPCA/proc-ades/master/images/logo.png
   parents:
