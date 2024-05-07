@@ -43,6 +43,7 @@ metadata:
     - flink.yaml
     - k8s_galaxy.yaml
     - dydns_egi_update_k8s.yml
+    - ades.yaml
 
 topology_template:
   inputs:
