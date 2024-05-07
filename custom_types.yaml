@@ -584,7 +584,13 @@ node_types:
         type: string
         default: "docker"
         constraints:
-        - valid_values: [ docker, containerd ]
+        - valid_values: [ docker, containerd, crio ]
+      csi_driver:
+        required: no
+        type: string
+        default: "NFS"
+        constraints:
+        - valid_values: [ NFS, Longhorn ]
     artifacts:
       kube_role:
         file: grycap.kubernetes
@@ -601,6 +607,7 @@ node_types:
             kube_version:  { get_property: [ SELF, version ] }
             kube_nvidia_support:  { get_property: [ SELF, nvidia_support ] }
             kube_cri_runtime: { get_property: [ SELF, cri_runtime ] }
+            kube_csi_driver: { get_property: [ SELF, csi_driver ] }
 
   tosca.nodes.indigo.LRMS.FrontEnd.Kubernetes:
     derived_from: tosca.nodes.indigo.LRMS.FrontEnd
@@ -686,7 +693,13 @@ node_types:
         type: string
         default: "docker"
         constraints:
-        - valid_values: [ docker, containerd ]
+        - valid_values: [ docker, containerd, crio ]
+      csi_driver:
+        required: no
+        type: string
+        default: "NFS"
+        constraints:
+        - valid_values: [ NFS, Longhorn ]
     artifacts:
       kube_role:
         file: grycap.kubernetes
@@ -728,6 +741,7 @@ node_types:
             kube_cri_runtime: { get_property: [ SELF, cri_runtime ] }
             kube_install_yunikorn: { get_property: [ SELF, install_yunikorn ] }
             kube_deploy_dashboard: { get_property: [ SELF, install_dashboard ] }
+            kube_csi_driver: { get_property: [ SELF, csi_driver ] }
 
   tosca.nodes.indigo.LRMS.WorkerNode.Slurm:
     derived_from: tosca.nodes.indigo.LRMS.WorkerNode

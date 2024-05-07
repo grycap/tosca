@@ -3,11 +3,11 @@
   connection: local
   vars:
     vnode_prefix: vnode-
-    kube_csi_driver: "{{ csi_driver | default('NFS') }}"
+    csi_driver: "{{ kube_csi_driver | default('NFS') }}"
   roles:
     - role: grycap.nfs
       nfs_mode: 'wn'
-      when: kube_csi_driver == 'NFS'
+      when: csi_driver == 'NFS'
     - role: 'grycap.kubernetes'
       kube_type_of_node: 'wn'
       kube_server: '{{ kube_front_end_ip }}'

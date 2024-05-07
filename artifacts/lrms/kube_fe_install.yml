@@ -6,7 +6,7 @@
     export_hosts: "*.localdomain"
     export_line: "(fsid=0,rw,async,no_root_squash,no_subtree_check,insecure)"
     nfs_path: "{{ kube_nfs_path | default('/pv') }}"
-    kube_csi_driver: "{{ csi_driver | default('NFS') }}"
+    csi_driver: "{{ kube_csi_driver | default('NFS') }}"
 
   pre_tasks:
     - name: Create dir for the NFS PV
@@ -26,12 +26,12 @@
     - name: Set to install Longhorn CSI driver
       set_fact:
         kube_install_longhorn: true
-      when: kube_csi_driver == 'Longhorn'
+      when: csi_driver == 'Longhorn'
   roles:
     - role: grycap.nfs
       nfs_mode: 'front'
       nfs_exports: [{path: '{{ nfs_path }}', export: '{{ export_hosts }}{{ export_line }}'}]
-      when: kube_csi_driver == 'NFS'
+      when: csi_driver == 'NFS'
     - role: grycap.kubernetes
       kube_server: '{{ kube_front_end_ip }}'
       kube_api_server: '{{ kube_front_end_ip }}'
