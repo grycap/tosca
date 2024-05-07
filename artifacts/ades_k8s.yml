@@ -1,0 +1,64 @@
+---
+- hosts: localhost
+  connection: local
+  vars:
+    version: "{{ ades_version | default('master') }}"
+    namespace: "{{ ades_namespace | default('eoepca') }}"
+  tasks:
+    - name: Install git
+      package:
+        name: git
+        state: present
+
+    - name: Download git repo
+      git:
+        repo: https://github.com/EOEPCA/proc-ades
+        dest: /opt/proc-ades
+        version: "{{ version }}"
+        force: false
+
+    - name: Create ADES Helm values file
+      copy:
+        dest: /tmp/config.yaml 
+        mode: '644'
+        content: |
+          ades-longhorn:
+            enabled: false
+
+    - name: Install (or upgrade) the chart
+      command: helm upgrade --install ades . --namespace {{ namespace }} --create-namespace --values /tmp/config.yaml --timeout 10m
+      args:
+        chdir: /opt/proc-ades/charts/proc-ades
+      environment:
+        KUBECONFIG: "/etc/kubernetes/admin.conf"
+
+    - name: Create ADES Ingress file
+      copy:
+        dest: /opt/ades_ingress.yaml
+        mode: '644'
+        content: |
+          ---
+          apiVersion: networking.k8s.io/v1
+          kind: Ingress
+          metadata:
+            name: ades
+            namespace: eoepca
+          spec:
+            ingressClassName: nginx
+            rules:
+            - http:
+                paths:
+                - backend:
+                    service:
+                      name: ades
+                      port:
+                        number: 80
+                  path: /ogc-api
+                  pathType: ImplementationSpecific
+
+    - name: Create ADES Ingress
+      command: kubectl apply -f /opt/ades_ingress.yaml
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+      register: ades_ingress
+      changed_when: "'created' in ades_ingress.stdout or 'configured' in ades_ingress.stdout"

@@ -1,0 +1,44 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+imports:
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+
+description: Deploy EOEPCA ADES Helm Chart on top of a Kubernetes Virtual Cluster.
+
+metadata:
+  template_version: "1.0.0"
+  template_name: EOEPCA ADES 
+  display_name: Deploy EOEPCA ADES Helm Chart on top of a Kubernetes Virtual Cluster
+  icon: https://raw.githubusercontent.com/EOEPCA/proc-ades/master/images/logo.png
+  parents:
+    - kubernetes.yaml
+
+topology_template:
+
+  inputs:
+
+    # Restrict some K8s input values
+
+    kube_csi_driver:
+      type: string
+      description: Name of the CSI driver to install
+      default: Longhorn
+      constraints:
+        - valid_values: [ Longhorn ]
+
+
+  node_templates:
+
+    ades:
+      type: tosca.nodes.ec3.Application
+      interfaces:
+        Standard:
+          configure:
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/ades_k8s.yml
+      requirements:
+        - host: front
+        - dependency: lrms_front_end
+
+  outputs:
+    jupyterhub_endpoint:
+      value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], '/ogc-api/' ] }
