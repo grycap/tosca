@@ -1,7 +1,7 @@
 tosca_definitions_version: tosca_simple_yaml_1_0
 
 imports:
-  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/devel/custom_types.yaml
 
 description: Deploy a Kubernetes Virtual Cluster.
 
@@ -164,10 +164,17 @@ topology_template:
       description: DNS name of the public interface of the FE node to generate the certificate
       default: ""
 
-    allowed_cidr:
+    kube_allowed_cidr:
       type: string
       description: Allowed remote CIDR to extenal access
       default: "0.0.0.0/0"
+
+    kube_csi_driver:
+      type: string
+      description: Name of the CSI driver to install
+      default: NFS
+      constraints:
+        - valid_values: [ NFS, Longhorn ]
 
   node_templates:
 
@@ -180,11 +187,11 @@ topology_template:
               http_port:
                 protocol: tcp
                 source: 80
-                remote_cidr: { get_input: allowed_cidr }
+                remote_cidr: { get_input: kube_allowed_cidr }
               https_port:
                 protocol: tcp
                 source: 443
-                remote_cidr: { get_input: allowed_cidr }
+                remote_cidr: { get_input: kube_allowed_cidr }
       properties:
         admin_username: kubeuser
         install_nfs_client: true
@@ -196,6 +203,7 @@ topology_template:
         cert_user_email: { get_input: kube_cert_user_email }
         public_dns_name: { get_input: kube_public_dns_name}
         cri_runtime: { get_input: kube_cri_runtime }
+        csi_driver: { get_input: kube_csi_driver }
       requirements:
         - host: front
 
@@ -236,6 +244,7 @@ topology_template:
         version: { get_input: kube_version }
         nvidia_support: { get_input: wn_kube_nvidia_support }
         cri_runtime: { get_input: kube_cri_runtime }
+        csi_driver: { get_input: kube_csi_driver }
       requirements:
         - host: wn
 

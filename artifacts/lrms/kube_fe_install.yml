@@ -6,6 +6,7 @@
     export_hosts: "*.localdomain"
     export_line: "(fsid=0,rw,async,no_root_squash,no_subtree_check,insecure)"
     nfs_path: "{{ kube_nfs_path | default('/pv') }}"
+    csi_driver: "{{ kube_csi_driver | default('NFS') }}"
 
   pre_tasks:
     - name: Create dir for the NFS PV
@@ -22,11 +23,15 @@
       set_fact:
         export_hosts: "{{ ansible_default_ipv4.network }}/{{ ansible_default_ipv4.netmask }}"
       when: IM_NODE_CLOUD_TYPE is defined and IM_NODE_CLOUD_TYPE == 'EC2'
-
+    - name: Set to install Longhorn CSI driver
+      set_fact:
+        kube_install_longhorn: true
+      when: csi_driver == 'Longhorn'
   roles:
     - role: grycap.nfs
       nfs_mode: 'front'
       nfs_exports: [{path: '{{ nfs_path }}', export: '{{ export_hosts }}{{ export_line }}'}]
+      when: csi_driver == 'NFS'
     - role: grycap.kubernetes
       kube_server: '{{ kube_front_end_ip }}'
       kube_api_server: '{{ kube_front_end_ip }}'
