@@ -966,6 +966,12 @@ node_types:
 
   tosca.nodes.indigo.ARCfe:
     derived_from: tosca.nodes.SoftwareComponent
+    properties:
+      timezone:
+        type: string
+        description: See: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+        default: Europe/Oslo
+        required: false
     requirements:
       - lrms:
           capability: tosca.capabilities.indigo.LRMS
@@ -987,6 +993,12 @@ node_types:
 
   tosca.nodes.indigo.ARCwn:
     derived_from: tosca.nodes.SoftwareComponent
+    properties:
+      timezone:
+        type: string
+        description: See: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+        default: Europe/Oslo
+        required: false
     requirements:
       - host:
           capability: tosca.capabilities.Container
