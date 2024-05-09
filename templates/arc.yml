@@ -1,8 +1,8 @@
 tosca_definitions_version: tosca_simple_yaml_1_0
 
 imports:
-# to be changed after merging
-#  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+   # to be changed after merging
+   #  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
   - grycap_custom_types: https://raw.githubusercontent.com/sebastian-luna-valero/tosca-upv/arc/custom_types.yaml
 
 description: Deploy a ARC alongside a Slurm cluster
@@ -23,12 +23,12 @@ topology_template:
     arc_fe:
       type: tosca.nodes.indigo.ARCfe
       requirements:
-      - lrms: lrms_front_end
-      - host: lrms_server
+        - lrms: lrms_front_end
+        - host: lrms_server
 
     arc_wn:
       type: tosca.nodes.indigo.ARCwn
       requirements:
-      - host: lrms_wn
+        - host: lrms_wn
 
   outputs:
