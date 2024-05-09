@@ -1,40 +1,34 @@
 tosca_definitions_version: tosca_simple_yaml_1_0
 
 imports:
-  - ec3_custom_types: https://raw.githubusercontent.com/grycap/tosca/arc/custom_types.yaml
+# to be changed after merging
+#  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+  - grycap_custom_types: https://raw.githubusercontent.com/sebastian-luna-valero/tosca-upv/arc/custom_types.yaml
 
-description: >
-  TOSCA for configuring an ARC endpoint
+description: Deploy a ARC alongside a Slurm cluster
 
 metadata:
   template_version: "1.0.0"
   template_name: ARC
-  display_name: Configure an ARC endpoint
-  icon: images/pulsar.png
-#  tabs:
-#    Pulsar configuration: message_queue_.*
+  display_name: Deploy a ARC in front of a Slurm cluster
+  icon: images/ARC.png
   parents:
     - slurm_cluster.yml
 
 topology_template:
-#  inputs:
-#
-#    message_queue_user:
-#      type: string
-#      description: User for the message queue
-#      default: changeme
-#    message_queue_password:
-#      type: string
-#      description: Password for the message queue
-#      default: changeme
+  inputs:
 
   node_templates:
 
-    arc_node:
-      type: tosca.nodes.indigo.ARC
-#      properties:
-#        mq_user: { get_input: message_queue_user }
-#        mq_password: { get_input: message_queue_password }
+    arc_fe:
+      type: tosca.nodes.indigo.ARCfe
       requirements:
-        - lrms: lrms_front_end
-        - host: lrms_server
+      - lrms: lrms_front_end
+      - host: lrms_server
+
+    arc_wn:
+      type: tosca.nodes.indigo.ARCwn
+      requirements:
+      - host: lrms_wn
+
+  outputs:
