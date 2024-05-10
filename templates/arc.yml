@@ -13,7 +13,7 @@ metadata:
   display_name: Deploy a ARC in front of a Slurm cluster
   icon: images/ARC.png
   tabs:
-    - ARC Features: arc_.*
+    ARC Features: arc_.*
   parents:
     - slurm_cluster.yml
 
