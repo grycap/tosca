@@ -4,5 +4,5 @@
   roles:
     - role: arc
       sessionbasename: '/home'
-      cachebasename:   '/home'
-      lrms:            'slurm'
+      cachebasename: '/home'
+      lrms: 'slurm'
