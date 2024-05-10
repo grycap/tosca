@@ -1,0 +1,53 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+imports:
+   # to be changed after merging
+   #  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+  - grycap_custom_types: https://raw.githubusercontent.com/sebastian-luna-valero/tosca-upv/arc/custom_types.yaml
+
+description: Deploy a ARC alongside a Slurm cluster
+
+metadata:
+  template_version: "1.0.0"
+  template_name: ARC
+  display_name: Deploy a ARC in front of a Slurm cluster
+  icon: images/ARC.png
+  tabs:
+    ARC Features: arc_.*
+  parents:
+    - slurm_cluster.yml
+
+topology_template:
+  inputs:
+
+    arc_timezone:
+      type: string
+      description: See https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+      default: Europe/Oslo
+
+  node_templates:
+
+    arc_fe:
+      type: tosca.nodes.indigo.ARCfe
+      properties:
+        timezone: { get_input: arc_timezone }
+      capabilities:
+        endpoint:
+          properties:
+            ports:
+              port_http:
+                protocol: tcp
+                source: 80
+              port_https:
+                protocol: tcp
+                source: 443
+      requirements:
+        - lrms: lrms_front_end
+        - host: lrms_server
+
+    arc_wn:
+      type: tosca.nodes.indigo.ARCwn
+      properties:
+        timezone: { get_input: arc_timezone }
+      requirements:
+        - host: lrms_wn

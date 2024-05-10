@@ -990,6 +990,61 @@ node_types:
             pulsar_user: { get_property: [ SELF, mq_user ] }
             pulsar_password: { get_property: [ SELF, mq_password ] }
 
+  tosca.nodes.indigo.ARCfe:
+    derived_from: tosca.nodes.SoftwareComponent
+    properties:
+      timezone:
+        type: string
+        description: "See: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones"
+        default: Europe/Oslo
+        required: false
+    requirements:
+      - lrms:
+          capability: tosca.capabilities.indigo.LRMS
+          node: tosca.nodes.indigo.LRMS.FrontEnd
+          relationship: tosca.relationships.HostedOn
+    capabilities:
+      endpoint:
+        type: tosca.capabilities.indigo.Endpoint
+    artifacts:
+      arc_role:
+        file: git+https://github.com/nordugrid/arc-ansible|arc
+        type: tosca.artifacts.AnsibleGalaxy.role
+    interfaces:
+      Standard:
+        configure:
+          # to be updated after merging
+          # implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/arc.yml
+          implementation: https://raw.githubusercontent.com/sebastian-luna-valero/tosca-upv/arc/artifacts/arc.yml
+          inputs:
+            timezone: { get_property: [ SELF, timezone ] }
+
+  tosca.nodes.indigo.ARCwn:
+    derived_from: tosca.nodes.SoftwareComponent
+    properties:
+      timezone:
+        type: string
+        description: "See: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones"
+        default: Europe/Oslo
+        required: false
+    requirements:
+      - host:
+          capability: tosca.capabilities.Container
+          node: tosca.nodes.Compute
+          relationship: tosca.relationships.HostedOn
+    artifacts:
+      arc_role:
+        file: git+https://github.com/nordugrid/arc-ansible|arc
+        type: tosca.artifacts.AnsibleGalaxy.role
+    interfaces:
+      Standard:
+        configure:
+          # to be updated after merging
+          # implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/arc.yml
+          implementation: https://raw.githubusercontent.com/sebastian-luna-valero/tosca-upv/arc/artifacts/arc.yml
+          inputs:
+            timezone: { get_property: [ SELF, timezone ] }
+
   tosca.nodes.indigo.LRMS.WorkerNode.Mesos:
     derived_from: tosca.nodes.indigo.LRMS.WorkerNode
     properties:
