@@ -969,7 +969,7 @@ node_types:
     properties:
       timezone:
         type: string
-        description: See: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+        description: "See: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones"
         default: Europe/Oslo
         required: false
     requirements:
@@ -998,7 +998,7 @@ node_types:
     properties:
       timezone:
         type: string
-        description: See: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+        description: "See: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones"
         default: Europe/Oslo
         required: false
     requirements:
