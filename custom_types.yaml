@@ -1013,9 +1013,7 @@ node_types:
     interfaces:
       Standard:
         configure:
-          # to be updated after merging
-          # implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/arc.yml
-          implementation: https://raw.githubusercontent.com/sebastian-luna-valero/tosca-upv/arc/artifacts/arc.yml
+          implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/arc.yml
           inputs:
             timezone: { get_property: [ SELF, timezone ] }
 
@@ -1039,9 +1037,7 @@ node_types:
     interfaces:
       Standard:
         configure:
-          # to be updated after merging
-          # implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/arc.yml
-          implementation: https://raw.githubusercontent.com/sebastian-luna-valero/tosca-upv/arc/artifacts/arc.yml
+          implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/arc.yml
           inputs:
             timezone: { get_property: [ SELF, timezone ] }
 
