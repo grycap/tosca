@@ -56,6 +56,6 @@ topology_template:
 
   outputs:
     ogc_api_endpoint:
-      value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], '/ogc-api/' ] }
+      value: { concat: [ 'https://zoo-open.', get_attribute: [ front, public_address, 0 ], '.nip.io/ogc-api/' ] }
     swagger_ui_endpoint:
-      value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], '/swagger-ui/oapip/' ] }
+      value: { concat: [ 'https://zoo-open.', get_attribute: [ front, public_address, 0 ], '.nip.io/swagger-ui/oapip/' ] }
