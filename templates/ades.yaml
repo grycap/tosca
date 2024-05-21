@@ -39,14 +39,6 @@ topology_template:
       constraints:
         - valid_values: [ true ]
 
-    kube_csi_driver:
-      type: string
-      description: Name of the CSI driver to install
-      default: Longhorn
-      constraints:
-        - valid_values: [ Longhorn ]
-
-
   node_templates:
 
     ades:
