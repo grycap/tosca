@@ -52,7 +52,7 @@
             requests:
               memory: 1Gi
           persistence:
-            storageClass: standard
+            storageClass: ""
           buckets:
             - name: eoepca
             - name: cache-bucket
