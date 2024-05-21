@@ -12,20 +12,32 @@ metadata:
   icon: https://raw.githubusercontent.com/EOEPCA/proc-ades/master/images/logo.png
   parents:
     - kubernetes.yaml
+  tabs:
+    MinIO: minio_.*
 
 topology_template:
 
   inputs:
 
+    minio_accesskey:
+      type: string
+      description: Access key credential for object storage and web access
+      default: minio
+    minio_secretkey:
+      type: string
+      description: Secret key credential for object storage and web access
+      default: minio123
+      constraints:
+        - min_length: 8
+
     # Restrict some K8s input values
 
-    kube_csi_driver:
-      type: string
-      description: Name of the CSI driver to install
-      default: Longhorn
+    kube_cert_manager:
+      type: boolean
+      description: Flag to install Cert-Manager
+      default: true
       constraints:
-        - valid_values: [ Longhorn ]
-
+        - valid_values: [ true ]
 
   node_templates:
 
@@ -35,10 +47,15 @@ topology_template:
         Standard:
           configure:
             implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/ades_k8s.yml
+            inputs:
+              ades_minio_accesskey: { get_input: minio_accesskey }
+              ades_minio_secretkey: { get_input: minio_secretkey }
       requirements:
         - host: front
         - dependency: lrms_front_end
 
   outputs:
-    jupyterhub_endpoint:
+    ogc_api_endpoint:
       value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], '/ogc-api/' ] }
+    swagger_ui_endpoint:
+      value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], '/swagger-ui/oapip/' ] }
