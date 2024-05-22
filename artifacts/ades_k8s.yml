@@ -52,7 +52,7 @@
             requests:
               memory: 1Gi
           persistence:
-            storageClass: standard
+            storageClass: ""
           buckets:
             - name: eoepca
             - name: cache-bucket
@@ -110,9 +110,7 @@
           workflow:
             storageClass: ""
 
-
     - name: Install (or upgrade) the ZOO-Project DRU chart
       command: helm install --version 0.2.6 --values /tmp/ades-values.yaml --repo https://zoo-project.github.io/charts/ zoo-project-dru zoo-project-dru
       environment:
         KUBECONFIG: "/etc/kubernetes/admin.conf"
-
