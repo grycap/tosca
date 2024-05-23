@@ -207,7 +207,7 @@
                             id=collection_id,
                             description="description",
                             extent=pystac.Extent(
-                              spatial=pystac.SpatialExtent([[-180, -90, 180, 90]]), 
+                              spatial=pystac.SpatialExtent([[-180, -90, 180, 90]]),
                               temporal=pystac.TemporalExtent(intervals=[[min(dates), max(dates)]])
                             ),
                             title="Processing results",
@@ -234,7 +234,7 @@
                                   )
                                   asset.href = f"s3://{bucket}/{s3_path}"
                                   item.add_asset(key, asset)
-                          collection.update_extent_from_items() 
+                          collection.update_extent_from_items()
                           cat.clear_items()
                           cat.add_child(collection)
                           cat.normalize_hrefs(f"s3://{bucket}/{subfolder}")
