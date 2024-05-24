@@ -9,6 +9,8 @@
     rabbitmq_password: "{{ ades_rabbitmq_password | default('rabbitmq_password') }}"
     minio_accesskey: "{{ ades_minio_accesskey | default('minio_accesskey') }}"
     minio_secretkey: "{{ ades_minio_secretkey | default('minio_secretkey') }}"
+    workflow_defaultMaxRam: "{{ ades_workflow_defaultMaxRam | default('16Gi') }}"
+    workflow_defaultMaxCores: "{{ ades_workflow_defaultMaxCores | default('8') }}"
   tasks:
     - name: Create MinIO Helm values file
       copy:
@@ -273,18 +275,18 @@
             procServicesStorageClass: ""
             tmpStorageClass: ""
           workflow:
-            defaultMaxRam: 16Gi
-            defaultMaxCores: 8
+            defaultMaxRam: {{ workflow_defaultMaxRam }}
+            defaultMaxCores: {{ workflow_defaultMaxCores }}
             storageClass: ""
             inputs:
-              STAGEIN_AWS_SERVICEURL: http://data.cloudferro.com
-              STAGEIN_AWS_ACCESS_KEY_ID: test
-              STAGEIN_AWS_SECRET_ACCESS_KEY: test
-              STAGEIN_AWS_REGION: RegionOne
+              #STAGEIN_AWS_SERVICEURL: http://data.cloudferro.com
+              #STAGEIN_AWS_ACCESS_KEY_ID: test
+              #STAGEIN_AWS_SECRET_ACCESS_KEY: test
+              #STAGEIN_AWS_REGION: RegionOne
               STAGEOUT_AWS_SERVICEURL: http://minio.minio:9000
               STAGEOUT_AWS_ACCESS_KEY_ID: {{ minio_accesskey }}
               STAGEOUT_AWS_SECRET_ACCESS_KEY: {{ minio_secretkey }}
-              STAGEOUT_AWS_REGION: RegionOne
+              STAGEOUT_AWS_REGION: us-east-1
               STAGEOUT_OUTPUT: eoepca
           postgresql:
             primary:

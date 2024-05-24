@@ -117,16 +117,14 @@
             mode: "770"
 
         - name: Deploying Namespace, Oneprovider DNS services
-          k8s:
-            state: present
-            src: /root/oneprovider/oneprovider.yaml
-            kubeconfig: /etc/kubernetes/admin.conf
+          command: kubectl apply -f /root/oneprovider/oneprovider.yaml
+          environment:
+            KUBECONFIG: "/etc/kubernetes/admin.conf"
 
         - name: Deploying PersistentVolumes, PersistentVolumeClaims per each space
-          k8s:
-            state: present
-            src: "/root/oneprovider/pv_pvc_storage_{{ item.id }}.yaml"
-            kubeconfig: /etc/kubernetes/admin.conf
+          command: kubectl apply -f /root/oneprovider/pv_pvc_storage_{{ item.id }}.yaml
+          environment:
+            KUBECONFIG: "/etc/kubernetes/admin.conf"
           loop: "{{ onedata_spaces }}"
 
         - name: Create overlay.config file in the NFS directory
