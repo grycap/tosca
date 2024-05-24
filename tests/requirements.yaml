@@ -4,7 +4,6 @@ roles:
   - name: grycap.spark
   - name: grycap.storm
   - name: grycap.docker
-  - name: OphidiaBigData.ophidia-cluster
   - name: grycap.nfs
   - name: grycap.galaxy
   - name: grycap.kubeminio
