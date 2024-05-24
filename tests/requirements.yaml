@@ -12,7 +12,7 @@ roles:
   - name: grycap.im
   - name: grycap.clues
   - name: grycap.ssh
-  - name: geerlingguy.glusterfs
+  - name: grycap.glusterfs
   - name: nvidia.nvidia_driver
   - name: grycap.htcondor
   - name: grycap.kubernetes
