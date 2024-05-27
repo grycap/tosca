@@ -59,3 +59,7 @@ topology_template:
       value: { concat: [ 'https://zoo-open.', get_attribute: [ front, public_address, 0 ], '.nip.io/ogc-api/' ] }
     swagger_ui_endpoint:
       value: { concat: [ 'https://zoo-open.', get_attribute: [ front, public_address, 0 ], '.nip.io/swagger-ui/oapip/' ] }
+    minio_console_endpoint:
+      value: { concat: [ 'https://console.minio.', get_attribute: [ front, public_address, 0 ], '.nip.io/' ] }
+    minio_api_endpoint:
+      value: { concat: [ 'https://minio.', get_attribute: [ front, public_address, 0 ], '.nip.io/' ] }
