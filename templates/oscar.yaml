@@ -99,7 +99,7 @@ topology_template:
 
     storage_size:
       type: string
-      description: Size of the extra HD added to the instance
+      description: Size of the extra HD added to the front-end node
       default: 50 GB
       required: yes
       constraints:
