@@ -67,10 +67,10 @@ topology_template:
       default: ""
     fe_disk_size:
       type: scalar-unit.size
-      description: Size of the disk to be attached to the FE instance
+      description: Size of the disk to be attached to the FE instance (Set 0 if disk is not needed)
       default: 10 GB
       constraints:
-        - valid_values: [ 10 GB, 20 GB, 50 GB, 100 GB, 200 GB, 500 GB, 1 TB, 2 TB ]
+        - valid_values: [ 10 GB, 20 GB, 50 GB, 100 GB, 200 GB, 500 GB, 1 TB, 2 TB, 0 GB ]
     fe_volume_id:
       type: string
       description: "Or URL of the disk to be attached to the instance (format: ost://api.cloud.ifca.es/<vol_id>"
@@ -123,10 +123,10 @@ topology_template:
       default: ""
     wn_disk_size:
       type: scalar-unit.size
-      description: Size of the root disk of the WNs
+      description: Size of the root disk of the WNs (in case of 0 disk will no be resized)
       default: 20 GB
       constraints:
-        - valid_values: [ 20 GB, 50 GB, 100 GB, 200 GB ]
+        - valid_values: [ 20 GB, 50 GB, 100 GB, 200 GB, 0 GB ]
     wn_kube_nvidia_support:
       type: boolean
       description: Flag to add NVIDIA support in the WN
