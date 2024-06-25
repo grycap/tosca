@@ -1,0 +1,128 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+imports:
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+
+metadata:
+  template_version: "1.0.0"
+  template_name: MLFlow
+  display_name: Deploy MLFlow on top of a Kubernetes Virtual Cluster
+  icon: images/mlflow.png
+  parents:
+    - kubernetes.yaml
+
+description: TOSCA template for launching MLFlow on top of a Kubernetes Virtual Cluster.
+
+topology_template:
+
+  inputs:
+
+    mlflow_admin_user:
+      type: string
+      description: MLFlow Admin server Username
+      default: admin
+      required: yes
+
+    mlflow_admin_password:
+      type: string
+      description: MLFlow Admin server Password
+      default: password
+      required: yes
+
+    mlflow_s3_endpoint:
+      type: string
+      description: MLFlow S3 endpoint (in case of MinIO server). If not provided, artifacts will be stored locally.
+      default: 'http://minio.minio:9000'
+      required: no
+
+    mlflow_s3_ak:
+      type: string
+      description: MLFlow S3 Access Key
+      default: 'minio'
+      required: no
+
+    mlflow_s3_sk:
+      type: string
+      description: MLFlow S3 Secret Key
+      default: 'minio123'
+      required: no
+
+    mlflow_s3_bucket:
+      type: string
+      description: MLFlow S3 Bucket
+      default: 'mlflow'
+      required: no
+
+  node_templates:
+
+    mysql:
+      type: tosca.nodes.indigo.Helm.Chart
+      properties:
+        namespace: mlflow
+        repository_name: stable
+        repository_url: "https://charts.helm.sh/stable"
+        name: mysql
+        values_file: |
+          persistence:
+            enabled: true
+            storageClass: ""
+            accessMode: ReadWriteOnce
+            size: 8Gi
+          initializationFiles:
+            mlflow.sql: |-
+              CREATE DATABASE IF NOT EXISTS mlflow;
+              GRANT ALL PRIVILEGES ON mlflow.* TO 'mlflow'@'%';
+        values:
+          mysqlPassword: mlflowpass
+          imageTag: "8.0.36"
+
+      requirements:
+        - host: front
+        - dependency: lrms_front_end
+
+    mlflow:
+      type: tosca.nodes.indigo.Helm.Chart
+      properties:
+        namespace: mlflow
+        repository_name: community-charts
+        repository_url: "https://community-charts.github.io/helm-charts"
+        name: mlflow
+        values_file:
+          concat:
+            - |-
+                ingress:
+                  enabled: true
+                  className: nginx
+                  hosts:
+                  - host: "mlflow.
+            - get_attribute: [ front, public_address, 0 ]
+            - |-
+                .nip.io"
+                    paths:
+                      - path: /
+                        pathType: ImplementationSpecific
+        values:
+          image.repository: grycap/mlflow
+          backendStore.mysql.enabled: "true"
+          backendStore.mysql.host: mysql
+          backendStore.mysql.database: mlflow
+          backendStore.mysql.username: mlflow
+          backendStore.mysql.password: mlflowpass
+          artifactRoot.s3.enabled: "true"
+          artifactRoot.s3.bucket: { get_input: mlflow_s3_bucket }
+          artifactRoot.s3.awsAccessKeyId: { get_input: mlflow_s3_ak }
+          artifactRoot.s3.awsSecretAccessKey: { get_input: mlflow_s3_sk }
+          extraEnvVars.MLFLOW_S3_ENDPOINT_URL: { get_input: mlflow_s3_endpoint }
+          extraEnvVars.AWS_DEFAULT_REGION: "us-east-1"
+          extraEnvVars.MLFLOW_S3_IGNORE_TLS: "true"
+
+      requirements:
+        - host: front
+        - dependency: lrms_front_end
+
+
+  outputs:
+    argo_dashboard:
+      value: { concat: [ 'https://mlflow.', get_attribute: [ front, public_address, 0 ], '.nip.io/' ] }
+    argo_token:
+      value: { get_attribute: [ front, ansible_output, argo_client_front_conf_front, tasks, argo_token, output ] }
