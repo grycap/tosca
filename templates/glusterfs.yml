@@ -58,7 +58,7 @@ topology_template:
             type: linux
       artifacts:
         glusterfs_role:
-          file: geerlingguy.glusterfs
+          file: grycap.glusterfs
           type: tosca.artifacts.AnsibleGalaxy.role
       requirements:
         - local_storage:
@@ -105,7 +105,7 @@ topology_template:
             type: linux
       artifacts:
         glusterfs_role:
-          file: geerlingguy.glusterfs
+          file: grycap.glusterfs
           type: tosca.artifacts.AnsibleGalaxy.role
       requirements:
         - local_storage:

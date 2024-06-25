@@ -117,6 +117,14 @@
                     mem_limit: '2G'
                     cpu_guarantee: 2
                     mem_guarantee': '2G'
+                - display_name: '2CPU 2GB ItwinAI environment'
+                  description: '2CPU 2GB ItwinAI environment'
+                  kubespawner_override:
+                    image: 'grycap/jupyterhub-k8s-itwinai'
+                    cpu_limit: 2
+                    mem_limit: '2G'
+                    cpu_guarantee: 2
+                    mem_guarantee': '2G'
                 - display_name: '2CPU 4GB 1GPU environment'
                   description: '2CPU 4GB 1GPU environment (only use it if some of the K8s WNs has GPU support)'
                   kubespawner_override:
