@@ -55,7 +55,7 @@ topology_template:
                 source: 7687
       properties:
         namespace: yprov
-        chart_url: "https://github.com/HPCI-Lab/yProv/raw/yprov_v2/cloud/yProv.tgz"
+        chart_url: "https://github.com/HPCI-Lab/yProv/raw/main/cloud/yProv.tgz"
         name: yProv
         values_file:
           concat:
