@@ -181,6 +181,9 @@ topology_template:
               port_8301:
                 protocol: tcp
                 source: 8301
+              port_8302:
+                protocol: tcp
+                source: 8302
               port_80:
                 protocol: tcp
                 source: 80
