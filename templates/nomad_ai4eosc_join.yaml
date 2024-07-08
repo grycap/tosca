@@ -1,0 +1,376 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+imports:
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+
+description: Deploy an Consul + Nomad Virtual Cluster joining an previous existing one (AI4EOSC).
+
+metadata:
+  template_name: Nomad Join
+  template_version: "1.0.0"
+  display_name: Deploy and Join a Consul + Nomad Virtual Cluster
+  icon: images/nomad.png
+  tabs:
+    Server Features: fe_.*
+    WNs Features: wn_.*
+    GPU WNs Features: wn_gpu_.*
+    Pub WNs Features: wn_pub_.*
+    Nomad Data:
+      - launch_traefik
+      - consul_version
+      - nomad_version
+      - nomad_dc
+      - nomad_domain
+      - nomad_namespaces
+      - consul_cert_url
+      - consul_server_join
+
+topology_template:
+  inputs:
+
+    fe_num:
+      type: integer
+      description: Number of Nomad Servers in the cluster.
+      default: 1
+      required: yes
+      constraints:
+        - valid_values: [ 1, 3, 5 ]
+    fe_cpus:
+      type: integer
+      description: Number of CPUs for the front-end node
+      default: 2
+      required: yes
+      constraints:
+        - valid_values: [ 2, 4, 8, 16, 32, 64 ]
+    fe_mem:
+      type: scalar-unit.size
+      description: Amount of Memory for the front-end node
+      default: 4 GB
+      required: yes
+      constraints:
+        - valid_values: [ 4 GB, 8 GB, 16 GB, 32 GB, 64 GB, 128 GB, 256 GB, 512 GB ]
+
+    wn_num:
+      type: integer
+      description: Number of Nomad Clients in the cluster (without public IP)
+      default: 1
+      required: yes
+      constraints:
+        - greater_or_equal: 1
+    wn_cpus:
+      type: integer
+      description: Number of CPUs for the WNs (without public IP)
+      default: 2
+      required: yes
+      constraints:
+        - valid_values: [ 2, 4, 8, 16, 32, 64 ]
+    wn_mem:
+      type: scalar-unit.size
+      description: Amount of Memory for the WNs (without public IP)
+      default: 4 GB
+      required: yes
+      constraints:
+        - valid_values: [ 4 GB, 8 GB, 16 GB, 32 GB, 64 GB, 128 GB, 256 GB, 512 GB ]
+
+    wn_pub_num:
+      type: integer
+      description: Number of Nomad Clients in the cluster (with public IP)
+      default: 1
+      required: yes
+    wn_pub_cpus:
+      type: integer
+      description: Number of CPUs for the WNs (with public IP)
+      default: 2
+      required: yes
+      constraints:
+        - valid_values: [ 2, 4, 8, 16, 32, 64 ]
+    wn_pub_mem:
+      type: scalar-unit.size
+      description: Amount of Memory for the WNs (with public IP)
+      default: 4 GB
+      required: yes
+      constraints:
+        - valid_values: [ 4 GB, 8 GB, 16 GB, 32 GB, 64 GB, 128 GB, 256 GB, 512 GB ]
+
+    wn_gpu_num:
+      type: integer
+      description: Number of Nomad Clients in the cluster (with GPU)
+      default: 0
+      required: yes
+    wn_gpu_cpus:
+      type: integer
+      description: Number of CPUs for the GPU WNs
+      default: 2
+      required: yes
+      constraints:
+        - valid_values: [ 2, 4, 8, 16, 32, 64 ]
+    wn_gpu_mem:
+      type: scalar-unit.size
+      description: Amount of Memory for the GPU WNs
+      default: 4 GB
+      required: yes
+      constraints:
+        - valid_values: [ 4 GB, 8 GB, 16 GB, 32 GB, 64 GB, 128 GB, 256 GB, 512 GB ]
+    wn_gpu_num_gpus:
+      type: integer
+      description: Number of GPUs to assing to this VM
+      default: 1
+      constraints:
+        - valid_values: [ 1, 2, 3, 4 ]
+    wn_gpu_vendor:
+      type: string
+      description: GPU Vendor
+      default: ''
+      constraints:
+        - valid_values: [ '', 'NVIDIA', 'AMD' ]
+    wn_gpu_model:
+      type: string
+      description: GPU Model
+      default: ''
+
+
+    launch_traefik:
+      type: boolean
+      description: Launch Traefik job as reverse proxy
+      default: false
+      constraints:
+        - valid_values: [ false, true ]
+    consul_version:
+      type: string
+      description: Consul version to install
+      default: 1.17.1
+      required: yes
+    nomad_version:
+      type: string
+      description: Nomad version to install
+      default: 1.7.3
+      required: yes
+    nomad_dc:
+      type: string
+      description: Nomad datacenter name
+      default: ifca-ai4eosc
+      required: yes
+    nomad_domain:
+      type: string
+      description: Nomad domain name
+      default: ifca
+      required: yes
+    nomad_namespaces:
+      type: list
+      entry_schema:
+        type: string
+      description: List of Nomad namespaces
+      default: [ ai4eosc, imagine, tutorials ]
+      required: yes
+
+    consul_cert_url:
+      type: string
+      description: URL to download the Consul certificates and tokens
+      default: ''
+    consul_server_join:
+      type: string
+      description: IP address of the Consul server to join
+      default: ''
+
+  node_templates:
+
+    lrms_front_end:
+      type: tosca.nodes.indigo.LRMS.FrontEnd.Nomad
+      capabilities:
+        endpoint:
+          properties:
+            ports:
+              port_4646:
+                protocol: tcp
+                source: 4646
+              port_8501:
+                protocol: tcp
+                source: 8501
+              port_80:
+                protocol: tcp
+                source: 80
+              port_443:
+                protocol: tcp
+                source: 443
+      requirements:
+        - host: front
+      interfaces:
+        Standard:
+          configure:
+            implementation: https://raw.githubusercontent.com/grycap/tosca/ai4eosc/artifacts/lrms/nomad_ai4eosc_fe_install.yml
+            inputs:
+              nomad_server_list: { get_attribute: [ front, private_address ] }
+              nomad_launch_traefik: { get_input: launch_traefik }
+              nomad_input_version: { get_input: nomad_version }
+              consul_input_version: { get_input: consul_version }
+              nomad_input_dc: { get_input: nomad_dc }
+              nomad_input_domain: { get_input: nomad_domain }
+              nomad_input_namespaces: { get_input: nomad_namespaces }
+              consul_cert_url: { get_input: consul_cert_url }
+              consul_server_join: { get_input: consul_server_join }
+
+    front:
+      type: tosca.nodes.indigo.Compute
+      capabilities:
+        scalable:
+          properties:
+            count: { get_input: fe_num }
+        endpoint:
+          properties:
+            dns_name: servernew#N#
+            network_name: PUBLIC
+        host:
+          properties:
+            num_cpus: { get_input: fe_cpus }
+            mem_size: { get_input: fe_mem }
+        os:
+          properties:
+            type: linux
+
+    wn_node:
+      type: tosca.nodes.indigo.LRMS.WorkerNode.Nomad
+      properties:
+        front_end_ip: { get_attribute: [ front, private_address, 0 ] }
+      requirements:
+        - host: wn
+      artifacts:
+        docker_role:
+          file: grycap.docker
+          type: tosca.artifacts.AnsibleGalaxy.role
+      interfaces:
+        Standard:
+          configure:
+            implementation: https://raw.githubusercontent.com/grycap/tosca/ai4eosc/artifacts/lrms/nomad_ai4eosc_wn_install.yml
+            inputs:
+              nomad_server_list: { get_attribute: [ front, private_address ] }
+              nomad_input_version: { get_input: nomad_version }
+              consul_input_version: { get_input: consul_version }
+              nomad_input_dc: { get_input: nomad_dc }
+              nomad_input_domain: { get_input: nomad_domain }
+              consul_cert_url: { get_input: consul_cert_url }
+              consul_server_join: { get_input: consul_server_join }
+
+    wn:
+      type: tosca.nodes.indigo.Compute
+      capabilities:
+        scalable:
+          properties:
+            count: { get_input: wn_num }
+        endpoint:
+          properties:
+            dns_name: vnodenew-#N#
+        host:
+          properties:
+            num_cpus: { get_input: wn_cpus }
+            mem_size: { get_input: wn_mem }
+        os:
+          properties:
+            type: linux
+
+    wn_pub_node:
+      type: tosca.nodes.indigo.LRMS.WorkerNode.Nomad
+      properties:
+        front_end_ip: { get_attribute: [ front, private_address, 0 ] }
+      requirements:
+        - host: wn_pub
+      artifacts:
+        docker_role:
+          file: grycap.docker
+          type: tosca.artifacts.AnsibleGalaxy.role
+      interfaces:
+        Standard:
+          configure:
+            implementation: https://raw.githubusercontent.com/grycap/tosca/ai4eosc/artifacts/lrms/nomad_ai4eosc_wn_install.yml
+            inputs:
+              nomad_server_list: { get_attribute: [ front, private_address ] }
+              nomad_launch_traefik: { get_input: launch_traefik }
+              nomad_input_version: { get_input: nomad_version }
+              consul_input_version: { get_input: consul_version }
+              nomad_input_dc: { get_input: nomad_dc }
+              nomad_input_domain: { get_input: nomad_domain }
+              consul_cert_url: { get_input: consul_cert_url }
+              consul_server_join: { get_input: consul_server_join }
+
+    wn_pub:
+      type: tosca.nodes.indigo.Compute
+      capabilities:
+        endpoint:
+          properties:
+            network_name: PUBLIC
+            ports:
+              port_80:
+                protocol: tcp
+                source: 80
+              port_443:
+                protocol: tcp
+                source: 443
+            dns_name: vnodenew-#N#
+        scalable:
+          properties:
+            count: { get_input: wn_pub_num }
+        host:
+          properties:
+            num_cpus: { get_input: wn_pub_cpus }
+            mem_size: { get_input: wn_pub_mem }
+        os:
+          properties:
+            type: linux
+
+    wn_gpu_node:
+      type: tosca.nodes.indigo.LRMS.WorkerNode.Nomad
+      properties:
+        front_end_ip: { get_attribute: [ front, private_address, 0 ] }
+      requirements:
+        - host: wn_gpu
+      artifacts:
+        docker_role:
+          file: grycap.docker
+          type: tosca.artifacts.AnsibleGalaxy.role
+        nomad_role:
+          file: grycap.nomad,ai4eosc
+          type: tosca.artifacts.AnsibleGalaxy.role
+        consul_role:
+          file: grycap.consul,ai4eosc
+          type: tosca.artifacts.AnsibleGalaxy.role
+      interfaces:
+        Standard:
+          configure:
+            implementation: https://raw.githubusercontent.com/grycap/tosca/ai4eosc/artifacts/lrms/nomad_ai4eosc_wn_install.yml
+            inputs:
+              nomad_server_list: { get_attribute: [ front, private_address ] }
+              nomad_nvidia_support: true
+              nomad_input_version: { get_input: nomad_version }
+              consul_input_version: { get_input: consul_version }
+              nomad_input_dc: { get_input: nomad_dc }
+              nomad_input_domain: { get_input: nomad_domain }
+              consul_cert_url: { get_input: consul_cert_url }
+              consul_server_join: { get_input: consul_server_join }
+
+    wn_gpu:
+      type: tosca.nodes.indigo.Compute
+      capabilities:
+        scalable:
+          properties:
+            count: { get_input: wn_gpu_num }
+        endpoint:
+          properties:
+            dns_name: vnodenew-#N#
+        host:
+          properties:
+            num_cpus: { get_input: wn_gpu_cpus }
+            mem_size: { get_input: wn_gpu_mem }
+            num_gpus: { get_input: wn_gpu_num_gpus }
+            gpu_vendor: { get_input: wn_gpu_vendor }
+            gpu_model: { get_input: wn_gpu_model }
+        os:
+          properties:
+            type: linux
+
+  outputs:
+    cluster_ip:
+      value: { get_attribute: [ front, public_address, 0 ] }
+    cluster_creds:
+      value: { get_attribute: [ front, endpoint, credential, 0 ] }
+    traefik_endpoint:
+      value: { concat: [ 'https://', get_attribute: [ wn_pub, public_address, 0 ] ] }
+
