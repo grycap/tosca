@@ -326,12 +326,6 @@ topology_template:
         docker_role:
           file: grycap.docker
           type: tosca.artifacts.AnsibleGalaxy.role
-        nomad_role:
-          file: grycap.nomad,ai4eosc
-          type: tosca.artifacts.AnsibleGalaxy.role
-        consul_role:
-          file: grycap.consul,ai4eosc
-          type: tosca.artifacts.AnsibleGalaxy.role
       interfaces:
         Standard:
           configure:
@@ -367,14 +361,6 @@ topology_template:
             type: linux
 
   outputs:
-#    nomad_ui:
-#      value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], ':4646' ] }
-#    consul_ui:
-#      value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], ':8501' ] }
-#    nomad_token:
-#      value: { get_attribute: [ front, ansible_output, lrms_front_end_front_conf_front, tasks, 'grycap.nomad : nomad_secret_id', output ] }
-#    consul_token:
-#      value: { get_attribute: [ front, ansible_output, lrms_front_end_front_conf_front, tasks, 'grycap.consul : consul_secret_id', output ] }
     cluster_ip:
       value: { get_attribute: [ front, public_address, 0 ] }
     cluster_creds:
