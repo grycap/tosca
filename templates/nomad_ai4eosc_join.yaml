@@ -24,6 +24,7 @@ metadata:
       - nomad_namespaces
       - consul_cert_url
       - consul_server_join
+      - consul_join_datacenter
 
 topology_template:
   inputs:
@@ -171,6 +172,10 @@ topology_template:
       type: string
       description: IP address of the Consul server to join
       default: ''
+    consul_join_datacenter:
+      type: string
+      description: Primary datacenter of the Consul cluster to join
+      default: 'ifca-ai4eosc'
 
   node_templates:
 
@@ -186,6 +191,9 @@ topology_template:
               port_8501:
                 protocol: tcp
                 source: 8501
+              port_8302:
+                protocol: tcp
+                source: 8302
               port_80:
                 protocol: tcp
                 source: 80
@@ -208,6 +216,7 @@ topology_template:
               nomad_input_namespaces: { get_input: nomad_namespaces }
               consul_cert_url: { get_input: consul_cert_url }
               consul_server_join: { get_input: consul_server_join }
+              consul_join_datacenter: { get_input: consul_join_datacenter }
 
     front:
       type: tosca.nodes.indigo.Compute
@@ -249,6 +258,7 @@ topology_template:
               nomad_input_domain: { get_input: nomad_domain }
               consul_cert_url: { get_input: consul_cert_url }
               consul_server_join: { get_input: consul_server_join }
+              consul_join_datacenter: { get_input: consul_join_datacenter }
 
     wn:
       type: tosca.nodes.indigo.Compute
@@ -290,6 +300,7 @@ topology_template:
               nomad_input_domain: { get_input: nomad_domain }
               consul_cert_url: { get_input: consul_cert_url }
               consul_server_join: { get_input: consul_server_join }
+              consul_join_datacenter: { get_input: consul_join_datacenter }
 
     wn_pub:
       type: tosca.nodes.indigo.Compute
@@ -339,6 +350,7 @@ topology_template:
               nomad_input_domain: { get_input: nomad_domain }
               consul_cert_url: { get_input: consul_cert_url }
               consul_server_join: { get_input: consul_server_join }
+              consul_join_datacenter: { get_input: consul_join_datacenter }
 
     wn_gpu:
       type: tosca.nodes.indigo.Compute
