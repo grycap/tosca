@@ -321,16 +321,10 @@ topology_template:
       properties:
         front_end_ip: { get_attribute: [ front, private_address, 0 ] }
       requirements:
-        - host: wn_gpu
+        - host: wn
       artifacts:
         docker_role:
           file: grycap.docker
-          type: tosca.artifacts.AnsibleGalaxy.role
-        nomad_role:
-          file: grycap.nomad,ai4eosc
-          type: tosca.artifacts.AnsibleGalaxy.role
-        consul_role:
-          file: grycap.consul,ai4eosc
           type: tosca.artifacts.AnsibleGalaxy.role
       interfaces:
         Standard:
@@ -373,4 +367,3 @@ topology_template:
       value: { get_attribute: [ front, endpoint, credential, 0 ] }
     traefik_endpoint:
       value: { concat: [ 'https://', get_attribute: [ wn_pub, public_address, 0 ] ] }
-
