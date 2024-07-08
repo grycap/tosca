@@ -109,6 +109,7 @@
               - consul_new_servers
               - consul_new
               - nomad_new
+              - consul_new_master
           with_items: "{{ groups['front'] }}"
 
         - name: Enable new Traefik
