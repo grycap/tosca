@@ -24,6 +24,7 @@ metadata:
       - nomad_namespaces
       - consul_cert_url
       - consul_server_join
+      - consul_primary_datacenter
 
 topology_template:
   inputs:
