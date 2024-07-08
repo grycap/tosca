@@ -11,7 +11,7 @@ metadata:
   display_name: Deploy an OSCAR Virtual Cluster
   icon: images/oscar.png
   order: 2
-  web: https://grycap.github.io/oscar/
+  web: https://oscar.grycap.net
   tabs:
     HW Data:
       - wn_num
@@ -20,6 +20,7 @@ metadata:
       - fe_instance_type
       - wn_cpus
       - wn_mem
+      - wn_disk_size
       - wn_instance_type
       - storage_size
     OSCAR Data:
@@ -50,7 +51,7 @@ topology_template:
   inputs:
     wn_num:
       type: integer
-      description: Number of WNs in the oscar cluster
+      description: Number of WNs in the OSCAR cluster
       default: 1
       required: yes
     fe_cpus:
@@ -85,6 +86,12 @@ topology_template:
       required: yes
       constraints:
         - valid_values: [ 4 GB, 8 GB, 16 GB, 32 GB, 64 GB, 128 GB, 256 GB, 512 GB ]
+    wn_disk_size:
+      type: scalar-unit.size
+      description: Size of the root disk of the WNs
+      default: 20 GB
+      constraints:
+        - valid_values: [ 20 GB, 50 GB, 100 GB, 200 GB ]
     wn_instance_type:
       type: string
       description: Flavor name of the WN node. Only required in case of special flavors (i.e. with GPUs)
@@ -92,7 +99,7 @@ topology_template:
 
     storage_size:
       type: string
-      description: Size of the extra HD added to the instance
+      description: Size of the extra HD added to the front-end node
       default: 50 GB
       required: yes
       constraints:
@@ -256,6 +263,7 @@ topology_template:
             count: { get_input: wn_num }
         host:
           properties:
+            disk_size: { get_input: wn_disk_size }
             num_cpus: { get_input: wn_cpus }
             mem_size: { get_input: wn_mem }
             instance_type: { get_input: wn_instance_type }

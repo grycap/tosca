@@ -6,6 +6,7 @@
     export_hosts: "*.localdomain"
     export_line: "(fsid=0,rw,async,no_root_squash,no_subtree_check,insecure)"
     nfs_path: "{{ kube_nfs_path | default('/pv') }}"
+    csi_driver: "{{ kube_csi_driver | default('NFS') }}"
 
   pre_tasks:
     - name: Create dir for the NFS PV
@@ -14,19 +15,23 @@
       file: path=/etc/kubernetes/pki state=directory mode=755 recurse=yes
     - name: Create auth data file with an admin user
       copy: content='{{ kube_admin_token }},{{ kube_admin_username }},100,"users,system:masters"' dest=/etc/kubernetes/pki/auth mode=600
-    - name: Do not use fsid=0 in Ubuntu 22.04
+    - name: Do not use fsid=0 in Ubuntu 20.04
       set_fact:
         export_line: "(rw,async,no_root_squash,no_subtree_check,insecure)"
-      when: ansible_distribution == "Ubuntu" and ansible_distribution_major_version | int >= 22
+      when: ansible_distribution == "Ubuntu" and ansible_distribution_major_version | int >= 20
     - name: Do not use *.localdomain in EC2
       set_fact:
         export_hosts: "{{ ansible_default_ipv4.network }}/{{ ansible_default_ipv4.netmask }}"
       when: IM_NODE_CLOUD_TYPE is defined and IM_NODE_CLOUD_TYPE == 'EC2'
-
+    - name: Set to install Longhorn CSI driver
+      set_fact:
+        kube_install_longhorn: true
+      when: csi_driver == 'Longhorn'
   roles:
     - role: grycap.nfs
       nfs_mode: 'front'
       nfs_exports: [{path: '{{ nfs_path }}', export: '{{ export_hosts }}{{ export_line }}'}]
+      when: csi_driver == 'NFS'
     - role: grycap.kubernetes
       kube_server: '{{ kube_front_end_ip }}'
       kube_api_server: '{{ kube_front_end_ip }}'

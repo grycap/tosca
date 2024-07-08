@@ -82,6 +82,7 @@ topology_template:
         version: { get_input: kube_version }
         nvidia_support: { get_input: wng_kube_nvidia_support }
         cri_runtime: { get_input: kube_cri_runtime }
+        csi_driver: { get_input: kube_csi_driver }
       requirements:
         - host: wng
 

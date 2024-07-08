@@ -21,6 +21,7 @@ metadata:
     - glusterfs.yml
     - docker_cluster.yaml
     - dydns_egi_update_lrms.yml
+    - arc.yml
 
 topology_template:
   inputs:
