@@ -5,82 +5,184 @@
     server_list: "{{ nomad_server_list | default([ansible_default_ipv4.address]) }}"
     client_private_ip: "{{ IM_NODE_PRIVATE_IP | default(ansible_default_ipv4.address) }}"
     nvidia_support: "{{ nomad_nvidia_support | default(false) }}"
+    launch_traefik: "{{ nomad_launch_traefik | default(false) }}"
+    certs_url: "{{ consul_cert_url | default('') }}"
+    consul_join: "{{ consul_server_join | default('') }}"
   pre_tasks:
     - name: Convert server_list to list
       set_fact:
         server_list:
           - "{{ server_list }}"
       when:
-        - consul_server_join is not defined or consul_server_join == ''
+        - consul_join == ''
         - server_list is string
 
-    - name: Use consul_server_join to join the consul cluster
+    - name: Use consul_join to join the consul cluster
       set_fact:
         server_list:
-          - "{{ consul_server_join }}"
-      when: consul_server_join is defined and consul_server_join != ''
-
-    - name: Set nomad plugins var
-      set_fact:
-        nomad_plugins_var:
-          raw_exec:
-            enabled: "true"
-          docker:
-            allow_privileged: "true"
-      when: not nvidia_support
-    - name: Set nomad plugins var with nvidia support
-      set_fact:
-        nomad_plugins_var:
-          raw_exec:
-            enabled: "true"
-          docker:
-            allow_privileged: "true"
-          nomad-device-nvidia:
-            enabled: "true"
-            fingerprint_period: '"1m"'
-      when: nvidia_support
+          - "{{ consul_join }}"
+      when: consul_join != ''
   roles:
     - role: 'grycap.docker'
       docker_nvidia_support: "{{ nvidia_support }}"
-    - role: 'grycap.consul'
-      consul_server: false
-      consul_dns: false
-      consul_config_dir: /etc/consul
-      consul_join_ips: "{{ server_list }}"
-      consul_policies:
-        - name: nomad-client-policy
-        - name: nomad-server-policy
-    - role: grycap.nomad
-      # needed to make docker plugin work
-      nomad_user: root
-      nomad_group: root
-      nomad_name: "{{ ansible_hostname }}"
-      use_tls: true
-      tls_http: true
-      tls_rpc: true
-      generate_tls: true
-      tls_private_ip: "{{ client_private_ip }}"
-      bind_address: "0.0.0.0"
-      server_enabled: false
-      client_enabled: true
-      use_consul: true
-      consul_address: "127.0.0.1:8500"
-      create_nomad_service: true
-      consul_ACL_token_set: true
-      consul_token: "{{ consul_tokens['nomad-client-policy'] }}"
-      nomad_plugins: "{{ nomad_plugins_var }}"
-      nvidia_plugin_enabled: "{{ nvidia_support }}"
-      nomad_install_cni: true
+
   tasks:
-    - name: Set nomad public_ip key to no on node
-      command: nomad node meta apply public_ip=no
-      environment:
-        NOMAD_CACERT: /etc/nomad/certs/nomad-agent-ca.pem
-        NOMAD_ADDR: "https://127.0.0.1:4646"
-      when: IM_NODE_PUBLIC_IP is not defined or IM_NODE_PUBLIC_IP == ""
-    - name: Set nomad public_ip key to yes on node
-      command: nomad node meta apply public_ip=yes
-      environment:
-        NOMAD_CACERT: /etc/nomad/certs/nomad-agent-ca.pem
-        NOMAD_ADDR: "https://127.0.0.1:4646"
-      when: IM_NODE_PUBLIC_IP is defined and IM_NODE_PUBLIC_IP != ""
+    - name: Install git
+      package:
+        name: git
+        state: present
+
+    - name: Download Ansible roles
+      git:
+        repo: https://github.com/ai4os/ai4-ansible
+        dest: /opt/ai4-ansible
+        version: master
+        force: false
+
+    - name: Set all_wn
+      set_fact:
+        all_wn: "{{ groups['wn'] }}"
+
+    - name: Add pub nodes to all_wn
+      set_fact:
+        all_wn: "{{ all_wn + groups['wn_pub'] }}"
+      when: groups['wn_pub'] is defined
+
+    - name: Add gpu nodes to all_wn
+      set_fact:
+        all_wn: "{{ all_wn + groups['wn_gpu'] }}"
+      when: groups['wn_gpu'] is defined
+
+
+    - when: consul_join == ''
+      block:
+
+        - name: Set consul_master
+          add_host:
+            name: "{{ groups['front'][0] }}"
+            groups:
+              - consul_master
+              - nomad_master
+
+        - name: Add servers to other server nodes
+          add_host:
+            name: '{{ item }}'
+            groups:
+              - nomad_servers
+              - consul_servers
+              - consul
+              - nomad
+          with_items: "{{ groups['front'] }}"
+
+        - name: Enable Traefik
+          add_host:
+            name: "{{ groups['wn_pub'][0] }}"
+            groups:
+              - traefik_master
+          when: launch_traefik and 'wn_pub' in groups and groups['wn_pub'] | length > 0
+
+        - name: Add client groups
+          add_host:
+            name: '{{ item }}'
+            groups:
+              - nomad_cpu_clients
+              - nomad_clients
+              - consul_clients
+              - consul
+              - nomad
+          with_items: "{{ all_wn }}"
+
+        - name: Add gpu clients
+          add_host:
+            name: 'none'
+            groups:
+              - nomad_gpu_clients
+
+    - when: consul_join != ''
+      block:
+
+        - name: Add new servers to other server nodes
+          add_host:
+            name: '{{ item }}'
+            groups:
+              - nomad_new_servers
+              - consul_new_servers
+              - consul_new
+              - nomad_new
+          with_items: "{{ groups['front'] }}"
+
+        - name: Enable new Traefik
+          add_host:
+            name: "{{ groups['wn_pub'][0] }}"
+            groups:
+              - traefik_new_master
+          when: launch_traefik and 'wn_pub' in groups and groups['wn_pub'] | length > 0
+
+        - name: Add new client groups
+          add_host:
+            name: '{{ item }}'
+            groups:
+              - nomad_new_cpu_clients
+              - nomad_new_clients
+              - consul_new_clients
+              - consul_new
+              - nomad_new
+          with_items: "{{ all_wn }}"
+
+        - name: Add new gpu clients
+          add_host:
+            name: 'none'
+            groups:
+              - nomad_new_gpu_clients
+
+    - name: Create Ansible roles dir
+      file:
+        path: /etc/ansible/roles
+        state: directory
+        mode: '755'
+
+    - name: Install Nomad role
+      copy:
+        src: /opt/ai4-ansible/roles/nomad/
+        dest: /etc/ansible/roles/nomad
+        mode: '755'
+        remote_src: true
+
+    - name: Install Consul role
+      copy:
+        src: /opt/ai4-ansible/roles/consul/
+        dest: /etc/ansible/roles/consul
+        mode: '755'
+        remote_src: true
+
+    - name: Include roles vars
+      include_vars:
+        file: /opt/ai4-ansible/group_vars/all.yml
+
+    - name: Set facts
+      set_fact:
+        consul_public_ip: "{{ server_list[0] }}"
+        my_ip: "{{ client_private_ip }}"
+        username: cloudadm
+        path: /opt/cloudadm/
+        nomad_dc: "{{ nomad_input_dc | default('ifca-ai4eosc') }}"
+        domain: "{{ nomad_input_domain | default('ifca') }}"
+        nomad_version: "{{ nomad_input_version | default('1.7.3') }}"
+        consul_version: "{{ consul_input_version | default('1.17.1') }}"
+        roles_dir: /opt/ai4-ansible/
+
+    - name: Download consul + nomad certs
+      get_url:
+        url: "{{ certs_url }}"
+        dest: "{{ path }}{{ new_certs }}.zip"
+        owner: cloudadm
+        mode: '0755'
+      when: certs_url != ''
+
+    - name: Invoke consul role
+      include_role:
+        name: consul
+
+    - name: Invoke nomad role
+      include_role:
+        name: nomad

@@ -3,12 +3,12 @@ tosca_definitions_version: tosca_simple_yaml_1_0
 imports:
   - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
 
-description: Deploy an Consul + Nomad Virtual Cluster (AI4EOSC).
+description: Deploy an Consul + Nomad Virtual Cluster joining an previous existing one (AI4EOSC).
 
 metadata:
-  template_name: Nomad
-  template_version: "1.1.0"
-  display_name: Deploy a Consul + Nomad Virtual Cluster
+  template_name: Nomad Join
+  template_version: "1.0.0"
+  display_name: Deploy and Join a Consul + Nomad Virtual Cluster
   icon: images/nomad.png
   tabs:
     Server Features: fe_.*
@@ -22,6 +22,8 @@ metadata:
       - nomad_dc
       - nomad_domain
       - nomad_namespaces
+      - consul_cert_url
+      - consul_server_join
 
 topology_template:
   inputs:
@@ -161,6 +163,15 @@ topology_template:
       default: [ ai4eosc, imagine, tutorials ]
       required: yes
 
+    consul_cert_url:
+      type: string
+      description: URL to download the Consul certificates and tokens
+      default: ''
+    consul_server_join:
+      type: string
+      description: IP address of the Consul server to join
+      default: ''
+
   node_templates:
 
     lrms_front_end:
@@ -175,12 +186,6 @@ topology_template:
               port_8501:
                 protocol: tcp
                 source: 8501
-              port_8300:
-                protocol: tcp
-                source: 8300
-              port_8301:
-                protocol: tcp
-                source: 8301
               port_80:
                 protocol: tcp
                 source: 80
@@ -201,6 +206,8 @@ topology_template:
               nomad_input_dc: { get_input: nomad_dc }
               nomad_input_domain: { get_input: nomad_domain }
               nomad_input_namespaces: { get_input: nomad_namespaces }
+              consul_cert_url: { get_input: consul_cert_url }
+              consul_server_join: { get_input: consul_server_join }
 
     front:
       type: tosca.nodes.indigo.Compute
@@ -210,7 +217,7 @@ topology_template:
             count: { get_input: fe_num }
         endpoint:
           properties:
-            dns_name: server#N#
+            dns_name: servernew#N#
             network_name: PUBLIC
         host:
           properties:
@@ -240,6 +247,8 @@ topology_template:
               consul_input_version: { get_input: consul_version }
               nomad_input_dc: { get_input: nomad_dc }
               nomad_input_domain: { get_input: nomad_domain }
+              consul_cert_url: { get_input: consul_cert_url }
+              consul_server_join: { get_input: consul_server_join }
 
     wn:
       type: tosca.nodes.indigo.Compute
@@ -247,6 +256,9 @@ topology_template:
         scalable:
           properties:
             count: { get_input: wn_num }
+        endpoint:
+          properties:
+            dns_name: vnodenew-#N#
         host:
           properties:
             num_cpus: { get_input: wn_cpus }
@@ -276,6 +288,8 @@ topology_template:
               consul_input_version: { get_input: consul_version }
               nomad_input_dc: { get_input: nomad_dc }
               nomad_input_domain: { get_input: nomad_domain }
+              consul_cert_url: { get_input: consul_cert_url }
+              consul_server_join: { get_input: consul_server_join }
 
     wn_pub:
       type: tosca.nodes.indigo.Compute
@@ -290,6 +304,7 @@ topology_template:
               port_443:
                 protocol: tcp
                 source: 443
+            dns_name: vnodenew-#N#
         scalable:
           properties:
             count: { get_input: wn_pub_num }
@@ -328,6 +343,8 @@ topology_template:
               consul_input_version: { get_input: consul_version }
               nomad_input_dc: { get_input: nomad_dc }
               nomad_input_domain: { get_input: nomad_domain }
+              consul_cert_url: { get_input: consul_cert_url }
+              consul_server_join: { get_input: consul_server_join }
 
     wn_gpu:
       type: tosca.nodes.indigo.Compute
@@ -335,6 +352,9 @@ topology_template:
         scalable:
           properties:
             count: { get_input: wn_gpu_num }
+        endpoint:
+          properties:
+            dns_name: vnodenew-#N#
         host:
           properties:
             num_cpus: { get_input: wn_gpu_cpus }
