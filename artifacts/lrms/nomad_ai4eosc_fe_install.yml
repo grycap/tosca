@@ -159,7 +159,7 @@
         username: cloudadm
         path: /opt/cloudadm/
         nomad_dc: "{{ nomad_input_dc | default('ifca-ai4eosc') }}"
-        consul_dc: "{{ nomad_input_dc | default('ifca-ai4eosc') }}"
+        consul_dc_name: "{{ nomad_input_dc | default('ifca-ai4eosc') }}"
         domain: "{{ nomad_input_domain | default('ifca') }}"
         nomad_namespaces: "{{ nomad_input_namespaces | default(['ai4eosc', 'imagine', 'tutorials']) }}"
         nomad_version: "{{ nomad_input_version | default('1.7.3') }}"
