@@ -14,14 +14,7 @@
         server_list:
           - "{{ server_list }}"
       when:
-        - consul_join == ''
         - server_list is string
-
-    - name: Use consul_join to join the consul cluster
-      set_fact:
-        server_list:
-          - "{{ consul_join }}"
-      when: consul_join != ''
   roles:
     - role: 'grycap.docker'
       docker_nvidia_support: "{{ nvidia_support }}"
@@ -163,6 +156,7 @@
     - name: Set facts
       set_fact:
         consul_public_ip: "{{ server_list[0] }}"
+        consul_servers_ip: "{{ [ consul_join ] }}"
         my_ip: "{{ client_private_ip }}"
         username: cloudadm
         path: /opt/cloudadm/
