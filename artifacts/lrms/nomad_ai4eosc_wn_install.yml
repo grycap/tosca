@@ -15,6 +15,13 @@
           - "{{ server_list }}"
       when:
         - server_list is string
+    - name: Set primary_datacenter
+      set_fact:
+        consul_primary_datacenter: "{{ nomad_input_dc | default('ifca-ai4eosc') }}"
+    - name: Set primary_datacenter
+      set_fact:
+        consul_primary_datacenter: "{{ consul_join_datacenter | default('ifca-ai4eosc') }}"
+      when: consul_join != ''
   roles:
     - role: 'grycap.docker'
       docker_nvidia_support: "{{ nvidia_support }}"
@@ -162,6 +169,7 @@
         path: /opt/cloudadm/
         nomad_dc: "{{ nomad_input_dc | default('ifca-ai4eosc') }}"
         consul_dc_name: "{{ nomad_input_dc | default('ifca-ai4eosc') }}"
+        primary_datacenter: "{{ consul_primary_datacenter }}"
         domain: "{{ nomad_input_domain | default('ifca') }}"
         nomad_version: "{{ nomad_input_version | default('1.7.3') }}"
         consul_version: "{{ consul_input_version | default('1.17.1') }}"
