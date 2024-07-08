@@ -33,7 +33,7 @@ topology_template:
       type: tosca.nodes.SoftwareComponent
       artifacts:
         nvidia_role:
-          file: NVIDIA.nvidia_driver
+          file: nvidia.nvidia_driver
           type: tosca.artifacts.AnsibleGalaxy.role
       requirements:
         - host: simple_node

@@ -27,6 +27,8 @@ roles:
   - name: grycap.motley_cue
   - name: grycap.kuberegistry
   - name: grycap.horovod
+  - name: arc 
+    src: git+https://github.com/nordugrid/arc-ansible.git
 
 collections:
   - name: community.crypto

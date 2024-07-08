@@ -321,7 +321,7 @@ topology_template:
       properties:
         front_end_ip: { get_attribute: [ front, private_address, 0 ] }
       requirements:
-        - host: wn
+        - host: wn_gpu
       artifacts:
         docker_role:
           file: grycap.docker

@@ -11,7 +11,7 @@ metadata:
   display_name: Deploy an OSCAR Virtual Cluster
   icon: images/oscar.png
   order: 2
-  web: https://grycap.github.io/oscar/
+  web: https://oscar.grycap.net
   tabs:
     HW Data:
       - wn_num
@@ -51,7 +51,7 @@ topology_template:
   inputs:
     wn_num:
       type: integer
-      description: Number of WNs in the oscar cluster
+      description: Number of WNs in the OSCAR cluster
       default: 1
       required: yes
     fe_cpus:
@@ -99,7 +99,7 @@ topology_template:
 
     storage_size:
       type: string
-      description: Size of the extra HD added to the instance
+      description: Size of the extra HD added to the front-end node
       default: 50 GB
       required: yes
       constraints:

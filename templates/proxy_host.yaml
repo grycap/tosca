@@ -6,12 +6,12 @@ imports:
 description: Enable to access the VM in an private network trought a Proxy/Bastion host.
 
 metadata:
-  template_version: "1.0.1"
+  template_version: "1.0.2"
   template_name: Proxy/Bastion host
   display_name: Enable to access the VM trought a Proxy/Bastion host.
   icon: images/bastion.png
   tabs:
-    Proxy/Bastion host:
+    Bastion host:
       - proxy_host
       - private_key:
           tag_type: textarea
