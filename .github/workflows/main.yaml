@@ -59,7 +59,7 @@ jobs:
       - name: Installing Ansible roles and collections for test.
         run: |
           export LC_ALL=C.UTF-8 
-          ansible-galaxy install -r tests/requirements.yaml
+          ansible-galaxy install -r tests/requirements.yaml -f
 
       - name: Check Ansible lint
         run: |

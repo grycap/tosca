@@ -63,7 +63,7 @@ topology_template:
         - valid_values: [ 2 GB, 4 GB, 8 GB, 16 GB, 32 GB, 64 GB, 128 GB, 256 GB, 512 GB ]
     disk_size:
       type: scalar-unit.size
-      description: Size of the root disk of the VM (in case o 0 disk will no be resized)
+      description: Size of the root disk of the VM (in case of 0 disk will no be resized)
       default: 20 GB
       constraints:
         - valid_values: [ 20 GB, 50 GB, 100 GB, 200 GB, 0 GB ]

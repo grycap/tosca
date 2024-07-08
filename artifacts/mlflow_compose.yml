@@ -85,8 +85,7 @@
                       - ./db:/var/lib/mysql
               web:
                   restart: always
-                  build: ./mlflow
-                  image: mlflow_server
+                  image: grycap/mlflow
                   container_name: mlflow_server
                   {{ mlflow_environment }}
                   expose:
@@ -152,21 +151,6 @@
           admin_password = {{ mlflow_admin_password }}
           authorization_function = mlflow.server.auth:authenticate_request_basic_auth
         dest: /opt/mlflow/basic_auth.ini
-        mode: '644'
-
-    - name: Create mlflow image build directory
-      file:
-        path: /opt/mlflow/mlflow
-        state: directory
-        mode: '755'
-
-    - name: Create mlflow/Dockerfile file
-      copy:
-        content: |
-          FROM python:3.8-slim-buster
-          # Install python packages
-          RUN pip install "mlflow>=2.7.1" boto3 pymysql
-        dest: /opt/mlflow/mlflow/Dockerfile
         mode: '644'
 
     - name: Exec docker-compose up

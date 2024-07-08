@@ -23,7 +23,6 @@
           - "{{ consul_join }}"
       when: consul_join != ''
 
-      # TODO: consul_bootstrap_expect
   tasks:
     - name: Install git
       package:
