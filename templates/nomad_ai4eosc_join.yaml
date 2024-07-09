@@ -188,18 +188,30 @@ topology_template:
               port_4646:
                 protocol: tcp
                 source: 4646
+              port_4647:
+                protocol: tcp
+                source: 4647
+              port_4648:
+                protocol: tcp
+                source: 4648
+              port_4648u:
+                protocol: udp
+                source: 4648
               port_8501:
                 protocol: tcp
                 source: 8501
+              port_8300:
+                protocol: tcp
+                source: 8300
+              port_8301:
+                protocol: tcp
+                source: 8301
               port_8302:
                 protocol: tcp
                 source: 8302
-              port_80:
-                protocol: tcp
-                source: 80
-              port_443:
-                protocol: tcp
-                source: 443
+              port_8302u:
+                protocol: udp
+                source: 8302
       requirements:
         - host: front
       interfaces:
