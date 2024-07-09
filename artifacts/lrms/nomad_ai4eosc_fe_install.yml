@@ -161,8 +161,17 @@
 
     - name: Set facts
       set_fact:
-        consul_public_ip: "{{ server_list[0] }}"
+        consul_servers_ip: "{{ server_list}}"
+      when: consul_join == ''
+
+    - name: Set facts
+      set_fact:
         consul_servers_ip: "{{ [ consul_join ] }}"
+      when: consul_join != ''
+
+    - name: Set facts
+      set_fact:
+        consul_public_ip: "{{ server_list[0] }}"
         my_ip: "{{ server_private_ip }}"
         my_public_ip: "{{ server_public_ip }}"
         username: cloudadm
