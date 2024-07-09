@@ -4,6 +4,7 @@
   vars:
     server_list: "{{ nomad_server_list | default([ansible_default_ipv4.address]) }}"
     server_private_ip: "{{ IM_NODE_PRIVATE_IP | default(ansible_default_ipv4.address) }}"
+    server_public_ip: "{{ IM_NODE_PUBLIC_IP | default('') }}"
     launch_traefik: "{{ nomad_launch_traefik | default(false) }}"
     nvidia_support: false
     certs_url: "{{ consul_cert_url | default('') }}"
@@ -163,6 +164,7 @@
         consul_public_ip: "{{ server_list[0] }}"
         consul_servers_ip: "{{ [ consul_join ] }}"
         my_ip: "{{ server_private_ip }}"
+        my_public_ip: "{{ server_public_ip }}"
         username: cloudadm
         path: /opt/cloudadm/
         nomad_dc: "{{ nomad_input_dc | default('ifca-ai4eosc') }}"
