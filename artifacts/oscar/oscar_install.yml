@@ -25,7 +25,7 @@
 
     - role: 'grycap.kubefaas'
       faas_framework: 'knative'
-      knative_version: '1.3.0'
+      knative_version: '1.13.1'
       master_deploy: true
 
     - role: 'grycap.kubeoscar'
