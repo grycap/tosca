@@ -140,6 +140,7 @@ topology_template:
         os:
           properties:
             type: linux
+            distribution: ubuntu
       # Add dummy task to activate context
       interfaces:
         Standard:
