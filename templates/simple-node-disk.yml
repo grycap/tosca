@@ -10,41 +10,7 @@ metadata:
   template_name: VM
   template_version: "1.1.0"
   template_author: Miguel Caballer
-  creation_date: 2020-09-08
-  display_name: Deploy a VM
-  icon: images/vm-icon-disk.png
-  tag: VM
-  order: 1
-  tabs:
-    VM Data:
-      - num_cpus
-      - mem_size
-      - disk_size
-      - instance_type
-      - num_instances
-      - storage_size
-      - mount_path
-      - ports
-    GPU Data: .*gpu.*
-  childs:
-    - docker.yaml
-    - galaxy.yaml
-    - users.yml
-    - ssh_keys.yml
-    - proxy_host.yaml
-    - minio_compose.yaml
-    - nvidia.yml
-    - ansible_tasks.yml
-    - ssh_oidc.yaml
-    - noderedvm.yaml
-    - cernvmfs.yaml
-    - image-service.yaml
-    - ai4eoscvm.yaml
-    - mlflowvm.yaml
-    - wget.yml
-    - sgde.yaml
-    - dydns_egi_update_vm.yml
-    - flowfuse.yaml
+
 
 topology_template:
 

@@ -9,19 +9,7 @@ metadata:
   template_name: SLURM
   template_version: "1.1.0"
   display_name: SLURM virtual cluster
-  icon: images/slurm.png
-  order: 4
-  tabs:
-    FE Node Features: fe_.*
-    WNs Features: wn_.*
-    SLURM Features: slurm_.*
-  childs:
-    - slurm_elastic.yaml
-    - slurm_galaxy.yml
-    - glusterfs.yml
-    - docker_cluster.yaml
-    - dydns_egi_update_lrms.yml
-    - arc.yml
+
 
 topology_template:
   inputs:

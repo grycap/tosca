@@ -11,14 +11,7 @@ metadata:
   template_name: HTCondor
   template_version: "1.0.0"
   display_name: HTCondor virtual cluster
-  icon: images/htcondor.png
-  tabs:
-    FE Node Features: fe_.*
-    WNs Features: wn_.*
-    HTCondor configuration: htcondor_.*
-  childs:
-    - pulsar.yml
-    - dydns_egi_update_lrms.yml
+
 
 topology_template:
   inputs:

@@ -10,15 +10,77 @@ metadata:
   template_version: "1.0.0"
   template_name: Docker + Compose
   display_name: Install Docker + Docker Compose
-  icon: images/docker.png
-  tabs:
-    Docker Data: .*
-  parents:
-    - simple-node-disk.yml
 
 topology_template:
 
   inputs:
+
+    num_cpus:
+      type: integer
+      description: Number of virtual cpus for the VM
+      default: 2
+      constraints:
+        - valid_values: [ 2, 4, 8, 16, 32, 64, 1 ]
+    mem_size:
+      type: scalar-unit.size
+      description: Amount of memory for the VM
+      default: 4 GB
+      constraints:
+        - valid_values: [ 4 GB, 8 GB, 16 GB, 32 GB, 64 GB, 128 GB, 256 GB, 512 GB, 2 GB ]
+    disk_size:
+      type: scalar-unit.size
+      description: Size of the root disk of the VM (in case of 0 disk will no be resized)
+      default: 20 GB
+      constraints:
+        - valid_values: [ 20 GB, 50 GB, 100 GB, 200 GB, 0 GB ]
+    instance_type:
+      type: string
+      description: Flavor name of the instance
+      default: ""
+    num_instances:
+      type: integer
+      description: Number of VMs to be spawned
+      default: 1
+
+    storage_size:
+      type: scalar-unit.size
+      description: Size of the extra HD added to the instance (Set 0 if disk is not needed)
+      default: 0 GB
+      constraints:
+        - valid_values: [ 0 GB, 10 GB, 20 GB, 50 GB, 100 GB, 200 GB, 500 GB, 1 TB, 2 TB, 10 TB, 20 TB, 40 TB, 100 TB ]
+    mount_path:
+      type: string
+      description: Path to mount the extra disk
+      default: /mnt/disk
+
+    num_gpus:
+      type: integer
+      description: Number of GPUs to assing to this VM
+      default: 0
+      constraints:
+        - valid_values: [ 0, 1, 2, 3, 4 ]
+    gpu_vendor:
+      type: string
+      description: GPU Vendor
+      default: ''
+      constraints:
+        - valid_values: [ '', 'NVIDIA', 'AMD' ]
+    gpu_model:
+      type: string
+      description: GPU Model
+      default: ''
+
+    ports:
+      type: map
+      entry_schema:
+        type: PortSpec
+      description: |
+        List of ports to be Opened in the Cloud site (eg. 22,80,443,2000:2100).
+        You can also include the remote CIDR (eg. 8.8.0.0/24).
+      default:
+        ssh_port:
+          source: 22
+          protocol: tcp
 
     nvidia_support:
       type: boolean
@@ -67,3 +129,46 @@ topology_template:
               docker_compose_git: { get_input: git_repo }
               compose_folder: { get_input: git_folder }
               repo_branch: { get_input: git_branch }
+
+    simple_node:
+      type: tosca.nodes.indigo.Compute
+      capabilities:
+        endpoint:
+          properties:
+            network_name: PUBLIC
+            ports: { get_input: ports }
+        scalable:
+          properties:
+            count: { get_input: num_instances }
+        host:
+          properties:
+            disk_size: { get_input: disk_size }
+            num_cpus: { get_input: num_cpus }
+            mem_size: { get_input: mem_size }
+            num_gpus: { get_input: num_gpus }
+            gpu_vendor: { get_input: gpu_vendor }
+            gpu_model: { get_input: gpu_model }
+            instance_type: { get_input: instance_type }
+        os:
+          properties:
+            type: linux
+            distribution: ubuntu
+      requirements:
+        - local_storage:
+            node: my_block_storage
+            capability: tosca.capabilities.Attachment
+            relationship:
+              type: tosca.relationships.AttachesTo
+              properties:
+                location: { get_input: mount_path }
+
+    my_block_storage:
+      type: tosca.nodes.BlockStorage
+      properties:
+        size: { get_input: storage_size }
+
+  outputs:
+    node_ip:
+      value: { get_attribute: [ simple_node, public_address, 0 ] }
+    node_creds:
+      value: { get_attribute: [ simple_node, endpoint, credential, 0 ] }

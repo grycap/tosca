@@ -3,15 +3,12 @@ tosca_definitions_version: tosca_simple_yaml_1_0
 imports:
   - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
 
-description: Deploy a Hadoop Virtual Cluster.
+description: Deploy a Hadoop Virtual Cluster with Spark
 
 metadata:
-  template_name: Hadoop
+  template_name: Hadoop + Spark
   template_version: "1.0.0"
-  display_name: Deploy a Hadoop Virtual Cluster
-  icon: images/hadoop.png
-  childs:
-    - spark_hadoop.yaml
+  display_name: Deploy a Hadoop Virtual Cluster with Spark
 
 topology_template:
   inputs:
@@ -51,6 +48,32 @@ topology_template:
 
 
   node_templates:
+
+    spark_wn:
+      type: tosca.nodes.SoftwareComponent
+      requirements:
+        - host: hadoop_wn
+      artifacts:
+        docker_role:
+          file: grycap.spark
+          type: tosca.artifacts.AnsibleGalaxy.role
+      interfaces:
+        Standard:
+          configure:
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/spark/spark_install.yml
+
+    spark_master:
+      type: tosca.nodes.SoftwareComponent
+      requirements:
+        - host: hadoop_server
+      artifacts:
+        docker_role:
+          file: grycap.spark
+          type: tosca.artifacts.AnsibleGalaxy.role
+      interfaces:
+        Standard:
+          configure:
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/spark/spark_install.yml
 
     hadoop_master:
       type: tosca.nodes.indigo.HadoopMaster
