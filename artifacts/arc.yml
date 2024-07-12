@@ -1,8 +1,0 @@
----
-- hosts: localhost
-  connection: local
-  roles:
-    - role: arc
-      sessionbasename: '/home'
-      cachebasename: '/home'
-      lrms: 'slurm'
