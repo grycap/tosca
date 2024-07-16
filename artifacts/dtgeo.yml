@@ -1,0 +1,99 @@
+---
+- hosts: localhost
+  connection: local
+  vars:
+    singularity_ver: "{{ singularity_version | default('4.1.4') }}"
+    java_version: "11"
+    pycompss_ver: "{{ pycompss_version | default('3.3') }}"
+  tasks:
+    - name: Install EPEL
+      package:
+        name: epel-release
+        state: present
+      when: ansible_os_family == "RedHat" and ansible_distribution != "Fedora"
+
+    - name: Create man dir
+      file:
+        path: /usr/share/man/man1
+        state: directory
+        mode: '0755'
+      when: ansible_os_family == "Debian"
+
+    - name: Install required packages in Debian
+      package:
+        name:
+          - build-essential
+          - autoconf
+          - libtool
+          - python3-pip
+          - python3-dev
+          - openjdk-{{ java_version }}-jdk
+          - libboost-serialization-dev
+          - libboost-iostreams-dev
+          - gfortran
+          - libxml2
+          - libxml2-dev
+          - libgmp3-dev
+          - flex
+          - bison
+          - texinfo
+          - libpapi-dev
+        state: present
+      when: ansible_os_family == "Debian"
+
+    - name: Install required packages in RedHat
+      package:
+        name:
+          - '@Development Tools'
+          - python3-pip
+          - python3-devel
+          - java-{{ java_version }}-openjdk
+          - java-{{ java_version }}-openjdk-devel
+          - boost-devel
+          - gcc-gfortran
+          - libxml2
+          - libxml2-devel
+          - papi
+          - papi-devel
+        state: present
+      when: ansible_os_family == "RedHat"
+
+    - name: Set JAVA_HOME environment variable in Debian
+      when: ansible_os_family == "Debian"
+      block:
+        - lineinfile:
+            dest: /etc/environment
+            line: "JAVA_HOME=/usr/lib/jvm/java-{{ java_version }}-openjdk-amd64"
+        - set_fact:
+            java_home: "/usr/lib/jvm/java-{{ java_version }}-openjdk-amd64"
+
+    - name: Set JAVA_HOME environment variable in RedHat
+      when: ansible_os_family == "RedHat"
+      block:
+        - lineinfile:
+            dest: /etc/environment
+            line: "JAVA_HOME=/usr/lib/jvm/java-{{ java_version }}"
+        - set_fact:
+            java_home: "/usr/lib/jvm/java-{{ java_version }}"
+
+    - name: Install PyCOMPSs
+      pip:
+        name: pycompss
+        version: "{{ pycompss_ver }}"
+      environment:
+        JAVA_HOME: "{{ java_home }}"
+
+    - name: Install PyCOMPSs cli
+      pip:
+        name: pycompss-cli
+        state: present
+
+    - name: Install Singularity Ubuntu
+      apt:
+        deb: https://github.com/sylabs/singularity/releases/download/v{{ singularity_ver }}/singularity-ce_{{ singularity_ver }}-{{ ansible_distribution_release }}_amd64.deb
+      when: ansible_distribution == "Ubuntu"
+
+    - name: Install Singularity RedHat
+      yum:
+        name: https://github.com/sylabs/singularity/releases/download/v{{ singularity_ver }}/singularity-ce-{{ singularity_ver }}-1.el{{ ansible_distribution_major_version }}.x86_64.rpm
+      when: ansible_os_family == "RedHat"
