@@ -22,6 +22,7 @@ metadata:
     - docker_cluster.yaml
     - dydns_egi_update_lrms.yml
     - arc.yml
+    - dtgeo_tools.yaml
 
 topology_template:
   inputs:
