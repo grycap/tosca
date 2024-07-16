@@ -1,0 +1,64 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+imports:
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+
+description: Deploy DT-GEO selected tools in the cluster (Singularity, PyCOMPSs).
+
+metadata:
+  template_version: "1.0.0"
+  template_name: DT-GEO
+  display_name: Install DT-GEO Tools
+  icon: images/dtgeo.png
+  tabs:
+    DT-GEO: .*
+  parents:
+    - slurm_cluster.yml
+
+topology_template:
+
+  inputs:
+
+    singularity_version:
+      type: string
+      description: Singularity version to install
+      default: "4.1.4"
+    pycompss_version:
+      type: string
+      description: PyCOMPSs version to install
+      default: "3.3.1"
+      
+
+  node_templates:
+
+    dtgeo_tools_fe:
+      type: tosca.nodes.SoftwareComponent
+      requirements:
+        - host: lrms_server
+      artifacts:
+        docker_role:
+          file: grycap.docker
+          type: tosca.artifacts.AnsibleGalaxy.role
+      interfaces:
+        Standard:
+          configure:
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/dtgeo.yml
+            inputs:
+              singularity_version: { get_input: singularity_version }
+              pycompss_version: { get_input: pycompss_version }
+
+    dtgeo_tools_wn:
+      type: tosca.nodes.SoftwareComponent
+      requirements:
+        - host: lrms_wn
+      artifacts:
+        docker_role:
+          file: grycap.docker
+          type: tosca.artifacts.AnsibleGalaxy.role
+      interfaces:
+        Standard:
+          configure:
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/dtgeo.yml
+            inputs:
+              singularity_version: { get_input: singularity_version }
+              pycompss_version: { get_input: pycompss_version }
