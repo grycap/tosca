@@ -22,7 +22,7 @@ topology_template:
       default: myvm.test.fedcloud.changeme
       description: DNS hostname registered via https://nsupdate.fedcloud.eu/
       type: string
-    nsupdate_secret:
+    nsupdate_password:
       default: changeme
       description: Secret generated when registering myvm.test.fedcloud.changeme via https://nsupdate.fedcloud.eu/
       type: string
@@ -49,7 +49,7 @@ topology_template:
               dydns_hostname:
                 get_input: nsupdate_dns
               dydns_secret:
-                get_input: nsupdate_secret
+                get_input: nsupdate_password
               new_ip:
                 get_attribute: [ simple_node, public_address, 0 ]
       requirements:
