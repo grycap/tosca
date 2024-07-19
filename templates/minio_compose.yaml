@@ -13,16 +13,16 @@ metadata:
   tabs:
     MinIO Data:
       - minio_release
-      - minio_accesskey
-        tag_type: password
-      - minio_secretkey
-        tag_type: password
+      - minio_accesskey:
+          tag_type: password
+      - minio_secretkey:
+          tag_type: password
       - minio_dns_console
-      - nsupdate_secret_console
-        tag_type: password
+      - nsupdate_secret_console:
+          tag_type: password
       - minio_dns_api
-      - nsupdate_secret_api
-        tag_type: password
+      - nsupdate_secret_api:
+          tag_type: password
       - minio_letsencrypt_email
   parents:
     - simple-node-disk.yml
