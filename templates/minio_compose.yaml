@@ -76,6 +76,38 @@ topology_template:
 
   node_templates:
 
+    nsupdate_minio_api:
+      type: tosca.nodes.ec3.Application
+      interfaces:
+        Standard:
+          configure:
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/dydns_egi_update.yml
+            inputs:
+              dydns_hostname:
+                get_input: minio_dns_api
+              dydns_secret:
+                get_input: nsupdate_secret_api
+              new_ip:
+                get_attribute: [ simple_node, public_address, 0 ]
+      requirements:
+        - host: simple_node
+
+    nsupdate_minio_console:
+      type: tosca.nodes.ec3.Application
+      interfaces:
+        Standard:
+          configure:
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/dydns_egi_update.yml
+            inputs:
+              dydns_hostname:
+                get_input: minio_dns_console
+              dydns_secret:
+                get_input: nsupdate_secret_console
+              new_ip:
+                get_attribute: [ simple_node, public_address, 0 ]
+      requirements:
+        - host: simple_node
+
     minio:
       type: tosca.nodes.ec3.Application
       artifacts:
@@ -117,38 +149,8 @@ topology_template:
                 get_input: minio_release
       requirements:
         - host: simple_node
-
-    nsupdate_minio_api:
-      type: tosca.nodes.ec3.Application
-      interfaces:
-        Standard:
-          configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/dydns_egi_update.yml
-            inputs:
-              dydns_hostname:
-                get_input: minio_dns_api
-              dydns_secret:
-                get_input: nsupdate_secret_api
-              new_ip:
-                get_attribute: [ simple_node, public_address, 0 ]
-      requirements:
-        - host: simple_node
-
-    nsupdate_minio_console:
-      type: tosca.nodes.ec3.Application
-      interfaces:
-        Standard:
-          configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/dydns_egi_update.yml
-            inputs:
-              dydns_hostname:
-                get_input: minio_dns_console
-              dydns_secret:
-                get_input: nsupdate_secret_console
-              new_ip:
-                get_attribute: [ simple_node, public_address, 0 ]
-      requirements:
-        - host: simple_node
+        - dependency: nsupdate_minio_console
+        - dependency: nsupdate_minio_api
 
   outputs:
     minio_console:
