@@ -149,6 +149,8 @@ topology_template:
                 get_input: minio_release
       requirements:
         - host: simple_node
+        - dependency: nsupdate_minio_console
+        - dependency: nsupdate_minio_api
 
   outputs:
     minio_console:
