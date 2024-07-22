@@ -19,6 +19,7 @@ metadata:
   childs:
     - pulsar.yml
     - dydns_egi_update_lrms.yml
+    - proxy_host_cluster.yml
 
 topology_template:
   inputs:

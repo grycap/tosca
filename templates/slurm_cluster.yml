@@ -23,6 +23,7 @@ metadata:
     - dydns_egi_update_lrms.yml
     - arc.yml
     - dtgeo_tools.yaml
+    - proxy_host_cluster.yml
 
 topology_template:
   inputs:
