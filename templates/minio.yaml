@@ -64,7 +64,6 @@ topology_template:
       description: Email to be used for Let's Encrypt certificates
       type: string
 
-
   node_templates:
 
     minio:
