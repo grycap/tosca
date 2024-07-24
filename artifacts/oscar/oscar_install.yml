@@ -37,4 +37,4 @@
       serverless_backend: "knative"
       minio_tls_verify: '{{ oscar_minio_tls_verify }}'
       additional_config:
-        allowedImagePrefix: '{{ allowed_image_prefix }}'
+        allowedImagePrefix: '{{ allowed_image_prefixes }}'

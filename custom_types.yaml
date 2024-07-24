@@ -1184,6 +1184,13 @@ node_types:
         description: OpenID group list to grant access in the cluster.
         required: false
         default: []
+      allowed_image_prefixes:
+        type: list
+        entry_schema:
+          type: string
+        description: List of allowed image prefixes
+        required: false
+        default: []
     artifacts:
       minio_role:
         file: grycap.kubeminio
