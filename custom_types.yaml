@@ -1866,6 +1866,12 @@ node_types:
         entry_schema:
           type: string
         required: false
+      command:
+        type: list
+        description: Command line
+        entry_schema:
+          type: string
+        required: false
     requirements:
       - host:
           capability: tosca.capabilities.Container.Docker
