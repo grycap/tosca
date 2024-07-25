@@ -1222,6 +1222,7 @@ node_types:
             oidc_subject: { get_property: [ SELF, oidc_subject ] }
             oidc_groups: { get_property: [ SELF, oidc_groups ] }
             yunikorn_enable:  { get_property: [ SELF, yunikorn_enable ] }
+            allowed_image_prefixes: { get_property: [ SELF, allowed_image_prefixes ] }
     requirements:
       - host:
           capability: tosca.capabilities.Container
