@@ -68,9 +68,9 @@ topology_template:
             num_cpus: { get_input: cpu }
             mem_size: { get_input: memory }
             publish_ports:
-            - target: 5000
-              source: 32050
-              endpoint: mlflow.apps.dcw1-test.paas.psnc.pl
+              - target: 5000
+                source: 32050
+                endpoint: mlflow.apps.dcw1-test.paas.psnc.pl
             volumes:
               - "container_vol:/data"
 
