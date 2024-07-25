@@ -49,12 +49,12 @@ topology_template:
         config_map:
           file: "basic_auth.ini"
           type: tosca.artifacts.File
-          deploy_path: "/opt/mlflow/basic_auth.ini"
+          deploy_path: "/usr/local/lib/python3.8/site-packages/mlflow/server/auth/basic_auth.ini"
           properties:
             content: |
               [mlflow]
               default_permission = READ
-              database_uri = sqlite:///auth_db/basic_auth.db
+              database_uri = sqlite:///data/basic_auth.db
               admin_username = admin
               admin_password = mlflow_password
               authorization_function = mlflow.server.auth:authenticate_request_basic_auth
