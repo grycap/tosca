@@ -44,7 +44,7 @@ topology_template:
         - host: mlflow_runtime
       artifacts:
         my_image:
-          file: grycap/mlflow:2.13.0
+          file: grycap/mlflow:2.14.3
           type: tosca.artifacts.Deployment.Image.Container.Docker
         config_map:
           file: "basic_auth.ini"
@@ -118,5 +118,5 @@ topology_template:
         # volume_id: "PV name"
 
   outputs:
-    mysql_service_url:
+    mlflow_url:
       value: { get_attribute: [ mlflow_app, endpoints, 0 ] }
