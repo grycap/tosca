@@ -1184,6 +1184,13 @@ node_types:
         description: OpenID group list to grant access in the cluster.
         required: false
         default: []
+      allowed_image_prefixes:
+        type: list
+        entry_schema:
+          type: string
+        description: List of allowed image prefixes
+        required: false
+        default: []
     artifacts:
       minio_role:
         file: grycap.kubeminio
@@ -1203,7 +1210,7 @@ node_types:
     interfaces:
       Standard:
         configure:
-          implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/oscar/oscar_install.yml
+          implementation: https://raw.githubusercontent.com/grycap/tosca/oscar_images/artifacts/oscar/oscar_install.yml
           inputs:
             oscar_minio_secretkey: { get_property: [ SELF, minio_secretkey ] }
             oscar_password: { get_property: [ SELF, password ] }
@@ -1215,6 +1222,7 @@ node_types:
             oidc_subject: { get_property: [ SELF, oidc_subject ] }
             oidc_groups: { get_property: [ SELF, oidc_groups ] }
             yunikorn_enable:  { get_property: [ SELF, yunikorn_enable ] }
+            allowed_image_prefixes: { get_property: [ SELF, allowed_image_prefixes ] }
     requirements:
       - host:
           capability: tosca.capabilities.Container

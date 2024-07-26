@@ -1,13 +1,13 @@
 tosca_definitions_version: tosca_simple_yaml_1_0
 
 imports:
-  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/oscar_images/custom_types.yaml
 
 description: Deploy an OSCAR Virtual Cluster.
 
 metadata:
   template_name: OSCAR
-  template_version: "1.1.0"
+  template_version: "1.2.0"
   display_name: Deploy an OSCAR Virtual Cluster
   icon: images/oscar.png
   order: 2
@@ -38,6 +38,7 @@ metadata:
           tag_type: hidden
       - kube_nvidia_support
       - kube_install_yunikorn
+      - allowed_image_prefixes
   childs:
     - oscar_elastic.yaml
     - oscar_function.yaml
@@ -131,6 +132,12 @@ topology_template:
       type: string
       description: VO to support
       default: ""
+    allowed_image_prefixes:
+      type: list
+      description: Allowed image prefix
+      entry_schema:
+        type: string
+      default: []
     cluster_name:
       type: string
       description: Cluster Name
@@ -166,6 +173,7 @@ topology_template:
         oidc_subject: { get_input: user_id }
         oidc_groups: [{ get_input: selected_vo }]
         yunikorn_enable: { get_input: kube_install_yunikorn }
+        allowed_image_prefixes: { get_input: allowed_image_prefixes }
       capabilities:
         endpoint:
           properties:
