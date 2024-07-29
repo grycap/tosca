@@ -1,0 +1,8 @@
+---
+- name: Download dataset using datahugger
+  hosts: localhost
+  tasks:
+    - name: Download the dataset
+      download_dataset:
+        dataset_url: "{{ dataset_url }}"
+        output_dir: "{{ output_dir }}"

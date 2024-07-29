@@ -1,0 +1,147 @@
+tosca_definitions_version: tosca_simple_yaml_1_3
+
+metadata:
+  template_version: 1.0
+  template_name: datahugger_dataset
+  display_name: Download a dataset.
+
+description: Download a dataset using DataHugger and save it on a VM.
+
+data_types:
+  tosca.datatypes.Dataset:
+    derived_from: tosca.datatypes.Root
+    description: A data type that represents a dataset, including its DOI and other metadata.
+    properties:
+      identifier:
+        type: string
+        description: The Digital Object Identifier of the dataset.
+        required: true
+      title:
+        type: string
+        description: The title of the dataset.
+        required: false
+      description:
+        type: string
+        description: A description of the dataset.
+        required: false
+      creator:
+        type: string
+        description: The creator of the dataset.
+        required: false
+      release_date:
+        type: string
+        description: The publication date of the dataset.
+        required: false
+      downloadURL:
+        type: string
+        description: The URL to download the dataset.
+        required: false
+      license:
+        type: string
+        description: A legal document under which the resource is made available.
+        required: false
+
+node_types:
+  tosca.nodes.eosc.Dataset:
+    derived_from: tosca.nodes.Root
+    properties:
+      dataset:
+        type: tosca.datatypes.Dataset
+        description: The dataset associated with this node.
+        required: true
+      filter:
+        type: string
+        description: Regex to express the set of files to get from the Dataset.
+        required: false
+
+topology_template:
+  inputs:
+    wn_num:
+      type: integer
+      description: Number of 2nd WNs type in the cluster
+      default: 0
+      required: yes
+    cpus:
+      type: integer
+      description: Number of CPUs for the WNs
+      default: 2
+      required: yes
+      constraints:
+        - valid_values: [2, 4, 8, 16, 32, 64]
+    mem:
+      type: scalar-unit.size
+      description: Amount of Memory for the WNs
+      default: 4 GB
+      required: yes
+      constraints:
+        - valid_values: [4 GB, 8 GB, 16 GB, 32 GB, 64 GB, 128 GB, 256 GB, 512 GB]
+    instance_type:
+      type: string
+      description: Flavor name for the GPU WNs
+      default: ""
+    num_gpus:
+      type: integer
+      description: Number of GPUs to assign to this VM
+      default: 0
+      constraints:
+        - valid_values: [0, 1, 2, 3, 4]
+    gpu_vendor:
+      type: string
+      description: GPU Vendor
+      default: ''
+      constraints:
+        - valid_values: ['', 'NVIDIA', 'AMD']
+    gpu_model:
+      type: string
+      description: GPU Model
+      default: ''
+    disk_size:
+      type: scalar-unit.size
+      description: Size of the disk to be attached to the GPU WN instances for storing containers
+      default: 0 GB
+      constraints:
+        - valid_values: [0 GB, 10 GB, 20 GB, 50 GB, 100 GB, 200 GB, 500 GB, 1 TB, 2 TB]
+
+    dataset_url:
+      type: string
+      description: URL or DOI of the dataset to download.
+      default: 10.5281/zenodo.7139731
+    output_dir:
+      type: string
+      description: Directory where the dataset will be saved.
+      default: /tmp/datasets/
+
+  node_templates:
+    compute_node:
+      type: tosca.nodes.Compute
+      capabilities:
+        scalable:
+          properties:
+            count: { get_input: wn_num }
+        host:
+          properties:
+            num_cpus: { get_input: cpus }
+            mem_size: { get_input: mem }
+            disk_size: { get_input: disk_size }
+            num_gpus: { get_input: num_gpus }
+            gpu_vendor: { get_input: gpu_vendor }
+            gpu_model: { get_input: gpu_model }
+            instance_type: { get_input: instance_type }
+        os:
+          properties:
+            type: linux
+
+    dataset_node:
+      type: tosca.nodes.eosc.Dataset
+      properties:
+        dataset:
+          identifier: { get_input: dataset_url }
+      interfaces:
+        Standard:
+          create:
+            implementation: https://raw.githubusercontent.com/grycap/tosca/asanchez-dev/artifacts/download_dataset.yaml
+            inputs:
+              dataset_url: { get_input: dataset_url }
+              output_dir: { get_input: output_dir }
+      requirements: 
+        - host: compute_node
