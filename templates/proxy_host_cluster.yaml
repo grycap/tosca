@@ -53,9 +53,9 @@ topology_template:
       properties:
         order: 0
       requirements:
-        - binding: lrms_front_end
+        - binding: lrms_server
         - link: priv_network
 
   outputs:
     private_ip:
-      value: { get_attribute: [ lrms_front_end, private_address, 0 ] }
+      value: { get_attribute: [ lrms_server, private_address, 0 ] }
