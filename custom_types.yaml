@@ -114,6 +114,39 @@ data_types:
         type: string
         required: no
 
+  tosca.datatypes.Dataset:
+    derived_from: tosca.datatypes.Root
+    description: A data type that represents a dataset, including its DOI and other metadata.
+    properties:
+      identifier:
+        type: string
+        description: The Digital Object Identifier of the dataset.
+        required: true
+      title:
+        type: string
+        description: The title of the dataset.
+        required: false
+      description:
+        type: string
+        description: A description of the dataset.
+        required: false
+      creator:
+        type: string
+        description: The creator of the dataset.
+        required: false
+      release_date:
+        type: string
+        description: The publication date of the dataset.
+        required: false
+      downloadURL:
+        type: string
+        description: The URL to download the dataset.
+        required: false
+      license:
+        type: string
+        description: A legal document under which the resource is made available.
+        required: false
+
 capability_types:
 
   tosca.capabilities.indigo.OperatingSystem:
@@ -1893,6 +1926,38 @@ node_types:
         type: tosca.capabilities.Container.Docker
         valid_source_types: [tosca.nodes.Container.Application.Docker]
         relationship: tosca.relationships.HostedOn
+
+  tosca.nodes.eosc.Dataset:
+    derived_from: tosca.nodes.Root
+    properties:
+      dataset:
+        type: tosca.datatypes.Dataset
+        description: The dataset associated with this node.
+        required: true
+      filter:
+        type: string
+        description: Regex to express the set of files to get from the Dataset.
+        required: false
+      dest:
+        type: string
+        description: Path to download the set of files from the Dataset.
+        required: false
+    requirements:
+      - host:
+          capability: tosca.capabilities.Compute
+          node: tosca.nodes.Compute
+          relationship: tosca.relationships.HostedOn
+    artifacts:
+      datase_collection:
+        file: git+https://github.com/grycap/ansible-collection-dataset
+        type: tosca.artifacts.AnsibleGalaxy.collection
+    interfaces:
+      Standard:
+        configure:
+          implementation: https://raw.githubusercontent.com/AntonioSanch3z/datahugger_module/master/playbooks/download_dataset.yaml
+          inputs:
+            dataset_url: { get_property: [ SELF, dataset, identifier ] }
+            output_dir: { get_property: [ SELF, dest ] }
 
 policy_types:
 
