@@ -82,7 +82,7 @@
                 - "traefik.docker.network=stac_frontend"
               depends_on:
                 - database
-              command: bash -c "./scripts/wait-for-it.sh database:5432 && python -m stac_fastapi.pgstac.app"
+              command: bash -c "./scripts/wait-for-it.sh -t 60 database:5432 && python -m stac_fastapi.pgstac.app"
               networks:
                 - frontend
                 - backend
