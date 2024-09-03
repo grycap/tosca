@@ -1,0 +1,115 @@
+---
+- name: Install STAC
+  hosts: localhost
+  connection: local
+  vars:
+    stac_dns: "{{ dns_name }}"
+    stac_letsencrypt_email: "{{ letsencrypt_email }}"
+  roles:
+    - role: 'grycap.docker'
+  tasks:
+    - name: Create stac directory
+      file:
+        path: /opt/stac
+        state: directory
+        mode: '755'
+
+    - name: Create stac data directory
+      file:
+        path: /data/pgdata
+        state: directory
+        mode: '755'
+
+    - name: Create docker-compose file
+      copy:
+        content: |
+          version: '3'
+          services:
+            traefik:
+              image: "traefik:v2.10"
+              container_name: "traefik"
+              command:
+                # - "--log.level=DEBUG"
+                - "--api.insecure=true"
+                - "--providers.docker=true"
+                - "--providers.docker.exposedbydefault=false"
+                - "--entrypoints.web.address=:80"
+                - "--entrypoints.websecure.address=:443"
+                - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+                - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+                - "--entrypoints.web.http.redirections.entrypoint.permanent=true"
+                - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
+                - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+                #- "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+                - "--certificatesresolvers.myresolver.acme.email={{ stac_letsencrypt_email }}"
+                - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+              ports:
+                - "80:80"
+                - "443:443"
+              volumes:
+                - "./letsencrypt:/letsencrypt"
+                - "/var/run/docker.sock:/var/run/docker.sock:ro"
+              networks:
+                - frontend
+            app:
+              container_name: stac-fastapi-pgstac
+              image: ghcr.io/stac-utils/stac-fastapi-pgstac
+              environment:
+                - APP_HOST=0.0.0.0
+                - APP_PORT=8082
+                - RELOAD=true
+                - ENVIRONMENT=local
+                - POSTGRES_USER=username
+                - POSTGRES_PASS=password
+                - POSTGRES_DBNAME=postgis
+                - POSTGRES_HOST_READER=database
+                - POSTGRES_HOST_WRITER=database
+                - POSTGRES_PORT=5432
+                - WEB_CONCURRENCY=10
+                - VSI_CACHE=TRUE
+                - GDAL_HTTP_MERGE_CONSECUTIVE_RANGES=YES
+                - GDAL_DISABLE_READDIR_ON_OPEN=EMPTY_DIR
+                - DB_MIN_CONN_SIZE=1
+                - DB_MAX_CONN_SIZE=1
+                - USE_API_HYDRATE=false
+              labels:
+                - "traefik.enable=true"
+                - "traefik.http.routers.app.service=app"
+                - "traefik.http.routers.app.rule=Host(`{{ stac_dns }}`)"
+                - "traefik.http.routers.app.entrypoints=websecure"
+                - "traefik.http.routers.app.tls.certresolver=myresolver"
+                - "traefik.http.services.app.loadbalancer.server.port=8082"
+                - "traefik.docker.network=stac_frontend"
+              depends_on:
+                - database
+              command: bash -c "./scripts/wait-for-it.sh database:5432 && python -m stac_fastapi.pgstac.app"
+              networks:
+                - frontend
+                - backend
+            database:
+              container_name: stac-db
+              image: ghcr.io/stac-utils/pgstac:v0.8.5
+              environment:
+                - POSTGRES_USER=username
+                - POSTGRES_PASSWORD=password
+                - POSTGRES_DB=postgis
+                - PGUSER=username
+                - PGPASSWORD=password
+                - PGDATABASE=postgis
+              volumes:
+                - /data/pgdata:/var/lib/postgresql/data
+              command: postgres -N 500
+              networks:
+                - backend
+          networks:
+              frontend:
+                  driver: bridge
+              backend:
+                  driver: bridge
+        dest: /opt/stac/docker-compose.yaml
+        mode: '644'
+
+    - name: Exec docker-compose up
+      docker_compose:
+        project_src: /opt/stac/
+        state: present
