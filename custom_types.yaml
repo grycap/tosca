@@ -1954,7 +1954,7 @@ node_types:
     interfaces:
       Standard:
         configure:
-          implementation: https://raw.githubusercontent.com/AntonioSanch3z/datahugger_module/master/playbooks/download_dataset.yaml
+          implementation: https://raw.githubusercontent.com/grycap/tosca/datasets/artifacts/lrms/download_dataset.yaml
           inputs:
             dataset_url: { get_property: [ SELF, dataset, identifier ] }
             output_dir: { get_property: [ SELF, dest ] }
