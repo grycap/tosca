@@ -32,5 +32,7 @@ roles:
 
 collections:
   - name: community.crypto
-  - name: grycap.dataset 
-    src: git+https://github.com/grycap/ansible-collection-dataset
+  - name: grycap.dataset
+    source: https://github.com/grycap/ansible-collection-dataset
+    type: git
+  
