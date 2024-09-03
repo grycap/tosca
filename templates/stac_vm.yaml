@@ -69,4 +69,4 @@ topology_template:
 
   outputs:
     stac_endpoint:
-      value: { concat: [ 'stac.', get_attribute: [ simple_node, public_address, 0 ], '.nip.io' ] }
+      value: { concat: [ 'https://stac.', get_attribute: [ simple_node, public_address, 0 ], '.nip.io' ] }

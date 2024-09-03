@@ -14,6 +14,12 @@
         state: directory
         mode: '755'
 
+    - name: Create stac data directory
+      file:
+        path: /data/pgdata
+        state: directory
+        mode: '755'
+
     - name: Create docker-compose file
       copy:
         content: |
@@ -91,7 +97,7 @@
                 - PGPASSWORD=password
                 - PGDATABASE=postgis
               volumes:
-                - /data:/var/lib/postgresql/data
+                - /data/pgdata:/var/lib/postgresql/data
               command: postgres -N 500
               networks:
                 - backend
