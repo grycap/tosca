@@ -50,5 +50,4 @@ topology_template:
 
   outputs:
     openeo_endpoint:
-      value: { concat: [ 'https://openeo.',  get_attribute: [ front, public_address, 0 ], '.nip.io/' ] }
-
+      value: { concat: [ 'https://openeo.', get_attribute: [ front, public_address, 0 ], '.nip.io/' ] }

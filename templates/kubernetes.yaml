@@ -44,7 +44,7 @@ metadata:
     - k8s_galaxy.yaml
     - dydns_egi_update_k8s.yml
     - ades.yaml
-    - openeo_k8s.yml
+    - openeo.yaml
     - proxy_host_k8s.yaml
 
 topology_template:
