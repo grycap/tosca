@@ -3,6 +3,9 @@
   connection: local
   vars:
     stac_url: "{{ openeo_stac_url | default('https://stac.eodc.eu/api/v1') }}"
+    oidc_url: "{{ openeo_oidc_url | default('https://aai.egi.eu/auth/realms/egi') }}"
+    oidc_organisation: "{{ openeo_oidc_organisation | default('egi') }}"
+    oidc_roles: "{{ openeo_oidc_roles | default(['developer']) }}"
   tasks:
     - name: Create OpenEO Helm values file
       copy:
@@ -16,9 +19,9 @@
               apiTLS: false
               apiTitle: "OpenEO ArgoWorkflows"
               apiDescription: "A K8S deployment of the openeo api for argoworkflows."
-              oidcUrl: "https://aai.egi.eu/auth/realms/egi"
-              odicOrganisation: "egi"
-              oidcRoles: ["developer"]
+              oidcUrl: "{{ oidc_url }}"
+              odicOrganisation: "{{ oidc_organisation }}"
+              oidcRoles: {{ oidc_roles }}
               stacCatalogueUrl: "{{ stac_url }}"
               workspaceRoot: "/user_workspaces"
               executorImage: "ghcr.io/eodcgmbh/openeo-argoworkflows:executor-2024.7.1"
