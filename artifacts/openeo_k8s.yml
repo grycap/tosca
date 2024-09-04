@@ -1,0 +1,82 @@
+---
+- hosts: localhost
+  connection: local
+  vars:
+    stac_url: "{{ openeo_stac_url | default('https://stac.eodc.eu/api/v1') }}"
+  tasks:
+    - name: Create OpenEO Helm values file
+      copy:
+        dest: /tmp/openeo_config.yaml
+        mode: '644'
+        content: |
+          global:
+            env:
+              alembicDir: "/opt/openeo_argoworkflows_api/psql"
+              apiDns: 127.0.0.1:8000
+              apiTLS: false
+              apiTitle: "OpenEO ArgoWorkflows"
+              apiDescription: "A K8S deployment of the openeo api for argoworkflows."
+              oidcUrl: "https://aai.egi.eu/auth/realms/egi"
+              odicOrganisation: "egi"
+              oidcRoles: ["developer"]
+              stacCatalogueUrl: "{{ stac_url }}"
+              workspaceRoot: "/user_workspaces"
+              executorImage: "ghcr.io/eodcgmbh/openeo-argoworkflows:executor-2024.7.1"
+          image:
+            repository: ghcr.io/eodcgmbh/openeo-argoworkflows
+            # Overrides the image tag whose default is the chart appVersion.
+            tag: "api-2024.7.2"
+          persistence:
+            capacity: "8Gi"
+          ingress:
+            enabled: true
+            className: "nginx"
+            hosts:
+              - host: openeo.{{ public_ip_address }}.nip.io
+                paths:
+                  - path: /
+                    pathType: ImplementationSpecific
+
+    - name: Install git
+      package:
+        name: git
+        state: present
+
+    - name: Download Helm chart
+      git:
+        repo: https://github.com/eodcgmbh/charts
+        dest: /opt/eodcgmbh-charts
+        version: main
+        force: false
+
+    - name: Install Helm repositories
+      command: helm repo add {{ item.name }} {{ item.url }}
+      environment:
+        KUBECONFIG: "/etc/kubernetes/admin.conf"
+      register: helm_repo
+      changed_when: "'already exists' not in helm_repo.stdout"
+      loop:
+        - { name: "bitnami", url: "https://charts.bitnami.com/bitnami" }
+        - { name: "argo", url: "https://argoproj.github.io/argo-helm" }
+        - { name: "dask", url: "https://helm.dask.org" }
+
+    - name: Install Helm dependencies
+      command: helm dependency build
+      args:
+        chdir: /opt/eodcgmbh-charts/eodc/openeo-argo
+        creates: /opt/eodcgmbh-charts/eodc/openeo-argo/charts
+      environment:
+        KUBECONFIG: "/etc/kubernetes/admin.conf"
+
+    - name: Create namespace
+      command: kubectl create namespace openeo
+      environment:
+        KUBECONFIG: "/etc/kubernetes/admin.conf"
+      failed_when: false
+      register: namespace
+      changed_when: "'AlreadyExists' not in namespace.stdout"
+
+    - name: Install OpenEO Helm chart
+      command: helm upgrade -n openeo --install openeo /opt/eodcgmbh-charts/eodc/openeo-argo --values /tmp/openeo_config.yaml
+      environment:
+        KUBECONFIG: "/etc/kubernetes/admin.conf"
