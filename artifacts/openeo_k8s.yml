@@ -31,11 +31,11 @@
           ingress:
             enabled: true
             className: "nginx"
-          hosts:
-            - host: openeo.{{ public_ip_address }}.nip.io
-              paths:
-                - path: /
-                  pathType: ImplementationSpecific
+            hosts:
+              - host: openeo.{{ public_ip_address }}.nip.io
+                paths:
+                  - path: /
+                    pathType: ImplementationSpecific
 
     - name: Install git
       package:
