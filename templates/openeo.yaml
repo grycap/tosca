@@ -21,7 +21,22 @@ topology_template:
     openeo_stac_url:
       type: string
       description: OpenEO STAC Catalogue URL
-      default: "https://stac.eodc.eu/api/v1'"
+      default: "https://stac.eodc.eu/api/v1"
+    openeo_oidc_url:
+      type: string
+      description: OpenEO OIDC URL
+      default: "https://aai.egi.eu/auth/realms/egi"
+    openeo_oidc_organisation:
+      type: string
+      description: OpenEO OIDC Organisation
+      default: "egi"
+    openeo_oidc_roles:
+      type: list
+      entry_schema:
+        type: string
+      description: List of OpenEO OIDC Roles
+      default: [ developer ]
+      required: yes
 
   node_templates:
 
@@ -44,6 +59,9 @@ topology_template:
             inputs:
               openeo_stac_url: { get_input: openeo_stac_url }
               public_ip_address: { get_attribute: [ front, public_address, 0 ] }
+              openeo_oidc_url: { get_input: openeo_oidc_url }
+              openeo_oidc_organisation: { get_input: openeo_oidc_organisation }
+              openeo_oidc_roles: { get_input: openeo_oidc_roles }
       requirements:
         - host: front
         - dependency: lrms_front_end
