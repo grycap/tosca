@@ -46,7 +46,7 @@
       git:
         repo: https://github.com/eodcgmbh/charts
         dest: /opt/eodcgmbh-charts
-        version: master
+        version: main
         force: false
 
     - name: Install Helm repositories
@@ -80,4 +80,3 @@
       command: helm upgrade -n openeo --install openeo /opt/eodcgmbh-charts/eodc/openeo-argo --values /tmp/openeo_config.yaml
       environment:
         KUBECONFIG: "/etc/kubernetes/admin.conf"
-
