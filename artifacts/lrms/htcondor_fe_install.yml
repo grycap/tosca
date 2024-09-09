@@ -3,6 +3,14 @@
   connection: local
   vars:
     vnode_prefix: vnode-
+  pre_tasks:
+    # Avoid error in ntp installation in Debian
+    - name: Remove systemd-timesyncd in Debian systems
+      package:
+        name: systemd-timesyncd
+        state: absent
+      ignore_errors: true
+      when: ansible_family == "Debian"
   roles:
     - role: grycap.nfs
       nfs_mode: 'front'
