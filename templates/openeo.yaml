@@ -1,0 +1,71 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+imports:
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+
+description: Deploy OpenEO on top of a Kubernetes Virtual Cluster.
+
+metadata:
+  template_version: "1.0.0"
+  template_name: OpenEO
+  display_name: Deploy OpenEO on top of a Kubernetes Virtual Cluster
+  icon: images/openeo.png
+  tabs:
+    OpenEO: openeo_.*
+  parents:
+    - kubernetes.yaml
+
+topology_template:
+
+  inputs:
+    openeo_stac_url:
+      type: string
+      description: OpenEO STAC Catalogue URL
+      default: "https://stac.eodc.eu/api/v1"
+    openeo_oidc_url:
+      type: string
+      description: OpenEO OIDC URL
+      default: "https://aai.egi.eu/auth/realms/egi"
+    openeo_oidc_organisation:
+      type: string
+      description: OpenEO OIDC Organisation
+      default: "egi"
+    openeo_oidc_roles:
+      type: list
+      entry_schema:
+        type: string
+      description: List of OpenEO OIDC Roles
+      default: [ developer ]
+      required: yes
+
+  node_templates:
+
+    openeo:
+      type: tosca.nodes.ec3.Application
+      capabilities:
+        endpoint:
+          properties:
+            ports:
+              http:
+                protocol: tcp
+                source: 80
+              https:
+                protocol: tcp
+                source: 443
+      interfaces:
+        Standard:
+          configure:
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/openeo_k8s.yml
+            inputs:
+              openeo_stac_url: { get_input: openeo_stac_url }
+              public_ip_address: { get_attribute: [ front, public_address, 0 ] }
+              openeo_oidc_url: { get_input: openeo_oidc_url }
+              openeo_oidc_organisation: { get_input: openeo_oidc_organisation }
+              openeo_oidc_roles: { get_input: openeo_oidc_roles }
+      requirements:
+        - host: front
+        - dependency: lrms_front_end
+
+  outputs:
+    openeo_endpoint:
+      value: { concat: [ 'https://openeo.', get_attribute: [ front, public_address, 0 ], '.nip.io/1.1.0/' ] }
