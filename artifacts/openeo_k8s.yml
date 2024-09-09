@@ -28,7 +28,7 @@
           image:
             repository: ghcr.io/eodcgmbh/openeo-argoworkflows
             # Overrides the image tag whose default is the chart appVersion.
-            tag: "api-2024.7.2"
+            tag: "api-2024.9.1"
           persistence:
             capacity: "8Gi"
           ingress:
