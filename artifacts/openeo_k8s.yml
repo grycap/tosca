@@ -7,6 +7,14 @@
     oidc_organisation: "{{ openeo_oidc_organisation | default('egi') }}"
     oidc_roles: "{{ openeo_oidc_roles | default(['developer']) }}"
   tasks:
+    - name: Set default DNS name (nip.io)
+      set_fact:
+        dns_name: "openeo.{{ public_ip_address }}.nip.io"
+      when: openeo_dns_name is not defined or openeo_dns_name == ""
+    - name: Set custom DNS name
+      set_fact:
+        dns_name: "{{ openeo_dns_name }}"
+      when: openeo_dns_name is defined and openeo_dns_name != ""
     - name: Create OpenEO Helm values file
       copy:
         dest: /tmp/openeo_config.yaml
@@ -35,7 +43,7 @@
             enabled: true
             className: "nginx"
             hosts:
-              - host: openeo.{{ public_ip_address }}.nip.io
+              - host: {{ dns_name }}
                 paths:
                   - path: /
                     pathType: ImplementationSpecific

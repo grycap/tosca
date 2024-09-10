@@ -37,6 +37,10 @@ topology_template:
       description: List of OpenEO OIDC Roles
       default: [ developer ]
       required: yes
+    openeo_dns_name:
+      type: string
+      description: OpenEO DNS name (leave empty to use openeo.<node_ip>.nip.io)
+      default: ""
 
   node_templates:
 
@@ -62,6 +66,7 @@ topology_template:
               openeo_oidc_url: { get_input: openeo_oidc_url }
               openeo_oidc_organisation: { get_input: openeo_oidc_organisation }
               openeo_oidc_roles: { get_input: openeo_oidc_roles }
+              openeo_dns_name: { get_input: openeo_dns_name }
       requirements:
         - host: front
         - dependency: lrms_front_end
