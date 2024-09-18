@@ -141,7 +141,7 @@
                   - name: vol-data
                     mountPath: /home/jovyan/data
                     readOnly: True
-              profileList: {{ jup_profile_list | to_yaml }}
+              profileList: {{ jup_profile_list }}
 
     - name: Install (or upgrade) the chart
       command: helm upgrade --install jupyterhub jupyterhub/jupyterhub --namespace jupyter --create-namespace --values /tmp/config.yaml --timeout 10m
