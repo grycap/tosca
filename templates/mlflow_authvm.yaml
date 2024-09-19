@@ -105,7 +105,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/mlflow_compose.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/mlflow_auth_compose.yml
             inputs:
               public_ip_address:
                 get_attribute: [ simple_node, public_address, 0 ]
