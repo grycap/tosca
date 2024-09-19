@@ -81,7 +81,7 @@
           GOACCESS_ACCESSLOG_FORMAT=TRAEFIKCLF
 
     - name: Exec docker-compose up
-      docker_compose:
+      community.docker.docker_compose_v2:
         project_src: /opt/mlflow-auth-gui
         state: present
         files:

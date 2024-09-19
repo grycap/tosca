@@ -89,6 +89,9 @@ topology_template:
         docker_role:
           file: grycap.docker
           type: tosca.artifacts.AnsibleGalaxy.role
+        docker_collection:
+          file: community.docker,3.12.2
+          type: tosca.artifacts.AnsibleGalaxy.collection
       capabilities:
         endpoint:
           properties:
