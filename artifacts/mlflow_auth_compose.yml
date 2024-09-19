@@ -19,8 +19,8 @@
         repo: https://github.com/m-team-kit/mlflow-auth-gui
         dest: /opt/mlflow-auth-gui
         version: main
-        ignore_errors: yes
-    
+        ignore_errors: true
+
     - name: Set default DNS name (nip.io)
       set_fact:
         dns_name: "mlflow.{{ public_ip_address }}.nip.io"
@@ -36,13 +36,15 @@
         section: "mlflow"
         option: "{{ item.option }}"
         value: "{{ item.value }}"
+        mode: '0644'
       loop:
-        - { "option": "admin_username", "value" "{{ MLFLOW_USERNAME }}" }
-        - { "option": "admin_password", "value" "{{ MLFLOW_PASSWORD }}" }
+        - { "option": "admin_username", "value": "{{ MLFLOW_USERNAME }}" }
+        - { "option": "admin_password", "value": "{{ MLFLOW_PASSWORD }}" }
 
     - name: Create .env file
       copy:
         dest: /opt/mlflow-auth-gui/.env
+        mode: '0644'
         content: |
           # Domain where MLFLOW is hosted
           DOMAIN={{ dns_name }}
@@ -68,7 +70,7 @@
           PRIVACY_POLICY_URL=https://confluence.egi.eu/display/IMPAIP/Privacy+Policy
           TERMS_OF_USE_URL=https://confluence.egi.eu/display/IMPAIP/Acceptable+Use+Policy
           # can be left blank, but prefer putting one
-          LETSENCRYPT_EMAIL={{ mlflow_cert_email}}
+          LETSENCRYPT_EMAIL={{ mlflow_cert_email }}
           CORS_ORIGINS=http://localhost,http://foo.bar
           # Monitoring based on goaccess
           GOACCESS_ETC_PATH_LOCAL=$MLFLOW_BASE_PATH_LOCAL/goaccess-etc
