@@ -19,7 +19,7 @@
         repo: https://github.com/m-team-kit/mlflow-auth-gui
         dest: /opt/mlflow-auth-gui
         version: main
-        ignore_errors: true
+      ignore_errors: true
 
     - name: Set default DNS name (nip.io)
       set_fact:
@@ -58,7 +58,7 @@
           AUTH_DB_FILE=basic_auth.db
           # Local (host) BASE PATH to store MLFLOW data, e.g. app-data, user-data, artifacts, backup_db.
           # Pay attention about subdirectories ownership, may need to set uid:gid of "docker"
-          MLFLOW_BASE_PATH_LOCAL=.
+          MLFLOW_BASE_PATH_LOCAL=/opt/mlflow-auth-gui
           # MLflow user registration service
           MLFLOW_USERNAME={{ MLFLOW_USERNAME }}
           MLFLOW_PASSWORD={{ MLFLOW_PASSWORD }}
@@ -73,8 +73,8 @@
           LETSENCRYPT_EMAIL={{ mlflow_cert_email }}
           CORS_ORIGINS=http://localhost,http://foo.bar
           # Monitoring based on goaccess
-          GOACCESS_ETC_PATH_LOCAL=$MLFLOW_BASE_PATH_LOCAL/goaccess-etc
-          GOACCESS_OUT_PATH_LOCAL=$MLFLOW_BASE_PATH_LOCAL/goaccess-out
+          GOACCESS_ETC_PATH_LOCAL=${MLFLOW_BASE_PATH_LOCAL}/goaccess-etc
+          GOACCESS_OUT_PATH_LOCAL=${MLFLOW_BASE_PATH_LOCAL}/goaccess-out
           GOACCESS_WEB_ROUTE=goaccess
           GOACCESS_USER=operator
           GOACCESS_PASSWORD={{ GOACCESS_PASSWORD }}     # bcrypt encrypted password, use "htpasswd -B -n operator" to generate. use $$ instead of $ in GOACCESS_PASSWORD value
