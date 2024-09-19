@@ -17,7 +17,7 @@
     - name: Clone git repository
       git:
         repo: https://github.com/m-team-kit/mlflow-auth-gui
-        dest: /opt/mlflow-auth-gui
+        dest: /opt/mlflow-auth-gui/mlflow-auth-gui/
         version: main
       ignore_errors: true
 
@@ -32,7 +32,7 @@
 
     - name: Set admin username and password in ini file
       ini_file:
-        path: /opt/mlflow-auth-gui/backend/srv/auth_config.ini
+        path: /opt/mlflow-auth-gui/mlflow-auth-gui/backend/srv/auth_config.ini
         section: "mlflow"
         option: "{{ item.option }}"
         value: "{{ item.value }}"
@@ -43,7 +43,7 @@
 
     - name: Create .env file
       copy:
-        dest: /opt/mlflow-auth-gui/.env
+        dest: /opt/mlflow-auth-gui/mlflow-auth-gui/.env
         mode: '0644'
         content: |
           # Domain where MLFLOW is hosted
@@ -58,7 +58,7 @@
           AUTH_DB_FILE=basic_auth.db
           # Local (host) BASE PATH to store MLFLOW data, e.g. app-data, user-data, artifacts, backup_db.
           # Pay attention about subdirectories ownership, may need to set uid:gid of "docker"
-          MLFLOW_BASE_PATH_LOCAL=/opt/mlflow-auth-gui
+          MLFLOW_BASE_PATH_LOCAL=/opt/mlflow-auth-gui/mlflow-auth-gui/
           # MLflow user registration service
           MLFLOW_USERNAME={{ MLFLOW_USERNAME }}
           MLFLOW_PASSWORD={{ MLFLOW_PASSWORD }}
@@ -82,7 +82,7 @@
 
     - name: Exec docker-compose up
       community.docker.docker_compose_v2:
-        project_src: /opt/mlflow-auth-gui
+        project_src: /opt/mlflow-auth-gui/mlflow-auth-gui/
         state: present
         files:
           - compose.yml
