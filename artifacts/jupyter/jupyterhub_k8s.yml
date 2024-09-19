@@ -8,6 +8,37 @@
     jup_admin_user: "{{ admin_user | default('admin') }}"
     dns_name: "{{ kube_public_dns_name | default('') }}"
     jup_storage_size: "{{ storage_size | default('10Gi') }}"
+    default_profile_list:
+      - display_name: '1CPU 1GB environment'
+        description: '1CPU 1GB environment'
+        default: true
+      - display_name: '2CPU 2GB environment'
+        description: '2CPU 2GB environment'
+        kubespawner_override:
+          cpu_limit: 2
+          mem_limit: '2G'
+          cpu_guarantee: 2
+          mem_guarantee': '2G'
+      - display_name: '2CPU 2GB ItwinAI environment'
+        description: '2CPU 2GB ItwinAI environment'
+        kubespawner_override:
+          image: 'grycap/jupyterhub-k8s-itwinai'
+          cpu_limit: 2
+          mem_limit: '2G'
+          cpu_guarantee: 2
+          mem_guarantee': '2G'
+      - display_name: '2CPU 4GB 1GPU environment'
+        description: '2CPU 4GB 1GPU environment (only use it if some of the K8s WNs has GPU support)'
+        kubespawner_override:
+          image: 'grycap/k8s-singleuser-sample-gpu:latest'
+          cpu_limit: 2
+          mem_limit: '4G'
+          cpu_guarantee: 2
+          mem_guarantee': '4G'
+          extra_resource_limits:
+            nvidia.com/gpu: 1
+          extra_resource_guarantees:
+            nvidia.com/gpu: 1
   tasks:
     - name: Add jupyterhub helm repo
       command: helm repo add jupyterhub https://jupyterhub.github.io/helm-chart/
@@ -66,6 +97,10 @@
       environment:
         KUBECONFIG: "/etc/kubernetes/admin.conf"
 
+    - name: Set profile list
+      set_fact:
+        jup_profile_list: "{{ profile_list | default(default_profile_list) }}"
+
     - name: "Create values file"
       copy:
         dest: /tmp/config.yaml
@@ -106,37 +141,7 @@
                   - name: vol-data
                     mountPath: /home/jovyan/data
                     readOnly: True
-              profileList:
-                - display_name: '1CPU 1GB environment'
-                  description: '1CPU 1GB environment'
-                  default: true
-                - display_name: '2CPU 2GB environment'
-                  description: '2CPU 2GB environment'
-                  kubespawner_override:
-                    cpu_limit: 2
-                    mem_limit: '2G'
-                    cpu_guarantee: 2
-                    mem_guarantee': '2G'
-                - display_name: '2CPU 2GB ItwinAI environment'
-                  description: '2CPU 2GB ItwinAI environment'
-                  kubespawner_override:
-                    image: 'grycap/jupyterhub-k8s-itwinai'
-                    cpu_limit: 2
-                    mem_limit: '2G'
-                    cpu_guarantee: 2
-                    mem_guarantee': '2G'
-                - display_name: '2CPU 4GB 1GPU environment'
-                  description: '2CPU 4GB 1GPU environment (only use it if some of the K8s WNs has GPU support)'
-                  kubespawner_override:
-                    image: 'grycap/k8s-singleuser-sample-gpu:latest'
-                    cpu_limit: 2
-                    mem_limit: '4G'
-                    cpu_guarantee: 2
-                    mem_guarantee': '4G'
-                    extra_resource_limits:
-                      nvidia.com/gpu: 1
-                    extra_resource_guarantees:
-                      nvidia.com/gpu: 1
+              profileList: {{ jup_profile_list }}
 
     - name: Install (or upgrade) the chart
       command: helm upgrade --install jupyterhub jupyterhub/jupyterhub --namespace jupyter --create-namespace --values /tmp/config.yaml --timeout 10m
