@@ -27,6 +27,13 @@
       set_fact:
         kube_install_longhorn: true
       when: csi_driver == 'Longhorn'
+    # Avoid error in ntp installation in Debian
+    - name: Remove systemd-timesyncd in Debian systems
+      package:
+        name: systemd-timesyncd
+        state: absent
+      ignore_errors: true
+      when: ansible_os_family == "Debian"
   roles:
     - role: grycap.nfs
       nfs_mode: 'front'

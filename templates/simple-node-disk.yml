@@ -41,10 +41,12 @@ metadata:
     - image-service.yaml
     - ai4eoscvm.yaml
     - mlflowvm.yaml
+    - mlflow_authvm.yaml
     - wget.yml
     - sgde.yaml
     - dydns_egi_update_vm.yml
     - flowfuse.yaml
+    - stac_vm.yaml
 
 topology_template:
 

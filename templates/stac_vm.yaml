@@ -1,0 +1,72 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+imports:
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+
+description: Deploy STAC server.
+
+metadata:
+  template_version: "1.0.0"
+  template_name: STAC
+  display_name: Deploy STAC server
+  icon: images/stac.png
+  tabs:
+    STAC Data:
+      - stac_letsencrypt_email
+  parents:
+    - simple-node-disk.yml
+
+topology_template:
+  inputs:
+
+    stac_letsencrypt_email:
+      default: changeme@email.com
+      description: Email to be used for Let's Encrypt certificates
+      type: string
+
+    # Restrict some simple-node-disk input values
+
+    storage_size:
+      type: scalar-unit.size
+      description: Size of the extra HD added to the instance
+      default: 50 GB
+      constraints:
+        - valid_values: [ 50 GB, 100 GB, 200 GB, 500 GB, 1 TB, 2 TB, 10 TB, 20 TB, 40 TB, 100 TB ]
+    mount_path:
+      type: string
+      description: Path to mount the extra disk
+      default: /data
+
+  node_templates:
+
+    stac:
+      type: tosca.nodes.ec3.Application
+      artifacts:
+        docker_role:
+          file: grycap.docker
+          type: tosca.artifacts.AnsibleGalaxy.role
+      capabilities:
+        endpoint:
+          properties:
+            ports:
+              port_http:
+                protocol: tcp
+                source: 80
+              port_https:
+                protocol: tcp
+                source: 443
+      interfaces:
+        Standard:
+          configure:
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/stac_compose.yml
+            inputs:
+              dns_name:
+                { concat: [ 'stac.', get_attribute: [ simple_node, public_address, 0 ], '.nip.io' ] }
+              letsencrypt_email:
+                get_input: stac_letsencrypt_email
+      requirements:
+        - host: simple_node
+
+  outputs:
+    stac_endpoint:
+      value: { concat: [ 'https://stac.', get_attribute: [ simple_node, public_address, 0 ], '.nip.io' ] }
