@@ -1,7 +1,7 @@
 tosca_definitions_version: tosca_simple_yaml_1_0
 
 imports:
-  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/refs/tags/v1.0.0/custom_types.yaml
 
 description: Donwload some data available in an URL to a Kubernetes PVC
 
@@ -51,7 +51,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/download_data.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/refs/tags/v1.0.0/artifacts/download_data.yml
             inputs:
               data_url: { get_input: data_url }
               k8s_pvc_namespace: { get_input: pvc_namespace }

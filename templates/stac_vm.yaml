@@ -1,7 +1,7 @@
 tosca_definitions_version: tosca_simple_yaml_1_0
 
 imports:
-  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/refs/tags/v1.0.0/custom_types.yaml
 
 description: Deploy STAC server.
 
@@ -58,7 +58,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/stac_compose.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/refs/tags/v1.0.0/artifacts/stac_compose.yml
             inputs:
               dns_name:
                 { concat: [ 'stac.', get_attribute: [ simple_node, public_address, 0 ], '.nip.io' ] }

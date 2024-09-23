@@ -1,7 +1,7 @@
 tosca_definitions_version: tosca_simple_yaml_1_0
 
 imports:
-  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/refs/tags/v1.0.0/custom_types.yaml
 
 description: >
   Deploy a set of computing nodes with Docker and Docker Compose installed.
@@ -60,7 +60,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/docker.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/refs/tags/v1.0.0/artifacts/docker.yml
             inputs:
               docker_nvidia_support: { get_input: nvidia_support }
               docker_nvidia_driver_version: { get_input: driver_version }

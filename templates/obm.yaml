@@ -1,7 +1,7 @@
 tosca_definitions_version: tosca_simple_yaml_1_0
 
 imports:
-  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/refs/tags/v1.0.0/custom_types.yaml
 
 description: Deploy a OpenBioMaps server with a compute node
 
@@ -80,7 +80,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/obm/obm_install.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/refs/tags/v1.0.0/artifacts/obm/obm_install.yml
             inputs:
               obm_compute_node_ip: { get_attribute: [ obm_compute_node, private_address, 0 ] }
 
@@ -146,7 +146,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/obm/obm_compute_install.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/refs/tags/v1.0.0/artifacts/obm/obm_compute_install.yml
 
     obm_compute_node:
       type: tosca.nodes.indigo.Compute

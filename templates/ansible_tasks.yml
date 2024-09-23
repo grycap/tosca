@@ -1,7 +1,7 @@
 tosca_definitions_version: tosca_simple_yaml_1_0
 
 imports:
-  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/refs/tags/v1.0.0/custom_types.yaml
 
 description: Deploy user defined Ansible tasks.
 
@@ -39,7 +39,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/ansible_tasks.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/refs/tags/v1.0.0/artifacts/ansible_tasks.yml
             inputs:
               ansible_tasks: { get_input: ansible_tasks }
               ansible_url: { get_input: ansible_url }

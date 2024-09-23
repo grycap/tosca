@@ -1,7 +1,7 @@
 tosca_definitions_version: tosca_simple_yaml_1_0
 
 imports:
-  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/refs/tags/v1.0.0/custom_types.yaml
 
 description: Deploy a Elastic Kubernetes Virtual Cluster.
 
@@ -60,12 +60,12 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/refresh_install.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/refs/tags/v1.0.0/artifacts/refresh_install.yml
             inputs:
               CLIENT_ID: client_id
               CLIENT_SECRET: client_secret
           start:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/use_external_im.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/refs/tags/v1.0.0/artifacts/use_external_im.yml
 
     wn_node:
       type: tosca.nodes.indigo.LRMS.WorkerNode.Kubernetes
