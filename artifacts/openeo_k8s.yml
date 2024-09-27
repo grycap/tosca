@@ -2,7 +2,7 @@
 - hosts: localhost
   connection: local
   vars:
-    stac_url: "{{ openeo_stac_url | default('https://stac.eodc.eu/api/v1') }}"
+    stac_url: "{{ openeo_stac_url | default('https://dev.stac.eodc.eu/api/v1') }}"
     oidc_url: "{{ openeo_oidc_url | default('https://aai.egi.eu/auth/realms/egi') }}"
     oidc_organisation: "{{ openeo_oidc_organisation | default('egi') }}"
     oidc_roles: "{{ openeo_oidc_roles | default(['']) }}"
@@ -32,11 +32,11 @@
               oidcPolicies: {{ oidc_roles }}
               stacCatalogueUrl: "{{ stac_url }}"
               workspaceRoot: "/user_workspaces"
-              executorImage: "ghcr.io/eodcgmbh/openeo-argoworkflows:executor-2024.9.1"
+              executorImage: "ghcr.io/eodcgmbh/openeo-argoworkflows:executor-2024.9.2"
           image:
             repository: ghcr.io/eodcgmbh/openeo-argoworkflows
             # Overrides the image tag whose default is the chart appVersion.
-            tag: "api-2024.9.2"
+            tag: "api-2024.9.3"
           persistence:
             capacity: "8Gi"
           ingress:
