@@ -31,11 +31,9 @@ topology_template:
       description: OpenEO OIDC Organisation
       default: "egi"
     openeo_oidc_roles:
-      type: list
-      entry_schema:
-        type: string
-      description: List of OpenEO OIDC Roles
-      default: [ developer ]
+      type: string
+      description: List of OpenEO OIDC Policies
+      default: ""
       required: yes
     openeo_dns_name:
       type: string
