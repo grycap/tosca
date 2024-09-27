@@ -9,7 +9,7 @@ metadata:
   template_version: "1.0.0"
   template_name: OpenEO
   display_name: Deploy OpenEO on top of a Kubernetes Virtual Cluster
-  icon: images/openeo.png
+  icon: https://openeo.org/images/openeo_logo.png
   tabs:
     OpenEO: openeo_.*
   parents:
@@ -21,7 +21,7 @@ topology_template:
     openeo_stac_url:
       type: string
       description: OpenEO STAC Catalogue URL
-      default: "https://stac.eodc.eu/api/v1"
+      default: "https://dev.stac.eodc.eu/api/v1"
     openeo_oidc_url:
       type: string
       description: OpenEO OIDC URL
