@@ -161,12 +161,11 @@
 
     - name: Set facts
       set_fact:
-        consul_servers_ip: "{{ server_list}}"
-      when: consul_join == ''
+        consul_servers_ip: "{{ server_list }}"
 
     - name: Set facts
       set_fact:
-        consul_servers_ip: "{{ [ consul_join ] }}"
+        consul_servers_ip: "{{ consul_servers_ip + [ consul_join ] }}"
       when: consul_join != ''
 
     - name: Set facts
