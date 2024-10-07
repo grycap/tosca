@@ -149,7 +149,7 @@ topology_template:
     nomad_dc:
       type: string
       description: Nomad datacenter name
-      default: ifca-ai4eosc-new
+      default: ifca-ai4os-new
       required: yes
     nomad_domain:
       type: string
@@ -175,7 +175,7 @@ topology_template:
     consul_join_datacenter:
       type: string
       description: Primary datacenter of the Consul cluster to join
-      default: 'ifca-ai4eosc'
+      default: 'ifca-ai4os'
 
   node_templates:
 
