@@ -146,7 +146,7 @@ topology_template:
     nomad_dc:
       type: string
       description: Nomad datacenter name
-      default: ifca-ai4eosc
+      default: ifca-ai4os
       required: yes
     nomad_domain:
       type: string
