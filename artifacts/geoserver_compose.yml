@@ -3,8 +3,8 @@
   connection: local
   vars:
     INSTALL_EXTENSIONS: 'true'
-    STABLE_EXTENSIONS: 'ysld,h2'
-    COMMUNITY_EXTENSIONS: 'colormap'
+    STABLE_EXTENSIONS: "{{ geoserver_stable_extensions | default('ysld,h2') }}"
+    COMMUNITY_EXTENSIONS: "{{ geoserver_community_extensions | default('colormap') }}"
     admin_password: "{{ geoserver_admin_password | default('geoserver') }}"
   roles:
     - role: 'grycap.docker'
