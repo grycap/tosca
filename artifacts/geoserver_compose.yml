@@ -1,0 +1,91 @@
+---
+- hosts: localhost
+  connection: local
+  vars:
+    INSTALL_EXTENSIONS: 'true'
+    STABLE_EXTENSIONS: 'ysld,h2'
+    COMMUNITY_EXTENSIONS: 'colormap'
+    geoserver_host: "geoserver.{{ ansible_default_ipv4.address }}.nip.ip"
+  roles:
+    - role: 'grycap.docker'
+  tasks:
+    - name: Create geoserver data directory
+      file:
+        path: /opt/geoserver/data
+        state: directory
+        mode: '0755'
+        recurse: true
+
+    - name: Set geoserver_host to Public IP
+      set_fact:
+        geoserver_host: "geoserver.{{ IM_NODE_PUBLIC_IP }}.nip.io"
+      when: IM_NODE_PUBLIC_IP is defined and IM_NODE_PUBLIC_IP != ""
+
+    - name: Set geoserver_host to DNS name
+      set_fact:
+        geoserver_host: "{{ geoserver_dns_hostname }}"
+      when: geoserver_dns_hostname is defined and geoserver_dns_hostname != ""
+
+    - name: Create docker-compose file
+      copy:
+        content: |
+          version: '3.3'
+          services:
+              web:
+                  restart: always
+                  image: docker.osgeo.org/geoserver:2.26.x
+                  container_name: geoserver
+                  expose:
+                      - "8080"
+                  networks:
+                      - frontend
+                      - backend
+                  volumes:
+                    - ./data:/opt/geoserver_data
+                  labels:
+                    - "traefik.enable=true"
+                    - "traefik.http.routers.web.service=web"
+                    - "traefik.http.routers.web.rule=Host(`{{ geoserver_host }}`)"
+                    - "traefik.http.routers.web.entrypoints=websecure"
+                    - "traefik.http.routers.web.tls.certresolver=myresolver"
+                    - "traefik.http.services.web.loadbalancer.server.port=5000"
+                    - "traefik.docker.network=geoserver_frontend"
+              traefik:
+                  image: "traefik:v2.10"
+                  container_name: "traefik"
+                  command:
+                    #- "--log.level=DEBUG"
+                    - "--api.insecure=true"
+                    - "--providers.docker=true"
+                    - "--providers.docker.exposedbydefault=false"
+                    - "--entrypoints.web.address=:80"
+                    - "--entrypoints.websecure.address=:443"
+                    - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+                    - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+                    - "--entrypoints.web.http.redirections.entrypoint.permanent=true"
+                    - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
+                    - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+                    #- "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+                    - "--certificatesresolvers.myresolver.acme.email={{ geoserver_cert_email }}"
+                    - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+                  ports:
+                    - "80:80"
+                    - "443:443"
+                    - "8080:8080"
+                  volumes:
+                    - "./letsencrypt:/letsencrypt"
+                    - "/var/run/docker.sock:/var/run/docker.sock:ro"
+                  networks:
+                    - frontend
+          networks:
+              frontend:
+                  driver: bridge
+              backend:
+                  driver: bridge
+        dest: /opt/geoserver/docker-compose.yaml
+        mode: '644'
+
+    - name: Exec docker-compose up
+      docker_compose:
+        project_src: /opt/geoserver/
+        state: present
