@@ -1,0 +1,89 @@
+---
+- hosts: localhost
+  connection: local
+  vars:
+    INSTALL_EXTENSIONS: 'true'
+    STABLE_EXTENSIONS: "{{ geoserver_stable_extensions | default('ysld,h2') }}"
+    COMMUNITY_EXTENSIONS: "{{ geoserver_community_extensions | default('colormap') }}"
+    admin_password: "{{ geoserver_admin_password | default('geoserver') }}"
+  roles:
+    - role: 'grycap.docker'
+  tasks:
+    - name: Create geoserver data directory
+      file:
+        path: /opt/geoserver/data
+        state: directory
+        mode: '0755'
+        recurse: true
+
+    - name: Create private key (RSA, 4096 bits)
+      community.crypto.openssl_privatekey:
+        path: /opt/geoserver/certificate.key
+        mode: '644'
+        format: pkcs8
+
+    - name: Generate an OpenSSL Certificate Signing Request with Subject information
+      community.crypto.openssl_csr:
+        path: /opt/geoserver/certificate.csr
+        privatekey_path: /opt/geoserver/certificate.key
+        country_name: ES
+        organization_name: GeoServer
+        common_name: GeoServer
+
+    - name: Create simple self-signed certificate
+      community.crypto.x509_certificate:
+        path: /opt/geoserver/certificate.pem
+        privatekey_path: /opt/geoserver/certificate.key
+        provider: selfsigned
+        csr_path: /opt/geoserver/certificate.csr
+
+    - name: Install openjdk-11-jre-headless
+      apt:
+        name: openjdk-11-jre-headless
+        state: present
+        install_recommends: false
+
+    - name: Create keystore.jks
+      java_keystore:
+        name: server
+        certificate: "{{ lookup('file', '/opt/geoserver/certificate.pem') }}"
+        private_key: "{{ lookup('file', '/opt/geoserver/certificate.key') }}"
+        password: changeit
+        dest: /opt/geoserver/keystore.jks
+
+    - name: Create docker-compose file
+      copy:
+        content: |
+          version: '3.3'
+          services:
+              web:
+                  restart: always
+                  image: docker.osgeo.org/geoserver:2.26.x
+                  container_name: geoserver
+                  ports:
+                      - "80:8080"
+                      - "443:8443"
+                  networks:
+                      - frontend
+                  environment:
+                      - INSTALL_EXTENSIONS={{ INSTALL_EXTENSIONS }}
+                      - STABLE_EXTENSIONS="{{ STABLE_EXTENSIONS }}"
+                      - COMMUNITY_EXTENSIONS="{{ COMMUNITY_EXTENSIONS }}"
+                      - HTTPS_ENABLED=true
+                      - HTTPS_KEYSTORE_FILE=/opt/keystore.jks
+                      - HTTPS_KEYSTORE_PASSWORD=changeit
+                      - HTTPS_KEY_ALIAS=server
+                      - GEOSERVER_ADMIN_PASSWORD={{ admin_password }}
+                  volumes:
+                    - ./data:/opt/geoserver_data
+                    - ./keystore.jks:/opt/keystore.jks
+          networks:
+              frontend:
+                  driver: bridge
+        dest: /opt/geoserver/docker-compose.yaml
+        mode: '644'
+
+    - name: Exec docker-compose up
+      docker_compose:
+        project_src: /opt/geoserver/
+        state: present
