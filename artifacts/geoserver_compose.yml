@@ -39,7 +39,6 @@
                       - "8080"
                   networks:
                       - frontend
-                      - backend
                   volumes:
                     - ./data:/opt/geoserver_data
                   labels:
@@ -48,7 +47,7 @@
                     - "traefik.http.routers.web.rule=Host(`{{ geoserver_host }}`)"
                     - "traefik.http.routers.web.entrypoints=websecure"
                     - "traefik.http.routers.web.tls.certresolver=myresolver"
-                    - "traefik.http.services.web.loadbalancer.server.port=5000"
+                    - "traefik.http.services.web.loadbalancer.server.port=8080"
                     - "traefik.docker.network=geoserver_frontend"
               traefik:
                   image: "traefik:v2.10"
@@ -71,7 +70,6 @@
                   ports:
                     - "80:80"
                     - "443:443"
-                    - "8080:8080"
                   volumes:
                     - "./letsencrypt:/letsencrypt"
                     - "/var/run/docker.sock:/var/run/docker.sock:ro"
@@ -79,8 +77,6 @@
                     - frontend
           networks:
               frontend:
-                  driver: bridge
-              backend:
                   driver: bridge
         dest: /opt/geoserver/docker-compose.yaml
         mode: '644'
