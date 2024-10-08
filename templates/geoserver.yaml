@@ -39,7 +39,7 @@ topology_template:
       default: 20 GB
       constraints:
         - valid_values: [ 20 GB, 50 GB, 100 GB, 200 GB, 500 GB, 1 TB, 2 TB, 10 TB, 20 TB, 40 TB, 100 TB ]
-    
+
     geoserver_admin_password:
       type: string
       description: GeoServer Admin password
