@@ -82,7 +82,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/devel/artifacts/geoserver_compose.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/geoserver_compose.yml
             inputs:
               geoserver_admin_password: { get_input: geoserver_admin_password }
               geoserver_stable_extensions: { get_input: geoserver_stable_extensions }
