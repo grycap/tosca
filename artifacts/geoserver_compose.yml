@@ -73,7 +73,7 @@
                       - HTTPS_KEYSTORE_FILE=/opt/keystore.jks
                       - HTTPS_KEYSTORE_PASSWORD=changeit
                       - HTTPS_KEY_ALIAS=server
-                      - GEOSERVER_ADMIN_PASSWORD={{ admin_password}}
+                      - GEOSERVER_ADMIN_PASSWORD={{ admin_password }}
                   volumes:
                     - ./data:/opt/geoserver_data
                     - ./keystore.jks:/opt/keystore.jks
