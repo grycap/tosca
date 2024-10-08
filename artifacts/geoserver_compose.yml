@@ -5,7 +5,7 @@
     INSTALL_EXTENSIONS: 'true'
     STABLE_EXTENSIONS: 'ysld,h2'
     COMMUNITY_EXTENSIONS: 'colormap'
-    geoserver_host: "geoserver.{{ ansible_default_ipv4.address }}.nip.ip"
+    admin_password: "{{ geoserver_admin_password | default('geoserver') }}"
   roles:
     - role: 'grycap.docker'
   tasks:
@@ -16,15 +16,40 @@
         mode: '0755'
         recurse: true
 
-    - name: Set geoserver_host to Public IP
-      set_fact:
-        geoserver_host: "geoserver.{{ IM_NODE_PUBLIC_IP }}.nip.io"
-      when: IM_NODE_PUBLIC_IP is defined and IM_NODE_PUBLIC_IP != ""
+    - name: Create private key (RSA, 4096 bits)
+      community.crypto.openssl_privatekey:
+        path: /opt/geoserver/certificate.key
+        mode: '644'
+        format: pkcs8
 
-    - name: Set geoserver_host to DNS name
-      set_fact:
-        geoserver_host: "{{ geoserver_dns_hostname }}"
-      when: geoserver_dns_hostname is defined and geoserver_dns_hostname != ""
+    - name: Generate an OpenSSL Certificate Signing Request with Subject information
+      community.crypto.openssl_csr:
+        path: /opt/geoserver/certificate.csr
+        privatekey_path: /opt/geoserver/certificate.key
+        country_name: ES
+        organization_name: GeoServer
+        common_name: GeoServer
+
+    - name: Create simple self-signed certificate
+      community.crypto.x509_certificate:
+        path: /opt/geoserver/certificate.pem
+        privatekey_path: /opt/geoserver/certificate.key
+        provider: selfsigned
+        csr_path: /opt/geoserver/certificate.csr
+
+    - name: Install openjdk-11-jre-headless
+      apt:
+        name: openjdk-11-jre-headless
+        state: present
+        install_recommends: false
+
+    - name: Create keystore.jks
+      java_keystore:
+        name: server
+        certificate: "{{ lookup('file', '/opt/geoserver/certificate.pem') }}"
+        private_key: "{{ lookup('file', '/opt/geoserver/certificate.key') }}"
+        password: changeit
+        dest: /opt/geoserver/keystore.jks
 
     - name: Create docker-compose file
       copy:
@@ -35,46 +60,23 @@
                   restart: always
                   image: docker.osgeo.org/geoserver:2.26.x
                   container_name: geoserver
-                  expose:
-                      - "8080"
+                  ports:
+                      - "80:8080"
+                      - "443:8443"
                   networks:
                       - frontend
+                  environment:
+                      - INSTALL_EXTENSIONS={{ INSTALL_EXTENSIONS }}
+                      - STABLE_EXTENSIONS="{{ STABLE_EXTENSIONS }}"
+                      - COMMUNITY_EXTENSIONS="{{ COMMUNITY_EXTENSIONS }}"
+                      - HTTPS_ENABLED=true
+                      - HTTPS_KEYSTORE_FILE=/opt/keystore.jks
+                      - HTTPS_KEYSTORE_PASSWORD=changeit
+                      - HTTPS_KEY_ALIAS=server
+                      - GEOSERVER_ADMIN_PASSWORD={{ admin_password}}
                   volumes:
                     - ./data:/opt/geoserver_data
-                  labels:
-                    - "traefik.enable=true"
-                    - "traefik.http.routers.web.service=web"
-                    - "traefik.http.routers.web.rule=Host(`{{ geoserver_host }}`)"
-                    - "traefik.http.routers.web.entrypoints=websecure"
-                    - "traefik.http.routers.web.tls.certresolver=myresolver"
-                    - "traefik.http.services.web.loadbalancer.server.port=8080"
-                    - "traefik.docker.network=geoserver_frontend"
-              traefik:
-                  image: "traefik:v2.10"
-                  container_name: "traefik"
-                  command:
-                    #- "--log.level=DEBUG"
-                    - "--api.insecure=true"
-                    - "--providers.docker=true"
-                    - "--providers.docker.exposedbydefault=false"
-                    - "--entrypoints.web.address=:80"
-                    - "--entrypoints.websecure.address=:443"
-                    - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
-                    - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
-                    - "--entrypoints.web.http.redirections.entrypoint.permanent=true"
-                    - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
-                    - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
-                    #- "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
-                    - "--certificatesresolvers.myresolver.acme.email={{ geoserver_cert_email }}"
-                    - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
-                  ports:
-                    - "80:80"
-                    - "443:443"
-                  volumes:
-                    - "./letsencrypt:/letsencrypt"
-                    - "/var/run/docker.sock:/var/run/docker.sock:ro"
-                  networks:
-                    - frontend
+                    - ./keystore.jks:/opt/keystore.jks
           networks:
               frontend:
                   driver: bridge
