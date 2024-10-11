@@ -34,7 +34,6 @@ topology_template:
       type: string
       description: List of OpenEO OIDC Policies
       default: ""
-      required: yes
     openeo_dns_name:
       type: string
       description: OpenEO DNS name (leave empty to use openeo.<node_ip>.nip.io)
