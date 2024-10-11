@@ -4,6 +4,10 @@
   vars:
     username: "{{ user | default(ansible_user) }}"
   tasks:
+    - name: Split the ssh_key into a list
+      set_fact:
+        ssh_keys: "{{ ssh_key.replace('\r', '').split('\n') }}"
+
     - name: Add the authorized_key to the nodes
       authorized_key:
         user: "{{ username }}"
