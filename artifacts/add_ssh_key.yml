@@ -7,4 +7,5 @@
     - name: Add the authorized_key to the nodes
       authorized_key:
         user: "{{ username }}"
-        key: "{{ ssh_key }}"
+        key: "{{ item }}"
+      loop: "{{ ssh_keys }}"
