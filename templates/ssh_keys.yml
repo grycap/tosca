@@ -6,7 +6,7 @@ imports:
 description: Add a set of SSH Public Keys to the VMs
 
 metadata:
-  template_version: "1.0.0"
+  template_version: "1.0.1"
   template_name: SSH Keys
   display_name: Add a set of SSH Public Keys
   icon: images/ssh-icon.png
@@ -16,17 +16,18 @@ metadata:
     - simple-node-disk.yml
   tabs:
     SSH Data:
-      - ssh_key:
-          tag_type: textarea
+      - ssh_keys
 
 topology_template:
 
   inputs:
 
-    ssh_key:
-      type: string
-      description: SSH Key/s to inject to the VM
-      default: ''
+    ssh_keys:
+      type: list
+      entry_schema:
+        type: string
+      description: SSH Keys to inject to the VM
+      default: []
 
   node_templates:
 
@@ -39,4 +40,4 @@ topology_template:
           configure:
             implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/add_ssh_key.yml
             inputs:
-              ssh_key: { get_input: ssh_key }
+              ssh_keys: { get_input: ssh_keys }
