@@ -90,7 +90,7 @@ topology_template:
       requirements:
         - host: simple_node
 
-    simple_node:
+    geoserver_node:
       type: tosca.nodes.indigo.Compute
       capabilities:
         endpoint:
