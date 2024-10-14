@@ -88,7 +88,7 @@ topology_template:
               geoserver_stable_extensions: { get_input: geoserver_stable_extensions }
               geoserver_community_extensions: { get_input: geoserver_community_extensions }
       requirements:
-        - host: simple_node
+        - host: geoserver_node
 
     geoserver_node:
       type: tosca.nodes.indigo.Compute
@@ -125,7 +125,7 @@ topology_template:
 
   outputs:
     geoserver_url:
-      value: { concat: ["https://", { get_attribute: [ simple_node, public_address, 0 ] }, ".nip.io/geoserver/"] }
+      value: { concat: ["https://", { get_attribute: [ geoserver_node, public_address, 0 ] }, ".nip.io/geoserver/"] }
     geoserver_user:
       value: admin
     geoserver_password:
