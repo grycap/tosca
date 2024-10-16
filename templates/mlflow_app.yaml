@@ -3,10 +3,10 @@ tosca_definitions_version: tosca_simple_yaml_1_0
 imports:
   - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
 
-description: TOSCA test for K8s
+description: MLFlow container applitacion
 
 metadata:
-  template_name: Containerized App
+  template_name: MLFlow
   template_version: "1.0.0"
   template_author: Miguel Caballer
   creation_date: 2024-02-16
@@ -28,6 +28,10 @@ topology_template:
       type: scalar-unit.size
       description: Size of the Persistent Volume Claim
       default: 10 GB
+    endpoint:
+      type: string
+      description: DNS name to access the MLFlow instance
+      default: mlflow.eu-1.open-science-cloud-user-apps.eu
 
 
   node_templates:
@@ -71,7 +75,7 @@ topology_template:
             publish_ports:
               - target: 5000
                 source: 32050
-                endpoint: mlflow.apps.dcw1-test.paas.psnc.pl
+                endpoint: { get_input: endpoint }
             volumes:
               - "container_vol:/data"
 
