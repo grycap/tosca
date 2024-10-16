@@ -62,7 +62,6 @@ topology_template:
       default: "1.29.7"
 
 
-
     dask_version:
       type: string
       description: Daskhub version
