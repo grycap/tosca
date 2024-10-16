@@ -71,7 +71,7 @@ topology_template:
             publish_ports:
               - target: 5000
                 source: 32050
-                endpoint: mlflow.apps.dcw1-test.paas.psnc.pl
+                endpoint: mlflow.eu-1.open-science-cloud-user-apps.eu
             volumes:
               - "container_vol:/data"
 
