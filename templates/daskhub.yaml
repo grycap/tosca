@@ -1,0 +1,329 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+imports:
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+
+description: TOSCA template for launching Daskhub on top of a Kubernetes Virtual Cluster.
+
+metadata:
+  template_version: "1.0.0"
+  template_name: Daskhub
+  display_name: Deploy Daskhub on top of a Kubernetes Virtual Cluster
+  template_author: Miguel Caballer
+  creation_date: 2025-10-16
+
+
+topology_template:
+
+  inputs:
+
+    fe_cpus:
+      type: integer
+      description: Number of CPUs for the front-end node
+      default: 2
+      required: yes
+    fe_mem:
+      type: scalar-unit.size
+      description: Amount of Memory for the front-end node
+      default: 4 GB
+      required: yes
+    fe_disk_size:
+      type: scalar-unit.size
+      description: Size of the disk to be attached to the FE instance (Set 0 if disk is not needed)
+      default: 10 GB
+
+    wn_num:
+      type: integer
+      description: Number of WNs in the cluster
+      default: 1
+      required: yes
+    wn_cpus:
+      type: integer
+      description: Number of CPUs for the WNs
+      default: 2
+      required: yes
+    wn_mem:
+      type: scalar-unit.size
+      description: Amount of Memory for the WNs
+      default: 4 GB
+      required: yes
+    wn_disk_size:
+      type: scalar-unit.size
+      description: Size of the root disk of the WNs (in case of 0 disk will no be resized)
+      default: 20 GB
+
+    kube_admin_token:
+      type: string
+      description: Access Token for the Kubernetes admin user
+      default: not_very_secret_token
+    kube_version:
+      type: string
+      description: Version of Kubernetes to install
+      default: "1.29.7"
+
+
+
+    dask_version:
+      type: string
+      description: Daskhub version
+      default: 2022.5.0
+    jupyterhub_token:
+      type: string
+      description: Jupyterhub auth token
+      default: 11a8120f55c6992d819b9b33ef825120d9a752f738fca1d659c06b436053cd02
+    jupyterhub_image_name:
+      type: string
+      description: Jupyterhub singleuser image
+      default: pangeo/ml-notebook
+    jupyterhub_image_tag:
+      type: string
+      description: Jupyterhub singleuser image version
+      default: latest
+    jupyterhub_storage_volume:
+      type: string
+      description: Size of the Data PersistentVolumeClaim
+      default: 8Gi
+      required: yes
+
+
+  node_templates:
+
+
+    claim_pvc:
+      type: tosca.nodes.indigo.KubernetesObject
+      properties:
+        spec:
+          concat:
+            - |-
+                apiVersion: v1
+                kind: PersistentVolumeClaim
+                metadata:
+                  namespace: daskhub
+                  name: claim-data
+                spec:
+                  accessModes:
+                    - ReadWriteMany
+                  resources:
+                    requests:
+                      storage:
+            - get_input: jupyterhub_storage_volume
+      requirements:
+        - host: lrms_front_end
+        - dependency: dask
+
+    dask:
+      type: tosca.nodes.indigo.Helm.Chart
+      properties:
+        namespace: daskhub
+        repository_name: dask
+        repository_url: "https://helm.dask.org"
+        name: daskhub
+        values_file: |
+          rbac:
+            enabled: true  # Create and use roles and service accounts on an RBAC-enabled cluster.
+          jupyterhub:
+            proxy:
+              service:
+                type: ClusterIP
+              # run only on master nodes
+              chp:
+                  nodeSelector:
+                        node-role.kubernetes.io/control-plane: ''
+                  tolerations:
+                      - key: 'node-role.kubernetes.io/control-plane'
+                        operator: Exists
+            hub:
+              config:
+                Authenticator:
+                  admin_users:
+                   - admin
+                JupyterHub:
+                  admin_access: true
+                  authenticator_class: nativeauthenticator.NativeAuthenticator
+              # run only on master nodes
+              nodeSelector:
+                node-role.kubernetes.io/control-plane: ''
+              tolerations:
+                - key: 'node-role.kubernetes.io/control-plane'
+                  operator: Exists
+              extraConfig:
+                # Register Dask Gateway service and setup singleuser environment.
+                00-add-dask-gateway-values: |
+                  # 1. Sets `DASK_GATEWAY__PROXY_ADDRESS` in the singleuser environment.
+                  # 2. Adds the URL for the Dask Gateway JupyterHub service.
+                  import os
+                  # These are set by jupyterhub.
+                  release_name = os.environ['HELM_RELEASE_NAME']
+                  release_namespace = os.environ['POD_NAMESPACE']
+                  if 'PROXY_HTTP_SERVICE_HOST' in os.environ:
+                      # https is enabled, we want to use the internal http service.
+                      gateway_address = 'http://{}:{}/services/dask-gateway/'.format(
+                          os.environ['PROXY_HTTP_SERVICE_HOST'],
+                          os.environ['PROXY_HTTP_SERVICE_PORT'],
+                      )
+                      print('Setting DASK_GATEWAY__ADDRESS {} from HTTP service'.format(gateway_address))
+                  else:
+                      gateway_address = 'http://proxy-public/services/dask-gateway'
+                      print('Setting DASK_GATEWAY__ADDRESS {}'.format(gateway_address))
+                  # Internal address to connect to the Dask Gateway.
+                  c.KubeSpawner.environment.setdefault('DASK_GATEWAY__ADDRESS', gateway_address)
+                  # Internal address for the Dask Gateway proxy.
+                  c.KubeSpawner.environment.setdefault('DASK_GATEWAY__PROXY_ADDRESS', 'gateway://traefik-{}-dask-gateway.{}:80'.format(release_name, release_namespace))
+                  # Relative address for the dashboard link.
+                  c.KubeSpawner.environment.setdefault('DASK_GATEWAY__PUBLIC_ADDRESS', '/services/dask-gateway/')
+                  # Use JupyterHub to authenticate with Dask Gateway.
+                  c.KubeSpawner.environment.setdefault('DASK_GATEWAY__AUTH__TYPE', 'jupyterhub')
+                  # Adds Dask Gateway as a JupyterHub service to make the gateway available at
+                  # {HUB_URL}/services/dask-gateway
+                  service_url = 'http://traefik-{}-dask-gateway.{}'.format(release_name, release_namespace)
+                  for service in c.JupyterHub.services:
+                      if service['name'] == 'dask-gateway':
+                          if not service.get('url', None):
+                              print('Adding dask-gateway service URL')
+                              service.setdefault('url', service_url)
+                          break
+                  else:
+                      print('dask-gateway service not found. Did you set jupyterhub.hub.services.dask-gateway.apiToken?')
+            singleuser:
+              defaultUrl: '/lab'  # Use jupyterlab by defualt.
+              memory:
+                guarantee: 1G
+                limit: 2G
+              cpu:
+                guarantee: 0.3
+                limit: 1
+              storage:
+                type: dynamic
+                capacity: 2Gi
+                extraVolumes:
+                  - name: vol-data
+                    persistentVolumeClaim:
+                      claimName: claim-data
+                extraVolumeMounts:
+                  - name: vol-data
+                    mountPath: /home/jovyan/data
+                    readOnly: True
+              # default is 300s, sometimes Jetstream volumes are slow to attach
+              startTimeout: 600
+              # See https://github.com/zonca/jupyterhub-deploy-kubernetes-jetstream/issues/38
+              lifecycleHooks:
+                postStart:
+                  exec:
+                    command:
+                      - 'sh'
+                      - '-c'
+                      - >
+                        chmod 700 .ssh;
+                        chmod g-s .ssh;
+                        chmod 600 .ssh/*;
+                        exit 0
+            ingress:
+              enabled: true
+              annotations:
+                kubernetes.io/ingress.class: 'nginx'
+          dask-gateway:
+            enabled: true  # Enabling dask-gateway will install Dask Gateway as a dependency.
+            # Futher Dask Gateway configuration goes here
+            # See https://github.com/dask/dask-gateway/blob/master/resources/helm/dask-gateway/values.yaml
+            gateway:
+              prefix: '/services/dask-gateway'  # Users connect to the Gateway through the JupyterHub service.
+              auth:
+                type: jupyterhub  # Use JupyterHub to authenticate with Dask Gateway
+            traefik:
+              service:
+                type: ClusterIP  # Access Dask Gateway through JupyterHub. To access the Gateway from outside JupyterHub, this must be changed to a `LoadBalancer`.
+          dask-kubernetes:
+            # Use dask-kubernetes, rather than Dask Gateway, for creating Dask Clusters.
+            # Enabling this also requires
+            # 1. Setting `jupyterhub.singleuser.serviceAccountName: daskkubernetes`.
+            # 2. Ensuring that `dask-kubernetes` is in your singleuser environment.
+            enabled: false
+        values:
+          jupyterhub.singleuser.image.name: { get_input: jupyterhub_image_name }
+          jupyterhub.singleuser.image.tag: { get_input: jupyterhub_image_tag }
+          dask-gateway.gateway.auth.jupyterhub.apiToken: { get_input: jupyterhub_token }
+          jupyterhub.hub.services.dask-gateway.apiToken: { get_input: jupyterhub_token }
+      requirements:
+        - host: front
+        - dependency: lrms_front_end
+
+    lrms_front_end:
+      type: tosca.nodes.indigo.LRMS.FrontEnd.Kubernetes
+      capabilities:
+        endpoint:
+          properties:
+            ports:
+              http_port:
+                protocol: tcp
+                source: 80
+              https_port:
+                protocol: tcp
+                source: 443
+      properties:
+        admin_username: kubeuser
+        install_nfs_client: true
+        admin_token: { get_input: kube_admin_token }
+        install_kubeapps: false
+        version: { get_input: kube_version }
+        cri_runtime: containerd
+        csi_driver: NFS
+      requirements:
+        - host: front
+
+    front:
+      type: tosca.nodes.indigo.Compute
+      capabilities:
+        endpoint:
+          properties:
+            dns_name: kubeserver
+            network_name: PUBLIC
+        host:
+          properties:
+            num_cpus: { get_input: fe_cpus }
+            mem_size: { get_input: fe_mem }
+        os:
+          properties:
+            distribution: ubuntu
+            type: linux
+      requirements:
+        - local_storage:
+            node: fe_block_storage
+            relationship:
+              type: AttachesTo
+              properties:
+                location: /pv
+
+    fe_block_storage:
+      type: tosca.nodes.BlockStorage
+      properties:
+        size: { get_input: fe_disk_size }
+
+    wn_node:
+      type: tosca.nodes.indigo.LRMS.WorkerNode.Kubernetes
+      properties:
+        front_end_ip: { get_attribute: [ front, private_address, 0 ] }
+        version: { get_input: kube_version }
+        cri_runtime: containerd
+        csi_driver: NFS
+      requirements:
+        - host: wn
+
+    wn:
+      type: tosca.nodes.indigo.Compute
+      capabilities:
+        scalable:
+          properties:
+            count: { get_input: wn_num }
+        host:
+          properties:
+            disk_size: { get_input: wn_disk_size }
+            num_cpus: { get_input: wn_cpus }
+            mem_size: { get_input: wn_mem }
+        os:
+          properties:
+            distribution: ubuntu
+            type: linux
+
+  outputs:
+    jupyter_hub_url:
+      value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], '/' ] }
