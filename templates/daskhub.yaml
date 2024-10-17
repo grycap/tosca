@@ -78,37 +78,9 @@ topology_template:
       type: string
       description: Jupyterhub singleuser image version
       default: latest
-    jupyterhub_storage_volume:
-      type: string
-      description: Size of the Data PersistentVolumeClaim
-      default: 8Gi
-      required: yes
 
 
   node_templates:
-
-
-    claim_pvc:
-      type: tosca.nodes.indigo.KubernetesObject
-      properties:
-        spec:
-          concat:
-            - |-
-                apiVersion: v1
-                kind: PersistentVolumeClaim
-                metadata:
-                  namespace: daskhub
-                  name: claim-data
-                spec:
-                  accessModes:
-                    - ReadWriteMany
-                  resources:
-                    requests:
-                      storage:
-            - get_input: jupyterhub_storage_volume
-      requirements:
-        - host: lrms_front_end
-        - dependency: dask
 
     dask:
       type: tosca.nodes.indigo.Helm.Chart
@@ -194,14 +166,6 @@ topology_template:
               storage:
                 type: dynamic
                 capacity: 2Gi
-                extraVolumes:
-                  - name: vol-data
-                    persistentVolumeClaim:
-                      claimName: claim-data
-                extraVolumeMounts:
-                  - name: vol-data
-                    mountPath: /home/jovyan/data
-                    readOnly: True
               # default is 300s, sometimes Jetstream volumes are slow to attach
               startTimeout: 600
               # See https://github.com/zonca/jupyterhub-deploy-kubernetes-jetstream/issues/38
