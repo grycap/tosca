@@ -31,7 +31,7 @@ topology_template:
     endpoint:
       type: string
       description: DNS name to access the MLFlow instance
-      default: mlflow.eu-1.open-science-cloud-user-apps.eu
+      default: mlflow
 
 
   node_templates:
