@@ -69,7 +69,7 @@ topology_template:
                     database_uri = sqlite:///data/basic_auth.db
                     authorization_function = mlflow.server.auth:authenticate_request_basic_auth
                     admin_username = admin
-                    admin_password = 
+                    admin_password =
                 - get_input: mlflow_password
 
 
