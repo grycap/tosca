@@ -31,7 +31,12 @@ topology_template:
     endpoint:
       type: string
       description: DNS name to access the MLFlow instance
-      default: mlflow
+      default: https://mlflow
+
+    mlflow_password:
+      type: string
+      description: Password for the MLFlow admin user
+      default: 'mlflow_password'
 
 
   node_templates:
@@ -56,13 +61,17 @@ topology_template:
           type: tosca.artifacts.File
           deploy_path: "/usr/local/lib/python3.8/site-packages/mlflow/server/auth/basic_auth.ini"
           properties:
-            content: |
-              [mlflow]
-              default_permission = READ
-              database_uri = sqlite:///data/basic_auth.db
-              admin_username = admin
-              admin_password = mlflow_password
-              authorization_function = mlflow.server.auth:authenticate_request_basic_auth
+            content:
+              concat:
+                - |-
+                    [mlflow]
+                    default_permission = READ
+                    database_uri = sqlite:///data/basic_auth.db
+                    authorization_function = mlflow.server.auth:authenticate_request_basic_auth
+                    admin_username = admin
+                    admin_password = 
+                - get_input: mlflow_password
+
 
     # The properties of the runtime to host the container
     mlflow_runtime:
@@ -125,3 +134,7 @@ topology_template:
   outputs:
     mlflow_url:
       value: { get_attribute: [ mlflow_app, endpoints, 0 ] }
+    mlflow_admin_password:
+      value: { get_input: mlflow_password }
+    mlfow_admin_username:
+      value: admin
