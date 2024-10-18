@@ -49,7 +49,7 @@ topology_template:
     geoserver_stable_extensions:
       type: string
       description: List of GeoServer stable extensions to install
-      default: 'ysld,h2'
+      default: 'ysld'
       required: no
 
     geoserver_community_extensions:
