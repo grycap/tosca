@@ -23,8 +23,8 @@
           global:
             env:
               alembicDir: "/opt/openeo_argoworkflows_api/psql"
-              apiDns: 127.0.0.1:8000
-              apiTLS: false
+              apiDns: {{ dns_name }}
+              apiTLS: true
               apiTitle: "OpenEO ArgoWorkflows"
               apiDescription: "A K8S deployment of the openeo api for argoworkflows."
               oidcUrl: "{{ oidc_url }}"
@@ -32,7 +32,7 @@
               oidcPolicies: {{ oidc_roles }}
               stacCatalogueUrl: "{{ stac_url }}"
               workspaceRoot: "/user_workspaces"
-              executorImage: "ghcr.io/eodcgmbh/openeo-argoworkflows:executor-2024.9.2"
+              executorImage: "ghcr.io/eodcgmbh/openeo-argoworkflows:executor-2024.10.1"
           image:
             repository: ghcr.io/eodcgmbh/openeo-argoworkflows
             # Overrides the image tag whose default is the chart appVersion.
@@ -42,6 +42,17 @@
           ingress:
             enabled: true
             className: "nginx"
+            tls:
+              - secretName: openeo-tls
+                hosts:
+                  - {{ dns_name }}
+            annotations:
+              cert-manager.io/cluster-issuer: letsencrypt-prod
+              nginx.ingress.kubernetes.io/proxy-connect-timeout: "1800"
+              nginx.ingress.kubernetes.io/proxy-send-timeout: "1800"
+              nginx.ingress.kubernetes.io/proxy-read-timeout: '1800'
+              nginx.ingress.kubernetes.io/client-body-buffer-size: "64k"
+              nginx.ingress.kubernetes.io/proxy-body-size: "20m"
             hosts:
               - host: {{ dns_name }}
                 paths:

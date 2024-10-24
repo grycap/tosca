@@ -39,6 +39,15 @@ topology_template:
       description: OpenEO DNS name (leave empty to use openeo.<node_ip>.nip.io)
       default: ""
 
+    # Restrict some K8s input values
+
+    kube_cert_manager:
+      type: boolean
+      description: Flag to install Cert-Manager
+      default: true
+      constraints:
+        - valid_values: [ true ]
+
   node_templates:
 
     openeo:
