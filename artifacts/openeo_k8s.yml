@@ -32,11 +32,11 @@
               oidcPolicies: {{ oidc_roles }}
               stacCatalogueUrl: "{{ stac_url }}"
               workspaceRoot: "/user_workspaces"
-              executorImage: "ghcr.io/eodcgmbh/openeo-argoworkflows:executor-2024.10.1"
+              executorImage: "ghcr.io/eodcgmbh/openeo-argoworkflows:executor-2024.9.2"
           image:
             repository: ghcr.io/eodcgmbh/openeo-argoworkflows
             # Overrides the image tag whose default is the chart appVersion.
-            tag: "api-2024.9.3"
+            tag: "api-2024.10.1"
           persistence:
             capacity: "8Gi"
           ingress:
