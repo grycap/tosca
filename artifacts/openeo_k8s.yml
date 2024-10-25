@@ -98,7 +98,15 @@
       register: namespace
       changed_when: "'AlreadyExists' not in namespace.stdout"
 
+    - name: "Check if OpenEO is already deployed"
+      command: helm status openeo -n openeo
+      register: deployed
+      failed_when: deployed.rc != 0 and deployed.rc != 1
+      environment:
+        KUBECONFIG: "/etc/kubernetes/admin.conf"
+
     - name: Install OpenEO Helm chart
       command: helm upgrade -n openeo --install openeo /opt/eodcgmbh-charts/eodc/openeo-argo --values /tmp/openeo_config.yaml
       environment:
         KUBECONFIG: "/etc/kubernetes/admin.conf"
+      when: deployed.rc == 1
