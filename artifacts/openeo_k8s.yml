@@ -6,6 +6,8 @@
     oidc_url: "{{ openeo_oidc_url | default('https://aai.egi.eu/auth/realms/egi') }}"
     oidc_organisation: "{{ openeo_oidc_organisation | default('egi') }}"
     oidc_roles: "{{ openeo_oidc_roles | default(['']) }}"
+    executor_version: "{{ openeo_executor_version | default('2024.9.2') }}"
+    api_version: "{{ openeo_api_version | default('2024.10.1') }}"
   tasks:
     - name: Set default DNS name (nip.io)
       set_fact:
@@ -32,11 +34,11 @@
               oidcPolicies: {{ oidc_roles }}
               stacCatalogueUrl: "{{ stac_url }}"
               workspaceRoot: "/user_workspaces"
-              executorImage: "ghcr.io/eodcgmbh/openeo-argoworkflows:executor-2024.9.2"
+              executorImage: "ghcr.io/eodcgmbh/openeo-argoworkflows:executor-{{ executor_version }}"
           image:
             repository: ghcr.io/eodcgmbh/openeo-argoworkflows
             # Overrides the image tag whose default is the chart appVersion.
-            tag: "api-2024.10.1"
+            tag: "api-{{ api_version }}"
           persistence:
             capacity: "8Gi"
           ingress:
