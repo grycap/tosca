@@ -32,11 +32,11 @@
               oidcPolicies: {{ oidc_roles }}
               stacCatalogueUrl: "{{ stac_url }}"
               workspaceRoot: "/user_workspaces"
-              executorImage: "ghcr.io/eodcgmbh/openeo-argoworkflows:executor-2024.10.1"
+              executorImage: "ghcr.io/eodcgmbh/openeo-argoworkflows:executor-2024.9.2"
           image:
             repository: ghcr.io/eodcgmbh/openeo-argoworkflows
             # Overrides the image tag whose default is the chart appVersion.
-            tag: "api-2024.9.3"
+            tag: "api-2024.10.1"
           persistence:
             capacity: "8Gi"
           ingress:
@@ -98,7 +98,15 @@
       register: namespace
       changed_when: "'AlreadyExists' not in namespace.stdout"
 
+    - name: "Check if OpenEO is already deployed"
+      command: helm status openeo -n openeo
+      register: deployed
+      failed_when: deployed.rc != 0 and deployed.rc != 1
+      environment:
+        KUBECONFIG: "/etc/kubernetes/admin.conf"
+
     - name: Install OpenEO Helm chart
       command: helm upgrade -n openeo --install openeo /opt/eodcgmbh-charts/eodc/openeo-argo --values /tmp/openeo_config.yaml
       environment:
         KUBECONFIG: "/etc/kubernetes/admin.conf"
+      when: deployed.rc == 1
