@@ -7,7 +7,9 @@
     oidc_organisation: "{{ openeo_oidc_organisation | default('egi') }}"
     oidc_roles: "{{ openeo_oidc_roles | default(['']) }}"
     executor_version: "{{ openeo_executor_version | default('2024.9.2') }}"
-    api_version: "{{ openeo_api_version | default('2024.10.1') }}"
+    api_version: "{{ openeo_api_version | default('2024.10.2') }}"
+    dask_worker_cores: "{{ openeo_dask_worker_cores | default(1) }}"
+    dask_worker_memory: "{{ openeo_dask_worker_memory | default(2) }}"
   tasks:
     - name: Set default DNS name (nip.io)
       set_fact:
@@ -35,6 +37,10 @@
               stacCatalogueUrl: "{{ stac_url }}"
               workspaceRoot: "/user_workspaces"
               executorImage: "ghcr.io/eodcgmbh/openeo-argoworkflows:executor-{{ executor_version }}"
+              daskWorkerCores: "{{ dask_worker_cores }}"
+              daskWorkerMemory: "{{ dask_worker_memory }}"
+              daskWorkerLimit: "6"
+              daskClusterTimeout: "3600"
           image:
             repository: ghcr.io/eodcgmbh/openeo-argoworkflows
             # Overrides the image tag whose default is the chart appVersion.

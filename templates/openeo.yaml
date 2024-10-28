@@ -38,6 +38,18 @@ topology_template:
       type: string
       description: OpenEO DNS name (leave empty to use openeo.<node_ip>.nip.io)
       default: ""
+    openeo_dask_worker_cores:
+      type: integer
+      description: Number of cores per Dask worker
+      default: 2
+      constraints:
+        - greater_than: 0
+    openeo_dask_worker_memory:
+      type: integer
+      description: Memory per Dask worker (in GiB)
+      default: 4
+      constraints:
+        - greater_than: 1
 
     # Restrict some K8s input values
 
@@ -73,6 +85,8 @@ topology_template:
               openeo_oidc_organisation: { get_input: openeo_oidc_organisation }
               openeo_oidc_roles: { get_input: openeo_oidc_roles }
               openeo_dns_name: { get_input: openeo_dns_name }
+              openeo_dask_worker_cores: { get_input: openeo_dask_worker_cores }
+              openeo_dask_worker_memory: { get_input: openeo_dask_worker_memory }
       requirements:
         - host: front
         - dependency: lrms_front_end
