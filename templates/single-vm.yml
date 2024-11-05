@@ -1,0 +1,83 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+imports:
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+
+description: Deploy a Single compute node.
+
+metadata:
+  template_name: VM
+  template_version: "1.0.0"
+  template_author: Miguel Caballer
+
+topology_template:
+
+  inputs:
+    num_cpus:
+      type: integer
+      description: Number of virtual cpus for the VM
+      default: 2
+    mem_size:
+      type: scalar-unit.size
+      description: Amount of memory for the VM
+      default: 4 GB
+    disk_size:
+      type: scalar-unit.size
+      description: Size of the root disk of the VM (in case of 0 disk will no be resized)
+      default: 20 GB
+
+    num_gpus:
+      type: integer
+      description: Number of GPUs to assing to this VM
+      default: 0
+    gpu_vendor:
+      type: string
+      description: GPU Vendor
+      default: ''
+      constraints:
+        - valid_values: [ '', 'NVIDIA', 'AMD' ]
+
+    ports:
+      type: map
+      entry_schema:
+        type: PortSpec
+      description: |
+        List of ports to be Opened in the Cloud site (eg. 22,80,443,2000:2100).
+        You can also include the remote CIDR (eg. 8.8.0.0/24).
+      default:
+        ssh_port:
+          source: 22
+          protocol: tcp
+
+    environment:
+      type: map
+      entry_schema:
+        type: string
+      description: Environment variables to be set in the container
+      default: {}
+
+  node_templates:
+
+    single_vm:
+      type: tosca.nodes.indigo.Compute
+      capabilities:
+        endpoint:
+          properties:
+            network_name: PUBLIC
+            ports: { get_input: ports }
+        host:
+          properties:
+            disk_size: { get_input: disk_size }
+            num_cpus: { get_input: num_cpus }
+            mem_size: { get_input: mem_size }
+            num_gpus: { get_input: num_gpus }
+            gpu_vendor: { get_input: gpu_vendor }
+        os:
+          properties:
+            type: linux
+            distribution: ubuntu
+      # Add dummy task to activate context
+      interfaces:
+        Standard:
+          configure:
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/dummy.yml
