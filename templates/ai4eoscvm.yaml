@@ -8,8 +8,6 @@ metadata:
   template_name: AI4EOSC DEEPaaS YoloV8
   display_name: Deploy a DEEPaaS AI model YoloV8
 
-
-
 description: TOSCA template for deploying a DEEPaaS AI model
 
 topology_template:
@@ -103,7 +101,6 @@ topology_template:
         Standard:
           configure:
             implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/dummy.yml
-
 
   outputs:
     ai4eosc_model_endpoint:
