@@ -54,7 +54,7 @@ topology_template:
         - host: mlflow_runtime
       artifacts:
         my_image:
-          file: grycap/mlflow:2.14.3
+          file: grycap/mlflow:2.17.2
           type: tosca.artifacts.Deployment.Image.Container.Docker
         config_map:
           file: "basic_auth.ini"
