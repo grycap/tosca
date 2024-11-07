@@ -59,4 +59,4 @@ topology_template:
 
   outputs:
     geoserver_url:
-      value: { get_attribute: [ ai4eosc_app, endpoints, 0 ] }
+      value: { concat: [ get_attribute: [ ai4eosc_app, endpoints, 0 ], 'ui' ] }
