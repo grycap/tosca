@@ -107,7 +107,7 @@ topology_template:
         - host: mysql_runtime
       artifacts:
         my_image:
-          file: "mysql:5.7.39-debian"
+          file: "mysql:8"
           type: tosca.artifacts.Deployment.Image.Container.Docker
 
     # The properties of the runtime to host the container
