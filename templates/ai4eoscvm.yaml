@@ -21,7 +21,7 @@ topology_template:
     ai4eosc_model_image:
       type: string
       description: Docker image of the model to be deployed
-      default: deephdc/deep-oc-plants-classification-tf
+      default: plants-classification
       required: yes
     ai4eosc_gpu_support:
       type: boolean
