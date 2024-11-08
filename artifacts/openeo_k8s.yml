@@ -10,6 +10,8 @@
     api_version: "{{ openeo_api_version | default('2024.10.2') }}"
     dask_worker_cores: "{{ openeo_dask_worker_cores | default(1) }}"
     dask_worker_memory: "{{ openeo_dask_worker_memory | default(2) }}"
+    cors_origin: "{{ openeo_cors_origin | default('') }}"
+    cors_enabled: "false"
   tasks:
     - name: Set default DNS name (nip.io)
       set_fact:
@@ -19,6 +21,10 @@
       set_fact:
         dns_name: "{{ openeo_dns_name }}"
       when: openeo_dns_name is defined and openeo_dns_name != ""
+    - name: Enable CORS
+      set_fact:
+        cors_enabled: "true"
+      when: cors_origin != ""
     - name: Create OpenEO Helm values file
       copy:
         dest: /tmp/openeo_config.yaml
@@ -61,6 +67,8 @@
               nginx.ingress.kubernetes.io/proxy-read-timeout: '1800'
               nginx.ingress.kubernetes.io/client-body-buffer-size: "64k"
               nginx.ingress.kubernetes.io/proxy-body-size: "20m"
+              nginx.ingress.kubernetes.io/cors-allow-origin: "{{ cors_origin }}"
+              nginx.ingress.kubernetes.io/enable-cors: "{{ cors_enabled }}"
             hosts:
               - host: {{ dns_name }}
                 paths:

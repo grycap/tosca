@@ -50,6 +50,10 @@ topology_template:
       default: 4
       constraints:
         - greater_than: 1
+    openeo_cors_origin:
+      type: string
+      description: CORS origin
+      default: ""
 
     # Restrict some K8s input values
 
@@ -87,6 +91,7 @@ topology_template:
               openeo_dns_name: { get_input: openeo_dns_name }
               openeo_dask_worker_cores: { get_input: openeo_dask_worker_cores }
               openeo_dask_worker_memory: { get_input: openeo_dask_worker_memory }
+              openeo_cors_origin: { get_input: openeo_cors_origin }
       requirements:
         - host: front
         - dependency: lrms_front_end
