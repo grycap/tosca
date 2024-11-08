@@ -97,5 +97,7 @@ topology_template:
         - dependency: lrms_front_end
 
   outputs:
+    openeo_dns_endpoint:
+      value: { concat: [ 'https://', get_input: openeo_dns_name, '/1.1.0/' ] }
     openeo_endpoint:
       value: { concat: [ 'https://openeo.', get_attribute: [ front, public_address, 0 ], '.nip.io/1.1.0/' ] }

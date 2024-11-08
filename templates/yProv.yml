@@ -53,6 +53,9 @@ topology_template:
               port_neo4j:
                 protocol: tcp
                 source: 7687
+              port_neo4js:
+                protocol: tcp
+                source: 7473
       properties:
         namespace: yprov
         chart_url: "https://github.com/HPCI-Lab/yProv/raw/main/cloud/yProv.tgz"
