@@ -35,11 +35,11 @@ topology_template:
         - valid_values: [ 2, 4, 8, 16, 32, 64 ]
     mem_size_master:
       type: scalar-unit.size
-      description: Ammount of RAM (GB) to assign to the master
-      default: 30 GB
+      description: Ammount of RAM (GiB) to assign to the master
+      default: 30 GiB
       required: yes
       constraints:
-        - valid_values: [ 4 GB, 8 GB, 16 GB, 32 GB, 64 GB, 128 GB ]
+        - valid_values: [ 4 GiB, 8 GiB, 16 GiB, 32 GiB, 64 GiB, 128 GiB ]
     num_gpus_worker:
       type: integer
       description: Number of GPUs to assing to the worker
@@ -54,17 +54,17 @@ topology_template:
         - valid_values: [ 2, 4, 8, 16, 32, 64 ]
     mem_size_worker:
       type: scalar-unit.size
-      description: Ammount of RAM (GB) to assign to the worker
-      default: 30 GB
+      description: Ammount of RAM (GiB) to assign to the worker
+      default: 30 GiB
       required: yes
       constraints:
-        - valid_values: [ 4 GB, 8 GB, 16 GB, 32 GB, 64 GB, 128 GB ]
+        - valid_values: [ 4 GiB, 8 GiB, 16 GiB, 32 GiB, 64 GiB, 128 GiB ]
     disk_size:
       type: scalar-unit.size
       description: Size of the external disk attached to the server
-      default: 100 GB
+      default: 100 GiB
       constraints:
-        - valid_values: [ 100 GB, 500 GB, 1 TB, 5 TB, 8TB ]
+        - valid_values: [ 100 GiB, 500 GiB, 1 TiB, 5 TiB, 8TiB ]
     workers_num:
       type: integer
       description: Number of worker nodes in cluster

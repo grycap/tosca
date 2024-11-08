@@ -70,9 +70,9 @@ topology_template:
     storage_size:
       type: scalar-unit.size
       description: Size of the extra HD added to the instance
-      default: 50 GB
+      default: 50 GiB
       constraints:
-        - valid_values: [ 50 GB, 100 GB, 200 GB, 500 GB, 1 TB, 2 TB, 10 TB, 20 TB, 40 TB, 100 TB ]
+        - valid_values: [ 50 GiB, 100 GiB, 200 GiB, 500 GiB, 1 TiB, 2 TiB, 10 TiB, 20 TiB, 40 TiB, 100 TiB ]
     mount_path:
       type: string
       description: Path to mount the extra disk

@@ -23,16 +23,16 @@ topology_template:
     memory_size:
       type: string
       description: ram memory required for the OBM instance
-      default: 2 GB
+      default: 2 GiB
       constraints:
-        - valid_values: [ 2 GB, 4 GB, 8 GB, 16 GB, 32 GB, 64 GB, 128 GB ]
+        - valid_values: [ 2 GiB, 4 GiB, 8 GiB, 16 GiB, 32 GiB, 64 GiB, 128 GiB ]
     disk_size:
       type: string
       # type: scalar-unit.size
       description: Size of the first disk to be attached to the instance
-      default: 10 GB
+      default: 10 GiB
       constraints:
-        - valid_values: [ 10 GB, 20 GB, 50 GB, 100 GB, 200 GB, 500 GB, 1 TB, 2 TB ]
+        - valid_values: [ 10 GiB, 20 GiB, 50 GiB, 100 GiB, 200 GiB, 500 GiB, 1 TiB, 2 TiB ]
     volume_id:
       type: string
       description: "Or URL of the first disk to be attached to the instance (format: ost://api.cloud.ifca.es/<vol_id>"
@@ -41,9 +41,9 @@ topology_template:
       type: string
       # type: scalar-unit.size
       description: Size of the second disk to be attached to the instance
-      default: 10 GB
+      default: 10 GiB
       constraints:
-        - valid_values: [ 10 GB, 20 GB, 50 GB, 100 GB, 200 GB, 500 GB, 1 TB, 2 TB ]
+        - valid_values: [ 10 GiB, 20 GiB, 50 GiB, 100 GiB, 200 GiB, 500 GiB, 1 TiB, 2 TiB ]
     volume_id2:
       type: string
       description: "Or URL of the second disk to be attached to the instance (format: ost://api.cloud.ifca.es/<vol_id>"
@@ -58,9 +58,9 @@ topology_template:
     ci_memory_size:
       type: string
       description: ram memory required for the Compute instance
-      default: 2 GB
+      default: 2 GiB
       constraints:
-        - valid_values: [ 2 GB, 4 GB, 8 GB, 16 GB, 32 GB, 64 GB, 128 GB ]
+        - valid_values: [ 2 GiB, 4 GiB, 8 GiB, 16 GiB, 32 GiB, 64 GiB, 128 GiB ]
 
   node_templates:
 

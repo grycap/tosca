@@ -230,7 +230,7 @@ topology_template:
                   NIFI_CLUSTER_NODE_PROTOCOL_PORT: '11443'
                   NIFI_CLUSTER_NODE_READ_TIMEOUT: '2 min'
                   NIFI_CLUSTER_PROTOCOL_CONNECTION_HANDSHAKE_TIMEOUT: '2 min'
-                  NIFI_CLUSTER_PROTOCOL_HEARTBEAT_INTERVAL: '1 min'
+                  NIFI_CLUSTER_PROTOCOL_HEARTiBEAT_INTERVAL: '1 min'
                   NIFI_ELECTION_MAX_CANDIDATES: '2'
                   NIFI_ELECTION_MAX_WAIT: '1 min'
                   NIFI_SENSITIVE_PROPS_KEY: '1yhqju3ubhp5rjeb'
