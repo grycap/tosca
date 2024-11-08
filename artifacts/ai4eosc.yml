@@ -2,7 +2,7 @@
 - hosts: localhost
   connection: local
   vars:
-    image: "{{ ai4eosc_model_image | default('deephdc/deep-oc-plants-classification-tf') }}"
+    image: "{{ ai4eosc_model_image | default('plants-classification') }}"
     traefik_host: "{{ ansible_default_ipv4.address }}"
     cert_email: "{{ ai4eosc_cert_email | default('johndoe@server.com') }}"
   roles:
@@ -32,7 +32,7 @@
           version: "3.9"
           services:
             app:
-              image: {{ image }}
+              image: ai4oshub/{{ image }}
               labels:
                 - "traefik.enable=true"
                 - "traefik.http.routers.app.service=app"
