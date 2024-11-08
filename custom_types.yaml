@@ -486,7 +486,7 @@ node_types:
       kube_wn_mem:
         type: scalar-unit.size
         description: Kubernetes WNs Memory
-        default: 4 GB
+        default: 4 GiB
         required: false
     artifacts:
       clues_role:

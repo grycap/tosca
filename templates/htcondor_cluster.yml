@@ -38,10 +38,10 @@ topology_template:
     fe_mem:
       type: scalar-unit.size
       description: Amount of Memory for the front-end node
-      default: 1 GB
+      default: 1 GiB
       required: yes
       constraints:
-        - valid_values: [ 2 GB, 4 GB, 8 GB, 16 GB, 32 GB, 64 GB, 128 GB, 256 GB, 512 GB ]
+        - valid_values: [ 2 GiB, 4 GiB, 8 GiB, 16 GiB, 32 GiB, 64 GiB, 128 GiB, 256 GiB, 512 GiB ]
     wn_cpus:
       type: integer
       description: Number of CPUs for the Worker Nodes
@@ -52,17 +52,17 @@ topology_template:
     wn_mem:
       type: scalar-unit.size
       description: Amount of Memory for the Worker Nodes
-      default: 1 GB
+      default: 1 GiB
       required: yes
       constraints:
-        - valid_values: [ 2 GB, 4 GB, 8 GB, 16 GB, 32 GB, 64 GB, 128 GB, 256 GB, 512 GB ]
+        - valid_values: [ 2 GiB, 4 GiB, 8 GiB, 16 GiB, 32 GiB, 64 GiB, 128 GiB, 256 GiB, 512 GiB ]
 
     fe_disk_size:
       type: scalar-unit.size
       description: Size of the disk to be attached to the FE instance (Set 0 if disk is not needed)
-      default: 0 GB
+      default: 0 GiB
       constraints:
-        - valid_values: [ 0 GB, 10 GB, 20 GB, 50 GB, 100 GB, 200 GB, 500 GB, 1 TB, 2 TB ]
+        - valid_values: [ 0 GiB, 10 GiB, 20 GiB, 50 GiB, 100 GiB, 200 GiB, 500 GiB, 1 TiB, 2 TiB ]
     fe_volume_id:
       type: string
       description: "Or URL of the disk to be attached to the FE instance (format: ost://api.cloud.ifca.es/<vol_id>"
@@ -75,9 +75,9 @@ topology_template:
     wn_disk_size:
       type: scalar-unit.size
       description: Size of the disk to be attached to the WN instances (Set 0 if disk is not needed)
-      default: 0 GB
+      default: 0 GiB
       constraints:
-        - valid_values: [ 0 GB, 10 GB, 20 GB, 50 GB, 100 GB, 200 GB, 500 GB, 1 TB, 2 TB ]
+        - valid_values: [ 0 GiB, 10 GiB, 20 GiB, 50 GiB, 100 GiB, 200 GiB, 500 GiB, 1 TiB, 2 TiB ]
     wn_mount_path:
       type: string
       description: "Path to mount the WN attached disk"

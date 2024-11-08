@@ -40,10 +40,10 @@ topology_template:
     fe_mem:
       type: scalar-unit.size
       description: Amount of Memory for the front-end node
-      default: 4 GB
+      default: 4 GiB
       required: yes
       constraints:
-        - valid_values: [ 4 GB, 8 GB, 16 GB, 32 GB, 64 GB, 128 GB, 256 GB, 512 GB ]
+        - valid_values: [ 4 GiB, 8 GiB, 16 GiB, 32 GiB, 64 GiB, 128 GiB, 256 GiB, 512 GiB ]
 
     wn_num:
       type: integer
@@ -60,10 +60,10 @@ topology_template:
     wn_mem:
       type: scalar-unit.size
       description: Amount of Memory for the WNs (without public IP)
-      default: 4 GB
+      default: 4 GiB
       required: yes
       constraints:
-        - valid_values: [ 4 GB, 8 GB, 16 GB, 32 GB, 64 GB, 128 GB, 256 GB, 512 GB ]
+        - valid_values: [ 4 GiB, 8 GiB, 16 GiB, 32 GiB, 64 GiB, 128 GiB, 256 GiB, 512 GiB ]
 
     wn_pub_num:
       type: integer
@@ -80,10 +80,10 @@ topology_template:
     wn_pub_mem:
       type: scalar-unit.size
       description: Amount of Memory for the WNs (with public IP)
-      default: 4 GB
+      default: 4 GiB
       required: yes
       constraints:
-        - valid_values: [ 4 GB, 8 GB, 16 GB, 32 GB, 64 GB, 128 GB, 256 GB, 512 GB ]
+        - valid_values: [ 4 GiB, 8 GiB, 16 GiB, 32 GiB, 64 GiB, 128 GiB, 256 GiB, 512 GiB ]
 
     wn_gpu_num:
       type: integer
@@ -100,10 +100,10 @@ topology_template:
     wn_gpu_mem:
       type: scalar-unit.size
       description: Amount of Memory for the GPU WNs
-      default: 4 GB
+      default: 4 GiB
       required: yes
       constraints:
-        - valid_values: [ 4 GB, 8 GB, 16 GB, 32 GB, 64 GB, 128 GB, 256 GB, 512 GB ]
+        - valid_values: [ 4 GiB, 8 GiB, 16 GiB, 32 GiB, 64 GiB, 128 GiB, 256 GiB, 512 GiB ]
     wn_gpu_num_gpus:
       type: integer
       description: Number of GPUs to assing to this VM

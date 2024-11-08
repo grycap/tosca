@@ -61,7 +61,7 @@ topology_template:
     slave_mem:
       type: scalar-unit.size
       description: Amount of Memory for the slave node
-      default: 2 GB
+      default: 2 GiB
       required: yes
 
     master_cpus:
@@ -73,7 +73,7 @@ topology_template:
     master_mem:
       type: scalar-unit.size
       description: Amount of Memory for the master node
-      default: 4 GB
+      default: 4 GiB
       required: yes
 
 

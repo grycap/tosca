@@ -63,16 +63,16 @@ topology_template:
     wn_mem:
       type: scalar-unit.size
       description: Amount of Memory for the WNs
-      default: 8 GB
+      default: 8 GiB
       required: yes
       constraints:
-        - valid_values: [ 8 GB, 16 GB, 32 GB, 64 GB, 128 GB, 256 GB, 512 GB ]
+        - valid_values: [ 8 GiB, 16 GiB, 32 GiB, 64 GiB, 128 GiB, 256 GiB, 512 GiB ]
     wn_disk_size:
       type: scalar-unit.size
       description: Size of the disk to be attached to the WN instances for storing containers
-      default: 40 GB
+      default: 40 GiB
       constraints:
-        - valid_values: [ 40 GB, 50 GB, 100 GB, 200 GB, 500 GB, 1 TB, 2 TB ]
+        - valid_values: [ 40 GiB, 50 GiB, 100 GiB, 200 GiB, 500 GiB, 1 TiB, 2 TiB ]
 
   node_templates:
 

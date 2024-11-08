@@ -133,10 +133,10 @@
     - when: deployed.rc == 1
       block:
 
-        - name: Remove GB from max_mem
+        - name: Remove GiB from max_mem
           set_fact:
-            max_mem: "{{ max_mem[:-2] | float - 1 }}"
-          when: max_mem and "GB" in max_mem
+            max_mem: "{{ max_mem[:-3] | float - 1 }}"
+          when: max_mem and "GiB" in max_mem
 
         - name: Create galaxy helm chart values file
           copy:

@@ -26,14 +26,14 @@ topology_template:
     fe_mem:
       type: scalar-unit.size
       description: Amount of Memory for the front-end node
-      default: 1 GB
+      default: 1 GiB
       required: yes
     fe_disk_size:
       type: scalar-unit.size
       description: Size of the FE root disk.
-      default: 20 GB
+      default: 20 GiB
       constraints:
-        - valid_values: [ 20 GB, 30 GB, 40 GB, 50 GB, 100 GB, 200 GB, 500 GB, 1 TB, 2 TB ]
+        - valid_values: [ 20 GiB, 30 GiB, 40 GiB, 50 GiB, 100 GiB, 200 GiB, 500 GiB, 1 TiB, 2 TiB ]
 
     wn_cpus:
       type: integer
@@ -43,14 +43,14 @@ topology_template:
     wn_mem:
       type: scalar-unit.size
       description: Amount of Memory for the WNs
-      default: 1 GB
+      default: 1 GiB
       required: yes
     wn_disk_size:
       type: scalar-unit.size
       description: Size of the WN root disk.
-      default: 20 GB
+      default: 20 GiB
       constraints:
-        - valid_values: [ 20 GB, 30 GB, 40 GB, 50 GB, 100 GB, 200 GB, 500 GB, 1 TB, 2 TB ]
+        - valid_values: [ 20 GiB, 30 GiB, 40 GiB, 50 GiB, 100 GiB, 200 GiB, 500 GiB, 1 TiB, 2 TiB ]
 
     jmeter_version:
       type: string

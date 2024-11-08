@@ -37,7 +37,7 @@ topology_template:
     pvc_size:
       type: scalar-unit.size
       description: Size of the Persistent Volume Claim
-      default: 10 GB
+      default: 10 GiB
     pvc_mount_path:
       type: string
       description: Path to mount the Persistent Volume Claim
