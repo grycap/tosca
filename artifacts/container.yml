@@ -1,0 +1,20 @@
+---
+- hosts: localhost
+  connection: local
+  roles:
+    - role: 'grycap.docker'
+  vars:
+      container_ports: []
+  tasks:
+    - set_fact:
+          container_ports: "{{ container_ports + [ item.value.source | string + ':' + item.value.source | string ] }}"
+      with_items: "{{ ports | dict2items }}"
+      
+    - name: Launch container
+      docker_container:
+        name: '{{ container_name }}'
+        image: '{{ container_image }}'
+        state: started
+        env: '{{ environment }}'
+        detach: true
+        ports: '{{ container_ports }}'
