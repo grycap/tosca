@@ -44,7 +44,7 @@ topology_template:
     ai4eosc_model_image:
       type: string
       description: Docker image of the model to be deployed
-      default: ai4oshub/ai4os-yolov8-torch
+      default: ai4os-yolov8-torch
       required: yes
     ai4eosc_gpu_support:
       type: boolean
