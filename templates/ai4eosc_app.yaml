@@ -25,7 +25,7 @@ topology_template:
     ai4eosc_model_image:
       type: string
       description: Docker image of the model to be deployed
-      default: ai4oshub/plants-classification
+      default: plants-classification
       required: yes
 
     endpoint:
