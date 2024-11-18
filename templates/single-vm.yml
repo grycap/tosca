@@ -49,6 +49,7 @@ topology_template:
 #          source: 22
 #          protocol: tcp
 
+    # In case of container image
     container_image: 
       type: string
       description: Docker image to be executed in the container
@@ -60,6 +61,29 @@ topology_template:
         type: string
       description: Environment variables to be set in the container
       default: {}
+
+    # In case of docker compose 
+    docker_compose:
+      type: string
+      description: Docker compose file to be executed
+      default: ''
+
+    # In case of Ansible playbook 
+    ansible_playbook:
+      type: string
+      description: Ansible playbook to be executed
+      default: ''
+ 
+    # In case of shell script 
+    shell_script: 
+      type: string
+      description: Shell script to be executed
+      default: ''
+
+    shell_args: 
+      type: string
+      description: Arguments to be passed to the shell script
+      default: ''
 
   node_templates:
 

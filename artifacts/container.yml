@@ -6,15 +6,77 @@
   vars:
       container_ports: []
   tasks:
-    - set_fact:
-          container_ports: "{{ container_ports + [ item.value.source | string + ':' + item.value.source | string ] }}"
-      with_items: "{{ ports | dict2items }}"
-      
-    - name: Launch container
-      docker_container:
-        name: '{{ container_name }}'
-        image: '{{ container_image }}'
-        state: started
-        env: '{{ environment }}'
-        detach: true
-        ports: '{{ container_ports }}'
+
+    - block:
+
+        - set_fact:
+              container_ports: "{{ container_ports + [ item.value.source | string + ':' + item.value.source | string ] }}"
+          with_items: "{{ ports | dict2items }}"
+          
+        - name: Launch container
+          docker_container:
+            name: '{{ container_name }}'
+            image: '{{ container_image }}'
+            state: started
+            env: '{{ environment }}'
+            detach: true
+            ports: '{{ container_ports }}'
+
+      when: container_image != ''
+
+    - block:
+
+        - name: Create docker-compose directory
+          file:
+            path: /opt/compose
+            state: directory
+            mode: '0755'
+
+        - name: Download docker-compose file
+          get_url:
+            url: '{{ docker_compose }}'
+            dest: /opt/compose/docker-compose.yml
+
+        - name: Exec docker-compose up
+          docker_compose:
+            project_src: /opt/compose/
+            state: present
+          environment: '{{ environment }}'
+
+      when: docker_compose != ''
+
+    - block:
+
+        - name: Create ansible directory
+          file:
+            path: /opt/ansible
+            state: directory
+            mode: '0755'
+
+        - name: Download Ansible playbook
+          get_url:
+            url: '{{ ansible_playbook }}'
+            dest: /opt/ansible/playbook.yml
+  
+        - name: Exec Ansible playbook
+          import_playbook: /opt/ansible/playbook.yml
+
+      when: ansible_playbook != ''
+
+    - block:
+
+        - name: Create shell_script directory
+          file:
+            path: /opt/shell_script
+            state: directory
+            mode: '0755'
+
+        - name: Download Ansible playbook
+          get_url:
+            url: '{{ shell_script }}'
+            dest: /opt/shell_script/shell_script.sh
+  
+        - name: Exec Ansible playbook
+          command: /opt/shell_script/shell_script.sh {{ shell_args }}
+
+      when: shell_script != ''
