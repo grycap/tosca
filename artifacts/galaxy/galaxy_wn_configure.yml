@@ -10,7 +10,7 @@
         name: systemd-timesyncd
         state: absent
       ignore_errors: true
-      when: ansible_family == "Debian"
+      when: ansible_os_family == "Debian"
   roles:
     - role: 'grycap.nfs'
       nfs_mode: 'wn'
