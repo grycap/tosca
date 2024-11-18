@@ -45,12 +45,9 @@ topology_template:
         List of ports to be Opened in the Cloud site (eg. 22,80,443,2000:2100).
         You can also include the remote CIDR (eg. 8.8.0.0/24).
       default: {}
-#        ssh_port:
-#          source: 22
-#          protocol: tcp
 
     # In case of container image
-    container_image: 
+    container_image:
       type: string
       description: Docker image to be executed in the container
       default: ''
@@ -62,25 +59,25 @@ topology_template:
       description: Environment variables to be set in the container
       default: {}
 
-    # In case of docker compose 
+    # In case of docker compose
     docker_compose:
       type: string
       description: Docker compose file to be executed
       default: ''
 
-    # In case of Ansible playbook 
+    # In case of Ansible playbook
     ansible_playbook:
       type: string
       description: Ansible playbook to be executed
       default: ''
- 
-    # In case of shell script 
-    shell_script: 
+
+    # In case of shell script
+    shell_script:
       type: string
       description: Shell script to be executed
       default: ''
 
-    shell_args: 
+    shell_args:
       type: string
       description: Arguments to be passed to the shell script
       default: ''
