@@ -1,7 +1,7 @@
 tosca_definitions_version: tosca_simple_yaml_1_0
 
 imports:
-  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/devel/custom_types.yaml
 
 description: Deploy a Galaxy portal with an SLURM Virtual Cluster.
 
@@ -13,19 +13,24 @@ metadata:
   parents:
     - slurm_cluster.yml
   tabs:
-    Galaxy Data: admin_.*
+    Galaxy Data: galaxy_.*
 
 topology_template:
   inputs:
 
-    admin_email:
+    galaxy_admin_email:
       type: string
       description: Email of the Galaxy admin user
       default: admin@admin.com
-    admin_password:
+    galaxy_admin_password:
       type: string
       description: Password of the Galaxy admin user
       default: adminpass
+    galaxy_dns_name:
+      type: string
+      description: DNS name of the Galaxy portal
+      default: ''
+
 
     slurm_version:
       type: string
@@ -63,11 +68,17 @@ topology_template:
       capabilities:
         endpoint:
           properties:
-            port: 8443
-            protocol: tcp
+            ports:
+              https:
+                protocol: tcp
+                source: 443
+              http:
+                protocol: tcp
+                source: 80
       properties:
-        admin_email: { get_input: admin_email }
-        admin_password: { get_input: admin_password }
+        admin_email: { get_input: galaxy_admin_email }
+        admin_password: { get_input: galaxy_admin_password }
+        dns_name: { get_input: galaxy_dns_name }
       requirements:
         - lrms: lrms_front_end
         - host: lrms_server

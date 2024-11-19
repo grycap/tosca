@@ -911,6 +911,11 @@ node_types:
         description: Password of the admin user
         default: adminpass
         required: false
+      dns_name:
+        type: string
+        description: DNS name of the portal
+        required: false
+        default: ''
     requirements:
       - lrms:
           capability: tosca.capabilities.indigo.LRMS
@@ -935,6 +940,7 @@ node_types:
             galaxy_admin_password: { get_property: [ SELF, admin_password ] }
             galaxy_lrms: { get_property: [ SELF, lrms, type ] }
             galaxy_server_name: { get_attribute: [ HOST, private_address, 0 ] }
+            galaxy_dns_name: { get_property: [ SELF, dns_name ] }
 
   tosca.nodes.indigo.GalaxyWN:
     derived_from: tosca.nodes.SoftwareComponent
