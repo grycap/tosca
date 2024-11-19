@@ -7,7 +7,7 @@
     oidc_organisation: "{{ openeo_oidc_organisation | default('egi') }}"
     oidc_roles: "{{ openeo_oidc_roles | default(['']) }}"
     executor_version: "{{ openeo_executor_version | default('2024.9.2') }}"
-    api_version: "{{ openeo_api_version | default('2024.11.1') }}"
+    api_version: "{{ openeo_api_version | default('2024.11.5') }}"
     dask_worker_cores: "{{ openeo_dask_worker_cores | default(1) }}"
     dask_worker_memory: "{{ openeo_dask_worker_memory | default(2) }}"
     cors_origin: "{{ openeo_cors_origin | default('') }}"
