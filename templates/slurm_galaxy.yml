@@ -30,9 +30,31 @@ topology_template:
     slurm_version:
       type: string
       description: Version of SLURM to be installed
-      default: 20.11.9
+      default: 21.08.8
       constraints:
-        - valid_values: [ '20.11.9' ]
+        - valid_values: [ '21.08.8' ]
+
+    # Overwrite default FE and WN values
+    fe_cpus:
+      type: integer
+      description: Number of CPUs for the front-end node
+      default: 2
+      required: yes
+    fe_mem:
+      type: scalar-unit.size
+      description: Amount of Memory for the front-end node
+      default: 8 GiB
+      required: yes
+    wn_cpus:
+      type: integer
+      description: Number of CPUs for the WNs
+      default: 2
+      required: yes
+    wn_mem:
+      type: scalar-unit.size
+      description: Amount of Memory for the WNs
+      default: 4 GiB
+      required: yes
 
   node_templates:
 
