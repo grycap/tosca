@@ -28,7 +28,7 @@ topology_template:
       default: adminpass
     galaxy_dns_name:
       type: string
-      description: DNS name of the Galaxy portal
+      description: DNS name of the Galaxy portal (leave empty to use galaxy.<node_ip>.nip.io)
       default: ''
 
 
@@ -92,5 +92,7 @@ topology_template:
         - dependency: galaxy_portal
 
   outputs:
-    galaxy_url:
-      value: { concat: [ 'https://', get_attribute: [ lrms_server, public_address, 0 ], ':8443/' ] }
+    galaxy_nip_url:
+      value: { concat: [ 'https://galaxy.', get_attribute: [ simple_node, public_address, 0 ], 'nip.io/' ] }
+    galaxy_dns_url:
+      value: { concat: [ 'https://', { get_input: dns_name }, '/' ] }
