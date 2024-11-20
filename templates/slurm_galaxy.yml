@@ -6,7 +6,7 @@ imports:
 description: Deploy a Galaxy portal with an SLURM Virtual Cluster.
 
 metadata:
-  template_version: "1.0.0"
+  template_version: "1.1.0"
   template_name: Galaxy
   display_name: Deploy a Galaxy portal in a SLURM cluster
   icon: images/galaxy_slurm.png
