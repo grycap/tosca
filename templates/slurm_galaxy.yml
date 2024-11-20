@@ -95,4 +95,4 @@ topology_template:
     galaxy_nip_url:
       value: { concat: [ 'https://galaxy.', get_attribute: [ simple_node, public_address, 0 ], 'nip.io/' ] }
     galaxy_dns_url:
-      value: { concat: [ 'https://', { get_input: dns_name }, '/' ] }
+      value: { concat: [ 'https://', { get_input: galaxy_dns_name }, '/' ] }
