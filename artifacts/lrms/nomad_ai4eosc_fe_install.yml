@@ -166,6 +166,7 @@
     - name: Set facts
       set_fact:
         consul_servers_ip: "{{ consul_servers_ip + [ consul_join ] }}"
+        from_scratch_cluster_installation: false
       when: consul_join != ''
 
     - name: Set facts
