@@ -162,6 +162,7 @@
     - name: Set facts
       set_fact:
         consul_servers_ip: "{{ server_list }}"
+        from_scratch_cluster_installation: true
 
     - name: Set facts
       set_fact:

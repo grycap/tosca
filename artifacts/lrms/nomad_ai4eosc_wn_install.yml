@@ -8,6 +8,7 @@
     launch_traefik: "{{ nomad_launch_traefik | default(false) }}"
     certs_url: "{{ consul_cert_url | default('') }}"
     consul_join: "{{ consul_server_join | default('') }}"
+    from_scratch_cluster_installation: true
   pre_tasks:
     - name: Convert server_list to list
       set_fact:
@@ -21,6 +22,7 @@
     - name: Set primary_datacenter
       set_fact:
         consul_primary_datacenter: "{{ consul_join_datacenter | default('ifca-ai4eosc') }}"
+        from_scratch_cluster_installation: false
       when: consul_join != ''
   roles:
     - role: 'grycap.docker'
