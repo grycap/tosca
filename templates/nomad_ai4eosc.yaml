@@ -7,7 +7,7 @@ description: Deploy an Consul + Nomad Virtual Cluster (AI4EOSC).
 
 metadata:
   template_name: Nomad
-  template_version: "1.1.0"
+  template_version: "1.1.1"
   display_name: Deploy a Consul + Nomad Virtual Cluster
   icon: images/nomad.png
   tabs:
@@ -136,12 +136,12 @@ topology_template:
     consul_version:
       type: string
       description: Consul version to install
-      default: 1.17.1
+      default: 1.19.2
       required: yes
     nomad_version:
       type: string
       description: Nomad version to install
-      default: 1.7.3
+      default: 1.9.1
       required: yes
     nomad_dc:
       type: string
