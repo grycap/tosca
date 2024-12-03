@@ -1,0 +1,67 @@
+---
+- hosts: localhost
+  connection: local
+  vars:
+    docker_compose_folder: "{{ compose_folder | default('') }}"
+    git_version: "{{ repo_branch | default('master') }}"
+  roles:
+    - role: 'grycap.docker'
+  tasks:
+    - name: docker_compose_git is mandatory
+      ansible.builtin.fail:
+        msg: Please provide a git repository to clone and perform a docker-compose up
+      when: docker_compose_git is not defined or docker_compose_git == ""
+
+    - name: Install git package
+      ansible.builtin.package:
+        name: git
+        state: present
+      ignore_errors: true
+
+    - name: Clone docker-compose git repository
+      ansible.builtin.git:
+        repo: '{{ docker_compose_git }}'
+        dest: /opt/docker_compose
+        version: "{{ git_version }}"
+
+    - name: Make sure .env file exists
+      ansible.builtin.file:
+        path: /opt/docker_compose/.env
+        state: touch
+        modification_time: preserve
+        access_time: preserve
+
+    - name: Configure GALAXY_CONFIG_BRAND
+      ansible.builtin.lineinfile:
+        path: /opt/docker_compose/.env
+        regexp: '^GALAXY_CONFIG_BRAND='
+        line: GALAXY_CONFIG_BRAND=galaxy_config_brand
+      when: galaxy_config_brand is defined
+
+    - name: Configure PROXY_PREFIX
+      ansible.builtin.lineinfile:
+        path: /opt/docker_compose/.env
+        regexp: '^PROXY_PREFIX='
+        line: PROXY_PREFIX=proxy_prefix
+      when: proxy_prefix is defined
+
+    - name: Configure NONUSE
+      ansible.builtin.lineinfile:
+        path: /opt/docker_compose/.env
+        regexp: '^NONUSE='
+        line: NONUSE=nonuse
+      when: nonuse is defined
+
+    - name: Configure GALAXY_CONFIG_ENABLE_MULLED_CONTAINERS
+      ansible.builtin.lineinfile:
+        path: /opt/docker_compose/.env
+        regexp: '^GALAXY_CONFIG_ENABLE_MULLED_CONTAINERS='
+        line: GALAXY_CONFIG_ENABLE_MULLED_CONTAINERS=galaxy_config_enable_mulled_containers
+      when: galaxy_config_enable_mulled_containers is defined
+
+    - name: docker-compose up
+      community.docker.docker_compose_v2:
+        project_src: "/opt/docker_compose/{{ docker_compose_folder }}"
+        state: present
+        env_files:
+          - "/opt/docker_compose/.env"
