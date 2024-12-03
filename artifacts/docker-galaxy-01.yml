@@ -38,28 +38,28 @@
       ansible.builtin.lineinfile:
         path: /opt/docker_compose/.env
         regexp: '^GALAXY_CONFIG_BRAND='
-        line: GALAXY_CONFIG_BRAND=galaxy_config_brand
+        line: GALAXY_CONFIG_BRAND='{{ galaxy_config_brand }}'
       when: galaxy_config_brand is defined
 
     - name: Configure PROXY_PREFIX
       ansible.builtin.lineinfile:
         path: /opt/docker_compose/.env
         regexp: '^PROXY_PREFIX='
-        line: PROXY_PREFIX=proxy_prefix
+        line: PROXY_PREFIX='{{ proxy_prefix }}'
       when: proxy_prefix is defined
 
     - name: Configure NONUSE
       ansible.builtin.lineinfile:
         path: /opt/docker_compose/.env
         regexp: '^NONUSE='
-        line: NONUSE=nonuse
+        line: NONUSE='{{ nonuse }}'
       when: nonuse is defined
 
     - name: Configure GALAXY_CONFIG_ENABLE_MULLED_CONTAINERS
       ansible.builtin.lineinfile:
         path: /opt/docker_compose/.env
         regexp: '^GALAXY_CONFIG_ENABLE_MULLED_CONTAINERS='
-        line: GALAXY_CONFIG_ENABLE_MULLED_CONTAINERS=galaxy_config_enable_mulled_containers
+        line: GALAXY_CONFIG_ENABLE_MULLED_CONTAINERS='{{ galaxy_config_enable_mulled_containers }}'
       when: galaxy_config_enable_mulled_containers is defined
 
     - name: docker-compose up
