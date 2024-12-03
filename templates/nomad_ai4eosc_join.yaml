@@ -175,7 +175,7 @@ topology_template:
     consul_join_datacenter:
       type: string
       description: Primary datacenter of the Consul cluster to join
-      default: 'ifca-ai4os'
+      default: 'ifca-ai4eosc'
 
   node_templates:
 
