@@ -30,6 +30,9 @@
         state: touch
         modification_time: preserve
         access_time: preserve
+        owner: root
+        group: root
+        mode: '0644'
 
     - name: Configure GALAXY_CONFIG_BRAND
       ansible.builtin.lineinfile:
