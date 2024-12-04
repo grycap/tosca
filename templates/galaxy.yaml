@@ -1,7 +1,7 @@
 tosca_definitions_version: tosca_simple_yaml_1_0
 
 imports:
-  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/devel/custom_types.yaml
 
 description: Deploy a Galaxy Server using a local LRMS.
 
@@ -34,7 +34,7 @@ topology_template:
     version:
       type: string
       description: Version of the Galaxy portal
-      default: 24.1
+      default: '24.1'
       constraints:
         - valid_values: [ '24.1' ]
 
