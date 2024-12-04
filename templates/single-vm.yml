@@ -44,15 +44,15 @@ topology_template:
       description: |
         List of ports to be Opened in the Cloud site (eg. 22,80,443,2000:2100).
         You can also include the remote CIDR (eg. 8.8.0.0/24).
-      default: 
-        http_port: 
+      default:
+        http_port:
           source: 80
-          protocol: tcp 
-          remote_cidr: 0.0.0.0/0 
-        https_port: 
+          protocol: tcp
+          remote_cidr: 0.0.0.0/0
+        https_port:
           source: 443
-          protocol: tcp 
-          remote_cidr: 0.0.0.0/0 
+          protocol: tcp
+          remote_cidr: 0.0.0.0/0
 
     # In case of container image
     container_image:
