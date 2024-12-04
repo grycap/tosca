@@ -27,6 +27,16 @@ topology_template:
       type: string
       description: Password of the Galaxy admin user
       default: adminpass
+    brand:
+      type: string
+      description: Brand of the Galaxy portal
+      default: Galaxy
+    version:
+      type: string
+      description: Version of the Galaxy portal
+      default: 24.1
+      constraints:
+        - valid_values: [ '24.1' ]
 
     dns_name:
       type: string
@@ -51,6 +61,8 @@ topology_template:
         admin_email: { get_input: admin_email }
         admin_password: { get_input: admin_password }
         dns_name: { get_input: dns_name }
+        brand: { get_input: brand }
+        version: { get_input: version }
       requirements:
         - lrms: local_lrms
         - host: simple_node
