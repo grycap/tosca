@@ -127,3 +127,9 @@ topology_template:
           properties:
             type: linux
             distribution: ubuntu
+
+  outputs:
+    node_ip:
+      value: { get_attribute: [ single_vm, public_address, 0 ] }
+    node_creds:
+      value: { get_attribute: [ single_vm, endpoint, credential, 0 ] }
