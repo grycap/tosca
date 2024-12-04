@@ -916,6 +916,16 @@ node_types:
         description: DNS name of the portal
         required: false
         default: ''
+      version:
+        type: string
+        description: Version of the Galaxy portal
+        required: false
+        default: 'latest'
+      brand:
+        type: string
+        description: Brand of the Galaxy portal
+        required: false
+        default: 'Galaxy'
     requirements:
       - lrms:
           capability: tosca.capabilities.indigo.LRMS
@@ -941,6 +951,8 @@ node_types:
             galaxy_lrms: { get_property: [ SELF, lrms, type ] }
             galaxy_server_name: { get_attribute: [ HOST, private_address, 0 ] }
             galaxy_dns_name: { get_property: [ SELF, dns_name ] }
+            galaxy_image_version: { get_property: [ SELF, version ] }
+            galaxy_brand: { get_property: [ SELF, brand ] }
 
   tosca.nodes.indigo.GalaxyWN:
     derived_from: tosca.nodes.SoftwareComponent
