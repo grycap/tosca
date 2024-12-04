@@ -44,7 +44,15 @@ topology_template:
       description: |
         List of ports to be Opened in the Cloud site (eg. 22,80,443,2000:2100).
         You can also include the remote CIDR (eg. 8.8.0.0/24).
-      default: {}
+      default: 
+        http_port: 
+          source: 80
+          protocol: tcp 
+          remote_cidr: 0.0.0.0/0 
+        https_port: 
+          source: 443
+          protocol: tcp 
+          remote_cidr: 0.0.0.0/0 
 
     # In case of container image
     container_image:
@@ -93,7 +101,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/eosc_beyond/artifacts/container.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/eosc_beyond/artifacts/single_vm.yml
             inputs:
               container_image: { get_input: container_image }
               environment: { get_input: environment }

@@ -71,12 +71,12 @@
             state: directory
             mode: '0755'
 
-        - name: Download Ansible playbook
+        - name: Download shell script
           get_url:
             url: '{{ shell_script }}'
             dest: /opt/shell_script/shell_script.sh
   
-        - name: Exec Ansible playbook
+        - name: Exec shell script
           command: /opt/shell_script/shell_script.sh {{ shell_args }}
 
       when: shell_script != ''
