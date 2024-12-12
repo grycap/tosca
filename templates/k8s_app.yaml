@@ -58,7 +58,7 @@ topology_template:
       description: List of ports to be published in the container (ContarinerPort - PublishedPort)
       default:
         - target: 3306
-          source: 33306
+          source: 32306
 
 
   node_templates:
