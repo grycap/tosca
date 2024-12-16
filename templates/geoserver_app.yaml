@@ -78,7 +78,6 @@ topology_template:
             mem_size: { get_input: memory }
             publish_ports:
               - target: 8080
-                source: 32080
                 endpoint: { get_input: endpoint }
             volumes:
               - "container_vol:/opt/geoserver_data"

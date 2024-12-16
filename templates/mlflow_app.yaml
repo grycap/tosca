@@ -83,7 +83,6 @@ topology_template:
             mem_size: { get_input: memory }
             publish_ports:
               - target: 5000
-                source: 32050
                 endpoint: { get_input: endpoint }
             volumes:
               - "container_vol:/data"
