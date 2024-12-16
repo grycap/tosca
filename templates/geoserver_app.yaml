@@ -31,7 +31,7 @@ topology_template:
     endpoint:
       type: string
       description: DNS name to access the GeoServer instance
-      default: geoserver
+      default: https://geoserver
 
     geoserver_admin_password:
       type: string
