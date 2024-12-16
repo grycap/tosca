@@ -91,4 +91,4 @@ topology_template:
 
   outputs:
     geoserver_url:
-      value: { get_attribute: [ geoserver_app, endpoints, 0 ] }
+      value: { concat: [{ get_attribute: [ geoserver_app, endpoints, 0 ] }, "geoserver/"] }
