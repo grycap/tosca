@@ -174,7 +174,7 @@
             KUBECONFIG: /etc/kubernetes/admin.conf
 
         - name: Deploy Galaxy
-          command: helm install --create-namespace -n {{ NAMESPACE }} galaxy galaxy/galaxy --timeout 10m -f /opt/galaxy_values.yaml --version 5.9.0
+          command: helm install --create-namespace -n {{ NAMESPACE }} galaxy galaxy/galaxy --timeout 15m -f /opt/galaxy_values.yaml --version 5.9.0
           environment:
             KUBECONFIG: /etc/kubernetes/admin.conf
           ignore_errors: true
@@ -184,7 +184,7 @@
             minutes: 3
 
         - name: Delete Pending stuck pods
-          command: kubectl delete pods -n {{ NAMESPACE }} --field-selector="status.phase=Pending"
+          command: kubectl delete pods -n {{ NAMESPACE }} --field-selector="status.phase=Pending" --force
           register: error_pods
           changed_when: error_pods.stdout_lines | length > 1
           retries: 5
