@@ -174,7 +174,7 @@
             KUBECONFIG: /etc/kubernetes/admin.conf
 
         - name: Deploy Galaxy
-          command: helm install --create-namespace -n {{ NAMESPACE }} galaxy galaxy/galaxy --timeout 10m -f /opt/galaxy_values.yaml --version 5.9.0
+          command: helm install --create-namespace -n {{ NAMESPACE }} galaxy galaxy/galaxy --timeout 10m -f /opt/galaxy_values.yaml --version 5.19.0
           environment:
             KUBECONFIG: /etc/kubernetes/admin.conf
           ignore_errors: true
