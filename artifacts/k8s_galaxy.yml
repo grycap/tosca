@@ -179,20 +179,20 @@
           command: helm install --create-namespace -n {{ NAMESPACE }} galaxy galaxy/galaxy --timeout 10m -f /opt/galaxy_values.yaml --version 5.19.0
           environment:
             KUBECONFIG: /etc/kubernetes/admin.conf
-#          ignore_errors: true
+          ignore_errors: true
 
-#        - name: Wait pods to be ready
-#          pause:
-#            minutes: 3
+        - name: Wait pods to be ready
+          pause:
+            minutes: 3
 
-#        - name: Delete Pending stuck pods
-#          command: kubectl delete pods -n {{ NAMESPACE }} --field-selector="status.phase=Pending"
-#          register: error_pods
-#          changed_when: error_pods.stdout_lines | length > 1
-#          retries: 5
-#          delay: 120
-#          until: error_pods.stdout_lines | length <= 1
+        - name: Delete Pending stuck pods
+          command: kubectl delete pods -n {{ NAMESPACE }} --field-selector="status.phase=Pending"
+          register: error_pods
+          changed_when: error_pods.stdout_lines | length > 1
+          retries: 5
+          delay: 120
+          until: error_pods.stdout_lines | length <= 1
 
-#        - fail:
-#            msg: "Error waiting for pods to be ready"
-#          when: error_pods.stdout_lines | length > 1
+        - fail:
+            msg: "Error waiting for pods to be ready"
+          when: error_pods.stdout_lines | length > 1
