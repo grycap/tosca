@@ -67,7 +67,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/galaxy/k8s_galaxy.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/k8s_galaxy.yml
             inputs:
               galaxy_admin_users: { get_input: galaxy_admin_users }
               galaxy_brand: { get_input: galaxy_brand }
