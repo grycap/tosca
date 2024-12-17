@@ -143,6 +143,8 @@
             dest: /opt/galaxy_values.yaml
             mode: '644'
             content: |
+              nginx:
+                containerPort: 8000
               persistence:
                 accessMode: ReadWriteOnce
               cvmfs:
