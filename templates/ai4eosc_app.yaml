@@ -57,5 +57,5 @@ topology_template:
                 endpoint: { get_input: endpoint }
 
   outputs:
-    geoserver_url:
+    ai4eosc_app_url:
       value: { concat: [ get_attribute: [ ai4eosc_app, endpoints, 0 ], 'ui' ] }
