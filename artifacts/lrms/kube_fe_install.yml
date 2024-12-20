@@ -7,6 +7,8 @@
     export_line: "(fsid=0,rw,async,no_root_squash,no_subtree_check,insecure)"
     nfs_path: "{{ kube_nfs_path | default('/pv') }}"
     csi_driver: "{{ kube_csi_driver | default('NFS') }}"
+    admin_username: "{{ kube_admin_username | default('admin') }}"
+    admin_token: "{{ kube_admin_token | default(lookup('password', '/var/tmp/kubeadminpass chars=ascii_letters,digits length=16')) }}"
 
   pre_tasks:
     - name: Create dir for the NFS PV
@@ -14,7 +16,7 @@
     - name: Create auth file dir
       file: path=/etc/kubernetes/pki state=directory mode=755 recurse=yes
     - name: Create auth data file with an admin user
-      copy: content='{{ kube_admin_token }},{{ kube_admin_username }},100,"users,system:masters"' dest=/etc/kubernetes/pki/auth mode=600
+      copy: content='{{ admin_token }},{{ admin_username }},100,"users,system:masters"' dest=/etc/kubernetes/pki/auth mode=600
     - name: Do not use fsid=0 in Ubuntu 20.04
       set_fact:
         export_line: "(rw,async,no_root_squash,no_subtree_check,insecure)"
