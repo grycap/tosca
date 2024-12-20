@@ -51,10 +51,6 @@ topology_template:
       description: Size of the root disk of the WNs (in case of 0 disk will no be resized)
       default: 40 GB
 
-    kube_admin_token:
-      type: string
-      description: Access Token for the Kubernetes admin user
-      default: not_very_secret_token
     kube_version:
       type: string
       description: Version of Kubernetes to install
@@ -103,7 +99,6 @@ topology_template:
       properties:
         admin_username: kubeuser
         install_nfs_client: true
-        admin_token: { get_input: kube_admin_token }
         install_kubeapps: false
         version: { get_input: kube_version }
         cri_runtime: docker
