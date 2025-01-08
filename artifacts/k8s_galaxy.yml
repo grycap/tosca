@@ -118,7 +118,7 @@
             KUBECONFIG: /etc/kubernetes/admin.conf
 
         - name: Deploy Galaxy CVMFS CSI
-          command: helm install --create-namespace -n {{ NAMESPACE }} galaxy-cvmfs galaxy/galaxy-cvmfs-csi --wait -f  /opt/galaxy-cvmfs-csi_values.yaml --version 2.2.0
+          command: helm install --create-namespace -n {{ NAMESPACE }} galaxy-cvmfs galaxy/galaxy-cvmfs-csi --wait -f  /opt/galaxy-cvmfs-csi_values.yaml --version 2.4.0
           environment:
             KUBECONFIG: /etc/kubernetes/admin.conf
 
@@ -176,7 +176,7 @@
             KUBECONFIG: /etc/kubernetes/admin.conf
 
         - name: Deploy Galaxy
-          command: helm install --create-namespace -n {{ NAMESPACE }} galaxy galaxy/galaxy --timeout 10m -f /opt/galaxy_values.yaml --version 5.19.0
+          command: helm install --create-namespace -n {{ NAMESPACE }} galaxy galaxy/galaxy --timeout 10m -f /opt/galaxy_values.yaml --version 5.17.0
           environment:
             KUBECONFIG: /etc/kubernetes/admin.conf
           ignore_errors: true
