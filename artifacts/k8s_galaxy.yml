@@ -146,7 +146,7 @@
               nginx:
                 containerPort: 8000
               persistence:
-                accessMode: ReadWriteOnce
+                accessMode: ReadWriteMany
               cvmfs:
                 deploy: false
                 storageClassName: galaxy-cvmfs
