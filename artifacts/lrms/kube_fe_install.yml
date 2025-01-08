@@ -11,6 +11,10 @@
     admin_token: "{{ kube_admin_token | default(lookup('password', '/var/tmp/kubeadminpass chars=ascii_letters,digits length=16')) }}"
 
   pre_tasks:
+    - name: Set the admin token
+      set_fact:
+        admin_token: "{{ lookup('password', '/var/tmp/kubeadminpass chars=ascii_letters,digits length=16') }}"
+      when: admin_token == ''
     - name: Create dir for the NFS PV
       file: path={{ nfs_path }} state=directory mode=755
     - name: Create auth file dir
