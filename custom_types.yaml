@@ -619,7 +619,7 @@ node_types:
       admin_token:
         required: no
         type: string
-        value: some_insecure_token
+        value: ""
       install_kubeapps:
         required: no
         type: boolean
