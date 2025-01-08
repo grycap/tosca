@@ -79,7 +79,7 @@
             KUBECONFIG: /etc/kubernetes/admin.conf
 
         - name: Deploy rabbitmq-operator
-          command: helm install -n {{ NAMESPACE }} --create-namespace rabbitmq-operator bitnami/rabbitmq-cluster-operator --version 2.6.12 -f /opt/rabbitmq_values.yaml
+          command: helm install -n {{ NAMESPACE }} --create-namespace rabbitmq-operator bitnami/rabbitmq-cluster-operator --version 2.6.12 -f /opt/rabbitmq_values.yaml  --wait
           environment:
             KUBECONFIG: /etc/kubernetes/admin.conf
 
@@ -118,7 +118,7 @@
             KUBECONFIG: /etc/kubernetes/admin.conf
 
         - name: Deploy Galaxy CVMFS CSI
-          command: helm install --create-namespace -n {{ NAMESPACE }} galaxy-cvmfs galaxy/galaxy-cvmfs-csi --wait -f  /opt/galaxy-cvmfs-csi_values.yaml --version 2.4.0
+          command: helm install --create-namespace -n {{ NAMESPACE }} galaxy-cvmfs galaxy/galaxy-cvmfs-csi --wait -f  /opt/galaxy-cvmfs-csi_values.yaml --version 2.4.0  --wait
           environment:
             KUBECONFIG: /etc/kubernetes/admin.conf
 
