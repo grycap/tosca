@@ -191,3 +191,5 @@
           retries: 5
           delay: 120
           until: error_pods.stdout_lines | length < 1
+          environment:
+            KUBECONFIG: /etc/kubernetes/admin.conf
