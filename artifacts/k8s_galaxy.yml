@@ -179,3 +179,15 @@
           command: helm install --create-namespace -n {{ NAMESPACE }} galaxy galaxy/galaxy --timeout 10m -f /opt/galaxy_values.yaml --version 5.17.0
           environment:
             KUBECONFIG: /etc/kubernetes/admin.conf
+
+        - name: Wait pods to be ready
+          pause:
+            minutes: 5
+
+        - name: Delete Pending stuck pods (CreateContainerConfigError)
+          shell: kubectl get pods -n {{ NAMESPACE }} -o jsonpath='{range .items[?(@.status.containerStatuses[0].state.waiting.reason=="CreateContainerConfigError")]}{.metadata.namespace} {.metadata.name}{"\n"}{end}' | xargs -r -n2 sh -c 'kubectl delete pod $1 -n $0'
+          register: error_pods
+          changed_when: error_pods.stdout_lines | length > 1
+          retries: 5
+          delay: 120
+          until: error_pods.stdout_lines | length < 1
