@@ -9,6 +9,8 @@
     nvidia_support: false
     certs_url: "{{ consul_cert_url | default('') }}"
     consul_join: "{{ consul_server_join | default('') }}"
+    API_HOST: "{{ ai4eosc_api_host | default('') }}"
+    DASHBOARD_HOST: "{{ ai4eosc_dashboard_host | default('') }}"
   pre_tasks:
     - name: Convert server_list to list
       set_fact:
@@ -202,3 +204,106 @@
     - name: Invoke nomad role
       include_role:
         name: nomad
+
+    - when: API_HOST != '' and DASHBOARD_HOST != ''
+      block:
+
+      - name: Get list of running jobs
+        command: nomad job status -namespace ai4eosc
+        register: nomad_jobs
+        changed_when: false
+
+      - name: Check if a api-dashboard job is running
+        set_fact:
+          api_dashboard_running: "{{ 'api-dashboard' in nomad_jobs.stdout }}"
+        changed_when: false
+
+      - when: not api_dashboard_running
+        block:
+
+        - name: Creat API-Dashboard job file
+          copy:
+            dest: "{{ path }}/api-dashboard.hcl"
+            owner: cloudadm
+            content: |
+              job "api-dashboard" {
+                namespace = "ai4eosc"
+                type      = "service"
+                id        = "api-dashboard"
+                priority  = "50"
+                group "usergroup" {
+                  network {
+                    port "api" {
+                      to = 80
+                    }
+                    port "dashboard" {
+                      to = 80
+                    }
+                  }
+                  service {
+                    name = "ai4eosc-service"
+                    port = "dashboard"
+                    tags = [
+                      "traefik.enable=true",
+                      "traefik.http.routers.ai4eosc.tls=true",
+                      "traefik.http.routers.ai4eosc.rule=Host(`{{ DASHBOARD_HOST }}`)",
+                    ]
+                  }
+                  service {
+                    name = "api-ai4eosc-service"
+                    port = "api"
+                    tags = [
+                      "traefik.enable=true",
+                      "traefik.http.routers.api-ai4eosc.tls=true",
+                      "traefik.http.routers.api-ai4eosc.rule=Host(`{{ API_HOST }}`)",
+                    ]
+                  }
+                  ephemeral_disk {
+                    size = 500
+                  }
+                  task "api" {
+                    driver = "docker"
+                    config {
+                      force_pull = true
+                      image   = "registry.services.ai4os.eu/ai4os/ai4-papi:nomad"
+                      ports   = ["api"]
+                      volumes    = [
+                        "/etc/nomad.d/certs:/home/nomad-certs",
+                      ]
+                    }
+                    env {
+                      DASHBOARD_URL = "https://{{ DASHBOARD_HOST }}"
+                      NOMAD_ADDR        = "https://{{ server_private_ip }}:4646"
+                      NOMAD_CACERT      = "/home/nomad-certs/nomad-ca.pem"
+                      NOMAD_CLIENT_CERT = "/home/nomad-certs/nomad-cli.pem"
+                      NOMAD_CLIENT_KEY  = "/home/nomad-certs/nomad-cli-key.pem"
+                  }
+                    resources {
+                      cores  = 1
+                      memory = 500
+                    }
+                  }
+                  task "dashboard" {
+                    driver = "docker"
+                    config {
+                      force_pull = true
+                      image   = "registry.services.ai4os.eu/ai4os/ai4eosc-dashboard:ai4-dashboard-nomad"
+                      ports   = ["dashboard"]
+                    }
+                    env {
+                    API_SERVER = "https://{{ API_HOST }}/v1"
+                  }
+                    resources {
+                      cores  = 1
+                      memory = 500
+                    }
+                  }
+                }
+              }
+
+        - name: "Run api-dashboard job"
+          command: nomad job run api-dashboard.hcl
+          args:
+            chdir: "{{ path }}"
+          async: 60
+          poll: 5
