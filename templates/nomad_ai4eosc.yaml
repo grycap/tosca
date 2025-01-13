@@ -7,7 +7,7 @@ description: Deploy an Consul + Nomad Virtual Cluster (AI4EOSC).
 
 metadata:
   template_name: Nomad
-  template_version: "1.1.1"
+  template_version: "1.2.0"
   display_name: Deploy a Consul + Nomad Virtual Cluster
   icon: images/nomad.png
   tabs:
@@ -22,7 +22,8 @@ metadata:
       - nomad_dc
       - nomad_domain
       - nomad_namespaces
-
+      - ai4eosc_api_host
+      - ai4eosc_dashboard_host
 topology_template:
   inputs:
 
@@ -161,6 +162,15 @@ topology_template:
       default: [ ai4eosc, imagine, tutorials ]
       required: yes
 
+    ai4eosc_api_host:
+      type: string
+      description: AI4EOSC API DNS name (if empty, the AI4EOSC API will not be installed)
+      default: ''
+    ai4eosc_dashboard_host:
+      type: string
+      description: AI4EOSC Dashboard DNS name (if empty, the AI4EOSC Dashboard will not be installed)
+      default: ''
+
   node_templates:
 
     lrms_front_end:
@@ -210,6 +220,8 @@ topology_template:
               nomad_input_dc: { get_input: nomad_dc }
               nomad_input_domain: { get_input: nomad_domain }
               nomad_input_namespaces: { get_input: nomad_namespaces }
+              ai4eosc_api_host: { get_input: ai4eosc_api_host }
+              ai4eosc_dashboard_host: { get_input: ai4eosc_dashboard_host }
 
     front:
       type: tosca.nodes.indigo.Compute
