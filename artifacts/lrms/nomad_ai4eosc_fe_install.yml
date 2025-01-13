@@ -225,6 +225,7 @@
               copy:
                 dest: "{{ path }}/api-dashboard.hcl"
                 owner: cloudadm
+                mode: '0755'
                 content: |
                   job "api-dashboard" {
                     namespace = "ai4eosc"
