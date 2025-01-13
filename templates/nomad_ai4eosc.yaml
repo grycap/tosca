@@ -368,3 +368,7 @@ topology_template:
       value: { get_attribute: [ front, endpoint, credential, 0 ] }
     traefik_endpoint:
       value: { concat: [ 'https://', get_attribute: [ wn_pub, public_address, 0 ] ] }
+    dashboard_endpoint:
+      value: { concat: [ 'https://', get_input: [ ai4eosc_dashboard_host ] ] }
+    api_endpoint:
+      value: { concat: [ 'https://', get_input: [ ai4eosc_api_host ] ] }
