@@ -3,11 +3,7 @@
   connection: local
   vars:
     dns_name: "{{ enes_dns_name | default('enes.localdomain') }}"
-#    storage_size: "{{ enes_storage_size | default('50Gi') }}"
     jupyterhub_crypt_key: "{{ enes_jupyterhub_crypt_key | default('c924b40b9ae0afba637e297773d27a50c3e9ba4c8a7910f0dd826df1e6c2104d') }}"
-#    admin_email: "{{ enes_admin_email | default('jhondoe@server.com') }}"
-#    mailhub: "{{ enes_mailhub | default('smtp.gmail.com:587') }}"
-#    email_pass: "{{ enes_email_pass | default('pass') }}"
   tasks:
     - name: Create ENES yaml file
       copy:
@@ -25,91 +21,6 @@
           metadata:
             name: 'enes'
           ---
-#          apiVersion: v1
-#          kind: PersistentVolumeClaim
-#          metadata:
-#            namespace: enes
-#            name: enes-web-claim
-#          spec:
-#            accessModes:
-#              - ReadWriteOnce
-#            volumeMode: Filesystem
-#            resources:
-#              requests:
-#                storage: 1Gi
-#          ---
-#          apiVersion: v1
-#          kind: PersistentVolumeClaim
-#          metadata:
-#            namespace: jhub
-#            name: claim-data
-#          spec:
-#            accessModes:
-#              - ReadWriteMany
-#            resources:
-#              requests:
-#                storage: {{ storage_size }}
-#          ---
-#          apiVersion: v1
-#          kind: PersistentVolumeClaim
-#          metadata:
-#            namespace: enes
-#            name: ssmtp-conf-claim
-#          spec:
-#            accessModes:
-#              - ReadWriteOnce
-#            volumeMode: Filesystem
-#            resources:
-#              requests:
-#                storage: 1Gi
-#          ---
-#          apiVersion: apps/v1
-#          kind: Deployment
-#          metadata:
-#            namespace: enes
-#            name: apache-deployment
-#            labels:
-#              role: webserver
-#          spec:
-#            replicas: 1
-#            selector:
-#              matchLabels:
-#                role: webserver
-#            template:
-#              metadata:
-#                labels:
-#                  role: webserver
-#              spec:
-#                containers:
-#                - name: frontend
-#                  image: ophidiabigdata/php-apache-ssmtp:latest
-#                  ports:
-#                  - containerPort: 80
-#                  volumeMounts:
-#                  - name: enes-web
-#                    mountPath: /var/www/html
-#                  - name: ssmtp-conf
-#                    mountPath: /etc/ssmtp
-#                volumes:
-#                  - name: enes-web
-#                    persistentVolumeClaim:
-#                      claimName: enes-web-claim
-#                  - name: ssmtp-conf
-#                    persistentVolumeClaim:
-#                      claimName: ssmtp-conf-claim
-#          ---
-#          apiVersion: v1
-#          kind: Service
-#          metadata:
-#            namespace: enes
-#            name: apache-service
-#          spec:
-#            selector:
-#              role: webserver
-#            ports:
-#              - protocol: TCP
-#                port: 80
-#          ---
           apiVersion: networking.k8s.io/v1
           kind: Ingress
           metadata:
@@ -138,80 +49,6 @@
     - command: kubectl apply -f /opt/enes_apache.yaml
       environment:
         KUBECONFIG: "/etc/kubernetes/admin.conf"
-
-#    - name: Create Job to load web page
-#      copy:
-#        dest: /opt/load_web.yaml
-#        mode: '644'
-#        content: |
-#          apiVersion: batch/v1
-#          kind: Job
-#          metadata:
-#            namespace: enes
-#            name: pv-load
-#          spec:
-#            template:
-#              spec:
-#                volumes:
-#                  - name: enes-pv-storage
-#                    persistentVolumeClaim:
-#                      claimName: enes-web-claim
-#                containers:
-#                  - name: pv-load
-#                    image: bitnami/git
-#                    command:
-#                    - sh
-#                    - -c
-#                    - git clone https://github.com/ENES-Data-Space/web-portal /data
-#                    volumeMounts:
-#                      - mountPath: "/data"
-#                        name: enes-pv-storage
-#                restartPolicy: Never
-
- #   - shell: kubectl get job -n enes pv-load || kubectl apply -f /opt/load_web.yaml
- #     environment:
- #       KUBECONFIG: "/etc/kubernetes/admin.conf"
-
-#    - name: Create Job to set ssmtp-conf
-#      copy:
-#        dest: /opt/load_ssmtp.yaml
-#        mode: '644'
-#        content: |
-#          apiVersion: batch/v1
-#          kind: Job
-#          metadata:
-#            namespace: enes
-#            name: pv-load-ssmtp
-#          spec:
-#            template:
-#              spec:
-#                volumes:
-#                  - name: enes-pv-storage
-#                    persistentVolumeClaim:
-#                      claimName: ssmtp-conf-claim
-#                containers:
-#                  - name: pv-load-ssmtp
-#                    image: bitnami/git
-#                    command:
-#                    - sh
-#                    - -c
-#                    - >-
-#                      echo 'root={{ admin_email }}' > /ssmtp/ssmtp.conf;
-#                      echo 'normaluser={{ admin_email }}' >> /ssmtp/ssmtp.conf;
-#                      echo 'www-data={{ admin_email }}' >> /ssmtp/ssmtp.conf;
-#                      echo 'mailhub={{ mailhub }}' >> /ssmtp/ssmtp.conf;
-#                      echo 'AuthUser={{ admin_email }}' >> /ssmtp/ssmtp.conf;
-#                      echo 'AuthPass={{ email_pass }}' >> /ssmtp/ssmtp.conf;
-#                      echo 'UseTLS=YES' >> /ssmtp/ssmtp.conf;
-#                      echo 'UseSTARTTLS=YES' >> /ssmtp/ssmtp.conf
-#                    volumeMounts:
-#                      - mountPath: "/ssmtp"
-#                        name: enes-pv-storage
-#                restartPolicy: Never
-
-#    - shell: kubectl get job -n enes pv-load-ssmtp || kubectl apply -f /opt/load_ssmtp.yaml
-#      environment:
-#        KUBECONFIG: "/etc/kubernetes/admin.conf"
 
     - name: Create Jupyter Values yaml file
       copy:
@@ -249,9 +86,6 @@
                 volumeMounts:
                   - mountPath: /home/jovyan/work
                     name: vol-{username}{servername}
-#                  - mountPath: /home/jovyan/data/
-#                    name: vol-data
-#                    readOnly: True
             lifecycleHooks:
               postStart:
                 exec:
@@ -261,15 +95,6 @@
               OPH_PASSWD: "abcd"
               OPH_SERVER_HOST: "127.0.0.1"
               HDF5_USE_FILE_LOCKING: "FALSE"
-#            storage:
-#              extraVolumes:
-#                - name: vol-data
-#                  persistentVolumeClaim:
-#                    claimName: claim-data
-#              extraVolumeMounts:
-#                - name: vol-data
-#                  mountPath: /home/jovyan/data
-#                  readOnly: True
               homeMountPath: /home/jovyan/work
               capacity: 20Gi
               dynamic:
@@ -370,32 +195,7 @@
                   'default':True,
               }
               profiles_list.append(profile)
-
-#              profile = {
-#                  'display_name': 'Medium Data Science environment (4 cores, 4GB RAM)',
-#                  'description': 'The Medium notebook server (4 cores, 4GB RAM) includes Python, a number of pre-installed community libraries and a ready-to-use Ophidia HPDA framework instance for running data manipulation, analysis and visualization.',
-#                  'kubespawner_override': {
-#                      'cpu_limit': 4,
-#                      'mem_limit': '4G',
-#                      'cpu_guarantee': 4,
-#                      'mem_guarantee': '4G' ,
-#                  }
-#              }
-#              profiles_list.append(profile)
-#              profile = {
-#                  'display_name': 'Large Data Science environment (8 cores, 8GB RAM)',
-#                  'description': 'The Large (8 cores, 8GB RAM) notebook server includes Python, a number of pre-installed community libraries and a ready-to-use Ophidia HPDA framework instance for running data manipulation, analysis and visualization.',
-#                  'kubespawner_override': {
-#                      'cpu_limit': 8,
-#                      'mem_limit': '8G',
-#                      'cpu_guarantee': 8,
-#                      'mem_guarantee': '8G',
-#                  }
-#              }
-#              profiles_list.append(profile)
-             
               return profiles_list
-          
           c.KubeSpawner.profile_list = get_profile_list
           c.JupyterHub.template_vars = {'announcement_spawn': 'DO NOT STORE ANYTHING OUTSIDE THE WORK DIRECTORY: this is your persistent working dir'}
 
