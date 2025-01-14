@@ -11,21 +11,15 @@ metadata:
   template_version: "1.0.0"
   template_name: Jupyter-Ophidia-based environment
   display_name: Jupyter-Ophidia-based environment on top of Kubernetes
-  #icon: https://github.com/grycap/im-dashboard/raw/devel/app/static/images/eds.png
-  vos: ['vo.enes.org']
+  icon: images/ophidia.png
   tabs:
-    ENES Data: .*
+    Ophidia Data: .*
   parents:
     - kubernetes.yaml
 
 topology_template:
 
   inputs:
-#    storage_size:
-#      type: string
-#      description: Size of the ENES data PersistentVolumeClaim
-#      default: 8 Gi
-#      required: yes
     jupyterhub_crypt_key:
       type: string
       description: Hex-encoded 32-byte key to crypt jupyterhub ('openssl rand -hex 32')
@@ -51,21 +45,6 @@ topology_template:
       description: OIDC Client Secret
       default: ''
       required: yes
-#    enes_admin_email:
-#      type: string
-#      description: ENES instance SMTP email
-#      default: ''
-#      required: yes
-#    enes_mailhub:
-#      type: string
-#      description: ENES instance SMTP mailhub
-#      default: ''
-#      required: yes
-#    enes_email_pass:
-#      type: string
-#      description: ENES instance SMTP password
-#      default: ''
-#      required: yes
 
   node_templates:
 
@@ -79,14 +58,10 @@ topology_template:
             implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/enes/ophidia_intertwin.yml
             inputs:
               enes_dns_name: { get_input: kube_public_dns_name }
-#              storage_size: { get_input: storage_size }
               enes_jupyterhub_crypt_key: { get_input: jupyterhub_crypt_key }
               enes_oidc_issuer: { get_input: enes_oidc_issuer }
               enes_client_secret: { get_input: enes_client_secret }
               enes_client_id: { get_input: enes_client_id }
-#              enes_admin_email: { get_input: enes_admin_email }
-#              enes_mailhub: { get_input: enes_mailhub }
-#              enes_email_pass: { get_input: enes_email_pass }
 
   outputs:
     enes_web:
