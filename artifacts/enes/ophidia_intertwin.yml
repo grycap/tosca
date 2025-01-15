@@ -65,7 +65,7 @@
               OPH_PASSWD: "abcd"
               OPH_SERVER_HOST: "127.0.0.1"
               HDF5_USE_FILE_LOCKING: "FALSE"
-            storage:  
+            storage:
               homeMountPath: /home/jovyan/work
               capacity: 20Gi
               dynamic:
@@ -106,8 +106,8 @@
               Authenticator:
                 enable_auth_state: true
                 claim_groups_key: "eduperson_entitlement"
-#                allowed_groups:
-#                  - urn:mace:egi.eu:group:vo.enes.org:role=member#aai.egi.eu
+                # allowed_groups:
+                #   - urn:mace:egi.eu:group:vo.enes.org:role=member#aai.egi.eu
               CryptKeeper:
                 keys:
                   - {{ jupyterhub_crypt_key }}
