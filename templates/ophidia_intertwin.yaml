@@ -77,5 +77,5 @@ topology_template:
               enes_client_id: { get_input: enes_client_id }
 
   outputs:
-    enes_web:
-      value: { concat: [ 'https://', get_input: kube_public_dns_name, '/' ] }
+    jupyterhub_url:
+      value: { concat: [ 'https://', get_input: kube_public_dns_name, '/jupyter/' ] }
