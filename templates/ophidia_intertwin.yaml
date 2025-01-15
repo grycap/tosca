@@ -46,6 +46,15 @@ topology_template:
       default: ''
       required: yes
 
+    # Restrict some K8s input values
+    wn_disk_size:
+      type: scalar-unit.size
+      description: Size of the root disk of the WNs
+      default: 50 GiB
+      constraints:
+        - valid_values: [ 50 GiB, 100 GiB, 200 GiB, 0 GiB ]
+
+
   node_templates:
 
     enes:
