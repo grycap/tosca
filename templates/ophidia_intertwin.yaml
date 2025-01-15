@@ -50,9 +50,9 @@ topology_template:
     wn_disk_size:
       type: scalar-unit.size
       description: Size of the root disk of the WNs
-      default: 50 GiB
+      default: 100 GiB
       constraints:
-        - valid_values: [ 50 GiB, 100 GiB, 200 GiB, 0 GiB ]
+        - valid_values: [ 100 GiB, 200 GiB, 0 GiB ]
 
 
   node_templates:
