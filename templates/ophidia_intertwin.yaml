@@ -13,7 +13,11 @@ metadata:
   display_name: Jupyter-Ophidia-based environment on top of Kubernetes
   icon: images/ophidia.png
   tabs:
-    Ophidia Data: .*
+    Ophidia Data:
+      - jupyterhub_crypt_key
+      - enes_oidc_issuer
+      - enes_client_id
+      - enes_client_secret
   parents:
     - kubernetes.yaml
 
@@ -52,7 +56,7 @@ topology_template:
       description: Size of the root disk of the WNs
       default: 100 GiB
       constraints:
-        - valid_values: [ 100 GiB, 200 GiB, 0 GiB ]
+        - valid_values: [ 100 GiB, 200 GiB ]
 
 
   node_templates:
