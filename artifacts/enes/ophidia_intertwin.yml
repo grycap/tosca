@@ -5,9 +5,9 @@
     dns_name: "{{ enes_dns_name | default('enes.localdomain') }}"
     jupyterhub_crypt_key: "{{ enes_jupyterhub_crypt_key | default('c924b40b9ae0afba637e297773d27a50c3e9ba4c8a7910f0dd826df1e6c2104d') }}"
   tasks:
-    - name: Create ENES yaml file
+    - name: Create jhub namespace
       copy:
-        dest: /opt/enes_apache.yaml
+        dest: /opt/jhub_ns.yaml
         mode: '644'
         content: |
           ---
@@ -15,38 +15,8 @@
           kind: Namespace
           metadata:
             name: 'jhub'
-          ---
-          apiVersion: v1
-          kind: Namespace
-          metadata:
-            name: 'enes'
-          ---
-          apiVersion: networking.k8s.io/v1
-          kind: Ingress
-          metadata:
-            namespace: enes
-            annotations:
-              kubernetes.io/ingress.class: nginx
-              cert-manager.io/cluster-issuer: "letsencrypt-prod"
-            name: apache-ingress
-          spec:
-            tls:
-            - hosts:
-              - {{ dns_name }}
-              secretName: {{ dns_name }}
-            rules:
-            - host: {{ dns_name }}
-              http:
-                paths:
-                - backend:
-                    service:
-                      name: apache-service
-                      port:
-                        number: 80
-                  path: /
-                  pathType: Prefix
 
-    - command: kubectl apply -f /opt/enes_apache.yaml
+    - command: kubectl apply -f /opt/jhub_ns.yaml
       environment:
         KUBECONFIG: "/etc/kubernetes/admin.conf"
 
@@ -211,7 +181,7 @@
         KUBECONFIG: "/etc/kubernetes/admin.conf"
 
     - name: Install (or upgrade) the jupyterhub chart
-      command: helm upgrade --cleanup-on-fail --install my-jupyterhub jupyterhub/jupyterhub --namespace jhub --version=2.0.0 --values /opt/config_jupyter.yaml --timeout 25m
+      command: helm upgrade --cleanup-on-fail --install my-jupyterhub jupyterhub/jupyterhub --namespace jhub --version=2.0.0 --values /opt/config_jupyter.yaml --timeout 30m
       environment:
         KUBECONFIG: "/etc/kubernetes/admin.conf"
 
