@@ -48,7 +48,7 @@
             KUBECONFIG: /etc/kubernetes/admin.conf
 
         - name: Deploy postgres-operator
-          command: helm install -n {{ NAMESPACE }} --create-namespace postgres-operator postgres-operator-charts/postgres-operator --version 1.9.0 -f /opt/postgres_values.yaml --wait
+          command: helm install -n {{ NAMESPACE }} --create-namespace postgres-operator postgres-operator-charts/postgres-operator --version 1.13.0 -f /opt/postgres_values.yaml --wait
           environment:
             KUBECONFIG: /etc/kubernetes/admin.conf
 
@@ -79,7 +79,7 @@
             KUBECONFIG: /etc/kubernetes/admin.conf
 
         - name: Deploy rabbitmq-operator
-          command: helm install -n {{ NAMESPACE }} --create-namespace rabbitmq-operator bitnami/rabbitmq-cluster-operator --version 2.6.12 -f /opt/rabbitmq_values.yaml  --wait
+          command: helm install -n {{ NAMESPACE }} --create-namespace rabbitmq-operator bitnami/rabbitmq-cluster-operator --version 4.3.25 -f /opt/rabbitmq_values.yaml  --wait
           environment:
             KUBECONFIG: /etc/kubernetes/admin.conf
 
@@ -118,7 +118,7 @@
             KUBECONFIG: /etc/kubernetes/admin.conf
 
         - name: Deploy Galaxy CVMFS CSI
-          command: helm install --create-namespace -n {{ NAMESPACE }} galaxy-cvmfs galaxy/galaxy-cvmfs-csi --wait -f  /opt/galaxy-cvmfs-csi_values.yaml --version 2.4.0  --wait
+          command: helm install --create-namespace -n {{ NAMESPACE }} galaxy-cvmfs galaxy/galaxy-cvmfs-csi --wait -f  /opt/galaxy-cvmfs-csi_values.yaml --version 2.5.1  --wait
           environment:
             KUBECONFIG: /etc/kubernetes/admin.conf
 
@@ -143,10 +143,10 @@
             dest: /opt/galaxy_values.yaml
             mode: '644'
             content: |
-              nginx:
-                containerPort: 8000
               persistence:
                 accessMode: ReadWriteMany
+              s3csi:
+                deploy: false
               cvmfs:
                 deploy: false
                 storageClassName: galaxy-cvmfs
@@ -176,7 +176,7 @@
             KUBECONFIG: /etc/kubernetes/admin.conf
 
         - name: Deploy Galaxy
-          command: helm install --create-namespace -n {{ NAMESPACE }} galaxy galaxy/galaxy --timeout 10m -f /opt/galaxy_values.yaml --version 5.17.0
+          command: helm install --create-namespace -n {{ NAMESPACE }} galaxy galaxy/galaxy --timeout 10m -f /opt/galaxy_values.yaml --version 5.18.0
           environment:
             KUBECONFIG: /etc/kubernetes/admin.conf
 
