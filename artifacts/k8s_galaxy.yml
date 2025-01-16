@@ -179,3 +179,8 @@
           command: helm install --create-namespace -n {{ NAMESPACE }} galaxy galaxy/galaxy --timeout 10m -f /opt/galaxy_values.yaml --version 5.18.0
           environment:
             KUBECONFIG: /etc/kubernetes/admin.conf
+
+        - name: Wait Galaxy Web to be available
+          command: kubectl -n {{ NAMESPACE }} wait --for=condition=Available deployment/galaxy-web --timeout=300s
+          environment:
+            KUBECONFIG: /etc/kubernetes/admin.conf
