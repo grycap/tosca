@@ -181,7 +181,7 @@
             KUBECONFIG: /etc/kubernetes/admin.conf
 
         - name: Wait Galaxy Web to be available
-          command: kubectl -n {{ NAMESPACE }} wait --for=condition=Available deployment/galaxy-web --timeout=300s
+          command: kubectl -n {{ NAMESPACE }} wait --for=condition=Available deployment/galaxy-web --timeout=600s
           environment:
             KUBECONFIG: /etc/kubernetes/admin.conf
           ignore_errors: true
