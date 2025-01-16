@@ -184,7 +184,7 @@
           command: kubectl -n {{ NAMESPACE }} wait --for=condition=Available deployment/galaxy-web --timeout=300s
           environment:
             KUBECONFIG: /etc/kubernetes/admin.conf
-          ignore_errors: yes
+          ignore_errors: true
 
         - name: Delete Pending stuck pods (CreateContainerConfigError)
           shell: kubectl get pods -n {{ NAMESPACE }} -o jsonpath='{range .items[?(@.status.containerStatuses[0].state.waiting.reason=="CreateContainerConfigError")]}{.metadata.namespace} {.metadata.name}{"\n"}{end}' | xargs -r -n2 sh -c 'kubectl delete pod $1 -n $0'
