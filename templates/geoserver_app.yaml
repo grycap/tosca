@@ -61,6 +61,8 @@ topology_template:
           STABLE_EXTENSIONS: { get_input: geoserver_stable_extensions }
           COMMUNITY_EXTENSIONS: { get_input: geoserver_community_extensions }
           GEOSERVER_ADMIN_PASSWORD: { get_input: geoserver_admin_password }
+          PROXY_BASE_URL: "/geoserver/"
+          GEOSERVER_CSRF_DISABLED: "true"
       requirements:
         - host: geoserver_runtime
       artifacts:
