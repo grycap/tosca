@@ -122,7 +122,7 @@
         KUBECONFIG: "/etc/kubernetes/admin.conf"
 
     - name: Install OpenEO Helm chart
-      command: helm upgrade -n openeo --install openeo /opt/eodcgmbh-charts/eodc/openeo-argo --values /tmp/openeo_config.yaml
+      command: helm upgrade -n openeo --install openeo /opt/eodcgmbh-charts/eodc/openeo-argo --values /tmp/openeo_config.yaml --wait --timeout 10m
       environment:
         KUBECONFIG: "/etc/kubernetes/admin.conf"
       when: deployed.rc == 1
