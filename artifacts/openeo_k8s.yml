@@ -126,3 +126,8 @@
       environment:
         KUBECONFIG: "/etc/kubernetes/admin.conf"
       when: deployed.rc == 1
+
+    - name: Wait OpenEO POD to start
+      command: kubectl wait --for=condition=Available deployment -n openeo openeo-openeo-argo --timeout=300s
+      environment:
+        KUBECONFIG: "/etc/kubernetes/admin.conf"
