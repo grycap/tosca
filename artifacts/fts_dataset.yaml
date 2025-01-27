@@ -1,0 +1,24 @@
+---
+- name: Submit FTS transfer job
+  hosts: localhost
+  tasks:
+    # TODO: All the values and format are tentative and need to be replaced
+    # See: https://github.com/EGI-Federation/eosc-data-transfer
+    # https://fts3-docs.web.cern.ch/fts3-docs/fts-rest/docs/api.html
+    - name: Submit FTS transfer
+      ansible.builtin.uri:
+        url: "{{ fts_endpoint }}/jobs"
+        method: POST
+        headers:
+          Content-Type: application/json
+          Authorization: "Bearer {{ fts_credential }}"
+          Authorization-Storage: "{{ remote_storage_credentials }}"
+        body: |
+          {
+              "files": [
+                {
+                  "sources": ["{{ dataset_url }}"],
+                  "destinations": ["{{ remote_storage_endpoint }}{{remote_storage_path}}"]
+                  "credential": "{{ remote_storage_credentials }}"
+                }
+          }
