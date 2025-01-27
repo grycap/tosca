@@ -1,0 +1,21 @@
+---
+- name: Install datahugger and download dataset
+  hosts: localhost
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+  tasks:
+    - name: Ensure python3-pip is installed
+      ansible.builtin.package:
+        name: python3-pip
+        state: present
+
+    - name: Install datahugger Python module
+      ansible.builtin.pip:
+        name: datahugger
+        state: present
+        executable: pip3
+
+    - name: Download the dataset
+      grycap.dataset.download_dataset:
+        dataset_url: "{{ dataset_url }}"
+        output_dir: "{{ output_dir }}"
