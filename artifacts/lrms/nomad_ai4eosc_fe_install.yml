@@ -306,5 +306,5 @@
               command: nomad job run api-dashboard.hcl
               args:
                 chdir: "{{ path }}"
-              async: 60
+              async: 120
               poll: 5
