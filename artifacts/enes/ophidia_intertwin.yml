@@ -56,8 +56,8 @@
                 env:
                   - name:  NO_MEMORY_CHECK
                     value: "1"
-#                  - name: DEBUG
-#                    value: "1"
+                  # - name: DEBUG
+                  #   value: "1"
                 volumeMounts:
                   - mountPath: /home/jovyan/work
                     name: vol-{username}{servername}
