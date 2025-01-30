@@ -53,6 +53,11 @@
             extraContainers:
               - name: ophidiastack
                 image: ophidiabigdata/intertwin-backend:latest
+                env:
+                  - name:  NO_MEMORY_CHECK
+                    value: "1"
+#                  - name: DEBUG
+#                    value: "1"
                 volumeMounts:
                   - mountPath: /home/jovyan/work
                     name: vol-{username}{servername}
@@ -137,7 +142,6 @@
               @gen.coroutine
               def pre_spawn_start(self, user, spawner):
                   auth_state = yield user.get_auth_state()
-                  #auth_state = await user.get_auth_state()
                   if auth_state:
                       userid=auth_state["oauth_user"]["sub"]
                       preferred_username=auth_state["oauth_user"]["preferred_username"]
