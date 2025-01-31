@@ -186,7 +186,7 @@
         KUBECONFIG: "/etc/kubernetes/admin.conf"
 
     - name: Install (or upgrade) the jupyterhub chart
-      command: helm upgrade --cleanup-on-fail --install my-jupyterhub jupyterhub/jupyterhub --namespace jhub --version=2.0.0 --values /opt/config_jupyter.yaml --timeout 30m
+      command: helm upgrade --cleanup-on-fail --install my-jupyterhub jupyterhub/jupyterhub --namespace jhub --version=3.0.0 --values /opt/config_jupyter.yaml --timeout 30m
       environment:
         KUBECONFIG: "/etc/kubernetes/admin.conf"
 
