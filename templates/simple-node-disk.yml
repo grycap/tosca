@@ -170,6 +170,7 @@ topology_template:
               type: tosca.relationships.indigo.AttachesTo
               properties:
                 fs_type: swap
+                location: swap
 
     my_block_storage:
       type: tosca.nodes.BlockStorage
