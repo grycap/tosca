@@ -1003,7 +1003,7 @@ node_types:
     interfaces:
       Standard:
         configure:
-          implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/lrms/pulsar.yml
+          implementation: https://raw.githubusercontent.com/sebastian-luna-valero/tosca-upv/refs/heads/pulsar/artifacts/lrms/pulsar.yml
           inputs:
             pulsar_user: { get_property: [ SELF, mq_user ] }
             pulsar_password: { get_property: [ SELF, mq_password ] }
