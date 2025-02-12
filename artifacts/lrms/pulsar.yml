@@ -1,5 +1,39 @@
 ---
-- hosts: localhost
+- hosts: lrms_wn
+  connection: local
+  handlers:
+    - name: Restart autofs
+      ansible.builtin.service:
+        name: autofs.service
+        state: restarted
+        enabled: true
+
+  tasks:
+    - name: Configure /etc/auto.master.d/data.autofs
+      ansible.builtin.lineinfile:
+        path: /etc/auto.master.d/data.autofs
+        line: /data /etc/auto.data nfsvers=3
+        create: yes
+        owner: root
+        group: root
+        mode: '0644'
+      notify: Restart autofs
+
+    - name: Configure /etc/auto.data
+      ansible.builtin.lineinfile:
+        path: /etc/auto.data
+        line: >
+           {% for host in groups['lrms_server'] %}
+           "share -rw,hard,intr,nosuid,quota "{{ ansible_facts['eth0']['ipv4']['address'] }}":/data/share"
+           {% endfor %}
+        create: yes
+        owner: root
+        group: root
+        mode: '0644'
+      notify: Restart autofs
+      with_items: "{{ groups['lrms_server'] }}"
+
+- hosts: lrms_server
   connection: local
   handlers:
     - name: Restart Pulsar
@@ -7,8 +41,23 @@
         name: pulsar.service
         state: restarted
         enabled: true
+    - name: Restart NFS
+      ansible.builtin.service:
+        name: nfs-server
+        state: restarted
+        enabled: true
 
   tasks:
+    - name: Configure /etc/exportfs
+      ansible.builtin.lineinfile:
+        path: /etc/exportfs
+        line: /data/share *(rw,sync)
+        create: yes
+        owner: root
+        group: root
+        mode: '0644'
+      notify: Restart NFS
+
     - name: Check whether Pulsar is installed
       ansible.builtin.stat:
         path: /opt/pulsar/config/app.yml
@@ -18,6 +67,12 @@
       ansible.builtin.fail:
         msg: "It is a prerequisite to use the VGCN virtual machine image: https://github.com/usegalaxy-eu/vgcn"
       when: not st.stat.exists
+
+    - name: Make sure pulsar is updated
+      ansible.builtin.pip:
+        name: pulsar-app
+        virtualenv: "/opt/pulsar/venv3"
+        state: latest
 
     - name: Configure message queue in Pulsar
       ansible.builtin.lineinfile:
