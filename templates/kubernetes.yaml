@@ -53,7 +53,7 @@ topology_template:
     kube_version:
       type: string
       description: Version of Kubernetes to install
-      default: "1.29.7"
+      default: "1.30.4"
 
     # Helm Chart inputs
     helm_namespace:

@@ -14,9 +14,6 @@ topology_template:
     wn_cpus: 2
     wn_mem: 4 GB
 
-    kube_admin_token: not_very_secret_token
-    kube_version: "1.30.4"
-
     galaxy_admin_users:
       type: string
       description: Administrative users - set this to a comma-separated list of valid Galaxy users (email addresses).
