@@ -1,6 +1,5 @@
 ---
 - hosts: lrms_server
-  connection: local
   handlers:
     - name: Restart Pulsar
       ansible.builtin.service:
@@ -51,7 +50,6 @@
       notify: Restart NFS
 
 - hosts: lrms_wn
-  connection: local
   handlers:
     - name: Restart autofs
       ansible.builtin.service:
@@ -73,10 +71,7 @@
     - name: Configure /etc/auto.data
       ansible.builtin.lineinfile:
         path: /etc/auto.data
-        line: >
-           {% for host in groups['lrms_server'] %}
-           share -rw,hard,intr,nosuid,quota {{ ansible_facts['eth0']['ipv4']['address'] }}:/data/share
-           {% endfor %}
+        line: '{% for host in groups[''lrms_server''] %}share -rw,hard,intr,nosuid,quota {{ ansible_facts[''eth0''][''ipv4''][''address''] }}:/data/share{% endfor %}'
         create: yes
         owner: root
         group: root
