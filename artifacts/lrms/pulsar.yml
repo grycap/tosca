@@ -14,16 +14,6 @@
         enabled: true
 
   tasks:
-    - name: Configure /etc/exportfs
-      ansible.builtin.lineinfile:
-        path: /etc/exportfs
-        line: /data/share *(rw,sync)
-        create: yes
-        owner: root
-        group: root
-        mode: '0644'
-      notify: Restart NFS
-
     - name: Check whether Pulsar is installed
       ansible.builtin.stat:
         path: /opt/pulsar/config/app.yml
@@ -49,6 +39,16 @@
         group: root
         mode: '0644'
       notify: Restart Pulsar
+
+    - name: Configure /etc/exports
+      ansible.builtin.lineinfile:
+        path: /etc/exports
+        line: /data/share *(rw,sync)
+        create: yes
+        owner: root
+        group: root
+        mode: '0644'
+      notify: Restart NFS
 
 - hosts: lrms_wn
   connection: local
