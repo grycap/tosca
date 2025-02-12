@@ -1,0 +1,205 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+imports:
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+
+description: Deploy a Kubernetes Virtual Cluster.
+
+metadata:
+  template_version: "1.0.0"
+  template_name: Kubernetes
+  template_author: Miguel Caballer
+
+
+topology_template:
+
+  inputs:
+
+    fe_cpus:
+      type: integer
+      description: Number of CPUs for the front-end node
+      default: 2
+      required: yes
+    fe_mem:
+      type: scalar-unit.size
+      description: Amount of Memory for the front-end node
+      default: 4 GB
+      required: yes
+    fe_disk_size:
+      type: scalar-unit.size
+      description: Size of the disk to be attached to the FE instance (Set 0 if disk is not needed)
+      default: 100 GB
+
+    wn_num:
+      type: integer
+      description: Number of WNs in the cluster
+      default: 3
+      required: yes
+    wn_cpus:
+      type: integer
+      description: Number of CPUs for the WNs
+      default: 4
+      required: yes
+    wn_mem:
+      type: scalar-unit.size
+      description: Amount of Memory for the WNs
+      default: 8 GB
+      required: yes
+    wn_disk_size:
+      type: scalar-unit.size
+      description: Size of the root disk of the WNs (in case of 0 disk will no be resized)
+      default: 40 GB
+
+    kube_version:
+      type: string
+      description: Version of Kubernetes to install
+      default: "1.29.7"
+
+    # Helm Chart inputs
+    helm_namespace:
+      type: string
+      description: Namespace where the Helm Chart will be created
+      default: ''
+      required: yes
+
+    helm_repo_name:
+      type: string
+      description: Name to set to the Helm repository
+      default: ''
+      required: no
+
+    helm_repo_url:
+      type: string
+      description: URL of the Helm repository
+      default: ''
+      required: no
+
+    helm_chart_url:
+      type: string
+      description: The Helm chat file url (if not using a repository)
+      default: ''
+      required: no
+
+    helm_chart_name:
+      type: string
+      description: Name of the Helm Chart to install
+      default: ''
+      required: yes
+
+    helm_values:
+      type: string
+      description: Contents of the value file to configure the Chart
+      default: ''
+
+
+    # In case of YAML deployments file
+    k8s_deploy_url:
+      type: string
+      description: URL of the YAML to deploy into the Kubernetes cluster
+      default: ''
+
+  node_templates:
+
+    k8s_yaml:
+      type: tosca.nodes.indigo.KubernetesObject
+      properties:
+        spec: { get_input: k8s_deploy_url }
+      requirements:
+        - host: front
+        - dependency: lrms_front_end
+
+    helm_chart:
+      type: tosca.nodes.indigo.Helm.Chart
+      properties:
+        namespace: { get_input: helm_namespace }
+        chart_url: { get_input: helm_chart_url }
+        repository_name: { get_input: helm_repo_name }
+        repository_url: { get_input: helm_repo_url }
+        name: { get_input: helm_chart_name }
+        values_file: { get_input: helm_values }
+        values:
+          dummy: "no"
+      requirements:
+        - host: front
+        - dependency: lrms_front_end
+
+    lrms_front_end:
+      type: tosca.nodes.indigo.LRMS.FrontEnd.Kubernetes
+      capabilities:
+        endpoint:
+          properties:
+            ports:
+              http_port:
+                protocol: tcp
+                source: 80
+              https_port:
+                protocol: tcp
+                source: 443
+      properties:
+        admin_username: kubeuser
+        admin_token: ""
+        install_nfs_client: true
+        install_kubeapps: false
+        version: { get_input: kube_version }
+        cri_runtime: docker
+        csi_driver: NFS
+      requirements:
+        - host: front
+
+    front:
+      type: tosca.nodes.indigo.Compute
+      capabilities:
+        endpoint:
+          properties:
+            dns_name: kubeserver
+            network_name: PUBLIC
+        host:
+          properties:
+            num_cpus: { get_input: fe_cpus }
+            mem_size: { get_input: fe_mem }
+        os:
+          properties:
+            distribution: ubuntu
+            type: linux
+      requirements:
+        - local_storage:
+            node: fe_block_storage
+            relationship:
+              type: AttachesTo
+              properties:
+                location: /pv
+
+    fe_block_storage:
+      type: tosca.nodes.BlockStorage
+      properties:
+        size: { get_input: fe_disk_size }
+
+    wn_node:
+      type: tosca.nodes.indigo.LRMS.WorkerNode.Kubernetes
+      properties:
+        front_end_ip: { get_attribute: [ front, private_address, 0 ] }
+        version: { get_input: kube_version }
+        cri_runtime: docker
+        csi_driver: NFS
+      requirements:
+        - host: wn
+
+    wn:
+      type: tosca.nodes.indigo.Compute
+      capabilities:
+        scalable:
+          properties:
+            count: { get_input: wn_num }
+        host:
+          properties:
+            disk_size: { get_input: wn_disk_size }
+            num_cpus: { get_input: wn_cpus }
+            mem_size: { get_input: wn_mem }
+        os:
+          properties:
+            distribution: ubuntu
+            type: linux
+
+  outputs:
+    k8s_dashboard_url:
+      value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], '/dashboard/' ] }

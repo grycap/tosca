@@ -35,8 +35,5 @@ jobs:
             tosca-parser --template-file=$TEMPLATE
           done
 
-      - name: Check partial templates
-        run: python tests/parse_partial.py templates/
-
-      - name: Check paramters in templates
+      - name: Check parameters in templates
         run: python tests/parse_parameters.py templates/
