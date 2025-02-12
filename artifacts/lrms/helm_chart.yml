@@ -14,8 +14,9 @@
       failed_when: deployed.rc != 0 and deployed.rc != 1
       environment:
         KUBECONFIG: /etc/kubernetes/admin.conf
+      when: helm_app_name != ''
 
-    - when: deployed.rc == 1
+    - when: helm_app_name != '' and deployed.rc == 1
       block:
 
         - when: helm_repo_name is defined and helm_repo_name != "" and helm_repo_url is defined and helm_repo_url != ""
