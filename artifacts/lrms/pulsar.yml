@@ -75,11 +75,10 @@
         path: /etc/auto.data
         line: >
            {% for host in groups['lrms_server'] %}
-           "share -rw,hard,intr,nosuid,quota "{{ ansible_facts['eth0']['ipv4']['address'] }}":/data/share"
+           share -rw,hard,intr,nosuid,quota {{ ansible_facts['eth0']['ipv4']['address'] }}:/data/share
            {% endfor %}
         create: yes
         owner: root
         group: root
         mode: '0644'
       notify: Restart autofs
-      with_items: "{{ groups['lrms_server'] }}"
