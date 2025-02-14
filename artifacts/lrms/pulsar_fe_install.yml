@@ -3,4 +3,4 @@
   connection: local
   roles:
     - role: pulsar
-      pulsar_role: front
+      pulsar_type_of_node: front

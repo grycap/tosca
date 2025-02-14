@@ -3,4 +3,4 @@
   connection: local
   roles:
     - role: pulsar
-      pulsar_role: wn
+      pulsar_type_of_node: wn
