@@ -1003,7 +1003,7 @@ node_types:
     interfaces:
       Standard:
         configure:
-          implementation: https://raw.githubusercontent.com/sebastian-luna-valero/tosca-upv/refs/heads/pulsar/artifacts/lrms/pulsar_fe_install.yml
+          implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/lrms/pulsar_fe_install.yml
           inputs:
             pulsar_user: { get_property: [ SELF, mq_user ] }
             pulsar_password: { get_property: [ SELF, mq_password ] }
@@ -1022,7 +1022,7 @@ node_types:
     interfaces:
       Standard:
         configure:
-          implementation: https://raw.githubusercontent.com/sebastian-luna-valero/tosca-upv/refs/heads/pulsar/artifacts/lrms/pulsar_wn_install.yml
+          implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/lrms/pulsar_wn_install.yml
 
   tosca.nodes.indigo.ARCfe:
     derived_from: tosca.nodes.SoftwareComponent
