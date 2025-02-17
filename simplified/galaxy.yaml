@@ -26,7 +26,7 @@ topology_template:
   node_templates:
 
     galaxy:
-      type: tosca.nodes.ec3.Application
+      type: tosca.nodes.SoftwareComponent
       requirements:
         - host: front
         - dependency: lrms_front_end
