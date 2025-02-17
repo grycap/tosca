@@ -1,7 +1,7 @@
 tosca_definitions_version: tosca_simple_yaml_1_0
 
 imports:
-  - sluna_custom_types: https://raw.githubusercontent.com/sebastian-luna-valero/tosca-upv/refs/heads/main/custom_types.yaml
+  - sluna_custom_types: https://raw.githubusercontent.com/sebastian-luna-valero/tosca-upv/refs/heads/pulsar/custom_types.yaml
 
 description: >
   TOSCA for configuring a Pulsar endpoint
