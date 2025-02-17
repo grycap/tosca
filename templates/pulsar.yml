@@ -1,7 +1,7 @@
 tosca_definitions_version: tosca_simple_yaml_1_0
 
 imports:
-  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+  - sluna_custom_types: https://raw.githubusercontent.com/sebastian-luna-valero/tosca-upv/refs/heads/pulsar/custom_types.yaml
 
 description: >
   TOSCA for configuring a Pulsar endpoint
@@ -34,11 +34,16 @@ topology_template:
 
   node_templates:
 
-    pulsar_node:
-      type: tosca.nodes.indigo.Pulsar
+    pulsar_fe:
+      type: tosca.nodes.indigo.PulsarFront
       properties:
         mq_user: { get_input: message_queue_user }
         mq_password: { get_input: message_queue_password }
       requirements:
         - lrms: lrms_front_end
         - host: lrms_server
+
+    pulsar_wn:
+      type: tosca.nodes.indigo.PulsarWorker
+      requirements:
+        - host: wn_node
