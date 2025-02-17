@@ -18,10 +18,6 @@ topology_template:
       type: string
       description: Administrative users - set this to a comma-separated list of valid Galaxy users (email addresses).
       default: 'admin@admin.com'
-    galaxy_brand:
-      type: string
-      description: Brand for the Galaxy instance
-      default: 'IM Deployed Galaxy K8s Cluster'
 
   node_templates:
 
@@ -36,7 +32,7 @@ topology_template:
             implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/k8s_galaxy.yml
             inputs:
               galaxy_admin_users: { get_input: galaxy_admin_users }
-              galaxy_brand: { get_input: galaxy_brand }
+              galaxy_brand: 'IM Deployed Galaxy K8s Cluster'
               galaxy_max_mem: { get_input: wn_mem }
               galaxy_max_cores: { get_input: wn_cpus }
 
