@@ -6,7 +6,7 @@ imports:
 description: Deploy a Galaxy portal with an SLURM Virtual Cluster.
 
 metadata:
-  template_version: "1.1.0"
+  template_version: "1.2.0"
   template_name: Galaxy
   display_name: Deploy a Galaxy portal in a SLURM cluster
   icon: images/galaxy_slurm.png
@@ -30,6 +30,16 @@ topology_template:
       type: string
       description: DNS name of the Galaxy portal (leave empty to use galaxy.<node_ip>.nip.io)
       default: ''
+    galaxy_brand:
+      type: string
+      description: Brand of the Galaxy portal
+      default: Galaxy
+    galaxy_version:
+      type: string
+      description: Version of the Galaxy portal
+      default: '24.2'
+      constraints:
+        - valid_values: [ '24.2', '24.1' ]
 
 
     slurm_version:
@@ -79,6 +89,8 @@ topology_template:
         admin_email: { get_input: galaxy_admin_email }
         admin_password: { get_input: galaxy_admin_password }
         dns_name: { get_input: galaxy_dns_name }
+        brand: { get_input: galaxy_brand }
+        version: { get_input: galaxy_version }
       requirements:
         - lrms: lrms_front_end
         - host: lrms_server
