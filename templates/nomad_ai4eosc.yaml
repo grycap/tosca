@@ -9,7 +9,7 @@ metadata:
   template_name: Nomad
   template_version: "1.2.0"
   display_name: Deploy a Consul + Nomad Virtual Cluster
-  icon: images/nomad.png
+  icon: images/nomad_ai4eosc.png
   tabs:
     Server Features: fe_.*
     WNs Features: wn_.*
