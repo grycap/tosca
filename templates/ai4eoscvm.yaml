@@ -1,7 +1,7 @@
 tosca_definitions_version: tosca_simple_yaml_1_0
 
 imports:
-  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/refs/tags/v2.0.0/custom_types.yaml
 
 metadata:
   template_version: "1.2.0"
@@ -48,7 +48,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/ai4eosc.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/refs/tags/v2.0.0/artifacts/ai4eosc.yml
             inputs:
               ai4eosc_model_image: { get_input: ai4eosc_model_image }
               docker_nvidia_support: { get_input: ai4eosc_gpu_support }

@@ -1,7 +1,7 @@
 tosca_definitions_version: tosca_simple_yaml_1_0
 
 imports:
-  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/refs/tags/v2.0.0/custom_types.yaml
 
 description: Deploy the eflows4hpc image creation service on a VM
 
@@ -103,7 +103,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/eflows4hpc/image_creation.yaml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/refs/tags/v2.0.0/artifacts/eflows4hpc/image_creation.yaml
             inputs:
               HTTPS: { get_input: enable_https }
               WORKFLOW_REGISTRY_GIT: { get_input: workflow_registry_git }

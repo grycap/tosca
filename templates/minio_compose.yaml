@@ -1,7 +1,7 @@
 tosca_definitions_version: tosca_simple_yaml_1_0
 
 imports:
-  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/refs/tags/v2.0.0/custom_types.yaml
 
 description: Deploy MinIO server.
 
@@ -85,7 +85,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/dydns_egi_update.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/refs/tags/v2.0.0/artifacts/dydns_egi_update.yml
             inputs:
               dydns_hostname:
                 get_input: minio_dns_api
@@ -101,7 +101,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/dydns_egi_update.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/refs/tags/v2.0.0/artifacts/dydns_egi_update.yml
             inputs:
               dydns_hostname:
                 get_input: minio_dns_console
@@ -137,7 +137,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/minio_compose.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/refs/tags/v2.0.0/artifacts/minio_compose.yml
             inputs:
               admin_pass:
                 get_input: minio_secretkey

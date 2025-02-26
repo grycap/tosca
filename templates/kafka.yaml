@@ -1,7 +1,7 @@
 tosca_definitions_version: tosca_simple_yaml_1_0
 
 imports:
-  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/refs/tags/v2.0.0/custom_types.yaml
 
 description: Deploy Apache Kafka on top of a Kubernetes Virtual Cluster.
 
@@ -42,7 +42,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/kafka_k8s.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/refs/tags/v2.0.0/artifacts/kafka_k8s.yml
             inputs:
               kafka_jaas_user: { get_input: kafka_user }
               kafka_jaas_password: { get_input: kafka_pass }

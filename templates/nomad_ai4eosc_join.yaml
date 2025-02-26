@@ -1,7 +1,7 @@
 tosca_definitions_version: tosca_simple_yaml_1_0
 
 imports:
-  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/refs/tags/v2.0.0/custom_types.yaml
 
 description: Deploy an Consul + Nomad Virtual Cluster joining an previous existing one (AI4EOSC).
 
@@ -217,7 +217,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/lrms/nomad_ai4eosc_fe_install.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/refs/tags/v2.0.0/artifacts/lrms/nomad_ai4eosc_fe_install.yml
             inputs:
               nomad_server_list: { get_attribute: [ front, private_address ] }
               nomad_launch_traefik: { get_input: launch_traefik }
@@ -261,7 +261,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/lrms/nomad_ai4eosc_wn_install.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/refs/tags/v2.0.0/artifacts/lrms/nomad_ai4eosc_wn_install.yml
             inputs:
               nomad_server_list: { get_attribute: [ front, private_address ] }
               nomad_input_version: { get_input: nomad_version }
@@ -302,7 +302,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/lrms/nomad_ai4eosc_wn_install.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/refs/tags/v2.0.0/artifacts/lrms/nomad_ai4eosc_wn_install.yml
             inputs:
               nomad_server_list: { get_attribute: [ front, private_address ] }
               nomad_launch_traefik: { get_input: launch_traefik }
@@ -352,7 +352,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/lrms/nomad_ai4eosc_wn_install.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/refs/tags/v2.0.0/artifacts/lrms/nomad_ai4eosc_wn_install.yml
             inputs:
               nomad_server_list: { get_attribute: [ front, private_address ] }
               nomad_nvidia_support: true

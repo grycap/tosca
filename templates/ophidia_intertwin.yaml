@@ -1,7 +1,7 @@
 tosca_definitions_version: tosca_simple_yaml_1_0
 
 imports:
-  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/refs/tags/v2.0.0/custom_types.yaml
 
 description: >
   Install a Jupyter-Ophidia-based environment on top of a Kubernetes Cluster.
@@ -68,7 +68,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/enes/ophidia_intertwin.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/refs/tags/v2.0.0/artifacts/enes/ophidia_intertwin.yml
             inputs:
               enes_dns_name: { get_input: kube_public_dns_name }
               enes_jupyterhub_crypt_key: { get_input: jupyterhub_crypt_key }

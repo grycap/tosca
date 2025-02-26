@@ -1,7 +1,7 @@
 tosca_definitions_version: tosca_simple_yaml_1_0
 
 imports:
-  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/refs/tags/v2.0.0/custom_types.yaml
 
 description: Deploy JupyterHub on top of a Kubernetes Virtual Cluster.
 
@@ -55,7 +55,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/jupyter/jupyterhub_k8s.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/refs/tags/v2.0.0/artifacts/jupyter/jupyterhub_k8s.yml
             inputs:
               authenticator_class: { get_input: [ auth_class ] }
               dummy_pass: { get_input: [ dummy_password ] }
@@ -69,7 +69,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/download_data.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/refs/tags/v2.0.0/artifacts/download_data.yml
             inputs:
               data_url: { get_input: data_url }
               k8s_pvc_namespace: jupyter

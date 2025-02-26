@@ -1,7 +1,7 @@
 tosca_definitions_version: tosca_simple_yaml_1_0
 
 imports:
-  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/refs/tags/v2.0.0/custom_types.yaml
 
 description: Deploy a JMeter Virtual Cluster.
 
@@ -111,7 +111,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/jmeter/jmeter_fe.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/refs/tags/v2.0.0/artifacts/jmeter/jmeter_fe.yml
             inputs:
               jmeter_version: { get_input: jmeter_version }
 
@@ -151,7 +151,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/jmeter/jmeter_wn.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/refs/tags/v2.0.0/artifacts/jmeter/jmeter_wn.yml
             inputs:
               jmeter_version: { get_input: jmeter_version }
               jmeter_front_end_ip: { get_attribute: [ front, private_address, 0 ] }

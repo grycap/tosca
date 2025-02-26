@@ -1,7 +1,7 @@
 tosca_definitions_version: tosca_simple_yaml_1_0
 
 imports:
-  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/refs/tags/v2.0.0/custom_types.yaml
 
 description: Deploy the EOSC-Synergy SQAaaS platform on top of a Kubernetes Virtual Cluster
 
@@ -145,7 +145,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/sqaaas_install.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/refs/tags/v2.0.0/artifacts/sqaaas_install.yml
             inputs:
               sqaaas_jk_token: { get_input: sqaaas_jk_token }
               sqaaas_gh_token: { get_input: sqaaas_gh_token }
