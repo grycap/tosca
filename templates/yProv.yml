@@ -9,7 +9,6 @@ metadata:
   display_name: Deploy yProv service
   icon: images/yprov.png
   web: https://github.com/HPCI-Lab/yProv
-  tag: beta
   parents:
     - kubernetes.yaml
   tabs:
