@@ -20,6 +20,7 @@ metadata:
       - num_cpus
       - mem_size
       - disk_size
+      - swap_size
       - instance_type
       - num_instances
       - storage_size
