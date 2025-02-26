@@ -8,7 +8,7 @@ description: >
 
 metadata:
   template_name: VM
-  template_version: "1.1.0"
+  template_version: "1.2.0"
   template_author: Miguel Caballer
   creation_date: 2020-09-08
   display_name: Deploy a VM
