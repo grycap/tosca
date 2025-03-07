@@ -42,7 +42,7 @@
       when: ansible_os_family == "Debian"
     - name: Stop and disable firewalls
       service:
-        name: {{ item }}
+        name: "{{ item }}"
         enabled: no
         state: stopped
       ignore_errors: true
