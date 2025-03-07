@@ -43,7 +43,7 @@
     - name: Stop and disable firewalls
       service:
         name: "{{ item }}"
-        enabled: no
+        enabled: false
         state: stopped
       ignore_errors: true
       loop:
