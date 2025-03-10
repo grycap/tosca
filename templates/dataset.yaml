@@ -1,0 +1,70 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+imports:
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/datasets_fts/custom_types.yaml
+
+description: Donwload some dataset
+
+metadata:
+  template_version: "1.0.0"
+  template_name: Download dataset
+  display_name: Download dataset
+  icon: images/download.png
+  parents:
+    - simple-node-disk.yml
+  tabs:
+    Download Data: .*
+
+topology_template:
+
+  inputs:
+
+    dataset_id:
+      type: string
+      description: URL of the data to Download (HTTP, HTTPS, or FTP URL in the form (http|https|ftp)://[user[:pass]]@host.domain[:port]/path)
+      default: '10.1234/example.doi'
+
+    filter:
+      type: string
+      description: Regular expression to filter the files to download
+      default: '.*'
+
+  node_templates:
+
+    # A Dataset downloaded directly to the local filesystem
+    my_dataset:
+      type: tosca.nodes.eosc.Dataset
+      properties:
+        dataset_id: { get_input: dataset_id }
+        filter: { get_input: filter }
+        dest: /data
+      requirements:
+        - host: simple_node
+
+    # A Dataset copied to a storage system using the FTS and mounted locally
+    my_dataset_fts:
+      type: tosca.nodes.eosc.Dataset
+      properties:
+        dataset_id: { get_input: dataset_id }
+        filter: { get_input: filter }
+        dest: /mnt/data
+      requirements:
+        - host: simple_node
+        - remote_storage:
+            node: storage_system
+            capability: tosca.capabilities.Storage
+            relationship:
+              type: tosca.relationships.eosc.Transfers
+              properties:
+                fts_credential:
+                  token_type: token
+                  token: access_token
+
+    storage_system:
+      type: tosca.nodes.StorageSystem
+      properties:
+        endpoint: https://some.com
+        credentials:
+          token_type: basic_auth
+          token: some_user_pass
+        path: /some/folder
