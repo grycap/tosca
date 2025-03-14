@@ -23,6 +23,7 @@ metadata:
       - nomad_domain
       - nomad_namespaces
       - ai4eosc_api_host
+      - ai4eosc_dashboard_host
       - ai4eosc_oidc_client_id
       - ai4eosc_oidc_client_secret
       - ai4eosc_oidc_issuer
