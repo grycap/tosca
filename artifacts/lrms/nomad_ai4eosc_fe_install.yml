@@ -11,6 +11,9 @@
     consul_join: "{{ consul_server_join | default('') }}"
     API_HOST: "{{ ai4eosc_api_host | default('') }}"
     DASHBOARD_HOST: "{{ ai4eosc_dashboard_host | default('') }}"
+    OIDC_CLIENT_ID: "{{ ai4eosc_oidc_client_id | default('') }}"
+    OIDC_ISSUER: "{{ ai4eosc_oidc_issuer | default('') }}"
+    OIDC_CLIENT_SECRET: "{{ ai4eosc_oidc_client_secret | default('') }}"
   pre_tasks:
     - name: Convert server_list to list
       set_fact:
@@ -292,7 +295,10 @@
                           ports   = ["dashboard"]
                         }
                         env {
-                        API_SERVER = "https://{{ API_HOST }}/v1"
+                          API_SERVER = "https://{{ API_HOST }}/v1"
+                          CLIENT_ID = "{{ OIDC_CLIENT_ID }}"
+                          ISSUER = "{{ OIDC_ISSUER }}"
+                          DUMMY_CLIENT_SECRET = "{{ OIDC_CLIENT_SECRET }}"
                       }
                         resources {
                           cores  = 1

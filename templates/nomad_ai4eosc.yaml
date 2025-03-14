@@ -23,7 +23,10 @@ metadata:
       - nomad_domain
       - nomad_namespaces
       - ai4eosc_api_host
-      - ai4eosc_dashboard_host
+      - ai4eosc_oidc_client_id
+      - ai4eosc_oidc_client_secret
+      - ai4eosc_oidc_issuer
+
 topology_template:
   inputs:
 
@@ -171,6 +174,19 @@ topology_template:
       description: AI4EOSC Dashboard DNS name (if empty, the AI4EOSC Dashboard will not be installed)
       default: ''
 
+    ai4eosc_oidc_client_id:
+      type: string
+      description: AI4EOSC OIDC Client ID
+      default: ''
+    ai4eosc_oidc_client_secret:
+      type: string
+      description: AI4EOSC OIDC Client Secret
+      default: ''
+    ai4eosc_oidc_issuer:
+      type: string
+      description: AI4EOSC OIDC Issuer
+      default: ''
+
   node_templates:
 
     lrms_front_end:
@@ -222,6 +238,9 @@ topology_template:
               nomad_input_namespaces: { get_input: nomad_namespaces }
               ai4eosc_api_host: { get_input: ai4eosc_api_host }
               ai4eosc_dashboard_host: { get_input: ai4eosc_dashboard_host }
+              ai4eosc_oidc_client_id: { get_input: ai4eosc_oidc_client_id }
+              ai4eosc_oidc_client_secret: { get_input: ai4eosc_oidc_client_secret }
+              ai4eosc_oidc_issuer: { get_input: ai4eosc_oidc_issuer }
 
     front:
       type: tosca.nodes.indigo.Compute
