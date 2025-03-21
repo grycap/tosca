@@ -43,7 +43,7 @@ topology_template:
 
     # A Dataset copied to a storage system using the FTS and mounted locally
     my_dataset_fts:
-      type: tosca.nodes.eosc.Dataset
+      type: tosca.nodes.eosc.fts.Dataset
       properties:
         dataset_id: { get_input: dataset_id }
         filter: { get_input: filter }
