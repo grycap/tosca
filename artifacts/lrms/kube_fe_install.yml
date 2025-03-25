@@ -9,6 +9,7 @@
     csi_driver: "{{ kube_csi_driver | default('NFS') }}"
     admin_username: "{{ kube_admin_username | default('admin') }}"
     admin_token: "{{ kube_admin_token | default(lookup('password', '/var/tmp/kubeadminpass chars=ascii_letters,digits length=16')) }}"
+    use_public_ip: "{{ kube_use_public_ip | default(false) }}"
 
   pre_tasks:
     - name: Set the admin token
@@ -49,6 +50,10 @@
       loop:
         - ufw
         - firewalld
+    - name: Set the public front end IP
+      set_fact:
+        kube_front_end_ip: "{{ kube_public_front_end_ip }}"
+      when: use_public_ip
   roles:
     - role: grycap.nfs
       nfs_mode: 'front'

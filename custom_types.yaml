@@ -700,6 +700,10 @@ node_types:
         default: "NFS"
         constraints:
         - valid_values: [ NFS, Longhorn ]
+      use_public_ip:
+        required: no
+        type: boolean
+        default: false
     artifacts:
       kube_role:
         file: grycap.kubernetes
@@ -721,6 +725,7 @@ node_types:
           implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/lrms/kube_fe_install.yml
           inputs:
             kube_front_end_ip: { get_attribute: [ HOST, private_address, 0 ] }
+            kube_public_front_end_ip: { get_attribute: [ HOST, public_address, 0 ] }
             kube_admin_username:  { get_property: [ SELF, admin_username ] }
             kube_admin_token:  { get_property: [ SELF, admin_token ] }
             kube_install_kubeapps: { get_property: [ SELF, install_kubeapps ] }
@@ -742,6 +747,7 @@ node_types:
             kube_install_yunikorn: { get_property: [ SELF, install_yunikorn ] }
             kube_deploy_dashboard: { get_property: [ SELF, install_dashboard ] }
             kube_csi_driver: { get_property: [ SELF, csi_driver ] }
+            kube_use_public_ip: { get_property: [ SELF, use_public_ip ] }
 
   tosca.nodes.indigo.LRMS.WorkerNode.Slurm:
     derived_from: tosca.nodes.indigo.LRMS.WorkerNode
