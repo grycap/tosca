@@ -6,9 +6,9 @@ imports:
 description: Deploy a SLURM Virtual Cluster.
 
 metadata:
-  template_name: SLURM
-  template_version: "1.1.1"
-  display_name: SLURM virtual cluster
+  template_name: SLURM DT-GEO
+  template_version: "1.0.0"
+  display_name: DT-GEO SLURM virtual cluster
 
 
 topology_template:
