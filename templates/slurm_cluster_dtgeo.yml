@@ -26,7 +26,7 @@ topology_template:
     fe_mem:
       type: scalar-unit.size
       description: Amount of Memory for the front-end node
-      default: 1 GB
+      default: 4 GB
       required: yes
     wn_cpus:
       type: integer
@@ -36,19 +36,15 @@ topology_template:
     wn_mem:
       type: scalar-unit.size
       description: Amount of Memory for the WNs
-      default: 1 GB
+      default: 4 GB
       required: yes
 
     fe_disk_size:
       type: scalar-unit.size
       description: Size of the disk to be attached to the FE instance (Set 0 if disk is not needed)
-      default: 0 GB
+      default: 100 GB
       constraints:
         - valid_values: [ 0 GB, 10 GB, 20 GB, 50 GB, 100 GB, 200 GB, 500 GB, 1 TB, 2 TB ]
-    fe_volume_id:
-      type: string
-      description: "Or URL of the disk to be attached to the FE instance (format: ost://api.cloud.ifca.es/<vol_id>"
-      default: ""
     fe_mount_path:
       type: string
       description: "Path to mount the FE attached disk"
@@ -57,13 +53,9 @@ topology_template:
     wn_disk_size:
       type: scalar-unit.size
       description: Size of the disk to be attached to the WN instances (Set 0 if disk is not needed)
-      default: 0 GB
+      default: 20 GB
       constraints:
-        - valid_values: [ 0 GB, 10 GB, 20 GB, 50 GB, 100 GB, 200 GB, 500 GB, 1 TB, 2 TB ]
-    wn_mount_path:
-      type: string
-      description: "Path to mount the WN attached disk"
-      default: "/mnt/data"
+        - valid_values: [ 20 GB, 50 GB, 100 GB, 200 GB, 500 GB, 1 TB, 2 TB ]
 
     slurm_version:
       type: string
@@ -72,17 +64,6 @@ topology_template:
       constraints:
         - valid_values: [ '23.11.8', '20.11.9', '21.08.5', '21.08.8', '22.05.10' ]
 
-    fe_ports:
-      type: map
-      entry_schema:
-        type: PortSpec
-      description: |
-        List of ports to be Opened in FE node (eg. 22,80,443,2000:2100).
-        You can also include the remote CIDR (eg. 8.8.0.0/24).
-      default:
-        ssh_port:
-          source: 22
-          protocol: tcp
 
     singularity_version:
       type: string
@@ -144,9 +125,13 @@ topology_template:
           properties:
             dns_name: slurmserver
             network_name: PUBLIC
-            ports: { get_input: fe_ports }
+            ports:
+              ssh_port:
+                source: 22
+                protocol: tcp
         host:
           properties:
+            disk_size: 40 GB
             num_cpus: { get_input: fe_cpus }
             mem_size: { get_input: fe_mem }
         os:
@@ -166,7 +151,6 @@ topology_template:
       type: tosca.nodes.BlockStorage
       properties:
         size: { get_input: fe_disk_size }
-        volume_id: { get_input: fe_volume_id }
 
     wn_node:
       type: tosca.nodes.indigo.LRMS.WorkerNode.Slurm
@@ -185,6 +169,7 @@ topology_template:
             count: { get_input: wn_num }
         host:
           properties:
+            disk_size: { get_input: wn_disk_size }
             num_cpus: { get_input: wn_cpus }
             mem_size: { get_input: wn_mem }
         os:
@@ -192,18 +177,6 @@ topology_template:
             distribution: ubuntu
             type: linux
             version: 22.04
-      requirements:
-        - local_storage:
-            node: wn_block_storage
-            relationship:
-              type: AttachesTo
-              properties:
-                location: { get_input: wn_mount_path }
-
-    wn_block_storage:
-      type: tosca.nodes.BlockStorage
-      properties:
-        size: { get_input: wn_disk_size }
 
   outputs:
     cluster_ip:
