@@ -104,6 +104,7 @@
                 cache:
                   alien:
                     pvc:
+                      storageClass: managed-nfs-storage
                       name: cvmfs-alien-cache
                 # try to pack all the pods in the same nodes
                 controllerplugin:
