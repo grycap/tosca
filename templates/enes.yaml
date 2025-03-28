@@ -11,7 +11,7 @@ metadata:
   template_version: "1.0.0"
   template_name: ENES Data Space service
   display_name: ENES Data Space service on top of Kubernetes
-  icon: https://github.com/grycap/im-dashboard/raw/devel/app/static/images/eds.png
+  icon: images/eds.png
   vos: ['vo.enes.org']
   tabs:
     ENES Data: .*
