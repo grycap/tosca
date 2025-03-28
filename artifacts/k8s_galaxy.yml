@@ -48,7 +48,7 @@
             KUBECONFIG: /etc/kubernetes/admin.conf
 
         - name: Deploy postgres-operator
-          command: helm install -n {{ NAMESPACE }} --create-namespace {{ NAMESPACE }} cloudnative-pg/cloudnative-pg --version 0.23.2 -f /opt/postgres_values.yaml --wait
+          command: helm install -n {{ NAMESPACE }} --create-namespace postgres-operator cloudnative-pg/cloudnative-pg --version 0.23.2 -f /opt/postgres_values.yaml --wait
           environment:
             KUBECONFIG: /etc/kubernetes/admin.conf
 
@@ -79,7 +79,7 @@
             KUBECONFIG: /etc/kubernetes/admin.conf
 
         - name: Deploy rabbitmq-operator
-          command: helm install -n {{ NAMESPACE }} --create-namespace {{ NAMESPACE }} bitnami/rabbitmq-cluster-operator --version  2.6.12 -f /opt/rabbitmq_values.yaml  --wait
+          command: helm install -n {{ NAMESPACE }} --create-namespace rabbitmq-operator bitnami/rabbitmq-cluster-operator --version  2.6.12 -f /opt/rabbitmq_values.yaml  --wait
           environment:
             KUBECONFIG: /etc/kubernetes/admin.conf
 
