@@ -42,13 +42,13 @@
             mode: '644'
             content: "{{ AFFINITY | to_yaml }}"
 
-        - name: Add helm repo postgres-operator-charts
-          command: helm repo add postgres-operator-charts https://opensource.zalando.com/postgres-operator/charts/postgres-operator
+        - name: Add helm repo cloudnative-pg
+          command: helm repo add cloudnative-pg https://cloudnative-pg.github.io/charts/
           environment:
             KUBECONFIG: /etc/kubernetes/admin.conf
 
         - name: Deploy postgres-operator
-          command: helm install -n {{ NAMESPACE }} --create-namespace postgres-operator postgres-operator-charts/postgres-operator --version 1.13.0 -f /opt/postgres_values.yaml --wait
+          command: helm install -n {{ NAMESPACE }} --create-namespace {{ NAMESPACE }} cloudnative-pg/cloudnative-pg --version 0.23.2 -f /opt/postgres_values.yaml --wait
           environment:
             KUBECONFIG: /etc/kubernetes/admin.conf
 
@@ -79,7 +79,7 @@
             KUBECONFIG: /etc/kubernetes/admin.conf
 
         - name: Deploy rabbitmq-operator
-          command: helm install -n {{ NAMESPACE }} --create-namespace rabbitmq-operator bitnami/rabbitmq-cluster-operator --version 4.3.25 -f /opt/rabbitmq_values.yaml  --wait
+          command: helm install -n {{ NAMESPACE }} --create-namespace {{ NAMESPACE }} bitnami/rabbitmq-cluster-operator --version  2.6.12 -f /opt/rabbitmq_values.yaml  --wait
           environment:
             KUBECONFIG: /etc/kubernetes/admin.conf
 
@@ -118,7 +118,7 @@
             KUBECONFIG: /etc/kubernetes/admin.conf
 
         - name: Deploy Galaxy CVMFS CSI
-          command: helm install --create-namespace -n {{ NAMESPACE }} galaxy-cvmfs galaxy/galaxy-cvmfs-csi --wait -f  /opt/galaxy-cvmfs-csi_values.yaml --version 2.5.1  --wait
+          command: helm install --create-namespace -n {{ NAMESPACE }} galaxy-cvmfs galaxy/galaxy-cvmfs-csi --wait -f  /opt/galaxy-cvmfs-csi_values.yaml --version 2.2.0  --wait
           environment:
             KUBECONFIG: /etc/kubernetes/admin.conf
 
@@ -149,7 +149,6 @@
                 deploy: false
               cvmfs:
                 deploy: false
-                storageClassName: galaxy-cvmfs
               postgresql:
                 deploy: false
               rabbitmq:
@@ -176,7 +175,7 @@
             KUBECONFIG: /etc/kubernetes/admin.conf
 
         - name: Deploy Galaxy
-          command: helm install --create-namespace -n {{ NAMESPACE }} galaxy galaxy/galaxy --timeout 10m -f /opt/galaxy_values.yaml --version 5.18.0
+          command: helm install --create-namespace -n {{ NAMESPACE }} galaxy galaxy/galaxy --timeout 10m -f /opt/galaxy_values.yaml --version 6.1.0
           environment:
             KUBECONFIG: /etc/kubernetes/admin.conf
 
