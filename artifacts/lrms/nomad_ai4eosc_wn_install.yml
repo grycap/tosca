@@ -165,7 +165,7 @@
     - name: Set facts
       set_fact:
         consul_public_ip: "{{ server_list[0] }}"
-        consul_servers_ip: "{{ [ consul_join ] }}"
+        consul_servers_ip: "{{ [consul_join] }}"
         my_ip: "{{ client_private_ip }}"
         username: cloudadm
         path: /opt/cloudadm/
