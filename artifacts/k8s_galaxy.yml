@@ -166,6 +166,14 @@
                         runner: k8s
                         {{ 'max_cores: ' ~ (max_cores | int - 1) if max_cores | int > 0 else '# no max_cores' }}
                         {{ 'max_mem: ' ~ max_mem if max_mem | int > 0 else '# no max_mem' }}
+              tusd:
+                ingress:
+                  annotations:
+                    nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
+                    nginx.ingress.kubernetes.io/proxy-buffering: "off"
+                    nginx.ingress.kubernetes.io/proxy-http-version: "1.1"
+                    nginx.ingress.kubernetes.io/enable-websockets: "true"
+                    nginx.ingress.kubernetes.io/proxy-body-size: "0"
               # try to pack all the pods in the same nodes
               {{ AFFINITY | to_yaml }}
 
