@@ -591,6 +591,12 @@ node_types:
         default: "NFS"
         constraints:
         - valid_values: [ NFS, Longhorn ]
+      kubelet_extra_args:
+        required: no
+        type: map
+        entry_schema:
+          type: string
+        default: {}
     artifacts:
       kube_role:
         file: grycap.kubernetes
@@ -608,6 +614,7 @@ node_types:
             kube_nvidia_support:  { get_property: [ SELF, nvidia_support ] }
             kube_cri_runtime: { get_property: [ SELF, cri_runtime ] }
             kube_csi_driver: { get_property: [ SELF, csi_driver ] }
+            kubelet_extra_args_dict: { get_property: [ SELF, kubelet_extra_args ] }
 
   tosca.nodes.indigo.LRMS.FrontEnd.Kubernetes:
     derived_from: tosca.nodes.indigo.LRMS.FrontEnd
