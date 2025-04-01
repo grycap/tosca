@@ -9,6 +9,7 @@
         dest: /tmp/{{ ansible_name }}_tasks.yaml
         mode: '644'
       when: ansible_tasks is defined and ansible_tasks != ""
+      delegate_to: localhost
 
     - name: Download ansible tasks
       get_url:
@@ -16,6 +17,7 @@
         dest: /tmp/{{ ansible_name }}_tasks.yaml
         mode: '644'
       when: ansible_url is defined and ansible_url != ""
+      delegate_to: localhost
 
     - name: Include tasks
       include_tasks:
