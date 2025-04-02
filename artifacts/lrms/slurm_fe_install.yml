@@ -2,7 +2,7 @@
 - hosts: localhost
   connection: local
   vars:
-    vnode_prefix: vnode-
+    vnode_prefix: '{{ slurm_vnode_prefix | default("vnode-") }}'
   pre_tasks:
     - name: stop firewalld
       service: name=firewalld state=stopped
@@ -14,6 +14,10 @@
         state: absent
       ignore_errors: true
       when: ansible_os_family == "Debian"
+    - name: Set slurm_wn_nodenames if not defined
+      set_fact:
+        slurm_wn_nodenames: '{{ groups["wn"]|map("extract", hostvars, "ansible_hostname")|list if "wn" in groups else [] }}'
+      when: slurm_wn_nodenames is not defined
   roles:
     - role: grycap.nfs
       nfs_mode: 'front'
@@ -24,5 +28,4 @@
       slurm_wn_num: '{{ wn_num }}'
       slurm_wn_ips: '{{ wn_ips }}'
       slurm_vnode_prefix: '{{ vnode_prefix }}'
-      slurm_wn_nodenames: '{{ groups["wn"]|map("extract", hostvars, "ansible_hostname")|list if "wn" in groups else [] }}'
       slurm_server_ip: '{{ slurm_front_end_ip }}'
