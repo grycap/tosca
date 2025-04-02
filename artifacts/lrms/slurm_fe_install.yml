@@ -2,7 +2,7 @@
 - hosts: localhost
   connection: local
   vars:
-    vnode_prefix: vnode-
+    vnode_prefix: '{{ slurm_vnode_prefix | default("vnode-") }}'
   pre_tasks:
     - name: stop firewalld
       service: name=firewalld state=stopped
