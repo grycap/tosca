@@ -11,6 +11,12 @@
         state: absent
       ignore_errors: true
       when: ansible_os_family == "Debian"
+    - name: Set slurm_front_end_ip if not set
+      set_fact:
+        slurm_front_end_ip: '{{ slurm_public_front_end_ip }}'
+      when:
+        - slurm_front_end_ip is not defined or slurm_front_end_ip == ''
+        - slurm_public_front_end_ip is defined and slurm_public_front_end_ip != ''
   roles:
     - role: grycap.nfs
       nfs_mode: 'wn'
