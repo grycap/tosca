@@ -47,6 +47,7 @@ metadata:
     - openeo.yaml
     - proxy_host_k8s.yaml
     - ophidia_intertwin.yaml
+    - kubevirt.yaml
 
 topology_template:
   inputs:
