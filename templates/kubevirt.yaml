@@ -1,0 +1,50 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+imports:
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+
+description: Deploy KubeVirt on top of a Kubernetes Virtual Cluster.
+
+metadata:
+  template_version: "1.0.0"
+  template_name: KubeVirt
+  display_name: Deploy KubeVirt on top of a Kubernetes Virtual Cluster
+  icon: images/kubevirt.png
+  tabs:
+    KubeVirt: kubevirt_.*
+  parents:
+    - kubernetes.yaml
+
+topology_template:
+  inputs:
+
+    kubevirt_version:
+      type: string
+      description: KubeVirt version to be installed
+      default: v1.5.0
+    kubevirt_cdi_version:
+      type: string
+      description: CDI version to be installed
+      default: v1.62.0
+
+  node_templates:
+
+    kubevirt:
+      type: tosca.nodes.ec3.Application
+      capabilities:
+        endpoint:
+          properties:
+            ports:
+              kube_api: # force to open the port 6443
+                protocol: tcp
+                source: 6443
+      interfaces:
+        Standard:
+          configure:
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/lrms/kube_virt.yml
+            inputs:
+              kubevirt_version: { get_input: kubevirt_version }
+              kubevirt_cdi_version: { get_input: kubevirt_cdi_version }
+      requirements:
+        - host: front
+        - dependency: lrms_front_end
