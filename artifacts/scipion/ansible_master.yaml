@@ -4,96 +4,94 @@
     vnode_master: scipion-master
 
   pre_tasks:
-  - name: Create scipionuser group
-    group:
-      name: scipionuser
-      gid: 1042
-      state: present
+    - name: Create scipionuser group
+      group:
+        name: scipionuser
+        gid: 1042
+        state: present
 
-  - name: Create scipionuser user
-    user:
-      name: scipionuser
-      uid: 1042
-      shell: /bin/bash
-      group: scipionuser
+    - name: Create scipionuser user
+      user:
+        name: scipionuser
+        uid: 1042
+        shell: /bin/bash
+        group: scipionuser
 
-  - name: Install required packages
-    apt:
-      name: ['xdm', 'curl', 'wget', 'git', 'htop', 'apt-transport-https', 'ca-certificates', 'gnupg-agent', 'software-properties-common', 'xserver-xorg', 'pkg-config']
-      state: present
-      update_cache: yes
+    - name: Install required packages
+      apt:
+        name: ['xdm', 'curl', 'wget', 'git', 'htop', 'apt-transport-https', 'ca-certificates', 'gnupg-agent', 'software-properties-common', 'xserver-xorg', 'pkg-config']
+        state: present
 
-  - set_fact:
-      gpu_num_server: '{{IM_INFRASTRUCTURE_RADL|json_query("[?id == ''lrms_server''].gpu_count_min|[0]")}}'
-      gpu_num_wn: '{{IM_INFRASTRUCTURE_RADL|json_query("[?id == ''lrms_wn''].gpu_count_min|[0]")}}'
-      slurm_wn_gres: ''
-      slurm_wn_gres_conf: ''
-      slurm_wn_gres_tpes: ''
-      docker_nvidia_support: false
-  - set_fact:
-      slurm_wn_gres: gpu:{{ gpu_num_wn }}
-      slurm_wn_gres_conf: AutoDetect=nvml
-      slurm_wn_gres_tpes: gpu
-      docker_nvidia_support: true
-    when: gpu_num_server|int > 0
+    - set_fact:
+        gpu_num_server: '{{IM_INFRASTRUCTURE_RADL|json_query("[?id == ''lrms_server''].gpu_count_min|[0]")}}'
+        gpu_num_wn: '{{IM_INFRASTRUCTURE_RADL|json_query("[?id == ''lrms_wn''].gpu_count_min|[0]")}}'
+        slurm_wn_gres: ''
+        slurm_wn_gres_conf: ''
+        slurm_wn_gres_tpes: ''
+        docker_nvidia_support: false
+    - set_fact:
+        slurm_wn_gres: gpu:{{ gpu_num_wn }}
+        slurm_wn_gres_conf: AutoDetect=nvml
+        slurm_wn_gres_tpes: gpu
+        docker_nvidia_support: true
+      when: gpu_num_server|int > 0
 
   roles:
-  - role: indigo-dc.nfs
-    nfs_mode: 'server'
-    nfs_exports: [{path: "/home/scipionuser/ScipionUserData", export: "{{ vnode_prefix }}*.localdomain(fsid=0,rw,async,no_root_squash,no_subtree_check,insecure)"}]
-  - role: grycap.docker
-    #docker_config_values: {"mtu": 1442, "data-root": '/home/scipionuser/volume-data/docker'}
-    docker_config_values: {"mtu": 1442}
-    docker_nvidia_driver_version: 440
+    - role: indigo-dc.nfs
+      nfs_mode: 'server'
+      nfs_exports: [{path: "/home/scipionuser/ScipionUserData", export: "{{ vnode_prefix }}*.localdomain(fsid=0,rw,async,no_root_squash,no_subtree_check,insecure)"}]
+    - role: grycap.docker
+      # docker_config_values: {"mtu": 1442, "data-root": '/home/scipionuser/volume-data/docker'}
+      docker_config_values: {"mtu": 1442}
+      docker_nvidia_driver_version: 440
 
-  - role: grycap.slurm
-    slurm_type_of_node: 'front'
-    slurm_server_name: "{{ vnode_master }}"
-    slurm_wn_ips: '{{ groups["lrms_wn"]|map("extract", hostvars, "ansible_default_ipv4.address")|list if "lrms_wn" in groups else [] }}'
-    slurm_vnode_prefix: "{{ vnode_prefix }}"
-    slurm_wn_nodenames: '{{ groups["lrms_wn"]|map("extract", hostvars, "ansible_hostname")|list if "lrms_wn" in groups else [] }}'
-    slurm_wn_cpus: '{{IM_INFRASTRUCTURE_RADL|json_query("[?id == ''lrms_wn''].cpu_count_min|[0]")}}'
-    slurm_wn_mem: '{{(IM_INFRASTRUCTURE_RADL|json_query("[?id == ''lrms_wn''].memory_size_min|[0]") / 1048576) | int }}'
-    slurm_user_id: 1052
+    - role: grycap.slurm
+      slurm_type_of_node: 'front'
+      slurm_server_name: "{{ vnode_master }}"
+      slurm_wn_ips: '{{ groups["lrms_wn"]|map("extract", hostvars, "ansible_default_ipv4.address")|list if "lrms_wn" in groups else [] }}'
+      slurm_vnode_prefix: "{{ vnode_prefix }}"
+      slurm_wn_nodenames: '{{ groups["lrms_wn"]|map("extract", hostvars, "ansible_hostname")|list if "lrms_wn" in groups else [] }}'
+      slurm_wn_cpus: '{{IM_INFRASTRUCTURE_RADL|json_query("[?id == ''lrms_wn''].cpu_count_min|[0]")}}'
+      slurm_wn_mem: '{{(IM_INFRASTRUCTURE_RADL|json_query("[?id == ''lrms_wn''].memory_size_min|[0]") / 1048576) | int }}'
+      slurm_user_id: 1052
 
 # Put here your Ansible recipes to configure the nodes
 
   tasks:
 
-  - name: adding scipionuser to docker group
-    user:
-      name: 'scipionuser'
-      groups: docker
-      shell: /bin/bash
-      append: yes
+    - name: adding scipionuser to docker group
+      user:
+        name: 'scipionuser'
+        groups: docker
+        shell: /bin/bash
+        append: true
 
-#  - name: Restart docker service
-#    service:
-#      name: docker
-#      state: restarted
+  #  - name: Restart docker service
+  #    service:
+  #      name: docker
+  #      state: restarted
 
-  - name: Run Scipion master container
-    #shell: docker run -d --name=scipionmaster --hostname=scipionmaster --privileged -p 5904:5904 -p 2222:22 -e USE_DISPLAY="4" -e ROOT_PASS="abc" -e USER_PASS="abc" -e MYVNCPASSWORD="1234" -e CRYOSPARC_LICENSE="you-requested-cryosparc-license" -v /tmp/.X11-unix/X0:/tmp/.X11-unix/X0 -v /home/scipionuser/ScipionUserData:/home/scipionuser/ScipionUserData -v /usr/local/etc/slurm.conf:/usr/local/etc/slurm.conf -v /usr/local/etc/gres.conf:/usr/local/etc/gres.conf -v /etc/munge/munge.key:/etc/munge/munge.key --add-host scipion-master:ip rinchen.cnb.csic.es/eosc-synergy/scipion-master:master
-    docker_container:
-      name: scipionmaster
-      hostname: scipionmaster
-      image: rinchen.cnb.csic.es/eosc-synergy/scipion-master:master
-      privileged: yes
-      published_ports:
-        - "5904:5904"
-        - "2222:22"
-      env:
-        USE_DISPLAY: "4"
-        ROOT_PASS: "{{ vnc_pass }}"
-        USER_PASS: "{{ vnc_pass }}"
-        MYVNCPASSWORD: "{{ vnc_pass }}"
-        CRYOSPARC_LICENSE: "{{ cryosparc_license }}"
-      volumes:
-        - /tmp/.X11-unix/X0:/tmp/.X11-unix/X0
-        - /home/scipionuser/ScipionUserData:/home/scipionuser/ScipionUserData
-        - /usr/local/etc/slurm.conf:/usr/local/etc/slurm.conf
-        - /usr/local/etc/gres.conf:/usr/local/etc/gres.conf
-        - /etc/munge/munge.key:/etc/munge/munge.key
-      etc_hosts:
-        {"scipion-master":"{{ slurm_front_end_ip }}"}
-
+    - name: Run Scipion master container
+      # shell: docker run -d --name=scipionmaster --hostname=scipionmaster --privileged -p 5904:5904 -p 2222:22 -e USE_DISPLAY="4" -e ROOT_PASS="abc" -e USER_PASS="abc" -e MYVNCPASSWORD="1234" -e CRYOSPARC_LICENSE="you-requested-cryosparc-license" -v /tmp/.X11-unix/X0:/tmp/.X11-unix/X0 -v /home/scipionuser/ScipionUserData:/home/scipionuser/ScipionUserData -v /usr/local/etc/slurm.conf:/usr/local/etc/slurm.conf -v /usr/local/etc/gres.conf:/usr/local/etc/gres.conf -v /etc/munge/munge.key:/etc/munge/munge.key --add-host scipion-master:ip rinchen.cnb.csic.es/eosc-synergy/scipion-master:master
+      docker_container:
+        name: scipionmaster
+        hostname: scipionmaster
+        image: rinchen.cnb.csic.es/eosc-synergy/scipion-master:master
+        privileged: true
+        published_ports:
+          - "5904:5904"
+          - "2222:22"
+        env:
+          USE_DISPLAY: "4"
+          ROOT_PASS: "{{ vnc_pass }}"
+          USER_PASS: "{{ vnc_pass }}"
+          MYVNCPASSWORD: "{{ vnc_pass }}"
+          CRYOSPARC_LICENSE: "{{ cryosparc_license }}"
+        volumes:
+          - /tmp/.X11-unix/X0:/tmp/.X11-unix/X0
+          - /home/scipionuser/ScipionUserData:/home/scipionuser/ScipionUserData
+          - /usr/local/etc/slurm.conf:/usr/local/etc/slurm.conf
+          - /usr/local/etc/gres.conf:/usr/local/etc/gres.conf
+          - /etc/munge/munge.key:/etc/munge/munge.key
+        etc_hosts:
+          {"scipion-master":"{{ slurm_front_end_ip }}"}
