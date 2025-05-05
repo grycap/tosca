@@ -32,7 +32,9 @@ topology_template:
       type: integer
       description: Number of GPUs to assing to the master
       required: yes
-      default: 1
+      default: 0
+      constraints:
+        - valid_values: [ 0, 1, 2 ]
     num_cpus_master:
       type: integer
       description: Numbers of CPUs to assign to the master
@@ -64,7 +66,9 @@ topology_template:
       type: integer
       description: Number of GPUs to assing to the worker
       required: yes
-      default: 1
+      default: 0
+      constraints:
+        - valid_values: [ 0, 1, 2 ]
     num_cpus_worker:
       type: integer
       description: Numbers of CPUs to assign to the worker
