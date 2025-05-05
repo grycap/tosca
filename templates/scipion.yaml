@@ -84,7 +84,6 @@ topology_template:
       constraints:
         - valid_values: [ 4 GiB, 8 GiB, 16 GiB, 32 GiB, 64 GiB, 128 GiB ]
 
-
   node_templates:
     pub_network:
       type: tosca.nodes.network.Network
@@ -138,6 +137,7 @@ topology_template:
                 source: 2222
         host:
           properties:
+            disk_size: 50 GB
             num_gpus: { get_input: num_gpus_master }
             num_cpus: { get_input: num_cpus_master }
             mem_size: { get_input: mem_size_master }
@@ -160,7 +160,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/I2PC/scipion-docker/master/ansible_master.yaml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/scipion/ansible_master.yaml
             inputs:
               vnc_pass: { get_input: vnc_pass }
               cryosparc_license: { get_input: cryosparc_license }
@@ -202,7 +202,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/I2PC/scipion-docker/master/ansible_worker.yaml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/scipion/ansible_worker.yaml
             inputs:
               slurm_front_end_ip: { get_attribute: [ lrms_server, private_address, 0 ] }
       artifacts:
