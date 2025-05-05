@@ -5,10 +5,16 @@ description: >
   Deploy a cluster with Scipion via VNC
 metadata:
   template_name: Scipion
-  template_version: "1.0.0"
+  template_version: "1.1.0"
   template_author: Laura del Cano
   display_name: Scipion on SLURM cluster
   icon: images/scipion.png
+  tabs:
+    Master Features: .*_master
+    Worker Features: .*_worker
+    App Features:
+      - vnc_pass
+      - cryosparc_license
 topology_template:
   inputs:
     vnc_pass:
@@ -21,6 +27,7 @@ topology_template:
       description: Cryosparc license id
       required: no
       default: 'xxx'
+
     num_gpus_master:
       type: integer
       description: Number of GPUs to assing to the master
@@ -40,6 +47,19 @@ topology_template:
       required: yes
       constraints:
         - valid_values: [ 4 GiB, 8 GiB, 16 GiB, 32 GiB, 64 GiB, 128 GiB ]
+    disk_size_master:
+      type: scalar-unit.size
+      description: Size of the external disk attached to the server
+      default: 100 GiB
+      constraints:
+        - valid_values: [ 100 GiB, 500 GiB, 1 TiB, 5 TiB, 8TiB ]
+
+    num_worker:
+      type: integer
+      description: Number of worker nodes in cluster
+      default: 0
+      constraints:
+        - valid_values: [ 0, 1 ]
     num_gpus_worker:
       type: integer
       description: Number of GPUs to assing to the worker
@@ -59,18 +79,7 @@ topology_template:
       required: yes
       constraints:
         - valid_values: [ 4 GiB, 8 GiB, 16 GiB, 32 GiB, 64 GiB, 128 GiB ]
-    disk_size:
-      type: scalar-unit.size
-      description: Size of the external disk attached to the server
-      default: 100 GiB
-      constraints:
-        - valid_values: [ 100 GiB, 500 GiB, 1 TiB, 5 TiB, 8TiB ]
-    workers_num:
-      type: integer
-      description: Number of worker nodes in cluster
-      default: 0
-      constraints:
-        - valid_values: [ 0, 1 ]
+
 
   node_templates:
     pub_network:
@@ -168,7 +177,7 @@ topology_template:
       capabilities:
         scalable:
           properties:
-            count: { get_input: workers_num }
+            count: { get_input: num_worker }
         endpoint:
           properties:
             dns_name: scipion-wn-#N#
@@ -205,7 +214,7 @@ topology_template:
     my_block_storage:
       type: BlockStorage
       properties:
-        size: { get_input: disk_size }
+        size: { get_input: disk_size_master }
   outputs:
     master_node_ip:
       value: { concat: [ 'https://', get_attribute: [ lrms_server, public_address, 0 ], ':5904/?resize=remote' ] }
