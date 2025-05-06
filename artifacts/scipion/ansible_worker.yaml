@@ -1,5 +1,7 @@
 ---
-- vars:
+- hosts: localhost
+  connection: local
+  vars:
     vnode_master: scipion-master
 
   pre_tasks:

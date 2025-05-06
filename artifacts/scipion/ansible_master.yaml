@@ -1,5 +1,7 @@
 ---
-- vars:
+- hosts: localhost
+  connection: local
+  vars:
     vnode_prefix: scipion-wn-
     vnode_master: scipion-master
 
