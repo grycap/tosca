@@ -1,0 +1,69 @@
+---
+- hosts: localhost
+  connection: local
+  vars:
+    vnode_master: scipion-master
+
+  pre_tasks:
+    - name: Create scipionuser group
+      group:
+        name: scipionuser
+        gid: 1042
+        state: present
+
+    - name: Create scipionuser user
+      user:
+        name: scipionuser
+        uid: 1042
+        shell: /bin/bash
+        group: scipionuser
+
+    - name: Install required packages
+      apt:
+        name: ['xdm', 'curl', 'wget', 'git', 'htop', 'apt-transport-https', 'ca-certificates', 'gnupg-agent', 'software-properties-common', 'xserver-xorg', 'pkg-config']
+        state: present
+
+    - set_fact:
+        slurm_wn_gres: ""
+        slurm_wn_gres_tpes: ""
+        slurm_wn_gres_conf: ""
+        gpu_num: '{{ IM_INFRASTRUCTURE_RADL | json_query("[?id == ''lrms_wn''].gpu_count_min|[0]") }}'
+    - set_fact:
+        slurm_wn_gres: "gpu:{{ gpu_num }}"
+        slurm_wn_gres_tpes: "gpu"
+        slurm_wn_gres_conf: "AutoDetect=nvml"
+      when: gpu_num | int > 0
+
+  roles:
+    - role: grycap.nfs
+      nfs_mode: 'wn'
+      nfs_client_imports: [{ local: "/home/scipionuser/ScipionUserData", remote: "/home/scipionuser/ScipionUserData", server_host: "{{ slurm_front_end_ip }}", opts: "defaults,nolock" }]
+
+    - role: grycap.docker
+      # docker_config_values: {"mtu": 1442, "data-root": '/home/scipionuser/volume-data/docker'}
+      docker_config_values: {"mtu": 1442}
+      docker_nvidia_driver_version: 440
+
+    - role: grycap.slurm
+      slurm_type_of_node: 'wn'
+      slurm_server_name: "{{ vnode_master }}"
+      slurm_server_ip: "{{ slurm_front_end_ip }}"
+      slurm_wn_ips: '{{ groups["lrms_wn"]|map("extract", hostvars, "ansible_default_ipv4.address")|list if "lrms_wn" in groups else [] }}'
+      slurm_wn_nodenames: '{{ groups["lrms_wn"]|map("extract", hostvars, "ansible_hostname")|list if "lrms_wn" in groups else [] }}'
+      slurm_user_id: 1052
+      slurm_version: 20.11.9
+
+# Put here your Ansible recipes to configure the nodes
+
+  tasks:
+    - name: adding scipionuser to docker group
+      user:
+        name: 'scipionuser'
+        groups: docker
+        shell: /bin/bash
+        append: true
+
+    - name: pull scipion-worker image
+      docker_image:
+        name: rinchen.cnb.csic.es/eosc-synergy/scipion-worker:master
+        source: pull
