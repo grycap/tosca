@@ -167,13 +167,13 @@ topology_template:
               slurm_front_end_ip: { get_attribute: [ lrms_server, private_address, 0 ] }
       artifacts:
         slurm_role:
-          file: grycap.slurm,master
+          file: grycap.slurm
           type: tosca.artifacts.AnsibleGalaxy.role
         nfs_role:
-          file: indigo-dc.nfs,master
+          file: grycap.nfs
           type: tosca.artifacts.AnsibleGalaxy.role
         docker_role:
-          file: grycap.docker,master
+          file: grycap.docker
           type: tosca.artifacts.AnsibleGalaxy.role
 
     lrms_wn:
@@ -207,13 +207,13 @@ topology_template:
               slurm_front_end_ip: { get_attribute: [ lrms_server, private_address, 0 ] }
       artifacts:
         slurm_role:
-          file: grycap.slurm,master
+          file: grycap.slurm
           type: tosca.artifacts.AnsibleGalaxy.role
         nfs_role:
-          file: indigo-dc.nfs,master
+          file: grycap.nfs
           type: tosca.artifacts.AnsibleGalaxy.role
         docker_role:
-          file: grycap.docker,master
+          file: grycap.docker
           type: tosca.artifacts.AnsibleGalaxy.role
     my_block_storage:
       type: BlockStorage

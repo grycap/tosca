@@ -33,8 +33,8 @@
       when: gpu_num|int > 0
 
   roles:
-    - role: indigo-dc.nfs
-      nfs_mode: 'client'
+    - role: grycap.nfs
+      nfs_mode: 'wn'
       nfs_client_imports: [{ local: "/home/scipionuser/ScipionUserData", remote: "/home/scipionuser/ScipionUserData", server_host: "{{ slurm_front_end_ip }}", opts: "defaults,nolock" }]
 
     - role: grycap.docker
@@ -49,6 +49,7 @@
       slurm_wn_ips: '{{ groups["lrms_wn"]|map("extract", hostvars, "ansible_default_ipv4.address")|list if "lrms_wn" in groups else [] }}'
       slurm_wn_nodenames: '{{ groups["lrms_wn"]|map("extract", hostvars, "ansible_hostname")|list if "lrms_wn" in groups else [] }}'
       slurm_user_id: 1052
+      slurm_version: 20.11.9
 
 # Put here your Ansible recipes to configure the nodes
 
