@@ -27,12 +27,12 @@
         slurm_wn_gres: ""
         slurm_wn_gres_tpes: ""
         slurm_wn_gres_conf: ""
-        gpu_num: '{{IM_INFRASTRUCTURE_RADL|json_query("[?id == ''lrms_wn''].gpu_count_min|[0]")}}'
+        gpu_num: '{{ IM_INFRASTRUCTURE_RADL | json_query("[?id == ''lrms_wn''].gpu_count_min|[0]") }}'
     - set_fact:
         slurm_wn_gres: "gpu:{{ gpu_num }}"
         slurm_wn_gres_tpes: "gpu"
         slurm_wn_gres_conf: "AutoDetect=nvml"
-      when: gpu_num|int > 0
+      when: gpu_num | int > 0
 
   roles:
     - role: grycap.nfs

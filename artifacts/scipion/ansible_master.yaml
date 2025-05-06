@@ -25,8 +25,8 @@
         state: present
 
     - set_fact:
-        gpu_num_server: '{{IM_INFRASTRUCTURE_RADL|json_query("[?id == ''lrms_server''].gpu_count_min|[0]")}}'
-        gpu_num_wn: '{{IM_INFRASTRUCTURE_RADL|json_query("[?id == ''lrms_wn''].gpu_count_min|[0]")}}'
+        gpu_num_server: '{{ IM_INFRASTRUCTURE_RADL | json_query("[?id == ''lrms_server''].gpu_count_min|[0]") }}'
+        gpu_num_wn: '{{ IM_INFRASTRUCTURE_RADL | json_query("[?id == ''lrms_wn''].gpu_count_min|[0]") }}'
         slurm_wn_gres: ''
         slurm_wn_gres_conf: ''
         slurm_wn_gres_tpes: ''
@@ -36,7 +36,7 @@
         slurm_wn_gres_conf: AutoDetect=nvml
         slurm_wn_gres_tpes: gpu
         docker_nvidia_support: true
-      when: gpu_num_server|int > 0
+      when: gpu_num_server | int > 0
 
   roles:
     - role: grycap.nfs
