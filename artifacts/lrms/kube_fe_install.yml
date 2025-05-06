@@ -68,7 +68,6 @@
         - {option: "--token-auth-file", value: "/etc/kubernetes/pki/auth"}
       kube_install_metrics: true
       kube_cert_public_ip: "{{ IM_NODE_PUBLIC_IP }}"
-      kube_install_helm_version: "v3.8.2"
       kube_ingress_in_master: "{{ ingress_in_master }}"
 
   tasks:
