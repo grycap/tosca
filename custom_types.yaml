@@ -811,6 +811,16 @@ node_types:
         description: List of WN nodenames
         required: false
         default: []
+      wn_cpus:
+        type: integer
+        description: Number of CPUs in the WNs
+        required: false
+        default: 1
+      wn_mem:
+        type: integer
+        description: Amount of Memory for the WNs in MB
+        required: false
+        default: 1
     artifacts:
       slurm_role:
         file: grycap.slurm
@@ -833,6 +843,8 @@ node_types:
             slurm_nfs: { get_property: [ SELF, nfs ] }
             slurm_version: { get_property: [ SELF, version ] }
             slurm_wn_nodenames: { get_property: [ SELF, wn_nodenames ] }
+            slurm_wn_cpus: { get_property: [ SELF, wn, num_cpus ] }
+            slurm_wn_mem: { get_property: [ SELF, wn, mem_size ] }
 
   tosca.nodes.indigo.LRMS.WorkerNode.HTCondor:
     derived_from: tosca.nodes.indigo.LRMS.WorkerNode
