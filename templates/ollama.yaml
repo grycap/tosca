@@ -37,7 +37,7 @@ topology_template:
       entry_schema:
         type: string
       description: Name of the AI models to install
-      default: ["llama2", "llama2-chat"]
+      default: ["llama2", "llama3"]
       required: yes
 
     # override simple-node-disk ports

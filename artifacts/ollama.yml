@@ -2,7 +2,7 @@
 - hosts: localhost
   connection: local
   vars:
-    openwebui_cert_email: "{{ openwebui_cert_email | default('jhondoe@server.com') }}"
+    openwebui_cert_email: "{{ user_cert_email | default('jhondoe@server.com') }}"
     traefik_host: "{{ dns_name | default(ansible_default_ipv4.address) }}"
   roles:
     - role: 'grycap.docker'
@@ -14,10 +14,14 @@
           register: ollama_version
           ignore_errors: true
 
-        - name: Install Ollama
-          shell: curl -fsSL https://ollama.com/install.sh | sh
-          args:
-            executable: /bin/bash
+        - name: Descargar script de instalación de Ollama
+          get_url:
+            url: https://ollama.com/install.sh
+            dest: /var/tmp/ollama_install.sh
+            mode: '0755'
+
+        - name: Ejecutar script de instalación de Ollama
+          command: /var/tmp/ollama_install.sh
           when: ollama_version is failed
 
         - name: Create Ollama serice directory
@@ -34,7 +38,7 @@
               Environment=OLLAMA_API_ADDRESS=0.0.0.0:11434
             owner: root
             mode: '0644'
-            register: ollama_service_override
+          register: ollama_service_override
           
         - name: Reload systemd
           command: systemctl daemon-reload
@@ -43,6 +47,7 @@
         - name: Pull Ollama models (if required)
           command: ollama pull {{ item }}
           become_user: "ollama"
+          become: true
           loop: "{{ ollama_models_name }}"
 
         - name: Restart Ollama service
