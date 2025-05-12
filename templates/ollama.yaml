@@ -8,9 +8,9 @@ description: >
 
 metadata:
   template_version: "1.0.0"
-  template_name: Docker + Compose
-  display_name: Install Docker + Docker Compose
-  icon: images/docker.png
+  template_name: Ollama + Open WebUI
+  display_name: Install Ollama + Open WebUI
+  icon: images/ollama.png
   tabs:
     Ollama: ollama_.*
   parents:
