@@ -1,0 +1,124 @@
+---
+- hosts: localhost
+  connection: local
+  vars:
+    openwebui_cert_email: "{{ openwebui_cert_email | default('jhondoe@server.com') }}"
+    traefik_host: "{{ dns_name | default(ansible_default_ipv4.address) }}"
+  roles:
+    - role: 'grycap.docker'
+  tasks:
+    - name: Install Ollama
+      block:
+        - name: Check if Ollama is installed
+          command: ollama --version
+          register: ollama_version
+          ignore_errors: true
+
+        - name: Install Ollama
+          shell: curl -fsSL https://ollama.com/install.sh | sh
+          args:
+            executable: /bin/bash
+          when: ollama_version is failed
+
+        - name: Create Ollama serice directory
+          file:
+            path: /etc/systemd/system/ollama.service.d/
+            state: directory
+            mode: '0755'
+
+        - name: Create Ollama service override file
+          copy:
+            dest: /etc/systemd/system/ollama.service.d/override.conf
+            content: |
+              [Service]
+              Environment=OLLAMA_API_ADDRESS=0.0.0.0:11434
+            owner: root
+            mode: '0644'
+            register: ollama_service_override
+          
+        - name: Reload systemd
+          command: systemctl daemon-reload
+          when: ollama_service_override is changed
+
+        - name: Pull Ollama models (if required)
+          command: ollama pull {{ item }}
+          become_user: "ollama"
+          loop: "{{ ollama_models_name }}"
+
+        - name: Restart Ollama service
+          service:
+            name: ollama
+            state: restarted
+          when: ollama_service_override is changed
+
+    - name: Create open-webui directory
+      file:
+        path: /opt/openwebui
+        state: directory
+        mode: '0755'
+
+    - name: Create docker-compose file
+      copy:
+        content: |
+          version: '3.3'
+          services:
+            openwebui:
+              image: ghcr.io/open-webui/open-webui:main
+              container_name: open-webui
+              restart: always
+              expose:
+                - "8080"
+              volumes:
+                - .:/app/backend/data
+              extra_hosts:
+                - "host.docker.internal:host-gateway"
+              networks:
+                - backend
+              labels:
+                - "traefik.enable=true"
+                - "traefik.http.routers.openwebui.service=openwebui"
+                - "traefik.http.routers.openwebui.rule=Host(`{{ traefik_host }}`)"
+                - "traefik.http.routers.openwebui.entrypoints=websecure"
+                - "traefik.http.routers.openwebui.tls.certresolver=myresolver"
+                - "traefik.http.services.openwebui.loadbalancer.server.port=8080"
+                - "traefik.docker.network=openwebui_frontend"
+            traefik:
+              image: "traefik:v2.10"
+              container_name: "traefik"
+              command:
+              #- "--log.level=DEBUG"
+              - "--api.insecure=true"
+              - "--providers.docker=true"
+              - "--providers.docker.exposedbydefault=false"
+              - "--entrypoints.web.address=:80"
+              - "--entrypoints.websecure.address=:443"
+              - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+              - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+              - "--entrypoints.web.http.redirections.entrypoint.permanent=true"
+              - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
+              - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+              #- "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+              - "--certificatesresolvers.myresolver.acme.email={{ openwebui_cert_email }}"
+              - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+              ports:
+              - "80:80"
+              - "443:443"
+              - "8080:8080"
+              volumes:
+              - "./letsencrypt:/letsencrypt"
+              - "/var/run/docker.sock:/var/run/docker.sock:ro"
+              networks:
+              - frontend
+              - backend
+          networks:
+              frontend:
+                  driver: bridge
+              backend:
+                  driver: bridge
+        dest: /opt/openwebui/docker-compose.yaml
+        mode: '644'
+
+    - name: Exec docker-compose up
+      docker_compose:
+        project_src: /opt/openwebui/
+        state: present

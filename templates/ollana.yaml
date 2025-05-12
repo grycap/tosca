@@ -1,0 +1,76 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+imports:
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+
+description: >
+  Deploy a set of computing nodes with Docker and Docker Compose installed.
+
+metadata:
+  template_version: "1.0.0"
+  template_name: Docker + Compose
+  display_name: Install Docker + Docker Compose
+  icon: images/docker.png
+  tabs:
+    Ollama: ollama_.*
+  parents:
+    - simple-node-disk.yml
+
+topology_template:
+
+  inputs:
+
+    ollama_nvidia_support:
+      type: boolean
+      description: Flag to add the NVIDIA runtime to the Ollama installation
+      default: false
+      constraints:
+        - valid_values: [ false, true ]
+
+    ollama_driver_version:
+      type: string
+      description: NVIDIA Driver version to install
+      default: "510"
+
+    ollama_models_name:
+      type: string
+      description: Name of the AI models to install
+      default: ["llama2", "llama2-chat"]
+      required: yes
+
+    # override simple-node-disk ports
+
+    ports:
+      type: map
+      entry_schema:
+        type: PortSpec
+      description: |
+        List of ports to be Opened in the Cloud site (eg. 22,80,443,2000:2100).
+        You can also include the remote CIDR (eg. 8.8.0.0/24).
+      default:
+        http_port:
+          source: 80
+          protocol: tcp
+        https_port:
+          source: 443
+          protocol: tcp
+
+
+  node_templates:
+
+    ollama:
+      type: tosca.nodes.SoftwareComponent
+      requirements:
+        - host: simple_node
+      artifacts:
+        docker_role:
+          file: grycap.docker
+          type: tosca.artifacts.AnsibleGalaxy.role
+      interfaces:
+        Standard:
+          configure:
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/ollama.yml
+            inputs:
+              docker_nvidia_support: { get_input: ollama_nvidia_support }
+              docker_nvidia_driver_version: { get_input: ollama_driver_version }
+              ollama_models_name: { get_input: ollama_models_name }
