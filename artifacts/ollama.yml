@@ -7,54 +7,6 @@
   roles:
     - role: 'grycap.docker'
   tasks:
-    - name: Install Ollama
-      block:
-        - name: Check if Ollama is installed
-          command: ollama --version
-          register: ollama_version
-          ignore_errors: true
-
-        - name: Descargar script de instalación de Ollama
-          get_url:
-            url: https://ollama.com/install.sh
-            dest: /var/tmp/ollama_install.sh
-            mode: '0755'
-
-        - name: Ejecutar script de instalación de Ollama
-          command: /var/tmp/ollama_install.sh
-          when: ollama_version is failed
-
-        - name: Create Ollama serice directory
-          file:
-            path: /etc/systemd/system/ollama.service.d/
-            state: directory
-            mode: '0755'
-
-        - name: Create Ollama service override file
-          copy:
-            dest: /etc/systemd/system/ollama.service.d/override.conf
-            content: |
-              [Service]
-              Environment=OLLAMA_API_ADDRESS=0.0.0.0:11434
-            owner: root
-            mode: '0644'
-          register: ollama_service_override
-          
-        - name: Reload systemd
-          command: systemctl daemon-reload
-          when: ollama_service_override is changed
-
-        - name: Pull Ollama models (if required)
-          command: ollama pull {{ item }}
-          become_user: "ollama"
-          become: true
-          loop: "{{ ollama_models_name }}"
-
-        - name: Restart Ollama service
-          service:
-            name: ollama
-            state: restarted
-          when: ollama_service_override is changed
 
     - name: Create open-webui directory
       file:
@@ -67,6 +19,16 @@
         content: |
           version: '3.3'
           services:
+            ollama:
+              image: ollama/ollama
+              container_name: ollama
+              restart: always
+              expose:
+                - "11434"
+              volumes:
+                - ./ollama:/root/.ollama
+              networks:
+                - backend
             openwebui:
               image: ghcr.io/open-webui/open-webui:main
               container_name: open-webui
@@ -75,10 +37,11 @@
                 - "8080"
               volumes:
                 - .:/app/backend/data
-              extra_hosts:
-                - "host.docker.internal:host-gateway"
+              environment:
+                - OLLAMA_BASE_URL=http://ollama:11434
               networks:
                 - backend
+                - frontend
               labels:
                 - "traefik.enable=true"
                 - "traefik.http.routers.openwebui.service=openwebui"
@@ -114,7 +77,6 @@
               - "/var/run/docker.sock:/var/run/docker.sock:ro"
               networks:
               - frontend
-              - backend
           networks:
               frontend:
                   driver: bridge
