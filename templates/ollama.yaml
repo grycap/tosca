@@ -33,7 +33,9 @@ topology_template:
       default: "510"
 
     ollama_models_name:
-      type: string
+      type: list
+      entry_schema:
+        type: string
       description: Name of the AI models to install
       default: ["llama2", "llama2-chat"]
       required: yes
