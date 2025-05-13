@@ -16,7 +16,7 @@
     - name: Set traefik host to DNS name
       set_fact:
         traefik_host: "{{ dns_node_name }}"
-      when: dns_node_name is defined and dns_node_name == ""
+      when: dns_node_name is defined and dns_node_name != ""
 
     - name: Create open-webui directory
       file:
@@ -112,3 +112,9 @@
       docker_compose:
         project_src: /opt/openwebui/
         state: present
+
+    - name: Pull ollama models
+      command:
+        cmd: "docker exec -i ollama ollama pull {{ item }}"
+        creates: "/opt/openwebui/ollama/models/manifests/registry.ollama.ai/library/{{ item }}"
+      with_items: "{{ ollama_models_name }}"
