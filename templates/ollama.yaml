@@ -16,11 +16,11 @@ topology_template:
     num_cpus:
       type: integer
       description: Number of virtual cpus for the VM
-      default: 2
+      default: 8
     mem_size:
       type: scalar-unit.size
       description: Amount of memory for the VM
-      default: 8 GB
+      default: 64 GB
     disk_size:
       type: scalar-unit.size
       description: Size of the root disk of the VM (in case of 0, the disk will not be resized)
@@ -58,7 +58,7 @@ topology_template:
       entry_schema:
         type: string
       description: Name of the AI models to install (see https://ollama.com/models)
-      default: ["llama2", "llama3"]
+      default: ["llama2", "deepseek-r1:q4_0"]
       required: yes
 
   node_templates:
