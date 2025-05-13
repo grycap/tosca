@@ -34,7 +34,7 @@
                   reservations:
                     devices:
                       - capabilities: [gpu]
-      when: ollama_nvidia_support | boolean
+      when: ollama_nvidia_support | bool
 
     - name: Create docker-compose file
       copy:
