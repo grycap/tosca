@@ -51,6 +51,8 @@
                 - ./ollama:/root/.ollama
               networks:
                 - backend
+              environment:
+                - OLLAMA_NUM_THREADS={{ ansible_processor_cores }}
               {{ deploy }}
             openwebui:
               image: ghcr.io/open-webui/open-webui:{{ openwebui_image_tag }}
