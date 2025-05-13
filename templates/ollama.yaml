@@ -36,7 +36,7 @@ topology_template:
       entry_schema:
         type: string
       description: Name of the AI models to install (see https://ollama.com/models)
-      default: ["llama2", "llama3"]
+      default: ["llama2", "deepseek-r1:7b"]
       required: yes
 
     ollama_dns_node_name:
