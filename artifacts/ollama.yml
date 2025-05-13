@@ -3,10 +3,20 @@
   connection: local
   vars:
     openwebui_cert_email: "{{ user_cert_email | default('jhondoe@server.com') }}"
-    traefik_host: "{{ dns_name | default(ansible_default_ipv4.address) }}"
+    traefik_host: "{{ node_public_address }}"
+    openwebui_image_tag: "main"
+    deploy: ""
   roles:
     - role: 'grycap.docker'
+      vars:
+        docker_nvidia_support: "{{ ollama_nvidia_support | default(false) }}"
+        docker_nvidia_driver_version: "{{ ollama_driver_version | default('510') }}"
   tasks:
+
+    - name: Set traefik host to DNS name
+      set_fact:
+        traefik_host: "{{ dns_node_name }}"
+      when: dns_node_name is defined and dns_node_name == ""
 
     - name: Create open-webui directory
       file:
@@ -14,10 +24,22 @@
         state: directory
         mode: '0755'
 
+    - name: Add GPU support to docker-compose
+      set_fact:
+        # Do we need to add GPU support in the OpenWebUI tool?
+        # openwebui_image_tag: "cuda"
+        deploy: |
+          deploy:
+                resources:
+                  reservations:
+                    devices:
+                      - capabilities: [gpu]
+      when: ollama_nvidia_support | boolean
+
     - name: Create docker-compose file
       copy:
         content: |
-          version: '3.3'
+          version: '3.8'
           services:
             ollama:
               image: ollama/ollama
@@ -29,8 +51,9 @@
                 - ./ollama:/root/.ollama
               networks:
                 - backend
+              {{ deploy }}
             openwebui:
-              image: ghcr.io/open-webui/open-webui:main
+              image: ghcr.io/open-webui/open-webui:{{ openwebui_image_tag }}
               container_name: open-webui
               restart: always
               expose:

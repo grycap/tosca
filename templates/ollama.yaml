@@ -40,6 +40,11 @@ topology_template:
       default: ["llama2", "llama3"]
       required: yes
 
+    ollama_dns_node_name:
+      type: string
+      description: DNS name to be used for the node, if not set the public IP will be used
+      default: ""
+
     # override simple-node-disk ports
 
     ports:
@@ -73,11 +78,14 @@ topology_template:
           configure:
             implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/ollama.yml
             inputs:
-              docker_nvidia_support: { get_input: ollama_nvidia_support }
-              docker_nvidia_driver_version: { get_input: ollama_driver_version }
+              ollama_nvidia_support: { get_input: ollama_nvidia_support }
+              ollama_driver_version: { get_input: ollama_driver_version }
               ollama_models_name: { get_input: ollama_models_name }
-              traefik_host: { get_attribute: [ simple_node, public_address, 0 ] }
+              node_public_address: { get_attribute: [ simple_node, public_address, 0 ] }
+              dns_node_name: { get_input: ollama_dns_node_name }
 
   outputs:
     openwebui_url:
       value: { concat: [ "http://", { get_attribute: [ simple_node, public_address, 0 ] }, "/"] }
+    openwebui_dns_url:
+      value: { concat: [ "http://", { get_input: ollama_dns_node_name }, "/"] }
