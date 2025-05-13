@@ -36,7 +36,7 @@ topology_template:
       type: list
       entry_schema:
         type: string
-      description: Name of the AI models to install
+      description: Name of the AI models to install (see https://ollama.com/models)
       default: ["llama2", "llama3"]
       required: yes
 
