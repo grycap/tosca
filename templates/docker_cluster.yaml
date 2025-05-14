@@ -30,7 +30,7 @@ topology_template:
     driver_version:
       type: string
       description: NVIDIA Driver version to install in the Worker nodes
-      default: "510"
+      default: "535"
 
   node_templates:
 
@@ -48,7 +48,7 @@ topology_template:
             implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/docker.yml
             inputs:
               docker_nvidia_support: false
-              docker_nvidia_driver_version: "510"
+              docker_nvidia_driver_version: "535"
               docker_compose_git: ""
               compose_folder: "master"
               repo_branch: ""

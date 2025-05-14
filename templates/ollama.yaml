@@ -29,7 +29,7 @@ topology_template:
     ollama_driver_version:
       type: string
       description: NVIDIA Driver version to install
-      default: "510"
+      default: "535"
 
     ollama_models_name:
       type: list
