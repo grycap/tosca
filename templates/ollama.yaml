@@ -46,6 +46,13 @@ topology_template:
 
     # override simple-node-disk ports
 
+    disk_size:
+      type: scalar-unit.size
+      description: Size of the root disk of the VM (in case of 0 disk will no be resized)
+      default: 50 GiB
+      constraints:
+        - valid_values: [ 50 GiB, 100 GiB, 200 GiB, 0 GiB ]
+
     ports:
       type: map
       entry_schema:
