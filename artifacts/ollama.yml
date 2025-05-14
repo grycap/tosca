@@ -10,7 +10,7 @@
     - role: 'grycap.docker'
       vars:
         docker_nvidia_support: "{{ ollama_nvidia_support | default(false) }}"
-        docker_nvidia_driver_version: "{{ ollama_driver_version | default('510') }}"
+        docker_nvidia_driver_version: "{{ ollama_driver_version | default('535') }}"
   tasks:
 
     - name: Set traefik host to DNS name
