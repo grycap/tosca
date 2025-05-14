@@ -33,7 +33,9 @@
                 resources:
                   reservations:
                     devices:
-                      - capabilities: [gpu]
+                      - driver: nvidia
+                        capabilities: [gpu]
+                        count: all
       when: ollama_nvidia_support | bool
 
     - name: Create docker-compose file
