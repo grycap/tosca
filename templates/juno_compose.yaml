@@ -16,6 +16,8 @@ metadata:
           tag_type: password
       - dns_name
       - letsencrypt_email
+    Dataset:
+      - dataset_id
   parents:
     - simple-node-disk.yml
 
@@ -30,7 +32,7 @@ topology_template:
       default: jupyter.test.fedcloud.eu
       description: DNS hostname to access Jupyter Notebook
       type: string
-    minio_letsencrypt_email:
+    letsencrypt_email:
       default: changeme@email.com
       description: Email to be used for Let's Encrypt certificates
       type: string
