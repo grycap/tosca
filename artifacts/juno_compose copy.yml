@@ -1,0 +1,69 @@
+---
+- name: Install jupyter
+  hosts: localhost
+  connection: local
+  vars:
+    jupyter_letsencrypt_email: "{{ letsencrypt_email }}"
+    JUPYTER_TOKEN: "{{ jupyter_token | default('sometoken') }}"
+  roles:
+    - role: 'grycap.docker'
+  tasks:
+    - name: Create jupyter directory
+      file:
+        path: /opt/jupyter/notebooks
+        state: directory
+        mode: '755'
+
+    - name: Create docker-compose file
+      copy:
+        content: |
+          version: "3.3"
+          services:
+            traefik:
+              image: "traefik:v2.10"
+              container_name: "traefik"
+              command:
+                # - "--log.level=DEBUG"
+                - "--api.insecure=true"
+                - "--providers.docker=true"
+                - "--providers.docker.exposedbydefault=false"
+                - "--entrypoints.web.address=:80"
+                - "--entrypoints.websecure.address=:443"
+                - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+                - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+                - "--entrypoints.web.http.redirections.entrypoint.permanent=true"
+                - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
+                - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+                #- "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+                - "--certificatesresolvers.myresolver.acme.email={{ jupyter_letsencrypt_email }}"
+                - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+              ports:
+                - "80:80"
+                - "443:443"
+                - "8080:8080"
+              volumes:
+                - "./letsencrypt:/letsencrypt"
+                - "/var/run/docker.sock:/var/run/docker.sock:ro"
+            jupyter:
+              image: jupyter/base-notebook
+              expose:
+                - "8888"
+              volumes:
+                - ./notebooks:/home/jovyan/work
+              environment:
+                - JUPYTER_TOKEN={{ JUPYTER_TOKEN }}
+              restart: unless-stopped
+              labels:
+                - "traefik.enable=true"
+                - "traefik.http.routers.jupyter.service=jupyter"
+                - "traefik.http.routers.jupyter.rule=Host(`{{ jupyter_dns_name }}`)"
+                - "traefik.http.routers.jupyter.entrypoints=websecure"
+                - "traefik.http.routers.jupyter.tls.certresolver=myresolver"
+                - "traefik.http.services.jupyter.loadbalancer.server.port=8888"
+        dest: /opt/jupyter/docker-compose.yaml
+        mode: '644'
+
+    - name: Exec docker-compose up
+      docker_compose:
+        project_src: /opt/jupyter/
+        state: present
