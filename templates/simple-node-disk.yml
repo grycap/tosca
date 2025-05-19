@@ -26,6 +26,7 @@ metadata:
       - storage_size
       - mount_path
       - ports
+      - dns_name
     GPU Data: .*gpu.*
   childs:
     - docker.yaml
@@ -45,7 +46,6 @@ metadata:
     - mlflow_authvm.yaml
     - wget.yml
     - sgde.yaml
-    - dydns_egi_update_vm.yml
     - flowfuse.yaml
     - stac_vm.yaml
     - ollama.yaml
@@ -127,6 +127,11 @@ topology_template:
           source: 22
           protocol: tcp
 
+    dns_name:
+      type: string
+      description: DNS name to be used for the VM
+      default: ""
+
   node_templates:
 
     simple_node:
@@ -134,6 +139,8 @@ topology_template:
       capabilities:
         endpoint:
           properties:
+            additional_dns_names:
+              - { get_input: dns_name }
             network_name: PUBLIC
             ports: { get_input: ports }
         scalable:
