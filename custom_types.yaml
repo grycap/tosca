@@ -1974,9 +1974,15 @@ node_types:
         type: string
         description: Regex to express the set of files to get from the Dataset.
         required: false
+        default: '.*'
       dest:
         type: string
         description: Path to download the set of files from the Dataset.
+        required: true
+      owner:
+        type: string
+        description: Change the ownership of the directory where the dataset should be saved.
+        default: ''
         required: false
     requirements:
       - host:
@@ -1994,6 +2000,8 @@ node_types:
           inputs:
             dataset_url: { get_property: [ SELF, dataset_id ] }
             output_dir: { get_property: [ SELF, dest ] }
+            filter: { get_property: [ SELF, filter ] }
+            owner: { get_property: [ SELF, owner ] }
 
   tosca.nodes.eosc.fts.Dataset:
     derived_from: tosca.nodes.eosc.Dataset

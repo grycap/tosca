@@ -33,12 +33,7 @@
           grycap.dataset.download_dataset:
             dataset_url: "{{ dataset_url }}"
             output_dir: "{{ output_dir }}"
-          
-        - name: Set user ownership
-          ansible.builtin.file:
-            path: "{{ output_dir }}"
-            owner: "{{ username }}"
-          when: username is defined and username != ""
+            owner: "{{ owner | default('') }}"
 
     - when: remote_storage_endpoint is defined and remote_storage_endpoint != ""
       block:
