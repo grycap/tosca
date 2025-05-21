@@ -1,0 +1,97 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+imports:
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+
+description: TOSCA template for deploying a Ollama + Open WebUI VM
+
+metadata:
+  template_version: "1.0.0"
+  template_name: Ollama + Open WebUI
+  display_name: Install Ollama + Open WebUI
+  icon: images/ollama.png
+  tabs:
+    Ollama: ollama_.*
+  parents:
+    - simple-node-disk.yml
+
+topology_template:
+
+  inputs:
+
+    ollama_nvidia_support:
+      type: boolean
+      description: Flag to add the NVIDIA runtime to the Ollama installation
+      default: false
+      constraints:
+        - valid_values: [ false, true ]
+
+    ollama_driver_version:
+      type: string
+      description: NVIDIA Driver version to install
+      default: "535"
+
+    ollama_models_name:
+      type: list
+      entry_schema:
+        type: string
+      description: Name of the AI models to install (see https://ollama.com/models)
+      default: ["llama2", "deepseek-r1:7b"]
+      required: yes
+
+    ollama_dns_node_name:
+      type: string
+      description: DNS name to be used for the node, if not set the public IP will be used
+      default: ""
+
+    # override simple-node-disk ports
+
+    disk_size:
+      type: scalar-unit.size
+      description: Size of the root disk of the VM (in case of 0 disk will no be resized)
+      default: 50 GiB
+      constraints:
+        - valid_values: [ 50 GiB, 100 GiB, 200 GiB, 0 GiB ]
+
+    ports:
+      type: map
+      entry_schema:
+        type: PortSpec
+      description: |
+        List of ports to be Opened in the Cloud site (eg. 22,80,443,2000:2100).
+        You can also include the remote CIDR (eg. 8.8.0.0/24).
+      default:
+        http_port:
+          source: 80
+          protocol: tcp
+        https_port:
+          source: 443
+          protocol: tcp
+
+
+  node_templates:
+
+    ollama:
+      type: tosca.nodes.SoftwareComponent
+      requirements:
+        - host: simple_node
+      artifacts:
+        docker_role:
+          file: grycap.docker
+          type: tosca.artifacts.AnsibleGalaxy.role
+      interfaces:
+        Standard:
+          configure:
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/ollama.yml
+            inputs:
+              ollama_nvidia_support: { get_input: ollama_nvidia_support }
+              ollama_driver_version: { get_input: ollama_driver_version }
+              ollama_models_name: { get_input: ollama_models_name }
+              node_public_address: { get_attribute: [ simple_node, public_address, 0 ] }
+              dns_node_name: { get_input: ollama_dns_node_name }
+
+  outputs:
+    openwebui_url:
+      value: { concat: [ "https://", { get_attribute: [ simple_node, public_address, 0 ] }, "/"] }
+    openwebui_dns_url:
+      value: { concat: [ "https://", { get_input: ollama_dns_node_name }, "/"] }

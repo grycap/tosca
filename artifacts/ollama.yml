@@ -1,0 +1,124 @@
+---
+- hosts: localhost
+  connection: local
+  vars:
+    openwebui_cert_email: "{{ user_cert_email | default('jhondoe@server.com') }}"
+    traefik_host: "{{ node_public_address }}"
+    openwebui_image_tag: "main"
+    deploy: ""
+  roles:
+    - role: 'grycap.docker'
+      vars:
+        docker_nvidia_support: "{{ ollama_nvidia_support | default(false) }}"
+        docker_nvidia_driver_version: "{{ ollama_driver_version | default('535') }}"
+  tasks:
+
+    - name: Set traefik host to DNS name
+      set_fact:
+        traefik_host: "{{ dns_node_name }}"
+      when: dns_node_name is defined and dns_node_name != ""
+
+    - name: Create open-webui directory
+      file:
+        path: /opt/openwebui
+        state: directory
+        mode: '0755'
+
+    - name: Add GPU support to docker-compose
+      set_fact:
+        # Do we need to add GPU support in the OpenWebUI tool?
+        # openwebui_image_tag: "cuda"
+        deploy: |
+          deploy:
+                resources:
+                  reservations:
+                    devices:
+                      - driver: nvidia
+                        capabilities: [gpu]
+                        count: all
+      when: ollama_nvidia_support | bool
+
+    - name: Create docker-compose file
+      copy:
+        content: |
+          version: '3.8'
+          services:
+            ollama:
+              image: ollama/ollama
+              container_name: ollama
+              restart: always
+              expose:
+                - "11434"
+              volumes:
+                - ./ollama:/root/.ollama
+              networks:
+                - backend
+              environment:
+                - OLLAMA_NUM_THREADS:{{ ansible_processor_vcpus | default(ansible_processor_cores) }}
+              {{ deploy }}
+            openwebui:
+              image: ghcr.io/open-webui/open-webui:{{ openwebui_image_tag }}
+              container_name: open-webui
+              restart: always
+              expose:
+                - "8080"
+              volumes:
+                - .:/app/backend/data
+              environment:
+                - OLLAMA_BASE_URL=http://ollama:11434
+              networks:
+                - backend
+                - frontend
+              labels:
+                - "traefik.enable=true"
+                - "traefik.http.routers.openwebui.service=openwebui"
+                - "traefik.http.routers.openwebui.rule=Host(`{{ traefik_host }}`)"
+                - "traefik.http.routers.openwebui.entrypoints=websecure"
+                - "traefik.http.routers.openwebui.tls.certresolver=myresolver"
+                - "traefik.http.services.openwebui.loadbalancer.server.port=8080"
+                - "traefik.docker.network=openwebui_frontend"
+            traefik:
+              image: "traefik:v2.10"
+              container_name: "traefik"
+              command:
+              #- "--log.level=DEBUG"
+              - "--api.insecure=true"
+              - "--providers.docker=true"
+              - "--providers.docker.exposedbydefault=false"
+              - "--entrypoints.web.address=:80"
+              - "--entrypoints.websecure.address=:443"
+              - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+              - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+              - "--entrypoints.web.http.redirections.entrypoint.permanent=true"
+              - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
+              - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+              #- "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+              - "--certificatesresolvers.myresolver.acme.email={{ openwebui_cert_email }}"
+              - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+              ports:
+              - "80:80"
+              - "443:443"
+              - "8080:8080"
+              volumes:
+              - "./letsencrypt:/letsencrypt"
+              - "/var/run/docker.sock:/var/run/docker.sock:ro"
+              networks:
+              - frontend
+          networks:
+              frontend:
+                  driver: bridge
+              backend:
+                  driver: bridge
+        dest: /opt/openwebui/docker-compose.yaml
+        mode: '644'
+
+    - name: Exec docker-compose up
+      docker_compose:
+        project_src: /opt/openwebui/
+        state: present
+
+    - name: Pull ollama models
+      command:
+        cmd: "docker exec -i ollama ollama pull {{ item }}"
+        creates: "/opt/openwebui/ollama/models/manifests/registry.ollama.ai/library/{{ item }}"
+      with_items: "{{ ollama_models_name }}"

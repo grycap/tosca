@@ -3,6 +3,7 @@ tosca_definitions_version: tosca_simple_yaml_1_0
 imports:
   - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
 
+
 description: >
   TOSCA for launching an HTCondor Virtual Cluster.
 
@@ -101,7 +102,7 @@ topology_template:
       description: Version of HTCondor to be installed
       default: "24.x"
       constraints:
-        - valid_values: [ '10.0', '10.x', '23.0', '23.x', '24.0', '24.x' ]
+        - valid_values: [ '23.0', '23.x', '24.0', '24.x' ]
 
   node_templates:
 

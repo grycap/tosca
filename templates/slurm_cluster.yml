@@ -7,7 +7,7 @@ description: Deploy a SLURM Virtual Cluster.
 
 metadata:
   template_name: SLURM
-  template_version: "1.1.1"
+  template_version: "1.1.2"
   display_name: SLURM virtual cluster
   icon: images/slurm.png
   order: 4
@@ -48,9 +48,9 @@ topology_template:
       default: 1
       required: yes
     wn_mem:
-      type: scalar-unit.size
-      description: Amount of Memory for the WNs
-      default: 1 GiB
+      type: integer
+      description: Amount of Memory for the WNs in MiB
+      default: 1024
       required: yes
 
     fe_disk_size:
@@ -106,6 +106,8 @@ topology_template:
       properties:
         wn_ips: { get_attribute: [ lrms_wn, private_address ] }
         version: { get_input: slurm_version }
+        wn_cpus: { get_input: wn_cpus }
+        wn_mem: { get_input: wn_mem }
       requirements:
         - host: lrms_server
 
@@ -157,7 +159,10 @@ topology_template:
         host:
           properties:
             num_cpus: { get_input: wn_cpus }
-            mem_size: { get_input: wn_mem }
+            mem_size:
+              concat:
+                - { get_input: wn_mem }
+                - " MiB"
         os:
           properties:
             distribution: ubuntu

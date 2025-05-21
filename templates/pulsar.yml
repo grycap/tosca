@@ -7,7 +7,7 @@ description: >
   TOSCA for configuring a Pulsar endpoint
 
 metadata:
-  template_version: "1.0.0"
+  template_version: "1.1.0"
   template_name: Pulsar
   display_name: Configure a Pulsar endpoint
   icon: images/pulsar.png
@@ -34,11 +34,16 @@ topology_template:
 
   node_templates:
 
-    pulsar_node:
-      type: tosca.nodes.indigo.Pulsar
+    pulsar_fe:
+      type: tosca.nodes.indigo.PulsarFront
       properties:
         mq_user: { get_input: message_queue_user }
         mq_password: { get_input: message_queue_password }
       requirements:
         - lrms: lrms_front_end
         - host: lrms_server
+
+    pulsar_wn:
+      type: tosca.nodes.indigo.PulsarWorker
+      requirements:
+        - host: wn_node

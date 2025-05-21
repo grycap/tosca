@@ -76,10 +76,20 @@
         - set_fact:
             java_home: "/usr/lib/jvm/java-{{ java_version }}"
 
+    - name: Set extra_args var
+      set_fact:
+        extra_args: ""
+
+    - name: Set extra_args var in py3.11
+      set_fact:
+        extra_args: --break-system-packages
+      when: ansible_python_version is version('3.11', '>=')
+
     - name: Install PyCOMPSs
       pip:
         name: pycompss
         version: "{{ pycompss_ver }}"
+        extra_args: "{{ extra_args }}"
       environment:
         JAVA_HOME: "{{ java_home }}"
 
@@ -87,6 +97,7 @@
       pip:
         name: pycompss-cli
         state: present
+        extra_args: "{{ extra_args }}"
 
     - name: Install Singularity Ubuntu
       apt:

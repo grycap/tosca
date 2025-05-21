@@ -2,11 +2,17 @@
 - hosts: localhost
   connection: local
   vars:
-    vnode_prefix: vnode-
+    vnode_prefix: 'vnode-'
   pre_tasks:
-    - name: stop firewalld
-      service: name=firewalld state=stopped
+    - name: Stop and disable firewalls
+      service:
+        name: "{{ item }}"
+        enabled: false
+        state: stopped
       ignore_errors: true
+      loop:
+        - ufw
+        - firewalld
     # Avoid error in ntp installation in Debian
     - name: Remove systemd-timesyncd in Debian systems
       package:
@@ -14,15 +20,19 @@
         state: absent
       ignore_errors: true
       when: ansible_os_family == "Debian"
+    - name: Set slurm_wn_nodenames if not defined
+      set_fact:
+        slurm_wn_nodenames: '{{ groups["wn"]|map("extract", hostvars, "ansible_hostname")|list if "wn" in groups else [] }}'
+      when: slurm_wn_nodenames is not defined
   roles:
     - role: grycap.nfs
       nfs_mode: 'front'
+      nfs_only_v4: true
       nfs_exports: [{path: "/home", export: "{{ vnode_prefix }}*.localdomain(rw,async,no_root_squash,no_subtree_check,insecure,crossmnt)"}]
       when: slurm_nfs is undefined or slurm_nfs
     - role: grycap.slurm
       slurm_type_of_node: 'front'
       slurm_wn_num: '{{ wn_num }}'
       slurm_wn_ips: '{{ wn_ips }}'
-      slurm_vnode_prefix: '{{ vnode_prefix }}'
-      slurm_wn_nodenames: '{{ groups["wn"]|map("extract", hostvars, "ansible_hostname")|list if "wn" in groups else [] }}'
       slurm_server_ip: '{{ slurm_front_end_ip }}'
+      slurm_vnode_prefix: '{{ vnode_prefix }}'

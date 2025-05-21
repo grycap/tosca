@@ -12,6 +12,15 @@
         state: absent
       ignore_errors: true
       when: ansible_os_family == "Debian"
+    - name: Stop and disable firewalls
+      service:
+        name: "{{ item }}"
+        enabled: false
+        state: stopped
+      ignore_errors: true
+      loop:
+        - ufw
+        - firewalld
   roles:
     - role: grycap.nfs
       nfs_mode: 'wn'

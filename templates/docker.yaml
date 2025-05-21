@@ -30,7 +30,7 @@ topology_template:
     driver_version:
       type: string
       description: NVIDIA Driver version to install
-      default: "510"
+      default: "535"
 
     git_repo:
       type: string

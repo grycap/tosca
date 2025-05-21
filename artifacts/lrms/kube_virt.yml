@@ -1,0 +1,54 @@
+---
+- hosts: localhost
+  connection: local
+  vars:
+    KUBEVIRT_VERSION: "{{ kubevirt_version | default('v1.5.0') }}"
+    CDI_VERSION: "{{ kubevirt_cdi_version | default('v1.62.0') }}"
+  tasks:
+    - name: Install KubeVirt
+      command: kubectl apply -f {{ item }}
+      environment:
+        KUBECONFIG: "/etc/kubernetes/admin.conf"
+      with_items:
+        - https://github.com/kubevirt/kubevirt/releases/download/{{ KUBEVIRT_VERSION }}/kubevirt-operator.yaml
+        - https://github.com/kubevirt/kubevirt/releases/download/{{ KUBEVIRT_VERSION }}/kubevirt-cr.yaml
+
+    - name: Wait for KubeVirt to be available
+      command: kubectl -n kubevirt wait kv kubevirt --for condition=Available  --timeout=600s
+      environment:
+        KUBECONFIG: "/etc/kubernetes/admin.conf"
+
+    - name: Install CDI
+      command: kubectl apply -f {{ item }}
+      environment:
+        KUBECONFIG: "/etc/kubernetes/admin.conf"
+      with_items:
+        - https://github.com/kubevirt/containerized-data-importer/releases/download/{{ CDI_VERSION }}/cdi-operator.yaml
+        - https://github.com/kubevirt/containerized-data-importer/releases/download/{{ CDI_VERSION }}/cdi-cr.yaml
+
+    - name: Wait for CDI to be available
+      command: kubectl wait cdi cdi --for=condition=Available --timeout=600s
+      environment:
+        KUBECONFIG: "/etc/kubernetes/admin.conf"
+
+    - name: Create StorageProfile file
+      copy:
+        content: |
+          apiVersion: cdi.kubevirt.io/v1beta1
+          kind: StorageProfile
+          metadata:
+            name: managed-nfs-storage
+          spec:
+            claimPropertySets:
+              - accessModes:
+                  - ReadWriteMany
+                volumeMode: Filesystem
+        dest: "/var/tmp/storage_profile.yaml"
+        mode: '644'
+      register: storage_profile
+
+    - name: Create StorageProfile for NFS
+      command: kubectl apply -f /var/tmp/storage_profile.yaml
+      environment:
+        KUBECONFIG: "/etc/kubernetes/admin.conf"
+      when: storage_profile is changed

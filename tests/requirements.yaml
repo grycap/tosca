@@ -29,6 +29,8 @@ roles:
   - name: grycap.horovod
   - name: arc 
     src: git+https://github.com/nordugrid/arc-ansible.git
+  - name: pulsar
+    src: git+https://github.com/sebastian-luna-valero/ansible-role-pulsar
 
 collections:
   - name: community.crypto

@@ -620,6 +620,12 @@ node_types:
         default: "NFS"
         constraints:
         - valid_values: [ NFS, Longhorn ]
+      kubelet_extra_args:
+        required: no
+        type: map
+        entry_schema:
+          type: string
+        default: {}
     artifacts:
       kube_role:
         file: grycap.kubernetes
@@ -637,6 +643,7 @@ node_types:
             kube_nvidia_support:  { get_property: [ SELF, nvidia_support ] }
             kube_cri_runtime: { get_property: [ SELF, cri_runtime ] }
             kube_csi_driver: { get_property: [ SELF, csi_driver ] }
+            kubelet_extra_args_dict: { get_property: [ SELF, kubelet_extra_args ] }
 
   tosca.nodes.indigo.LRMS.FrontEnd.Kubernetes:
     derived_from: tosca.nodes.indigo.LRMS.FrontEnd
@@ -729,6 +736,10 @@ node_types:
         default: "NFS"
         constraints:
         - valid_values: [ NFS, Longhorn ]
+      use_public_ip:
+        required: no
+        type: boolean
+        default: false
     artifacts:
       kube_role:
         file: grycap.kubernetes
@@ -750,6 +761,7 @@ node_types:
           implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/lrms/kube_fe_install.yml
           inputs:
             kube_front_end_ip: { get_attribute: [ HOST, private_address, 0 ] }
+            kube_public_front_end_ip: { get_attribute: [ HOST, public_address, 0 ] }
             kube_admin_username:  { get_property: [ SELF, admin_username ] }
             kube_admin_token:  { get_property: [ SELF, admin_token ] }
             kube_install_kubeapps: { get_property: [ SELF, install_kubeapps ] }
@@ -771,6 +783,7 @@ node_types:
             kube_install_yunikorn: { get_property: [ SELF, install_yunikorn ] }
             kube_deploy_dashboard: { get_property: [ SELF, install_dashboard ] }
             kube_csi_driver: { get_property: [ SELF, csi_driver ] }
+            kube_use_public_ip: { get_property: [ SELF, use_public_ip ] }
 
   tosca.nodes.indigo.LRMS.WorkerNode.Slurm:
     derived_from: tosca.nodes.indigo.LRMS.WorkerNode
@@ -820,6 +833,23 @@ node_types:
         description: Number of WNs
         required: false
         default: -1
+      wn_nodenames:
+        type: list
+        entry_schema:
+          type: string
+        description: List of WN nodenames
+        required: false
+        default: []
+      wn_cpus:
+        type: integer
+        description: Number of CPUs in the WNs
+        required: false
+        default: 1
+      wn_mem:
+        type: integer
+        description: Amount of Memory for the WNs in MB
+        required: false
+        default: 1
     artifacts:
       slurm_role:
         file: grycap.slurm
@@ -841,6 +871,9 @@ node_types:
             max_number_of_nodes: { get_property: [ wn_node, wn, max_instances] }
             slurm_nfs: { get_property: [ SELF, nfs ] }
             slurm_version: { get_property: [ SELF, version ] }
+            slurm_wn_nodenames: { get_property: [ SELF, wn_nodenames ] }
+            slurm_wn_cpus: { get_property: [ SELF, wn_cpus ] }
+            slurm_wn_mem: { get_property: [ SELF, wn_mem ] }
 
   tosca.nodes.indigo.LRMS.WorkerNode.HTCondor:
     derived_from: tosca.nodes.indigo.LRMS.WorkerNode
@@ -1009,7 +1042,7 @@ node_types:
           inputs:
             galaxy_front_end_ip: { get_property: [ SELF, front_end_ip ] }
 
-  tosca.nodes.indigo.Pulsar:
+  tosca.nodes.indigo.PulsarFront:
     derived_from: tosca.nodes.SoftwareComponent
     properties:
       mq_user:
@@ -1021,21 +1054,37 @@ node_types:
         description: Password for the message queue
         required: true
     requirements:
-      - host:
-          capability: tosca.capabilities.Container
-          node: tosca.nodes.Compute
-          relationship: tosca.relationships.HostedOn
       - lrms:
           capability: tosca.capabilities.indigo.LRMS
           node: tosca.nodes.indigo.LRMS.FrontEnd
           relationship: tosca.relationships.HostedOn
+    artifacts:
+      pulsar_role:
+        file: git+https://github.com/sebastian-luna-valero/ansible-role-pulsar|pulsar
+        type: tosca.artifacts.AnsibleGalaxy.role
     interfaces:
       Standard:
         configure:
-          implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/lrms/pulsar.yml
+          implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/lrms/pulsar_fe_install.yml
           inputs:
             pulsar_user: { get_property: [ SELF, mq_user ] }
             pulsar_password: { get_property: [ SELF, mq_password ] }
+
+  tosca.nodes.indigo.PulsarWorker:
+    derived_from: tosca.nodes.SoftwareComponent
+    requirements:
+      - host:
+          capability: tosca.capabilities.Container
+          node: tosca.nodes.Compute
+          relationship: tosca.relationships.HostedOn
+    artifacts:
+      pulsar_role:
+        file: git+https://github.com/sebastian-luna-valero/ansible-role-pulsar|pulsar
+        type: tosca.artifacts.AnsibleGalaxy.role
+    interfaces:
+      Standard:
+        configure:
+          implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/lrms/pulsar_wn_install.yml
 
   tosca.nodes.indigo.ARCfe:
     derived_from: tosca.nodes.SoftwareComponent
