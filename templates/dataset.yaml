@@ -6,7 +6,7 @@ imports:
 description: Download Dataset in VM local path
 
 metadata:
-  template_version: "1.0.0"
+  template_version: "1.1.0"
   template_name: Download dataset
   display_name: Download dataset
   icon: images/dataset.png
@@ -34,6 +34,11 @@ topology_template:
       description: Local path where the dataset will be downloaded
       default: '/data'
 
+    owner:
+      type: string
+      description: Change the ownership of the directory where the dataset should be saved.
+      default: ''
+
   node_templates:
 
     # A Dataset downloaded directly to the local filesystem
@@ -43,6 +48,7 @@ topology_template:
         dataset_id: { get_input: dataset_id }
         filter: { get_input: filter }
         dest: { get_input: dest }
+        owner: { get_input: owner }
       requirements:
         - host: simple_node
 
