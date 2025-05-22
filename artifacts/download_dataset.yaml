@@ -24,7 +24,7 @@
         - name: Install datahugger Python module
           ansible.builtin.pip:
             # name: datahugger
-            name: "git+https://github.com/micafer/datahugger/"
+            name: "git+https://github.com/grycap/datahugger/"
             state: present
             executable: pip3
             extra_args: "{{ extra_args }}"
