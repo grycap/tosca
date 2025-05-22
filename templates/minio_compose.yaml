@@ -18,11 +18,7 @@ metadata:
       - minio_secretkey:
           tag_type: password
       - minio_dns_console
-      - nsupdate_secret_console:
-          tag_type: password
       - minio_dns_api
-      - nsupdate_secret_api:
-          tag_type: password
       - minio_letsencrypt_email
   parents:
     - simple-node-disk.yml
@@ -45,20 +41,12 @@ topology_template:
       description: Secret key credential for object storage and web access
       type: string
     minio_dns_console:
-      default: minio.test.fedcloud.changeme
+      default: console.minio-demo.test.fedcloud.eu
       description: DNS hostname to access MinIO console
       type: string
-    nsupdate_secret_console:
-      default: changeme
-      description: Secret generated when registering minio.test.fedcloud.changeme via https://nsupdate.fedcloud.eu/
-      type: string
     minio_dns_api:
-      default: minio-api.test.fedcloud.changeme
+      default: minio-demo.test.fedcloud.eu
       description: DNS hostname to access MinIO API endpoint
-      type: string
-    nsupdate_secret_api:
-      default: changeme
-      description: Secret generated when registering minio-api.test.fedcloud.changeme via https://nsupdate.fedcloud.eu/
       type: string
     minio_letsencrypt_email:
       default: changeme@email.com
@@ -78,39 +66,12 @@ topology_template:
       description: Path to mount the extra disk
       default: /data
 
+    dns_name:
+      type: string
+      description: DNS wildcard name to be used for MinIO endpoints
+      default: "*.minio-demo.test.fedcloud.eu"
+
   node_templates:
-
-    nsupdate_minio_api:
-      type: tosca.nodes.ec3.Application
-      interfaces:
-        Standard:
-          configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/dydns_egi_update.yml
-            inputs:
-              dydns_hostname:
-                get_input: minio_dns_api
-              dydns_secret:
-                get_input: nsupdate_secret_api
-              new_ip:
-                get_attribute: [ simple_node, public_address, 0 ]
-      requirements:
-        - host: simple_node
-
-    nsupdate_minio_console:
-      type: tosca.nodes.ec3.Application
-      interfaces:
-        Standard:
-          configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/dydns_egi_update.yml
-            inputs:
-              dydns_hostname:
-                get_input: minio_dns_console
-              dydns_secret:
-                get_input: nsupdate_secret_console
-              new_ip:
-                get_attribute: [ simple_node, public_address, 0 ]
-      requirements:
-        - host: simple_node
 
     minio:
       type: tosca.nodes.ec3.Application
@@ -153,8 +114,6 @@ topology_template:
                 get_input: minio_release
       requirements:
         - host: simple_node
-        - dependency: nsupdate_minio_console
-        - dependency: nsupdate_minio_api
 
   outputs:
     minio_console:

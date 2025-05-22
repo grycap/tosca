@@ -19,7 +19,6 @@ metadata:
     HTCondor configuration: htcondor_.*
   childs:
     - pulsar.yml
-    - dydns_egi_update_lrms.yml
     - proxy_host_cluster.yaml
 
 topology_template:
@@ -79,6 +78,10 @@ topology_template:
       type: string
       description: "Path to mount the FE attached disk"
       default: "/home/data"
+    fe_dns_name:
+      type: string
+      description: DNS name to set to the HT-Condor Front-end
+      default: ""
 
     wn_disk_size:
       type: scalar-unit.size
@@ -122,6 +125,8 @@ topology_template:
           properties:
             dns_name: htcondorserver
             network_name: PUBLIC
+            additional_dns_names:
+              - { get_input: fe_dns_name}
             ports:
               htcondor_port:
                 protocol: tcp
