@@ -7,7 +7,7 @@ description: Deploy an OSCAR Virtual Cluster.
 
 metadata:
   template_name: OSCAR
-  template_version: "1.2.0"
+  template_version: "1.2.1"
   display_name: Deploy an OSCAR Virtual Cluster
   icon: images/oscar.png
   order: 2
@@ -145,7 +145,7 @@ topology_template:
     domain_name:
       type: string
       description: Domain Name
-      default: "im.grycap.net"
+      default: "vm.fedcloud.eu"
     kube_nvidia_support:
       type: boolean
       description: Flag to add NVIDIA support
@@ -225,9 +225,7 @@ topology_template:
           properties:
             dns_name: kubeserver
             additional_dns_names:
-              - { concat: [ get_input: cluster_name, '@', get_input: domain_name ] }
-              - { concat: [ "minio.", get_input: cluster_name, '@', get_input: domain_name ] }
-              - { concat: [ "console.minio.", get_input: cluster_name, '@', get_input: domain_name ] }
+              - { concat: [ '*@', get_input: cluster_name, '.', get_input: domain_name ] }
             network_name: PUBLIC
         host:
           properties:
