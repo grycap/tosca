@@ -106,8 +106,8 @@
                 - "traefik.http.services.app.loadbalancer.server.port=8082"
                 - "traefik.docker.network=stac_frontend"
               depends_on:
-                - database:
-                    condition: service_healthy
+                database:
+                  condition: service_healthy
               command: bash -c "./scripts/wait-for-it.sh -t 60 database:5432 && python -m stac_fastapi.pgstac.app"
               networks:
                 - frontend

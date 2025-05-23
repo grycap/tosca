@@ -6,7 +6,7 @@ imports:
 description: Deploy STAC server.
 
 metadata:
-  template_version: "1.0.0"
+  template_version: "1.1.0"
   template_name: STAC
   display_name: Deploy STAC server
   icon: images/stac.png
@@ -60,15 +60,19 @@ topology_template:
           configure:
             implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/stac_compose.yml
             inputs:
-              dns_name:
-                { concat: [ 'stac.', get_attribute: [ simple_node, public_address, 0 ], '.nip.io' ] }
+              public_address: { get_attribute: [ simple_node, public_address, 0 ] }
+              dns_name: { get_input: dns_name }
               letsencrypt_email:
                 get_input: stac_letsencrypt_email
       requirements:
         - host: simple_node
 
   outputs:
-    stac_api_endpoint:
+    default_stac_api_endpoint:
       value: { concat: [ 'https://stac.', get_attribute: [ simple_node, public_address, 0 ], '.nip.io/api' ] }
-    stac_browser_endpoint:
+    default_stac_browser_endpoint:
       value: { concat: [ 'https://stac.', get_attribute: [ simple_node, public_address, 0 ], '.nip.io/' ] }
+    dns_stac_api_endpoint:
+      value: { concat: [ 'https://', get_input: dns_name, '/api' ] }
+    dns_stac_browser_endpoint:
+      value: { concat: [ 'https://', get_input: dns_name, '/' ] }
