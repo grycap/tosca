@@ -6,7 +6,7 @@ imports:
 description: Deploy STAC server.
 
 metadata:
-  template_version: "1.0.0"
+  template_version: "1.1.0"
   template_name: STAC
   display_name: Deploy STAC server
   icon: images/stac.png
