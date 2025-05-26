@@ -75,9 +75,12 @@ topology_template:
               letsencrypt_email: { get_input: letsencrypt_email }
               jupyter_token: { get_input: jupyter_token }
               jupyter_dns_name: { get_input: dns_name }
+              jupyter_public_ip: { get_attribute: [ simple_node, public_address, 0 ] }
       requirements:
         - host: simple_node
 
   outputs:
-    minio_console:
-      value: { concat: [ 'https://', get_input: [ dns_name ], '/?token=', get_input: [ jupyter_token ] ] }
+    jupyter_url:
+      value: { concat: [ 'https://',  get_attribute: [ simple_node, public_address, 0 ], '/' ] }
+    jupyter_url_dns:
+      value: { concat: [ 'https://', get_input: [ dns_name ], '/' ] }
