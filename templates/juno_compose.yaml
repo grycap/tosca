@@ -17,8 +17,6 @@ metadata:
           tag_type: password
       - dns_name
       - letsencrypt_email
-    Dataset:
-      - dataset_id
   parents:
     - simple-node-disk.yml
 
@@ -38,11 +36,6 @@ topology_template:
       description: Email to be used for Let's Encrypt certificates
       type: string
 
-    dataset_id:
-      description: Dataset ID to be downloaded
-      type: string
-      default: https://www.doi.org/10.60717/17114434-6bb9-4f3c-865f-59395b7c38c3
-
     # Restrict some simple-node-disk input values
 
     storage_size:
@@ -57,16 +50,6 @@ topology_template:
       default: /opt/jupyter
 
   node_templates:
-
-    # A Dataset downloaded directly to the local filesystem
-    my_dataset:
-      type: tosca.nodes.eosc.Dataset
-      properties:
-        dataset_id: { get_input: dataset_id }
-        filter: ".*"
-        dest: /opt/jupyter/notebooks
-      requirements:
-        - host: simple_node
 
     jupyter:
       type: tosca.nodes.ec3.Application
