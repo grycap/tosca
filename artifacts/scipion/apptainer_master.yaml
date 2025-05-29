@@ -38,6 +38,14 @@
         group: scipionuser
         mode: '0755'
 
+    - name: Create tmp directory
+      file:
+        path: /home/scipionuser/tmp
+        state: directory
+        owner: scipionuser
+        group: scipionuser
+        mode: '0755'
+
     - name: Install Apptainer
       include_role:
         name: usegalaxy_eu.apptainer
@@ -46,6 +54,8 @@
       command: apptainer pull /home/scipionuser/container/apptainer-{{ CONTAINER_FLAVOUR }}:{{ CONTAINER_VERSION }}.sif  oras://rinchen.cnb.csic.es/scipion/apptainer-{{ CONTAINER_FLAVOUR }}:{{ CONTAINER_VERSION }}
       args:
         creates: /home/scipionuser/container/apptainer-{{ CONTAINER_FLAVOUR }}:{{ CONTAINER_VERSION }}.sif
+      environment:
+        TMPDIR: /home/scipionuser/tmp
       become_user: scipionuser
       async: 5400
       poll: 0
@@ -77,7 +87,7 @@
         name: grycap.vnc
       vars:
         vnc_user: scipionuser
-        vnc_password: "{{ scipion_vnc_password | default('scipion') }}"
+        vnc_password: "{{ vnc_pass | default('scipion') }}"
 
     - name: Install and configure SLURM
       include_role:
@@ -147,20 +157,15 @@
           QUEUES = { "queue": [["GPU_COUNT", "0", "Number of GPUs", "Select GPUs to allocate"]] }
         dest: /home/scipionuser/ScipionUserData/hosts.conf
 
-    - name: Create ScipionUserData directory
-      file:
-        path: /home/scipionuser/container
-        state: directory
-        owner: scipionuser
-        group: scipionuser
-        mode: '0755'
-
     - name: Set up X11 forwarding for Scipion
       command: xhost +SI:localuser:scipionuser
       become: true
       become_user: scipionuser
       environment:
         DISPLAY: :1
+
+    - name: Flush handlers
+      meta: flush_handlers
 
     - name: Wait for Scipion container pull to finish
       async_status:
