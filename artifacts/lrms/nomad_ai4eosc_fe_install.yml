@@ -251,6 +251,7 @@
                           "traefik.enable=true",
                           "traefik.http.routers.ai4eosc.tls=true",
                           "traefik.http.routers.ai4eosc.rule=Host(`{{ DASHBOARD_HOST }}`)",
+                          "traefik.http.routers.ai4eosc.tls.certresolver=letsencrypt",
                         ]
                       }
                       service {
@@ -260,6 +261,7 @@
                           "traefik.enable=true",
                           "traefik.http.routers.api-ai4eosc.tls=true",
                           "traefik.http.routers.api-ai4eosc.rule=Host(`{{ API_HOST }}`)",
+                          "traefik.http.routers.api-ai4eosc.tls.certresolver=letsencrypt",
                         ]
                       }
                       ephemeral_disk {
