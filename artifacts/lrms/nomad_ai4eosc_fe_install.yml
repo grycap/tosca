@@ -38,7 +38,7 @@
       git:
         repo: https://github.com/ai4os/ai4-ansible
         dest: /opt/ai4-ansible
-        version: master
+        version: "{{ ai4_ansible_version | default('master') }}"
         force: false
 
     - name: Set all_wn
