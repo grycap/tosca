@@ -29,17 +29,6 @@
       docker_nvidia_support: "{{ nvidia_support }}"
 
   tasks:
-    - name: Install git
-      package:
-        name: git
-        state: present
-
-    - name: Download Ansible roles
-      git:
-        repo: https://github.com/ai4os/ai4-ansible
-        dest: /opt/ai4-ansible
-        version: "{{ ai4_ansible_version | default('master') }}"
-        force: false
 
     - name: Set all_wn
       set_fact:
@@ -138,29 +127,16 @@
             groups:
               - nomad_new_gpu_clients
 
-    - name: Create Ansible roles dir
-      file:
-        path: /etc/ansible/roles
-        state: directory
-        mode: '755'
-
-    - name: Install Nomad role
+    - name: Copy AI4 Ansible vars file
       copy:
-        src: /opt/ai4-ansible/roles/nomad/
-        dest: /etc/ansible/roles/nomad
-        mode: '755'
-        remote_src: true
-
-    - name: Install Consul role
-      copy:
-        src: /opt/ai4-ansible/roles/consul/
-        dest: /etc/ansible/roles/consul
+        src: /opt/ai4-ansible/group_vars/all.yml
+        dest: /var/tmp/ai4-ansible-vars.yml
         mode: '755'
         remote_src: true
 
     - name: Include roles vars
       include_vars:
-        file: /opt/ai4-ansible/group_vars/all.yml
+        file: /var/tmp/ai4-ansible-vars.yml
 
     - name: Set facts
       set_fact:
@@ -177,6 +153,7 @@
         consul_version: "{{ consul_input_version | default('1.17.1') }}"
         roles_dir: /opt/ai4-ansible/
         new_certs: "{{ nomad_input_dc | default('ifca-ai4eosc') }}-certs"
+        traefik_letsencrypt_email: "{{ nomad_traefik_letsencrypt_email | default('admin@test.com') }}"
 
     - name: Download consul + nomad certs
       get_url:
