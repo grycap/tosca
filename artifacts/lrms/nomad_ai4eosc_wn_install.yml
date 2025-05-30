@@ -29,7 +29,6 @@
       docker_nvidia_support: "{{ nvidia_support }}"
 
   tasks:
-
     - name: Set all_wn
       set_fact:
         all_wn: "{{ groups['wn'] }}"
@@ -127,15 +126,14 @@
             groups:
               - nomad_new_gpu_clients
 
-    - name: Copy AI4 Ansible vars file
-      get_url:
-        url: "https://raw.githubusercontent.com/ai4os/ai4-ansible/refs/heads/master/group_vars/all.yml"
-        dest: /var/tmp/ai4-ansible-vars.yml
-        mode: '755'
+    - name: Wait for vars file to be created
+      wait_for:
+        path: /opt/ai4-ansible/group_vars/all.yml
+      delegate_to: localhost
 
     - name: Include roles vars
       include_vars:
-        file: /var/tmp/ai4-ansible-vars.yml
+        file: /opt/ai4-ansible/group_vars/all.yml
 
     - name: Set facts
       set_fact:
