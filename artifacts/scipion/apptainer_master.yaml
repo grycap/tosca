@@ -24,6 +24,14 @@
       
     - name: Create ScipionUserData directory
       file:
+        path: /home/scipionuser
+        state: directory
+        owner: scipionuser
+        group: scipionuser
+        mode: '0755'
+
+    - name: Create ScipionUserData directory
+      file:
         path: /home/scipionuser/ScipionUserData
         state: directory
         owner: scipionuser
@@ -44,7 +52,7 @@
         state: directory
         owner: scipionuser
         group: scipionuser
-        mode: '0755'
+        mode: '0777'
 
     - name: Install Apptainer
       include_role:
@@ -57,6 +65,7 @@
       environment:
         TMPDIR: /home/scipionuser/tmp
       become_user: scipionuser
+      become: true
       async: 5400
       poll: 0
       register: pull_container
