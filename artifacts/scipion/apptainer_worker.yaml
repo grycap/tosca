@@ -3,7 +3,6 @@
   connection: local
   vars:
     vnode_master: scipion-master
-    SLURM_VERSION: "{{ slurm_version | default('23.11.8') }}"
 
   pre_tasks:
     - name: Create scipionuser group
@@ -43,7 +42,7 @@
       slurm_server_ip: "{{ slurm_front_end_ip }}"
       slurm_wn_ips: '{{ groups["lrms_wn"]|map("extract", hostvars, "ansible_default_ipv4.address")|list if "lrms_wn" in groups else [] }}'
       slurm_wn_nodenames: '{{ groups["lrms_wn"]|map("extract", hostvars, "ansible_hostname")|list if "lrms_wn" in groups else [] }}'
-      slurm_version: "{{ SLURM_VERSION }}"
+      slurm_version: "23.11.8"
       slurm_user: scipionuser
       slurm_user_id: 1042
 
