@@ -185,12 +185,16 @@
       become_user: scipionuser
 
     - name: Launch Scipion container
-      command: |
-          apptainer exec  --containall \
+      shell: |
+          xhost +SI:localuser:scipionuser &&
+
+          nohup apptainer exec  --containall \
             --env DISPLAY=:1 --env SCIPION_USER_DATA=/home/scipionuser/ScipionUserData \
             --bind /run --bind /tmp/.X11-unix --bind /etc/resolv.conf \
-            --bind $SCIPION_DATADIR:/data --bind /home/scipionuser/ScipionUserData \
+            --bind /home/scipionuser/ScipionUserData \
             /home/scipionuser/container/apptainer-{{ CONTAINER_FLAVOUR }}:{{ CONTAINER_VERSION }}.sif \
-            /scipion/scipion3
+            /scipion/scipion3  > /home/scipionuser/scipion3.log 2>&1 &
       become: true
       become_user: scipionuser
+      environment:
+        DISPLAY: ":1"
