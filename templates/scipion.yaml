@@ -14,7 +14,6 @@ metadata:
     Worker Features: .*_worker
     App Features:
       - vnc_pass
-      - cryosparc_license
 topology_template:
   inputs:
     vnc_pass:
