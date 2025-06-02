@@ -4,9 +4,9 @@
   vars:
     vnode_prefix: scipion-wn-
     vnode_master: scipion-master
-    CONTAINER_FLAVOUR: "{{ scipion_flavour | default('spa') }}" # Available flavours are: base, spa, tomo, full
+    CONTAINER_FLAVOUR: "{{ scipion_flavour | default('base') }}" # Available flavours are: base, spa, tomo, full
     CONTAINER_VERSION: "{{ scipion_version | default('latest') }}"
-    SLURM_VERSION: "{{ slurm_version | default('20.11.9') }}"
+    SLURM_VERSION: "23.11.8"
 
   tasks:
     - name: Create scipionuser group
@@ -100,8 +100,9 @@
         slurm_wn_nodenames: '{{ groups["lrms_wn"]|map("extract", hostvars, "ansible_hostname")|list if "lrms_wn" in groups else [] }}'
         slurm_wn_cpus: '{{IM_INFRASTRUCTURE_RADL|json_query("[?id == ''lrms_wn''].cpu_count_min|[0]")}}'
         slurm_wn_mem: '{{(IM_INFRASTRUCTURE_RADL|json_query("[?id == ''lrms_wn''].memory_size_min|[0]") / 1048576) | int }}'
-        slurm_user_id: 1052
         slurm_version: "{{ SLURM_VERSION }}"
+        slurm_user: scipionuser
+        slurm_user_id: 1042
 
     - name:  Download scipion launcher
       get_url:
@@ -157,15 +158,13 @@
           QUEUES = { "queue": [["GPU_COUNT", "0", "Number of GPUs", "Select GPUs to allocate"]] }
         dest: /home/scipionuser/ScipionUserData/hosts.conf
 
-    - name: Set up X11 forwarding for Scipion
-      command: xhost +SI:localuser:scipionuser
-      become: true
-      become_user: scipionuser
-      environment:
-        DISPLAY: :1
-
     - name: Flush handlers
       meta: flush_handlers
+
+    - name: Install OpenMPI
+      apt:
+        name: openmpi-bin
+        state: present
 
     - name: Wait for Scipion container pull to finish
       async_status:

@@ -3,7 +3,7 @@
   connection: local
   vars:
     vnode_master: scipion-master
-    SLURM_VERSION: "{{ slurm_version | default('20.11.9') }}"
+    SLURM_VERSION: "{{ slurm_version | default('23.11.8') }}"
 
   pre_tasks:
     - name: Create scipionuser group
@@ -18,11 +18,6 @@
         uid: 1042
         shell: /bin/bash
         group: scipionuser
-
-    - name: Install required packages
-      apt:
-        name: ['xdm', 'curl', 'wget', 'git', 'htop', 'apt-transport-https', 'ca-certificates', 'gnupg-agent', 'software-properties-common', 'xserver-xorg', 'pkg-config']
-        state: present
 
     - set_fact:
         slurm_wn_gres: ""
@@ -48,12 +43,18 @@
       slurm_server_ip: "{{ slurm_front_end_ip }}"
       slurm_wn_ips: '{{ groups["lrms_wn"]|map("extract", hostvars, "ansible_default_ipv4.address")|list if "lrms_wn" in groups else [] }}'
       slurm_wn_nodenames: '{{ groups["lrms_wn"]|map("extract", hostvars, "ansible_hostname")|list if "lrms_wn" in groups else [] }}'
-      slurm_user_id: 1052
       slurm_version: "{{ SLURM_VERSION }}"
+      slurm_user: scipionuser
+      slurm_user_id: 1042
 
 # Put here your Ansible recipes to configure the nodes
 
   tasks:
+    - name: Install OpenMPI
+      apt:
+        name: openmpi-bin
+        state: present
+
     - name: adding scipionuser to docker group
       user:
         name: 'scipionuser'

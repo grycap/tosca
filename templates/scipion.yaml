@@ -5,7 +5,7 @@ description: >
   Deploy a cluster with Scipion via VNC
 metadata:
   template_name: Scipion
-  template_version: "1.1.0"
+  template_version: "2.0.0"
   template_author: Laura del Cano
   display_name: Scipion on SLURM cluster
   icon: images/scipion.png
@@ -22,11 +22,6 @@ topology_template:
       description: VNC password
       required: yes
       default: Scipion4u
-    cryosparc_license:
-      type: string
-      description: Cryosparc license id
-      required: no
-      default: 'xxx'
 
     num_gpus_master:
       type: integer
@@ -41,20 +36,20 @@ topology_template:
       required: yes
       default: 8
       constraints:
-        - valid_values: [ 2, 4, 8, 16, 32, 64 ]
+        - valid_values: [ 8, 2, 4, 16, 32, 64 ]
     mem_size_master:
       type: scalar-unit.size
       description: Ammount of RAM (GiB) to assign to the master
       default: 30 GiB
       required: yes
       constraints:
-        - valid_values: [ 4 GiB, 8 GiB, 16 GiB, 32 GiB, 64 GiB, 128 GiB ]
+        - valid_values: [ 30 GiB, 4 GiB, 8 GiB, 16 GiB, 32 GiB, 64 GiB, 128 GiB ]
     disk_size_master:
       type: scalar-unit.size
       description: Size of the external disk attached to the server
-      default: 100 GiB
+      default: 200 GiB
       constraints:
-        - valid_values: [ 100 GiB, 500 GiB, 1 TiB, 5 TiB, 8TiB ]
+        - valid_values: [ 200 GiB, 500 GiB, 1 TiB, 5 TiB, 8TiB ]
 
     num_worker:
       type: integer
@@ -75,14 +70,14 @@ topology_template:
       required: yes
       default: 8
       constraints:
-        - valid_values: [ 2, 4, 8, 16, 32, 64 ]
+        - valid_values: [ 8, 2, 4, 16, 32, 64 ]
     mem_size_worker:
       type: scalar-unit.size
       description: Ammount of RAM (GiB) to assign to the worker
       default: 30 GiB
       required: yes
       constraints:
-        - valid_values: [ 4 GiB, 8 GiB, 16 GiB, 32 GiB, 64 GiB, 128 GiB ]
+        - valid_values: [ 30 GiB, 4 GiB, 8 GiB, 16 GiB, 32 GiB, 64 GiB, 128 GiB ]
 
   node_templates:
     pub_network:
@@ -129,12 +124,9 @@ topology_template:
               ssh_port:
                 protocol: tcp
                 source: 22
-              vnc_port:
+              novnc_port:
                 protocol: tcp
-                source: 5904
-              docker_ssh_port:
-                protocol: tcp
-                source: 2222
+                source: 8443
         host:
           properties:
             disk_size: 50 GB
@@ -160,12 +152,14 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/scipion/ansible_master.yaml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/scipion/apptainer_master.yaml
             inputs:
               vnc_pass: { get_input: vnc_pass }
-              cryosparc_license: { get_input: cryosparc_license }
               slurm_front_end_ip: { get_attribute: [ lrms_server, private_address, 0 ] }
       artifacts:
+        vnc_role:
+          file: grycap.vnc
+          type: tosca.artifacts.AnsibleGalaxy.role
         slurm_role:
           file: grycap.slurm
           type: tosca.artifacts.AnsibleGalaxy.role
@@ -173,7 +167,7 @@ topology_template:
           file: grycap.nfs
           type: tosca.artifacts.AnsibleGalaxy.role
         docker_role:
-          file: grycap.docker
+          file: usegalaxy_eu.apptainer
           type: tosca.artifacts.AnsibleGalaxy.role
 
     lrms_wn:
@@ -213,8 +207,9 @@ topology_template:
           file: grycap.nfs
           type: tosca.artifacts.AnsibleGalaxy.role
         docker_role:
-          file: grycap.docker
+          file: usegalaxy_eu.apptainer
           type: tosca.artifacts.AnsibleGalaxy.role
+
     my_block_storage:
       type: BlockStorage
       properties:
