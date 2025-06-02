@@ -142,7 +142,7 @@ topology_template:
             relationship:
               type: AttachesTo
               properties:
-                location: /home/scipionuser/volume-data
+                location: /home
 
     front:
       type: tosca.nodes.SoftwareComponent
@@ -180,6 +180,7 @@ topology_template:
             dns_name: scipion-wn-#N#
         host:
           properties:
+            disk_size: 100 GB
             num_gpus: { get_input: num_gpus_worker }
             num_cpus: { get_input: num_cpus_worker }
             mem_size: { get_input: mem_size_worker }
@@ -214,5 +215,5 @@ topology_template:
       properties:
         size: { get_input: disk_size_master }
   outputs:
-    master_node_ip:
-      value: { concat: [ 'https://', get_attribute: [ lrms_server, public_address, 0 ], ':5904/?resize=remote' ] }
+    no_vnc_endpoint:
+      value: { concat: [ 'https://', get_attribute: [ lrms_server, public_address, 0 ], ':8443/vnc.html' ] }
