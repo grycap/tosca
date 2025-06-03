@@ -76,12 +76,10 @@
         slurm_wn_gres: ''
         slurm_wn_gres_conf: ''
         slurm_wn_gres_tpes: ''
-        docker_nvidia_support: false
     - set_fact:
         slurm_wn_gres: gpu:{{ gpu_num_wn }}
         slurm_wn_gres_conf: AutoDetect=nvml
         slurm_wn_gres_tpes: gpu
-        docker_nvidia_support: true
       when: gpu_num_server | int > 0
 
     - name: Install and configure NFS
