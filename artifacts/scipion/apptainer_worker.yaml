@@ -54,12 +54,5 @@
         name: openmpi-bin
         state: present
 
-    - name: adding scipionuser to docker group
-      user:
-        name: 'scipionuser'
-        groups: docker
-        shell: /bin/bash
-        append: true
-
     - name: pull scipion-worker image
       command: apptainer pull oras://rinchen.cnb.csic.es/scipion/apptainer-base:latest
