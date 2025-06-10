@@ -18,7 +18,7 @@ topology_template:
       description: Number of virtual cpus for the container
       default: 2.0
     gpu:
-      type: int
+      type: integer
       description: Number of GPUs for the container
       default: 0
     memory:
