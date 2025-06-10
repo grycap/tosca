@@ -7,7 +7,7 @@ description: AI4EOSC Plants species classifier
 
 metadata:
   template_name: AI4EOSC Plants species classifier
-  template_version: "1.0.0"
+  template_version: "1.1.0"
   template_author: Miguel Caballer
 
 topology_template:
@@ -17,6 +17,10 @@ topology_template:
       type: float
       description: Number of virtual cpus for the container
       default: 2.0
+    gpu:
+      type: int
+      description: Number of GPUs for the container
+      default: 0
     memory:
       type: scalar-unit.size
       description: Memory size for the container
@@ -51,6 +55,7 @@ topology_template:
         host:
           properties:
             num_cpus: { get_input: cpu }
+            num_gpus: { get_input: gpu }
             mem_size: { get_input: memory }
             publish_ports:
               - target: 5000
