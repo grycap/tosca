@@ -66,7 +66,7 @@ topology_template:
           configure:
             implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/stac_compose.yml
             inputs:
-              fastapi_image: get_input: stac_fastapi_image
+              fastapi_image: { get_input: stac_fastapi_image }
               public_address: { get_attribute: [ simple_node, public_address, 0 ] }
               dns_name:
                 { concat: [ 'stac.', get_attribute: [ simple_node, public_address, 0 ], '.nip.io' ] }
