@@ -61,7 +61,8 @@ topology_template:
             implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/stac_compose.yml
             inputs:
               public_address: { get_attribute: [ simple_node, public_address, 0 ] }
-              dns_name: { get_input: dns_name }
+              dns_name:
+                { concat: [ 'stac.', get_attribute: [ simple_node, public_address, 0 ], '.nip.io' ] }
               letsencrypt_email:
                 get_input: stac_letsencrypt_email
       requirements:
