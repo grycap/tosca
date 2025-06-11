@@ -13,6 +13,7 @@ metadata:
   tabs:
     STAC Data:
       - stac_letsencrypt_email
+      - stac_fastapi_image
   parents:
     - simple-node-disk.yml
 
@@ -22,6 +23,11 @@ topology_template:
     stac_letsencrypt_email:
       default: changeme@email.com
       description: Email to be used for Let's Encrypt certificates
+      type: string
+
+    stac_fastapi_image:
+      default: ghcr.io/stac-utils/stac-fastapi-pgstac
+      description: Image to be used for the STAC FastAPI server
       type: string
 
     # Restrict some simple-node-disk input values
@@ -60,6 +66,7 @@ topology_template:
           configure:
             implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/stac_compose.yml
             inputs:
+              fastapi_image: get_input: stac_fastapi_image
               public_address: { get_attribute: [ simple_node, public_address, 0 ] }
               dns_name:
                 { concat: [ 'stac.', get_attribute: [ simple_node, public_address, 0 ], '.nip.io' ] }

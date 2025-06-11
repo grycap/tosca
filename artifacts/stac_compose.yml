@@ -10,6 +10,11 @@
   roles:
     - role: 'grycap.docker'
   tasks:
+    - name: Set default DNS name
+      set_fact:
+        stac_dns: "stac.{{ public_address }}.nip.io"
+      when: dns_name == '' and public_address is defined and public_address != ''
+
     - name: Create stac directory
       file:
         path: /opt/stac
