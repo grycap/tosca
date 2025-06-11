@@ -15,7 +15,6 @@ metadata:
     Jupyter  Data:
       - jupyter_token:
           tag_type: password
-      - dns_name
       - letsencrypt_email
   parents:
     - simple-node-disk.yml
@@ -27,16 +26,29 @@ topology_template:
       default: changeme
       description: Token to access Jupyter
       type: string
-    dns_name:
-      default: jupyter.test.fedcloud.eu
-      description: DNS hostname to access Jupyter Notebook
-      type: string
     letsencrypt_email:
       default: changeme@email.com
       description: Email to be used for Let's Encrypt certificates
       type: string
 
+    # Set some default values for the dataset
+
+    dataset_id:
+      description: Dataset ID to be downloaded
+      type: string
+      default: https://www.doi.org/10.60717/17114434-6bb9-4f3c-865f-59395b7c38c3
+
+    dest:
+      type: string
+      description: Local path where the dataset will be downloaded
+      default: /opt/jupyter/notebooks
+
     # Restrict some simple-node-disk input values
+
+    dns_name:
+      default: jupyter.test.fedcloud.eu
+      description: DNS hostname to access Jupyter Notebook
+      type: string
 
     storage_size:
       type: scalar-unit.size
