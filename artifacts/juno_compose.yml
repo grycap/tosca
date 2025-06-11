@@ -5,6 +5,8 @@
   vars:
     jupyter_letsencrypt_email: "{{ letsencrypt_email }}"
     JUPYTER_TOKEN: "{{ jupyter_token | default('sometoken') }}"
+    traefik_dns_name: "{{ jupyter_dns_name | default('jupyter.example.com') }}"
+    traefik_public_ip: "{{ jupyter_public_ip | default(ansible_default_ipv4.address) }}"
   roles:
     - role: 'grycap.docker'
   tasks:
@@ -56,7 +58,7 @@
               labels:
                 - "traefik.enable=true"
                 - "traefik.http.routers.jupyter.service=jupyter"
-                - "traefik.http.routers.jupyter.rule=Host(`{{ jupyter_dns_name }}`)"
+                - "traefik.http.routers.jupyter.rule=Host(`{{ traefik_dns_name }}`, `{{ traefik_public_ip }}`)"
                 - "traefik.http.routers.jupyter.entrypoints=websecure"
                 - "traefik.http.routers.jupyter.tls.certresolver=myresolver"
                 - "traefik.http.services.jupyter.loadbalancer.server.port=8888"
