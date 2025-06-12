@@ -352,6 +352,9 @@ capability_types:
         type: integer
         required: false
 
+  tosca.capabilities.Storage:
+    derived_from: tosca.capabilities.Root
+
 artifact_types:
 
   tosca.artifacts.Implementation.YAML:
@@ -380,6 +383,32 @@ relationship_types:
         type: string
         required: false
         default:
+
+  tosca.relationships.eosc.Transfers:
+    derived_from: tosca.relationships.Root
+    valid_target_types: [ tosca.capabilities. Storage ]
+    properties:
+      fts_endpoint:
+        type: string
+        description: URL of the FTS service endpoint to use in the transfer.
+        required: false
+        default: https://fts3-public.cern.ch:8446/
+      fts_credential:
+        type: tosca.datatypes.Credential
+        description: Credential for FTS to transfer the files.
+        required: true
+    interfaces:
+      Configure:
+        pre_configure_source:
+          implementation: https://raw.githubusercontent.com/grycap/tosca/datasets_fts/artifacts/fts_dataset.yaml
+          inputs:
+            fts_endpoint: { get_property: [ SELF, fts_endpoint ] }
+            fts_credential: { get_property: [ SELF, fts_credential ] }
+            dataset_id: { get_property: [ SOURCE, dataset_id ] }
+            remote_storage_endpoint: { get_property: [ TARGET, endpoint ] }
+            remote_storage_credentials: { get_property: [ TARGET, credentials] }
+            remote_storage_path: { get_property: [ TARGET, path ] }
+
 
 node_types:
 
@@ -1963,6 +1992,90 @@ node_types:
         type: tosca.capabilities.Container.Docker
         valid_source_types: [tosca.nodes.Container.Application.Docker]
         relationship: tosca.relationships.HostedOn
+
+  tosca.nodes.StorageSystem:
+    derived_from: tosca.nodes.Root
+    description: A data type that represents a storage endpoint including access credentials
+    properties:
+      endpoint:
+        type: string
+        description: The URL of the Storage system endpoint.
+        required: true
+      credentials:
+        type: tosca.datatypes.Credential
+        description: Credential to access the storage system.
+        required: false
+      path:
+        type: string
+        description: Specific path in the storage system.
+        required: false
+    capabilities:
+      storage:
+        type: tosca.capabilities.Storage
+        valid_source_types: [tosca.nodes.StorageSystem]
+        relationship: tosca.relationships.eosc.Transfers
+
+  tosca.nodes.eosc.Dataset:
+    derived_from: tosca.nodes.Root
+    properties:
+      dataset_id:
+        type: tosca.datatypes.Dataset
+        description: The dataset ID (DOI) or URL.
+        required: true
+      filter:
+        type: string
+        description: Regex to express the set of files to get from the Dataset.
+        required: false
+        default: '.*'
+      dest:
+        type: string
+        description: Path to download the set of files from the Dataset.
+        required: true
+      owner:
+        type: string
+        description: Change the ownership of the directory where the dataset should be saved.
+        default: ''
+        required: false
+    requirements:
+      - host:
+          capability: tosca.capabilities.Compute
+          node: tosca.nodes.Compute
+          relationship: tosca.relationships.HostedOn
+    artifacts:
+      datase_collection:
+        file: git+https://github.com/grycap/ansible-collection-dataset
+        type: tosca.artifacts.AnsibleGalaxy.collection
+    interfaces:
+      Standard:
+        configure:
+          implementation: https://raw.githubusercontent.com/grycap/tosca/datasets_fts/artifacts/download_dataset.yaml
+          inputs:
+            dataset_url: { get_property: [ SELF, dataset_id ] }
+            output_dir: { get_property: [ SELF, dest ] }
+            filter: { get_property: [ SELF, filter ] }
+            owner: { get_property: [ SELF, owner ] }
+
+  tosca.nodes.eosc.fts.Dataset:
+    derived_from: tosca.nodes.eosc.Dataset
+    requirements:
+      - host:
+          capability: tosca.capabilities.Compute
+          node: tosca.nodes.Compute
+          relationship: tosca.relationships.HostedOn
+      - remote_storage:
+          capability: tosca.capabilities.Storage
+          node: tosca.nodes.StorageSystem
+          relationship: tosca.relationships.eosc.Transfers
+    interfaces:
+      Standard:
+        configure:
+          implementation: https://raw.githubusercontent.com/grycap/tosca/datasets_fts/artifacts/download_dataset.yaml
+          inputs:
+            dataset_url: { get_property: [ SELF, dataset_id ] }
+            output_dir: { get_property: [ SELF, dest ] }
+            remote_storage_endpoint: { get_property: [ SELF, remote_storage, endpoint ] }
+            remote_storage_credentials: { get_property: [ SELF, remote_storage, credentials] }
+            remote_storage_path: { get_property: [ SELF, remote_storage, path ] }
 
 policy_types:
 
