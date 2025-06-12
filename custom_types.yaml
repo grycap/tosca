@@ -400,7 +400,7 @@ relationship_types:
     interfaces:
       Configure:
         pre_configure_source:
-          implementation: https://raw.githubusercontent.com/grycap/tosca/datasets_fts/artifacts/fts_dataset.yaml
+          implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/fts_dataset.yaml
           inputs:
             fts_endpoint: { get_property: [ SELF, fts_endpoint ] }
             fts_credential: { get_property: [ SELF, fts_credential ] }
@@ -2048,7 +2048,7 @@ node_types:
     interfaces:
       Standard:
         configure:
-          implementation: https://raw.githubusercontent.com/grycap/tosca/datasets_fts/artifacts/download_dataset.yaml
+          implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/download_dataset.yaml
           inputs:
             dataset_url: { get_property: [ SELF, dataset_id ] }
             output_dir: { get_property: [ SELF, dest ] }
@@ -2069,7 +2069,7 @@ node_types:
     interfaces:
       Standard:
         configure:
-          implementation: https://raw.githubusercontent.com/grycap/tosca/datasets_fts/artifacts/download_dataset.yaml
+          implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/download_dataset.yaml
           inputs:
             dataset_url: { get_property: [ SELF, dataset_id ] }
             output_dir: { get_property: [ SELF, dest ] }
