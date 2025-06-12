@@ -348,6 +348,9 @@ capability_types:
       volume_id:
         type: string
         required: false
+      num_gpus:
+        type: integer
+        required: false
 
   tosca.capabilities.Storage:
     derived_from: tosca.capabilities.Root

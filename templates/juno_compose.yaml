@@ -1,0 +1,86 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+imports:
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/datasets_fts/custom_types.yaml
+
+
+description: Deploy Jupyter Notebook.
+
+metadata:
+  template_version: "1.0.0"
+  template_name: Jupyter Notebook
+  display_name: Deploy Jupyter Notebook
+  icon: images/jupyter.png
+  tabs:
+    Jupyter  Data:
+      - jupyter_token:
+          tag_type: password
+      - dns_name
+      - letsencrypt_email
+  parents:
+    - simple-node-disk.yml
+
+topology_template:
+  inputs:
+
+    jupyter_token:
+      default: changeme
+      description: Token to access Jupyter
+      type: string
+    dns_name:
+      default: jupyter.test.fedcloud.eu
+      description: DNS hostname to access Jupyter Notebook
+      type: string
+    letsencrypt_email:
+      default: changeme@email.com
+      description: Email to be used for Let's Encrypt certificates
+      type: string
+
+    # Restrict some simple-node-disk input values
+
+    storage_size:
+      type: scalar-unit.size
+      description: Size of the extra HD added to the instance
+      default: 50 GiB
+      constraints:
+        - valid_values: [ 50 GiB, 100 GiB, 200 GiB, 500 GiB, 1 TiB, 2 TiB, 10 TiB, 20 TiB, 40 TiB, 100 TiB ]
+    mount_path:
+      type: string
+      description: Path to mount the extra disk
+      default: /opt/jupyter
+
+  node_templates:
+
+    jupyter:
+      type: tosca.nodes.ec3.Application
+      artifacts:
+        docker_role:
+          file: grycap.docker
+          type: tosca.artifacts.AnsibleGalaxy.role
+      capabilities:
+        endpoint:
+          properties:
+            ports:
+              port_http:
+                protocol: tcp
+                source: 80
+              port_https:
+                protocol: tcp
+                source: 443
+      interfaces:
+        Standard:
+          configure:
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/juno_compose.yml
+            inputs:
+              letsencrypt_email: { get_input: letsencrypt_email }
+              jupyter_token: { get_input: jupyter_token }
+              jupyter_dns_name: { get_input: dns_name }
+              jupyter_public_ip: { get_attribute: [ simple_node, public_address, 0 ] }
+      requirements:
+        - host: simple_node
+
+  outputs:
+    jupyter_url:
+      value: { concat: [ 'https://', get_attribute: [ simple_node, public_address, 0 ], '/' ] }
+    jupyter_url_dns:
+      value: { concat: [ 'https://', get_input: [ dns_name ], '/' ] }

@@ -50,6 +50,7 @@ metadata:
     - stac_vm.yaml
     - dataset.yaml
     - ollama.yaml
+    - juno_compose.yaml
 
 topology_template:
 

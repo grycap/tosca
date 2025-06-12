@@ -17,6 +17,7 @@ metadata:
     Pub WNs Features: wn_pub_.*
     Nomad Data:
       - launch_traefik
+      - traefik_letsencrypt_email
       - consul_version
       - nomad_version
       - nomad_dc
@@ -138,6 +139,10 @@ topology_template:
       default: false
       constraints:
         - valid_values: [ false, true ]
+    traefik_letsencrypt_email:
+      type: string
+      description: Email address to use for Traefik Let's Encrypt
+      default: admin@test.com
     consul_version:
       type: string
       description: Consul version to install
@@ -317,6 +322,7 @@ topology_template:
               consul_input_version: { get_input: consul_version }
               nomad_input_dc: { get_input: nomad_dc }
               nomad_input_domain: { get_input: nomad_domain }
+              nomad_traefik_letsencrypt_email: { get_input: traefik_letsencrypt_email }
 
     wn_pub:
       type: tosca.nodes.indigo.Compute

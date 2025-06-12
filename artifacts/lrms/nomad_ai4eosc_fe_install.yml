@@ -38,7 +38,7 @@
       git:
         repo: https://github.com/ai4os/ai4-ansible
         dest: /opt/ai4-ansible
-        version: master
+        version: "{{ ai4_ansible_version | default('master') }}"
         force: false
 
     - name: Set all_wn
@@ -251,6 +251,7 @@
                           "traefik.enable=true",
                           "traefik.http.routers.ai4eosc.tls=true",
                           "traefik.http.routers.ai4eosc.rule=Host(`{{ DASHBOARD_HOST }}`)",
+                          "traefik.http.routers.ai4eosc.tls.certresolver=letsencrypt",
                         ]
                       }
                       service {
@@ -260,6 +261,7 @@
                           "traefik.enable=true",
                           "traefik.http.routers.api-ai4eosc.tls=true",
                           "traefik.http.routers.api-ai4eosc.rule=Host(`{{ API_HOST }}`)",
+                          "traefik.http.routers.api-ai4eosc.tls.certresolver=letsencrypt",
                         ]
                       }
                       ephemeral_disk {
