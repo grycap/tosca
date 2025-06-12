@@ -36,6 +36,23 @@ topology_template:
       description: Email to be used for Let's Encrypt certificates
       type: string
 
+    # Set some default values for the dataset
+
+    dataset_id:
+      description: Dataset ID to be downloaded
+      type: string
+      default: ''
+
+    dest:
+      type: string
+      description: Local path where the dataset will be downloaded (do not change)
+      default: /opt/jupyter/notebooks
+
+    owner:
+      type: string
+      description: Change the ownership of the directory where the dataset should be saved (do not change).
+      default: '1000'
+
     # Restrict some simple-node-disk input values
 
     storage_size:
