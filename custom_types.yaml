@@ -2030,7 +2030,8 @@ node_types:
       dest:
         type: string
         description: Path to download the set of files from the Dataset.
-        required: true
+        required: false
+        default: ''
       owner:
         type: string
         description: Change the ownership of the directory where the dataset should be saved.
