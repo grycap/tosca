@@ -63,6 +63,7 @@ topology_template:
       properties:
         dataset_id: { get_input: dataset_id }
         filter: { get_input: filter }
+        dest: ''
       requirements:
         - host: simple_node
         - remote_storage:
