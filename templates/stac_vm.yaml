@@ -77,10 +77,10 @@ topology_template:
 
   outputs:
     default_stac_api_endpoint:
-      value: { concat: [ 'https://stac.', get_attribute: [ simple_node, public_address, 0 ], '.nip.io/api' ] }
+      value: { concat: [ 'https://stac.', get_attribute: [ simple_node, public_address, 0 ], '.nip.io/api/' ] }
     default_stac_browser_endpoint:
       value: { concat: [ 'https://stac.', get_attribute: [ simple_node, public_address, 0 ], '.nip.io/' ] }
     dns_stac_api_endpoint:
-      value: { concat: [ 'https://', get_input: dns_name, '/api' ] }
+      value: { concat: [ 'https://', get_input: dns_name, '/api/' ] }
     dns_stac_browser_endpoint:
       value: { concat: [ 'https://', get_input: dns_name, '/' ] }

@@ -63,7 +63,7 @@
               expose:
                 - "8080"
               environment:
-                - SB_catalogUrl=https://{{ stac_dns }}/api
+                - SB_catalogUrl=https://{{ stac_dns }}/api/
                 - TITLE=My STAC Catalog
                 - DESCRIPTION=STAC Browser for my catalog
               depends_on:
@@ -110,6 +110,8 @@
                 - "traefik.http.routers.app.tls.certresolver=myresolver"
                 - "traefik.http.services.app.loadbalancer.server.port=8082"
                 - "traefik.docker.network=stac_frontend"
+                - "traefik.http.middlewares.strip-api.stripprefix.prefixes=/api"
+                - "traefik.http.routers.app.middlewares=strip-api"
               depends_on:
                 database:
                   condition: service_healthy
