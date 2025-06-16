@@ -1,0 +1,84 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+imports:
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+
+description: Transfer a dataset to a storage system using the FTS
+
+metadata:
+  template_version: "1.0.0"
+  template_name: Transfer dataset with DTS
+  display_name: Transfer dataset with DTS
+  icon: images/dataset_fts.png
+  parents:
+    - simple-node-disk.yml
+  tabs:
+    Download Dataset: .*
+
+topology_template:
+
+  inputs:
+
+    dataset_id:
+      type: string
+      description: URL or DOI of the data to Download
+      default: '10.1234/example.doi'
+
+    filter:
+      type: string
+      description: Regular expression to filter the files to download
+      default: '.*'
+
+    fts_credential:
+      type: string
+      description: FTS access token to use for the transfer
+      default: 'access_token'
+
+    storage_system_endpoint:
+      type: string
+      description: Storage system to use for the transfer
+      default: 'https://some.com'
+
+    storage_system_path:
+      type: string
+      description: Path in the storage system where the dataset will be copied
+      default: '/some/folder'
+
+    storage_system_credentials_type:
+      type: string
+      description: Type of credentials to use for the storage system
+      default: 'basic_auth'
+
+    storage_system_credentials:
+      type: string
+      description: Credentials to use for the storage system
+      default: 'some_user_pass'
+
+  node_templates:
+
+    # A Dataset copied to a storage system using the FTS and mounted locally
+    my_dataset_fts:
+      type: tosca.nodes.eosc.fts.Dataset
+      properties:
+        dataset_id: { get_input: dataset_id }
+        filter: { get_input: filter }
+      requirements:
+        - host: simple_node
+        - remote_storage:
+            node: storage_system
+            capability: tosca.capabilities.Storage
+            relationship:
+              type: tosca.relationships.eosc.Transfers
+              properties:
+                fts_credential:
+                  token_type: token
+                  token: { get_input: fts_credential }
+
+    storage_system:
+      type: tosca.nodes.StorageSystem
+      properties:
+        endpoint: { get_input: storage_system_endpoint }
+        credentials:
+          token_type: { get_input: storage_system_credentials_type }
+          token: { get_input: storage_system_credentials }
+        path: { get_input: storage_system_path }

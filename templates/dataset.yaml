@@ -21,7 +21,7 @@ topology_template:
 
     dataset_id:
       type: string
-      description: URL of the data to Download (HTTP, HTTPS, or FTP URL in the form (http|https|ftp)://[user[:pass]]@host.domain[:port]/path)
+      description: URL or DOI of the data to Download.
       default: '10.1234/example.doi'
 
     filter:
@@ -51,31 +51,3 @@ topology_template:
         owner: { get_input: owner }
       requirements:
         - host: simple_node
-
-    # A Dataset copied to a storage system using the FTS and mounted locally
-    my_dataset_fts:
-      type: tosca.nodes.eosc.fts.Dataset
-      properties:
-        dataset_id: { get_input: dataset_id }
-        filter: { get_input: filter }
-        dest: /mnt/data
-      requirements:
-        - host: simple_node
-        - remote_storage:
-            node: storage_system
-            capability: tosca.capabilities.Storage
-            relationship:
-              type: tosca.relationships.eosc.Transfers
-              properties:
-                fts_credential:
-                  token_type: token
-                  token: access_token
-
-    storage_system:
-      type: tosca.nodes.StorageSystem
-      properties:
-        endpoint: https://some.com
-        credentials:
-          token_type: basic_auth
-          token: some_user_pass
-        path: /some/folder
