@@ -5,10 +5,10 @@ imports:
 
 metadata:
   template_version: "1.0.0"
-  template_name: AI4EOSC DEEPaaS YoloV8
-  display_name: Deploy a DEEPaaS AI model YoloV8
+  template_name: AI4EOSC Module VM
+  display_name: Deploy a AI4EOSC Module in a VM
 
-description: TOSCA template for deploying a DEEPaaS AI model
+description: TOSCA template for deploying a AI4EOSC Module in a VM
 
 topology_template:
 
@@ -44,7 +44,7 @@ topology_template:
     ai4eosc_model_image:
       type: string
       description: Docker image of the model to be deployed
-      default: ai4os-yolov8-torch
+      default: ai4oshub/plants-classification
       required: yes
     ai4eosc_gpu_support:
       type: boolean

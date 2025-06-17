@@ -3,12 +3,12 @@ tosca_definitions_version: tosca_simple_yaml_1_0
 imports:
   - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
 
-description: AI4EOSC Plants species classifier
+description: TOSCA template for deploying a AI4EOSC Module in a container
 
 metadata:
-  template_name: AI4EOSC Plants species classifier
   template_version: "1.1.0"
-  template_author: Miguel Caballer
+  template_name: AI4EOSC Module Container
+  display_name: Deploy a AI4EOSC Module in a container
 
 topology_template:
 
