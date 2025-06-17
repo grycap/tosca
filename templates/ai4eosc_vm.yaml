@@ -44,7 +44,7 @@ topology_template:
     ai4eosc_model_image:
       type: string
       description: Docker image of the model to be deployed
-      default: ai4oshub/plants-classification
+      default: ai4oshub/ai4os-image-classification-tf
       required: yes
     ai4eosc_gpu_support:
       type: boolean
