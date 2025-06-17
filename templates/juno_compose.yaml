@@ -36,12 +36,17 @@ topology_template:
     dataset_id:
       description: Dataset ID to be downloaded
       type: string
-      default: https://www.doi.org/10.60717/17114434-6bb9-4f3c-865f-59395b7c38c3
+      default: ''
 
     dest:
       type: string
-      description: Local path where the dataset will be downloaded
+      description: Local path where the dataset will be downloaded (do not change)
       default: /opt/jupyter/notebooks
+
+    owner:
+      type: string
+      description: Change the ownership of the directory where the dataset should be saved (do not change).
+      default: '1000'
 
     # Restrict some simple-node-disk input values
 

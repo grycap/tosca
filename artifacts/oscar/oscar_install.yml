@@ -38,3 +38,4 @@
       minio_tls_verify: '{{ oscar_minio_tls_verify }}'
       additional_config:
         allowedImagePrefix: '{{ allowed_image_prefixes }}'
+      oidc_issuer: "{{ oidc_issuers | default(['https://aai.egi.eu/auth/realms/egi']) | join(',') }}"

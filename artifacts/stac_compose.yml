@@ -5,9 +5,16 @@
   vars:
     stac_dns: "{{ dns_name }}"
     stac_letsencrypt_email: "{{ letsencrypt_email }}"
+    pgstac_version: "latest"
+    fastapi_image: "{{ stac_fastapi_image | default('ghcr.io/stac-utils/stac-fastapi-pgstac') }}"
   roles:
     - role: 'grycap.docker'
   tasks:
+    - name: Set default DNS name
+      set_fact:
+        stac_dns: "stac.{{ public_address }}.nip.io"
+      when: dns_name == '' and public_address is defined and public_address != ''
+
     - name: Create stac directory
       file:
         path: /opt/stac
@@ -23,7 +30,7 @@
     - name: Create docker-compose file
       copy:
         content: |
-          version: '3'
+          version: '3.8'
           services:
             traefik:
               image: "traefik:v2.10"
@@ -51,9 +58,31 @@
                 - "/var/run/docker.sock:/var/run/docker.sock:ro"
               networks:
                 - frontend
+            browser:
+              image: ghcr.io/radiantearth/stac-browser:latest
+              expose:
+                - "8080"
+              environment:
+                - SB_catalogUrl=https://{{ stac_dns }}/api/
+                - TITLE=My STAC Catalog
+                - DESCRIPTION=STAC Browser for my catalog
+              depends_on:
+                - app
+              networks:
+                - frontend
+              labels:
+                - "traefik.enable=true"
+                - "traefik.http.routers.browser.service=browser"
+                - "traefik.http.routers.browser.rule=Host(`{{ stac_dns }}`)"
+                - "traefik.http.routers.browser.entrypoints=websecure"
+                - "traefik.http.routers.browser.tls.certresolver=myresolver"
+                - "traefik.http.services.browser.loadbalancer.server.port=8080"
+                - "traefik.docker.network=stac_frontend"
             app:
               container_name: stac-fastapi-pgstac
-              image: ghcr.io/stac-utils/stac-fastapi-pgstac
+              image: {{ fastapi_image }}
+              expose:
+                - "8082"
               environment:
                 - APP_HOST=0.0.0.0
                 - APP_PORT=8082
@@ -72,23 +101,27 @@
                 - DB_MIN_CONN_SIZE=1
                 - DB_MAX_CONN_SIZE=1
                 - USE_API_HYDRATE=false
+                - ROOT_PATH=/api
               labels:
                 - "traefik.enable=true"
                 - "traefik.http.routers.app.service=app"
-                - "traefik.http.routers.app.rule=Host(`{{ stac_dns }}`)"
+                - "traefik.http.routers.app.rule=Host(`{{ stac_dns }}`) && PathPrefix(`/api`)"
                 - "traefik.http.routers.app.entrypoints=websecure"
                 - "traefik.http.routers.app.tls.certresolver=myresolver"
                 - "traefik.http.services.app.loadbalancer.server.port=8082"
                 - "traefik.docker.network=stac_frontend"
+                - "traefik.http.middlewares.strip-api.stripprefix.prefixes=/api"
+                - "traefik.http.routers.app.middlewares=strip-api"
               depends_on:
-                - database
-              command: bash -c "./scripts/wait-for-it.sh -t 60 database:5432 && python -m stac_fastapi.pgstac.app"
+                database:
+                  condition: service_healthy
+              command: python -m stac_fastapi.pgstac.app
               networks:
                 - frontend
                 - backend
             database:
               container_name: stac-db
-              image: ghcr.io/stac-utils/pgstac:v0.8.5
+              image: ghcr.io/stac-utils/pgstac:{{ pgstac_version }}
               environment:
                 - POSTGRES_USER=username
                 - POSTGRES_PASSWORD=password
@@ -99,6 +132,11 @@
               volumes:
                 - /data/pgdata:/var/lib/postgresql/data
               command: postgres -N 500
+              healthcheck:
+                test: ["CMD", "pg_isready", "-U", "postgres"]
+                interval: 5s
+                timeout: 5s
+                retries: 5
               networks:
                 - backend
           networks:
