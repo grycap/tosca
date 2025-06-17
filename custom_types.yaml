@@ -1283,6 +1283,13 @@ node_types:
         description: OpenID group list to grant access in the cluster.
         required: false
         default: []
+      oidc_issuers:
+        type: list
+        entry_schema:
+          type: string
+        description: List of OpenID Connect issuers to allow access to the cluster.
+        required: false
+        default: []
       allowed_image_prefixes:
         type: list
         entry_schema:
@@ -1320,6 +1327,7 @@ node_types:
             oidc_enable: { get_property: [ SELF, oidc_enable ] }
             oidc_subject: { get_property: [ SELF, oidc_subject ] }
             oidc_groups: { get_property: [ SELF, oidc_groups ] }
+            oidc_issuers: { get_property: [ SELF, oidc_issuers ] }
             yunikorn_enable:  { get_property: [ SELF, yunikorn_enable ] }
             allowed_image_prefixes: { get_property: [ SELF, allowed_image_prefixes ] }
     requirements:

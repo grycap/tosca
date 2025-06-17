@@ -30,8 +30,8 @@ metadata:
       - cert_user_email
       - user_id:
           tag_type: userid
-      - selected_vo:
-          tag_type: vo_list
+      - selected_vos
+      - oidc_issuers
       - cluster_name:
           tag_type: random
       - domain_name:
@@ -128,10 +128,18 @@ topology_template:
       type: string
       description: ID of the user that creates the infrastructure
       default: ""
-    selected_vo:
-      type: string
-      description: VO to support
-      default: ""
+    oidc_issuers:
+      type: list
+      description: OIDC issuers to support
+      entry_schema:
+        type: string
+      default: ["https://aai.egi.eu/auth/realms/egi"]
+    selected_vos:
+      type: list
+      description: List of VOs to support
+      entry_schema:
+        type: string
+      default: []
     allowed_image_prefixes:
       type: list
       description: Allowed image prefix
@@ -171,7 +179,8 @@ topology_template:
         minio_dns_host_console: { concat: [ "console.minio.", get_input: cluster_name, '.', get_input: domain_name ] }
         oidc_enable: true
         oidc_subject: { get_input: user_id }
-        oidc_groups: [{ get_input: selected_vo }]
+        oidc_groups: { get_input: selected_vos }
+        oidc_issuers: { get_input: oidc_issuers }
         yunikorn_enable: { get_input: kube_install_yunikorn }
         allowed_image_prefixes: { get_input: allowed_image_prefixes }
       capabilities:
