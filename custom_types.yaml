@@ -410,6 +410,10 @@ relationship_types:
         type: tosca.datatypes.Credential
         description: Credential for FTS to transfer the files.
         required: true
+    artifacts:
+      datase_collection:
+        file: git+https://github.com/grycap/ansible-collection-dataset
+        type: tosca.artifacts.AnsibleGalaxy.collection
     interfaces:
       Configure:
         pre_configure_source:
