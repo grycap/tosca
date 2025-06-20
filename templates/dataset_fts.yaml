@@ -1,7 +1,7 @@
 tosca_definitions_version: tosca_simple_yaml_1_0
 
 imports:
-  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/datasets_fts/custom_types.yaml
 
 description: Transfer a dataset to a storage system using the FTS
 
@@ -24,11 +24,6 @@ topology_template:
       type: string
       description: URL or DOI of the data to Download
       default: '10.1234/example.doi'
-
-    filter:
-      type: string
-      description: Regular expression to filter the files to download
-      default: '.*'
 
     fts_credential:
       type: string
@@ -62,8 +57,6 @@ topology_template:
       type: tosca.nodes.eosc.fts.Dataset
       properties:
         dataset_id: { get_input: dataset_id }
-        filter: { get_input: filter }
-        dest: ''
       requirements:
         - host: simple_node
         - remote_storage:
@@ -78,9 +71,11 @@ topology_template:
 
     storage_system:
       type: tosca.nodes.StorageSystem
-      properties:
-        endpoint: { get_input: storage_system_endpoint }
-        credentials:
-          token_type: { get_input: storage_system_credentials_type }
-          token: { get_input: storage_system_credentials }
-        path: { get_input: storage_system_path }
+      capabilities:
+        remote_storage:
+          properties:
+            endpoint: { get_input: storage_system_endpoint }
+            credentials:
+              token_type: { get_input: storage_system_credentials_type }
+              token: { get_input: storage_system_credentials }
+            path: { get_input: storage_system_path }
