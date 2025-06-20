@@ -10,6 +10,7 @@
       ansible.builtin.uri:
         url: "{{ fts_endpoint }}/transfers"
         method: POST
+        status_code: 202
         headers:
           Accept: application/json
           Content-Type: application/json
