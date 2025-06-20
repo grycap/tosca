@@ -1,6 +1,22 @@
 ---
 - hosts: localhost
   tasks:
+    - name: Set extra_args var
+      set_fact:
+        extra_args: ""
+
+    - name: Set extra_args var in py3.11
+      set_fact:
+        extra_args: --break-system-packages
+      when: ansible_python_version is version('3.11', '>=')
+
+    - name: Install eosc-data-transfer-client Python module
+      ansible.builtin.pip:
+        name: "git+https://gitlab.cern.ch/batistal/eosc-data-transfer-client/"
+        state: present
+        executable: pip3
+        extra_args: "{{ extra_args }}"
+
     - name: Submit FTS transfer
       grycap.dataset.transfer_dataset_dts:
         dataset_doi: "{{ dataset_url }}"
