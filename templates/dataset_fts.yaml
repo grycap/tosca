@@ -22,8 +22,8 @@ topology_template:
 
     dataset_id:
       type: string
-      description: URL or DOI of the data to Download
-      default: '10.1234/example.doi'
+      description: DOI of the data to Download
+      default: 'doi:10.1234/example.doi'
 
     fts_credential:
       type: string
