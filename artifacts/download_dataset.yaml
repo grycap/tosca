@@ -38,5 +38,5 @@
     - when: remote_storage_endpoint is defined and remote_storage_endpoint != ""
       block:
         - name: FTS Dataset
-          debug: 
+          debug:
             msg: FTS Dataset
