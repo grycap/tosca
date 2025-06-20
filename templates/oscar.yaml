@@ -153,7 +153,7 @@ topology_template:
     domain_name:
       type: string
       description: Domain Name
-      default: "im.grycap.net"
+      default: "vm.fedcloud.eu"
     kube_nvidia_support:
       type: boolean
       description: Flag to add NVIDIA support
@@ -234,9 +234,7 @@ topology_template:
           properties:
             dns_name: kubeserver
             additional_dns_names:
-              - { concat: [ get_input: cluster_name, '@', get_input: domain_name ] }
-              - { concat: [ "minio.", get_input: cluster_name, '@', get_input: domain_name ] }
-              - { concat: [ "console.minio.", get_input: cluster_name, '@', get_input: domain_name ] }
+              - { concat: [ '*@', get_input: cluster_name, '.', get_input: domain_name ] }
             network_name: PUBLIC
         host:
           properties:

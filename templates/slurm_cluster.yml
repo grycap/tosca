@@ -20,7 +20,6 @@ metadata:
     - slurm_galaxy.yml
     - glusterfs.yml
     - docker_cluster.yaml
-    - dydns_egi_update_lrms.yml
     - arc.yml
     - dtgeo_tools.yaml
     - proxy_host_cluster.yaml
@@ -67,6 +66,10 @@ topology_template:
       type: string
       description: "Path to mount the FE attached disk"
       default: "/home/data"
+    fe_dns_name:
+      type: string
+      description: DNS name to set to the HT-Condor Front-end
+      default: ""
 
     wn_disk_size:
       type: scalar-unit.size
@@ -118,6 +121,8 @@ topology_template:
           properties:
             dns_name: slurmserver
             network_name: PUBLIC
+            additional_dns_names:
+              - { get_input: fe_dns_name}
             ports: { get_input: fe_ports }
         host:
           properties:
