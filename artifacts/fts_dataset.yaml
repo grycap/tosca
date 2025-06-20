@@ -1,6 +1,5 @@
 ---
-- name: Submit FTS transfer job
-  hosts: localhost
+- hosts: localhost
   vars:
     fts_endpoint: https://data-transfer.service.eosc-beyond.eu/
   tasks:
@@ -11,10 +10,12 @@
       ansible.builtin.uri:
         url: "{{ fts_endpoint }}/transfers"
         method: POST
+        status_code: 202
         headers:
           Accept: application/json
           Content-Type: application/json
-          Authorization: "Bearer {{ fts_credential }}"
+          Authorization: "Bearer {{ fts_credential['token'] }}"
+        body_format: json
         body: |
           {
               "files": [
