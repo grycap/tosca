@@ -14,7 +14,6 @@
       ansible.builtin.pip:
         name: "git+https://gitlab.cern.ch/batistal/eosc-data-transfer-client/"
         state: present
-        executable: pip3
         extra_args: "{{ extra_args }}"
         virtualenv: "/var/tmp/.ansible"  # Install in the venv to avoid errors
 
