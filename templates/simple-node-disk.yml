@@ -49,7 +49,7 @@ metadata:
     - flowfuse.yaml
     - stac_vm.yaml
     - dataset.yaml
-    - dataset_fts.yaml
+    - dataset_dts.yaml
     - ollama.yaml
     - juno_compose.yaml
 

@@ -401,22 +401,22 @@ relationship_types:
     derived_from: tosca.relationships.Root
     valid_target_types: [ tosca.capabilities. Storage ]
     properties:
-      fts_endpoint:
+      dts_endpoint:
         type: string
-        description: URL of the FTS service endpoint to use in the transfer.
+        description: URL of the DTS service endpoint to use in the transfer.
         required: false
-        default: https://fts3-public.cern.ch:8446/
-      fts_credential:
+        default: https://data-transfer.service.eosc-beyond.eu
+      dts_credential:
         type: tosca.datatypes.Credential
-        description: Credential for FTS to transfer the files.
+        description: Credential for DTS to transfer the files.
         required: true
     interfaces:
       Configure:
         pre_configure_source:
-          implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/fts_dataset.yaml
+          implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/dts_dataset.yaml
           inputs:
-            fts_endpoint: { get_property: [ SELF, fts_endpoint ] }
-            fts_credential: { get_property: [ SELF, fts_credential ] }
+            dts_endpoint: { get_property: [ SELF, dts_endpoint ] }
+            dts_credential: { get_property: [ SELF, dts_credential ] }
             dataset_id: { get_property: [ SOURCE, dataset_id ] }
             remote_storage_endpoint: { get_property: [ TARGET, remote_storage, endpoint ] }
             remote_storage_credentials: { get_property: [ TARGET, remote_storage, credentials] }
@@ -2056,7 +2056,7 @@ node_types:
             filter: { get_property: [ SELF, filter ] }
             owner: { get_property: [ SELF, owner ] }
 
-  tosca.nodes.eosc.fts.Dataset:
+  tosca.nodes.eosc.dts.Dataset:
     derived_from: tosca.nodes.eosc.Dataset
     requirements:
       - host:
