@@ -10,12 +10,18 @@
         extra_args: --break-system-packages
       when: ansible_python_version is version('3.11', '>=')
 
+    - name: Remove installed package python3-typing-extensions
+      package:
+        name: python3-typing-extensions
+        state: absent
+      ignore_errors: true
+
     - name: Install eosc-data-transfer-client Python module
       ansible.builtin.pip:
         name: "git+https://gitlab.cern.ch/batistal/eosc-data-transfer-client/"
         state: present
         extra_args: "{{ extra_args }}"
-        virtualenv: "/var/tmp/.ansible"  # Install in the venv to avoid errors
+        executable: pip3
 
     - name: Submit FTS transfer
       grycap.dataset.transfer_dataset_dts:
