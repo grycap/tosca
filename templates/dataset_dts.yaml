@@ -1,15 +1,15 @@
 tosca_definitions_version: tosca_simple_yaml_1_0
 
 imports:
-  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/datasets_fts/custom_types.yaml
 
-description: Transfer a dataset to a storage system using the FTS
+description: Transfer a dataset to a storage system using the DTS
 
 metadata:
   template_version: "1.0.0"
   template_name: Transfer dataset with DTS
   display_name: Transfer dataset with DTS
-  icon: images/dataset_fts.png
+  icon: images/dataset_dts.png
   tag: devel
   parents:
     - simple-node-disk.yml
@@ -25,9 +25,9 @@ topology_template:
       description: DOI of the data to Download
       default: 'doi:10.1234/example.doi'
 
-    fts_credential:
+    dts_credential:
       type: string
-      description: FTS access token to use for the transfer
+      description: DTS access token to use for the transfer
       default: 'access_token'
 
     storage_system_endpoint:
@@ -52,9 +52,9 @@ topology_template:
 
   node_templates:
 
-    # A Dataset copied to a storage system using the FTS and mounted locally
-    my_dataset_fts:
-      type: tosca.nodes.eosc.fts.Dataset
+    # A Dataset copied to a storage system using the DTS and mounted locally
+    my_dataset_dts:
+      type: tosca.nodes.eosc.dts.Dataset
       properties:
         dataset_id: { get_input: dataset_id }
       requirements:
@@ -65,9 +65,9 @@ topology_template:
             relationship:
               type: tosca.relationships.eosc.Transfers
               properties:
-                fts_credential:
+                dts_credential:
                   token_type: token
-                  token: { get_input: fts_credential }
+                  token: { get_input: dts_credential }
 
     storage_system:
       type: tosca.nodes.StorageSystem
