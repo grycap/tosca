@@ -29,3 +29,8 @@
         dts_endpoint: https://data-transfer.service.eosc-beyond.eu
         dts_token: "{{ dts_credential['token'] }}"
         destination: "{{ remote_storage_endpoint }}{{ remote_storage_path }}"
+      register: dts_job
+
+    - name: Print JobID
+      debug:
+        var: dts_job
