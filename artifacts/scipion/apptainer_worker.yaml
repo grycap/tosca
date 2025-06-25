@@ -32,7 +32,7 @@
   roles:
     - role: grycap.nfs
       nfs_mode: 'wn'
-      nfs_client_imports: [{ local: "/home/scipionuser/ScipionUserData", remote: "/home/scipionuser/ScipionUserData", server_host: "{{ slurm_front_end_ip }}", opts: "defaults,nolock" }]
+      nfs_client_imports: [{ local: "/home", remote: "/home", server_host: "{{ slurm_front_end_ip }}", opts: "defaults,nolock" }]
 
     - role: usegalaxy_eu.apptainer
 
