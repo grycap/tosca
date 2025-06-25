@@ -10,16 +10,27 @@
         extra_args: --break-system-packages
       when: ansible_python_version is version('3.11', '>=')
 
+    - name: Remove installed package python3-typing-extensions
+      package:
+        name: python3-typing-extensions
+        state: absent
+      ignore_errors: true
+
     - name: Install eosc-data-transfer-client Python module
       ansible.builtin.pip:
         name: "git+https://gitlab.cern.ch/batistal/eosc-data-transfer-client/"
         state: present
-        executable: pip3
         extra_args: "{{ extra_args }}"
+        executable: pip3
 
-    - name: Submit FTS transfer
+    - name: Submit DTS transfer
       grycap.dataset.transfer_dataset_dts:
         dataset_doi: "{{ dataset_url }}"
         dts_endpoint: https://data-transfer.service.eosc-beyond.eu
-        dts_token: "{{ fts_credential['token'] }}"
+        dts_token: "{{ dts_credential['token'] }}"
         destination: "{{ remote_storage_endpoint }}{{ remote_storage_path }}"
+      register: dts_job
+
+    - name: Print JobID
+      debug:
+        var: dts_job

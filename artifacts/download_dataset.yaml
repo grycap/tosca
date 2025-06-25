@@ -36,6 +36,6 @@
 
     - when: remote_storage_endpoint is defined and remote_storage_endpoint != ""
       block:
-        - name: FTS Dataset
+        - name: DTS Dataset
           debug:
-            msg: FTS Dataset
+            msg: Do something with the DTS Dataset
