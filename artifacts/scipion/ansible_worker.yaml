@@ -37,7 +37,7 @@
   roles:
     - role: grycap.nfs
       nfs_mode: 'wn'
-      nfs_client_imports: [{ local: "/home/scipionuser/ScipionUserData", remote: "/home/scipionuser/ScipionUserData", server_host: "{{ slurm_front_end_ip }}", opts: "defaults,nolock" }]
+      nfs_client_imports: [{ local: "/home", remote: "/home", server_host: "{{ slurm_front_end_ip }}", opts: "defaults,nolock" }]
 
     - role: grycap.docker
       # docker_config_values: {"mtu": 1442, "data-root": '/home/scipionuser/volume-data/docker'}
