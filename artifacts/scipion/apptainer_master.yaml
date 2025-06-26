@@ -7,6 +7,7 @@
     CONTAINER_FLAVOUR: "{{ scipion_flavour | default('base') }}" # Available flavours are: base, spa, tomo, full
     CONTAINER_VERSION: "{{ scipion_version | default('latest') }}"
     SLURM_VERSION: "23.11.8"
+    nvidia_param: ""
 
   tasks:
     - name: Create scipionuser group
@@ -76,16 +77,23 @@
       poll: 0
       register: pull_container
 
-    - set_fact:
+    - name: Set facts from IM_INFRASTRUCTURE_RADL
+      set_fact:
         gpu_num_server: '{{ IM_INFRASTRUCTURE_RADL | json_query("[?id == ''lrms_server''].gpu_count_min|[0]") }}'
         gpu_num_wn: '{{ IM_INFRASTRUCTURE_RADL | json_query("[?id == ''lrms_wn''].gpu_count_min|[0]") }}'
         slurm_wn_gres: ''
         slurm_wn_gres_conf: ''
         slurm_wn_gres_tpes: ''
-    - set_fact:
+
+    - name: Set SLURM gres facts if GPUs are available
+      set_fact:
         slurm_wn_gres: gpu:{{ gpu_num_wn }}
         slurm_wn_gres_conf: AutoDetect=nvml
         slurm_wn_gres_tpes: gpu
+      when: gpu_num_wn | int > 0
+
+    - role: NVIDIA.nvidia_driver
+      nvidia_driver_branch: "{{ nvidia_driver_version | default('525') }}"
       when: gpu_num_server | int > 0
 
     - name: Install and configure NFS
@@ -124,6 +132,10 @@
         mode: '0755'
         owner: scipionuser
 
+    - name: Set SLURM_DEPENDENCIES_CMD
+      set_fact:
+        SLURM_DEPENDENCIES_CMD: "--bind /lib/x86_64-linux-gnu/libc.so.6 --bind /lib/x86_64-linux-gnu/libm.so.6 --bind /lib/x86_64-linux-gnu/libresolv.so.2 --bind /lib64/ld-linux-x86-64.so.2"
+
     - name: Change Launcher vars
       lineinfile:
         path: /home/scipionuser/ScipionUserData/launcher.sh
@@ -134,12 +146,25 @@
         - { var: 'SCIPSLURM_HOSTSCONF', value: '/home/scipionuser/ScipionUserData/hosts.conf' }
         - { var: 'SCIPSLURM_BIN', value: '/usr/bin' }
         - { var: 'SCIPSLURM_BASE', value: '/etc/slurm' }
-        - { var: 'SCIPSLURM_LIB', value: '/usr/lib/x86_64-linux-gnu' }
+        - { var: 'SCIPSLURM_LIB', value: '/usr/lib/x86_64-linux-gnu/libslurm.so.40' }
         - { var: 'SCIPSLURM_PLUGINS', value: '/usr/lib/x86_64-linux-gnu/slurm' }
         - { var: 'SCIPION_DATADIR', value: '/home/scipionuser/ScipionUserData' }
         - { var: 'SCIPION_PROJDIR', value: '/home/scipionuser/ScipionUserData' }
         - { var: 'CONTAINER_FLAVOUR', value: CONTAINER_FLAVOUR }
         - { var: 'CONTAINER_VERSION', value: CONTAINER_VERSION }
+
+    - name: Change Launcher vars
+      replace:
+        path: /home/scipionuser/ScipionUserData/launcher.sh
+        regexp: '(.*)apptainer exec --nv --containall(.*)?$'
+        replace: '\1apptainer exec --containall\2'
+      when: gpu_num_wn is not defined or gpu_num_wn | int == 0
+
+    - name: Add SLURM_DEPENDENCIES_CMD to launcher.sh
+      lineinfile:
+        path: /home/scipionuser/ScipionUserData/launcher.sh
+        line: $SLURM_DEPENDENCIES_CMD
+        insertafter: "--bind $SCIPION_PROJDIR"
 
     - name:  Create scipion hosts.conf
       copy:
@@ -168,7 +193,11 @@
               /home/scipionuser/ScipionUserData/launcher.sh %_(JOB_COMMAND)s
           ; Next variable is used to provide a regex to check if a job is finished on a queue system
           JOB_DONE_REGEX = ""
-          QUEUES = { "queue": [["GPU_COUNT", "0", "Number of GPUs", "Select GPUs to allocate"]] }
+          QUEUES = {
+              "debug": [["JOB_MEMORY", "8192", "Memory (MB)", "Select amount of memory (in megabytes) for this job"],
+                        ["JOB_TIME", "48", "Time (hours)", "Select the time expected (in hours) for this job"],
+                        ["GPU_COUNT", "0", "Number of GPUs", "Select GPUs to allocate"]]
+              }
         dest: /home/scipionuser/ScipionUserData/hosts.conf
 
     - name: Flush handlers
@@ -188,14 +217,20 @@
       delay: 60
       become_user: scipionuser
 
+    - role: Set apptainer param for GPU support
+      set_fact:
+        nvidia_param: "--nv"
+      when: gpu_num_server | int > 0
+
     - name: Launch Scipion container
       shell: |
           xhost +SI:localuser:scipionuser &&
 
-          nohup apptainer exec  --containall \
+          nohup apptainer exec {{ nvidia_param }} --containall \
             --env DISPLAY=:1 --env SCIPION_USER_DATA=/home/scipionuser/ScipionUserData \
             --bind /run --bind /tmp/.X11-unix --bind /etc/resolv.conf \
             --bind /home/scipionuser/ScipionUserData \
+            {{ SLURM_DEPENDENCIES_CMD }} \
             /home/scipionuser/container/apptainer-{{ CONTAINER_FLAVOUR }}:{{ CONTAINER_VERSION }}.sif \
             /scipion/scipion3  > /home/scipionuser/scipion3.log 2>&1 &
       become: true
