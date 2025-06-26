@@ -32,7 +32,7 @@
   roles:
 
     - role: NVIDIA.nvidia_driver
-      nvidia_driver_branch: "{{ nvidia_driver_version | default('525') }}"
+      nvidia_driver_branch: "525"
       when: gpu_num | int > 0
 
     - role: grycap.nfs
