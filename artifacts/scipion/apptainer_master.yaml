@@ -57,6 +57,12 @@
     - name: Install Apptainer
       include_role:
         name: usegalaxy_eu.apptainer
+  
+    - name: Apply sysctl configuration
+      sysctl:
+        name: kernel.apparmor_restrict_unprivileged_userns
+        value: '0'
+        sysctl_file: /etc/sysctl.d/90-disable-userns-restrictions.conf
 
     - name: Pull Scipion apptainer container (will take a while - more than 1h -) so make it async
       command: apptainer pull /home/scipionuser/container/apptainer-{{ CONTAINER_FLAVOUR }}:{{ CONTAINER_VERSION }}.sif  oras://rinchen.cnb.csic.es/scipion/apptainer-{{ CONTAINER_FLAVOUR }}:{{ CONTAINER_VERSION }}

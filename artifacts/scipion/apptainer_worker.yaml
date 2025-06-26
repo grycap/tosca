@@ -36,6 +36,12 @@
 
     - role: usegalaxy_eu.apptainer
 
+    - name: Apply sysctl configuration
+      sysctl:
+        name: kernel.apparmor_restrict_unprivileged_userns
+        value: '0'
+        sysctl_file: /etc/sysctl.d/90-disable-userns-restrictions.conf
+
     - role: grycap.slurm
       slurm_type_of_node: 'wn'
       slurm_server_name: "{{ vnode_master }}"
