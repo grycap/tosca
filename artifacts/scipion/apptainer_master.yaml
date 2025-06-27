@@ -220,7 +220,7 @@
       delay: 60
       become_user: scipionuser
 
-    - role: Set apptainer param for GPU support
+    - name: Set apptainer param for GPU support
       set_fact:
         nvidia_param: "--nv"
       when: gpu_num_server | int > 0
