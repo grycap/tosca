@@ -41,12 +41,6 @@
 
     - role: usegalaxy_eu.apptainer
 
-    - name: Apply sysctl configuration
-      sysctl:
-        name: kernel.apparmor_restrict_unprivileged_userns
-        value: '0'
-        sysctl_file: /etc/sysctl.d/90-disable-userns-restrictions.conf
-
     - role: grycap.slurm
       slurm_type_of_node: 'wn'
       slurm_server_name: "{{ vnode_master }}"
@@ -60,6 +54,12 @@
 # Put here your Ansible recipes to configure the nodes
 
   tasks:
+    - name: Apply sysctl configuration to disable user namespaces restrictions
+      sysctl:
+        name: kernel.apparmor_restrict_unprivileged_userns
+        value: '0'
+        sysctl_file: /etc/sysctl.d/90-disable-userns-restrictions.conf
+
     - name: Install OpenMPI
       apt:
         name: openmpi-bin

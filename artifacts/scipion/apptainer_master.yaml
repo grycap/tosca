@@ -92,8 +92,11 @@
         slurm_wn_gres_tpes: gpu
       when: gpu_num_wn | int > 0
 
-    - role: NVIDIA.nvidia_driver
-      nvidia_driver_branch: "525"
+    - name: Install and configure NVIDIA driver
+      include_role:
+        name: NVIDIA.nvidia_driver
+      vars:
+        nvidia_driver_branch: "525"
       when: gpu_num_server | int > 0
 
     - name: Install and configure NFS
