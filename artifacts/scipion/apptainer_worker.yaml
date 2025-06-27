@@ -64,6 +64,3 @@
       apt:
         name: openmpi-bin
         state: present
-
-    - name: pull scipion-worker image
-      command: apptainer pull oras://rinchen.cnb.csic.es/scipion/apptainer-base:latest
