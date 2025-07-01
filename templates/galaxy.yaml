@@ -3,164 +3,101 @@ tosca_definitions_version: tosca_simple_yaml_1_0
 imports:
   - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
 
-description: Deploy Galaxy on top of a Kubernetes Virtual Cluster.
+dedescription: Deploy a Galaxy Server using a local LRMS.
 
 metadata:
-  template_version: "1.0.0"
-  template_name: Galaxy
+  template_name: VM
+  template_version: "1.2.1"
   template_author: Miguel Caballer
-  creation_date: 2025-10-16
-
 
 topology_template:
 
   inputs:
-
-    fe_cpus:
+    num_cpus:
       type: integer
-      description: Number of CPUs for the front-end node
+      description: Number of virtual cpus for the VM
       default: 2
-      required: yes
-    fe_mem:
+    mem_size:
       type: scalar-unit.size
-      description: Amount of Memory for the front-end node
+      description: Amount of memory for the VM
       default: 4 GB
-      required: yes
-    fe_disk_size:
+    disk_size:
       type: scalar-unit.size
-      description: Size of the disk to be attached to the FE instance (Set 0 if disk is not needed)
-      default: 100 GB
-
-    wn_num:
+      description: Size of the root disk of the VM
+      default: 20 GB
+    num_gpus:
       type: integer
-      description: Number of WNs in the cluster
-      default: 3
-      required: yes
-    wn_cpus:
-      type: integer
-      description: Number of CPUs for the WNs
-      default: 4
-      required: yes
-    wn_mem:
-      type: scalar-unit.size
-      description: Amount of Memory for the WNs
-      default: 8 GB
-      required: yes
-    wn_disk_size:
-      type: scalar-unit.size
-      description: Size of the root disk of the WNs (in case of 0 disk will no be resized)
-      default: 40 GB
-
-    kube_version:
-      type: string
-      description: Version of Kubernetes to install
-      default: "1.29.7"
+      description: Number of GPUs to assing to this VM
+      default: 0
 
 
-    galaxy_admin_users:
+    admin_email:
       type: string
-      description: Administrative users - set this to a comma-separated list of valid Galaxy users (email addresses).
-      default: 'admin@admin.com'
-    galaxy_brand:
+      description: Email of the Galaxy admin user
+      default: admin@admin.com
+    admin_password:
       type: string
-      description: Brand for the Galaxy instance
-      default: 'IM Deployed Galaxy K8s Cluster'
+      description: Password of the Galaxy admin user
+      default: adminpass
+    brand:
+      type: string
+      description: Brand of the Galaxy portal
+      default: Galaxy
+    version:
+      type: string
+      description: Version of the Galaxy portal
+      default: '24.2'
+      constraints:
+        - valid_values: [ '24.2', '24.1' ]
 
 
   node_templates:
 
-    galaxy:
-      type: tosca.nodes.ec3.Application
-      requirements:
-        - host: front
-        - dependency: lrms_front_end
-      interfaces:
-        Standard:
-          configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/k8s_galaxy.yml
-            inputs:
-              galaxy_admin_users: { get_input: galaxy_admin_users }
-              galaxy_brand: { get_input: galaxy_brand }
-              galaxy_max_mem: { get_input: wn_mem }
-              galaxy_max_cores: { get_input: wn_cpus }
-
-    lrms_front_end:
-      type: tosca.nodes.indigo.LRMS.FrontEnd.Kubernetes
+    galaxy_portal:
+      type: tosca.nodes.indigo.GalaxyPortal
       capabilities:
         endpoint:
           properties:
             ports:
-              http_port:
-                protocol: tcp
-                source: 80
-              https_port:
+              https:
                 protocol: tcp
                 source: 443
+              http:
+                protocol: tcp
+                source: 80
       properties:
-        admin_username: kubeuser
-        admin_token: ""
-        install_nfs_client: true
-        install_kubeapps: false
-        version: { get_input: kube_version }
-        cri_runtime: docker
-        csi_driver: NFS
+        admin_email: { get_input: admin_email }
+        admin_password: { get_input: admin_password }
+        brand: { get_input: brand }
+        version: { get_input: version }
       requirements:
-        - host: front
+        - lrms: local_lrms
+        - host: simple_node
 
-    front:
+    # type to describe a Galaxy not using any LRMS but using the local system
+    local_lrms:
+      type: tosca.nodes.indigo.LRMS.FrontEnd.Local
+      requirements:
+        - host: simple_node
+
+    simple_node:
       type: tosca.nodes.indigo.Compute
       capabilities:
         endpoint:
           properties:
-            dns_name: kubeserver
             network_name: PUBLIC
         host:
           properties:
-            num_cpus: { get_input: fe_cpus }
-            mem_size: { get_input: fe_mem }
+            disk_size: { get_input: disk_size }
+            num_cpus: { get_input: num_cpus }
+            mem_size: { get_input: mem_size }
+            num_gpus: { get_input: num_gpus }
         os:
           properties:
-            distribution: ubuntu
             type: linux
-      requirements:
-        - local_storage:
-            node: fe_block_storage
-            relationship:
-              type: AttachesTo
-              properties:
-                location: /pv
-
-    fe_block_storage:
-      type: tosca.nodes.BlockStorage
-      properties:
-        size: { get_input: fe_disk_size }
-
-    wn_node:
-      type: tosca.nodes.indigo.LRMS.WorkerNode.Kubernetes
-      properties:
-        front_end_ip: { get_attribute: [ front, private_address, 0 ] }
-        version: { get_input: kube_version }
-        cri_runtime: docker
-        csi_driver: NFS
-      requirements:
-        - host: wn
-
-    wn:
-      type: tosca.nodes.indigo.Compute
-      capabilities:
-        scalable:
-          properties:
-            count: { get_input: wn_num }
-        host:
-          properties:
-            disk_size: { get_input: wn_disk_size }
-            num_cpus: { get_input: wn_cpus }
-            mem_size: { get_input: wn_mem }
-        os:
-          properties:
             distribution: ubuntu
-            type: linux
+            version: '24.04'
 
   outputs:
-    galaxy_url:
-      value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], '/galaxy/' ] }
+    galaxy_nip_url:
+      value: { concat: [ 'https://galaxy.', get_attribute: [ simple_node, public_address, 0 ], '.nip.io/' ] }
