@@ -1,0 +1,242 @@
+---
+- hosts: localhost
+  connection: local
+  vars:
+    vnode_prefix: scipion-wn-
+    vnode_master: scipion-master
+    CONTAINER_FLAVOUR: "{{ scipion_flavour | default('base') }}" # Available flavours are: base, spa, tomo, full
+    CONTAINER_VERSION: "{{ scipion_version | default('latest') }}"
+    SLURM_VERSION: "23.11.8"
+    nvidia_param: ""
+
+  tasks:
+    - name: Create scipionuser group
+      group:
+        name: scipionuser
+        gid: 1042
+        state: present
+
+    - name: Create scipionuser user
+      user:
+        name: scipionuser
+        uid: 1042
+        shell: /bin/bash
+        group: scipionuser
+      
+    - name: Create ScipionUserData directory
+      file:
+        path: /home/scipionuser
+        state: directory
+        owner: scipionuser
+        group: scipionuser
+        mode: '0755'
+
+    - name: Create ScipionUserData directory
+      file:
+        path: /home/scipionuser/ScipionUserData
+        state: directory
+        owner: scipionuser
+        group: scipionuser
+        mode: '0755'
+
+    - name: Create container directory
+      file:
+        path: /home/scipionuser/container
+        state: directory
+        owner: scipionuser
+        group: scipionuser
+        mode: '0755'
+
+    - name: Create tmp directory
+      file:
+        path: /home/scipionuser/tmp
+        state: directory
+        owner: scipionuser
+        group: scipionuser
+        mode: '0777'
+
+    - name: Install Apptainer
+      include_role:
+        name: usegalaxy_eu.apptainer
+  
+    - name: Apply sysctl configuration
+      sysctl:
+        name: kernel.apparmor_restrict_unprivileged_userns
+        value: '0'
+        sysctl_file: /etc/sysctl.d/90-disable-userns-restrictions.conf
+
+    - name: Pull Scipion apptainer container (will take a while - more than 1h -) so make it async
+      command: apptainer pull /home/scipionuser/container/apptainer-{{ CONTAINER_FLAVOUR }}:{{ CONTAINER_VERSION }}.sif  oras://rinchen.cnb.csic.es/scipion/apptainer-{{ CONTAINER_FLAVOUR }}:{{ CONTAINER_VERSION }}
+      args:
+        creates: /home/scipionuser/container/apptainer-{{ CONTAINER_FLAVOUR }}:{{ CONTAINER_VERSION }}.sif
+      environment:
+        TMPDIR: /home/scipionuser/tmp
+      become_user: scipionuser
+      become: true
+      async: 5400
+      poll: 0
+      register: pull_container
+
+    - name: Set facts from IM_INFRASTRUCTURE_RADL
+      set_fact:
+        gpu_num_server: '{{ IM_INFRASTRUCTURE_RADL | json_query("[?id == ''lrms_server''].gpu_count_min|[0]") }}'
+        gpu_num_wn: '{{ IM_INFRASTRUCTURE_RADL | json_query("[?id == ''lrms_wn''].gpu_count_min|[0]") }}'
+        slurm_wn_gres: ''
+        slurm_wn_gres_conf: ''
+        slurm_wn_gres_tpes: ''
+
+    - name: Set SLURM gres facts if GPUs are available
+      set_fact:
+        slurm_wn_gres: gpu:{{ gpu_num_wn }}
+        slurm_wn_gres_conf: AutoDetect=nvml
+        slurm_wn_gres_tpes: gpu
+      when: gpu_num_wn | int > 0
+
+    - name: Install and configure NVIDIA driver
+      include_role:
+        name: NVIDIA.nvidia_driver
+      vars:
+        nvidia_driver_branch: "525"
+      when: gpu_num_server | int > 0
+
+    - name: Install and configure NFS
+      include_role:
+        name: grycap.nfs
+      vars:
+        nfs_mode: 'front'
+        nfs_exports: [{path: "/home", export: "{{ vnode_prefix }}*.localdomain(fsid=0,rw,async,no_root_squash,no_subtree_check,insecure)"}]
+
+    - name: Install and configure VNC
+      include_role:
+        name: grycap.vnc
+      vars:
+        vnc_user: scipionuser
+        vnc_password: "{{ vnc_pass | default('scipion') }}"
+
+    - name: Install and configure SLURM
+      include_role:
+        name: grycap.slurm
+      vars:
+        slurm_type_of_node: 'front'
+        slurm_server_name: "{{ vnode_master }}"
+        slurm_wn_ips: '{{ groups["lrms_wn"]|map("extract", hostvars, "ansible_default_ipv4.address")|list if "lrms_wn" in groups else [] }}'
+        slurm_vnode_prefix: "{{ vnode_prefix }}"
+        slurm_wn_nodenames: '{{ groups["lrms_wn"]|map("extract", hostvars, "ansible_hostname")|list if "lrms_wn" in groups else [] }}'
+        slurm_wn_cpus: '{{IM_INFRASTRUCTURE_RADL|json_query("[?id == ''lrms_wn''].cpu_count_min|[0]")}}'
+        slurm_wn_mem: '{{(IM_INFRASTRUCTURE_RADL|json_query("[?id == ''lrms_wn''].memory_size_min|[0]") / 1048576) | int }}'
+        slurm_version: "{{ SLURM_VERSION }}"
+        slurm_user: scipionuser
+        slurm_user_id: 1042
+
+    - name:  Download scipion launcher
+      get_url:
+        url: https://raw.githubusercontent.com/I2PC/scipion-containers/refs/heads/master/launcher.sh
+        dest: /home/scipionuser/ScipionUserData/launcher.sh
+        mode: '0755'
+        owner: scipionuser
+
+    - name: Set SLURM_DEPENDENCIES_CMD
+      set_fact:
+        SLURM_DEPENDENCIES_CMD: "--bind /lib/x86_64-linux-gnu/libc.so.6 --bind /lib/x86_64-linux-gnu/libm.so.6 --bind /lib/x86_64-linux-gnu/libresolv.so.2 --bind /lib64/ld-linux-x86-64.so.2"
+
+    - name: Change Launcher vars
+      lineinfile:
+        path: /home/scipionuser/ScipionUserData/launcher.sh
+        regexp: '^{{ item.var }}='
+        line: '{{ item.var }}="{{ item.value }}"'
+        state: present
+      loop:
+        - { var: 'SCIPSLURM_HOSTSCONF', value: '/home/scipionuser/ScipionUserData/hosts.conf' }
+        - { var: 'SCIPSLURM_BIN', value: '/usr/bin' }
+        - { var: 'SCIPSLURM_BASE', value: '/etc/slurm' }
+        - { var: 'SCIPSLURM_LIB', value: '/usr/lib/x86_64-linux-gnu/libslurm.so.40' }
+        - { var: 'SCIPSLURM_PLUGINS', value: '/usr/lib/x86_64-linux-gnu/slurm' }
+        - { var: 'SCIPION_DATADIR', value: '/home/scipionuser/ScipionUserData' }
+        - { var: 'SCIPION_PROJDIR', value: '/home/scipionuser/ScipionUserData' }
+        - { var: 'CONTAINER_FLAVOUR', value: CONTAINER_FLAVOUR }
+        - { var: 'CONTAINER_VERSION', value: CONTAINER_VERSION }
+
+    - name: Change Launcher vars
+      replace:
+        path: /home/scipionuser/ScipionUserData/launcher.sh
+        regexp: '(.*)apptainer exec --nv --containall(.*)?$'
+        replace: '\1apptainer exec --containall\2'
+      when: gpu_num_wn is not defined or gpu_num_wn | int == 0
+
+    - name: Add SLURM_DEPENDENCIES_CMD to launcher.sh
+      replace:
+        path: /home/scipionuser/ScipionUserData/launcher.sh
+        regexp: '(.*)--containall(.*)'
+        replace: '\1--containall {{ SLURM_DEPENDENCIES_CMD }}\2'
+
+    - name:  Create scipion hosts.conf
+      copy:
+        content: |
+          [localhost]
+          PARALLEL_COMMAND = mpirun -np %_(JOB_NODES)d %_(COMMAND)s
+          NAME = SLURM
+          MANDATORY = False
+          SUBMIT_COMMAND = sbatch %_(JOB_SCRIPT)s
+          CANCEL_COMMAND = scancel %_(JOB_ID)s
+          CHECK_COMMAND = squeue -h -j %_(JOB_ID)s
+          SUBMIT_TEMPLATE = #!/bin/bash
+              ### Inherit all current environment variables
+              #SBATCH --export=ALL
+              ### Job name
+              #SBATCH -J "%_(JOB_NAME)s - %_(SCIPION_PROTOCOL)s"
+              ###SBATCH --comment "%_(SCIPION_PROJECT)s"
+              ### Outputs
+              #SBATCH -o %_(JOB_SCRIPT)s.out
+              #SBATCH -e %_(JOB_SCRIPT)s.err
+              #SBATCH --open-mode=append
+              ### Partition (queue) name
+              #SBATCH -p %_(JOB_QUEUE)s
+              ### Specify time, number of nodes (tasks), cores and memory(MB) for your job
+              #SBATCH --ntasks=%_(JOB_NODES)d --cpus-per-task=%_(JOB_THREADS)d --mem=65535 --gres=gpu:%_(GPU_COUNT)s
+              /home/scipionuser/ScipionUserData/launcher.sh %_(JOB_COMMAND)s
+          ; Next variable is used to provide a regex to check if a job is finished on a queue system
+          JOB_DONE_REGEX = ""
+          QUEUES = {
+              "debug": [["JOB_MEMORY", "8192", "Memory (MB)", "Select amount of memory (in megabytes) for this job"],
+                        ["JOB_TIME", "48", "Time (hours)", "Select the time expected (in hours) for this job"],
+                        ["GPU_COUNT", "0", "Number of GPUs", "Select GPUs to allocate"]]
+              }
+        dest: /home/scipionuser/ScipionUserData/hosts.conf
+
+    - name: Flush handlers
+      meta: flush_handlers
+
+    - name: Install OpenMPI
+      apt:
+        name: openmpi-bin
+        state: present
+
+    - name: Wait for Scipion container pull to finish
+      async_status:
+        jid: "{{ pull_container.ansible_job_id }}"
+      register: pull_container_status
+      until: pull_container_status.finished
+      retries: 90
+      delay: 60
+      become_user: scipionuser
+
+    - name: Set apptainer param for GPU support
+      set_fact:
+        nvidia_param: "--nv"
+      when: gpu_num_server | int > 0
+
+    - name: Launch Scipion container
+      shell: |
+          xhost +SI:localuser:scipionuser &&
+
+          nohup apptainer exec {{ nvidia_param }} --containall \
+            --env DISPLAY=:1 --env SCIPION_USER_DATA=/home/scipionuser/ScipionUserData \
+            --bind /run --bind /tmp/.X11-unix --bind /etc/resolv.conf \
+            --bind /home/scipionuser/ScipionUserData \
+            {{ SLURM_DEPENDENCIES_CMD }} \
+            /home/scipionuser/container/apptainer-{{ CONTAINER_FLAVOUR }}:{{ CONTAINER_VERSION }}.sif \
+            /scipion/scipion3  > /home/scipionuser/scipion3.log 2>&1 &
+      become: true
+      become_user: scipionuser
+      environment:
+        DISPLAY: ":1"

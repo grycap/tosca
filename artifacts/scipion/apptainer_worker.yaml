@@ -1,0 +1,66 @@
+---
+- hosts: localhost
+  connection: local
+  vars:
+    vnode_master: scipion-master
+
+  pre_tasks:
+    - name: Create scipionuser group
+      group:
+        name: scipionuser
+        gid: 1042
+        state: present
+
+    - name: Create scipionuser user
+      user:
+        name: scipionuser
+        uid: 1042
+        shell: /bin/bash
+        group: scipionuser
+
+    - set_fact:
+        slurm_wn_gres: ""
+        slurm_wn_gres_tpes: ""
+        slurm_wn_gres_conf: ""
+        gpu_num: '{{ IM_INFRASTRUCTURE_RADL | json_query("[?id == ''lrms_wn''].gpu_count_min|[0]") }}'
+    - set_fact:
+        slurm_wn_gres: "gpu:{{ gpu_num }}"
+        slurm_wn_gres_tpes: "gpu"
+        slurm_wn_gres_conf: "AutoDetect=nvml"
+      when: gpu_num | int > 0
+
+  roles:
+
+    - role: NVIDIA.nvidia_driver
+      nvidia_driver_branch: "525"
+      when: gpu_num | int > 0
+
+    - role: grycap.nfs
+      nfs_mode: 'wn'
+      nfs_client_imports: [{ local: "/home", remote: "/home", server_host: "{{ slurm_front_end_ip }}", opts: "defaults,nolock" }]
+
+    - role: usegalaxy_eu.apptainer
+
+    - role: grycap.slurm
+      slurm_type_of_node: 'wn'
+      slurm_server_name: "{{ vnode_master }}"
+      slurm_server_ip: "{{ slurm_front_end_ip }}"
+      slurm_wn_ips: '{{ groups["lrms_wn"]|map("extract", hostvars, "ansible_default_ipv4.address")|list if "lrms_wn" in groups else [] }}'
+      slurm_wn_nodenames: '{{ groups["lrms_wn"]|map("extract", hostvars, "ansible_hostname")|list if "lrms_wn" in groups else [] }}'
+      slurm_version: "23.11.8"
+      slurm_user: scipionuser
+      slurm_user_id: 1042
+
+# Put here your Ansible recipes to configure the nodes
+
+  tasks:
+    - name: Apply sysctl configuration to disable user namespaces restrictions
+      sysctl:
+        name: kernel.apparmor_restrict_unprivileged_userns
+        value: '0'
+        sysctl_file: /etc/sysctl.d/90-disable-userns-restrictions.conf
+
+    - name: Install OpenMPI
+      apt:
+        name: openmpi-bin
+        state: present
