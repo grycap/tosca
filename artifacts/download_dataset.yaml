@@ -20,6 +20,12 @@
             extra_args: --break-system-packages
           when: ansible_python_version is version('3.11', '>=')
 
+        - name: Remove installed package python3-typing-extensions
+          package:
+            name: python3-typing-extensions
+            state: absent
+          ignore_errors: true
+
         - name: Install datahugger Python module
           ansible.builtin.pip:
             # name: datahugger
