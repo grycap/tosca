@@ -13,7 +13,7 @@
 
         - name: Set extra_args var
           set_fact:
-            extra_args: ""
+            extra_args: "--ignore-installed"
 
         - name: Set extra_args var in py3.11
           set_fact:
