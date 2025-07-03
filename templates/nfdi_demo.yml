@@ -41,11 +41,6 @@ topology_template:
       description: Number of GPUs to assing to this VM
       default: 0
 
-    dns_name:
-      type: string
-      description: DNS name to be used for the VM
-      default: "jupyter.test.fedcloud.eu"
-
     jupyter_token:
       default: changeme
       description: Token to access Jupyter
