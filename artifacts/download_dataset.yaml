@@ -17,7 +17,7 @@
 
         - name: Set extra_args var in py3.11
           set_fact:
-            extra_args: --break-system-packages
+            extra_args: "--ignore-installed --break-system-packages"
           when: ansible_python_version is version('3.11', '>=')
 
         - name: Remove installed package python3-typing-extensions
