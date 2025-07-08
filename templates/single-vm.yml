@@ -37,6 +37,11 @@ topology_template:
       constraints:
         - valid_values: [ '', 'NVIDIA', 'AMD' ]
 
+    dns_name:
+      type: string
+      description: DNS name to be used for the VM
+      default: ""
+
     ports:
       type: map
       entry_schema:
@@ -116,6 +121,8 @@ topology_template:
           properties:
             network_name: PUBLIC
             ports: { get_input: ports }
+            additional_dns_names:
+              - { get_input: dns_name }
         host:
           properties:
             disk_size: { get_input: disk_size }
