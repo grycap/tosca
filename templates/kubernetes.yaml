@@ -50,6 +50,11 @@ topology_template:
       description: Size of the root disk of the WNs (in case of 0 disk will no be resized)
       default: 40 GB
 
+    dns_name:
+      type: string
+      description: DNS name to set to the Kubernetes Front-end
+      default: ""
+
     kube_version:
       type: string
       description: Version of Kubernetes to install
@@ -143,6 +148,7 @@ topology_template:
         version: { get_input: kube_version }
         cri_runtime: docker
         csi_driver: NFS
+        public_dns_name: { get_input: dns_name}
       requirements:
         - host: front
 
@@ -153,6 +159,8 @@ topology_template:
           properties:
             dns_name: kubeserver
             network_name: PUBLIC
+            additional_dns_names:
+              - { get_input: dns_name}
         host:
           properties:
             num_cpus: { get_input: fe_cpus }
@@ -203,3 +211,5 @@ topology_template:
   outputs:
     k8s_dashboard_url:
       value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], '/dashboard/' ] }
+    k8s_dashboard_dns_endpoint:
+      value: { concat: [ 'https://', get_input: dns_name, '/dashboard/' ] }
