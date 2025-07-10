@@ -2022,6 +2022,12 @@ node_types:
         type: tosca.capabilities.Storage
         valid_source_types: [tosca.nodes.StorageSystem]
         relationship: tosca.relationships.eosc.Transfers
+    requirements:
+      - host:
+          capability: tosca.capabilities.Container
+          node: tosca.nodes.Compute
+          relationship: tosca.relationships.HostedOn
+          occurrences: [0, 1]
 
   tosca.nodes.eosc.Dataset:
     derived_from: tosca.nodes.Root
