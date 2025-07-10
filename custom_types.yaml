@@ -1979,6 +1979,15 @@ node_types:
             k8s_secret_password: { get_property: [ SELF, password ] }
             k8s_secret_email: { get_property: [ SELF, email ] }
 
+  tosca.nodes.Container.Runtime:
+    # Do not derive from Software component (host)
+    derived_from: tosca.nodes.Root
+    capabilities:
+      host:
+        type: tosca.capabilities.Container
+      scalable:
+        type: tosca.capabilities.Scalable
+
   tosca.nodes.Container.Application.Docker:
     derived_from: tosca.nodes.Container.Application
     attributes:
