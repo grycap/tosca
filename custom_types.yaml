@@ -2000,6 +2000,12 @@ node_types:
         type: tosca.capabilities.Container.Docker
         valid_source_types: [tosca.nodes.Container.Application.Docker]
         relationship: tosca.relationships.HostedOn
+    requirements:
+      - host:
+          capability: tosca.capabilities.Container
+          node: tosca.nodes.Compute
+          relationship: tosca.relationships.HostedOn
+          occurrences: [0, 1]
 
   tosca.nodes.StorageSystem:
     derived_from: tosca.nodes.Root
