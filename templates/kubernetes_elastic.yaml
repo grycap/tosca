@@ -57,6 +57,7 @@ topology_template:
       requirements:
         - lrms: lrms_front_end
         - wn: wn_node
+        - host: front
       interfaces:
         Standard:
           configure:

@@ -1,6 +1,5 @@
 ---
-- name: Install datahugger and download dataset
-  hosts: localhost
+- hosts: localhost
   vars:
     ansible_python_interpreter: /usr/bin/python3
   tasks:
@@ -14,12 +13,18 @@
 
         - name: Set extra_args var
           set_fact:
-            extra_args: ""
+            extra_args: "--ignore-installed"
 
         - name: Set extra_args var in py3.11
           set_fact:
-            extra_args: --break-system-packages
+            extra_args: "--ignore-installed --break-system-packages"
           when: ansible_python_version is version('3.11', '>=')
+
+        - name: Remove installed package python3-typing-extensions
+          package:
+            name: python3-typing-extensions
+            state: absent
+          ignore_errors: true
 
         - name: Install datahugger Python module
           ansible.builtin.pip:
@@ -37,5 +42,6 @@
 
     - when: remote_storage_endpoint is defined and remote_storage_endpoint != ""
       block:
-        - name: mount remote storage
-          command: echo "mounting remote storage"
+        - name: DTS Dataset
+          debug:
+            msg: Do something with the DTS Dataset
