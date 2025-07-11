@@ -42,7 +42,6 @@ metadata:
     - yProv.yml
     - flink.yaml
     - k8s_galaxy.yaml
-    - dydns_egi_update_k8s.yml
     - ades.yaml
     - openeo.yaml
     - proxy_host_k8s.yaml
@@ -166,7 +165,7 @@ topology_template:
       default: "jhondoe@server.com"
     kube_public_dns_name:
       type: string
-      description: DNS name of the public interface of the FE node to generate the certificate
+      description: DNS name to set to the Kubernetes Front-end
       default: ""
 
     kube_allowed_cidr:
@@ -218,6 +217,8 @@ topology_template:
         endpoint:
           properties:
             dns_name: kubeserver
+            additional_dns_names:
+              - { get_input: kube_public_dns_name}
             network_name: PUBLIC
         host:
           properties:
