@@ -27,6 +27,7 @@ metadata:
       - mount_path
       - ports
       - dns_name
+      - private_ip
     GPU Data: .*gpu.*
   childs:
     - docker.yaml
@@ -135,6 +136,13 @@ topology_template:
       description: DNS name to be used for the VM
       default: ""
 
+    private_ip:
+      type: boolean
+      description: Assign a private IP to the VM. Change only if you know what you are doing.
+      default: true
+      constraints:
+        - valid_values: [ true, false ]
+
   node_templates:
 
     simple_node:
@@ -146,6 +154,7 @@ topology_template:
               - { get_input: dns_name }
             network_name: PUBLIC
             ports: { get_input: ports }
+            private_ip: { get_input: private_ip }
         scalable:
           properties:
             count: { get_input: num_instances }
