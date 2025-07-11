@@ -31,7 +31,7 @@
     - set_fact:
         slurm_wn_gres: "gpu:{{ gpu_num }}"
         slurm_wn_gres_tpes: "gpu"
-        slurm_wn_gres_conf: "AutoDetect=nvml"
+        slurm_wn_gres_conf: "Name=gpu Type=default File=/dev/nvidia0"
       when: gpu_num | int > 0
 
   roles:
