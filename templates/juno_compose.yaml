@@ -17,12 +17,17 @@ metadata:
           tag_type: password
       - dns_name
       - letsencrypt_email
+      - notebook_image
   parents:
     - simple-node-disk.yml
 
 topology_template:
   inputs:
 
+    notebook_image:
+      description: Jupyter Notebook Docker image
+      type: string
+      default: jupyter/base-notebook
     jupyter_token:
       default: changeme
       description: Token to access Jupyter
@@ -93,6 +98,7 @@ topology_template:
               jupyter_token: { get_input: jupyter_token }
               jupyter_dns_name: { get_input: dns_name }
               jupyter_public_ip: { get_attribute: [ simple_node, public_address, 0 ] }
+              jupyter_notebook_image: { get_input: notebook_image }
       requirements:
         - host: simple_node
 

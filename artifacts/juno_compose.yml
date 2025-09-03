@@ -7,6 +7,7 @@
     JUPYTER_TOKEN: "{{ jupyter_token | default('sometoken') }}"
     traefik_dns_name: "{{ jupyter_dns_name | default('jupyter.example.com') }}"
     traefik_public_ip: "{{ jupyter_public_ip | default(ansible_default_ipv4.address) }}"
+    notebook_image: "{{ jupyter_notebook_image | default('jupyter/base-notebook') }}"
   roles:
     - role: 'grycap.docker'
   tasks:
@@ -47,7 +48,7 @@
                 - "./letsencrypt:/letsencrypt"
                 - "/var/run/docker.sock:/var/run/docker.sock:ro"
             jupyter:
-              image: jupyter/base-notebook
+              image: "{{ notebook_image }}"
               expose:
                 - "8888"
               volumes:
