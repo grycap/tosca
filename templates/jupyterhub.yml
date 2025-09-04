@@ -36,17 +36,10 @@ topology_template:
       description: Username of the Administrator user
       default: admin
 
-    data_url:
-      type: string
-      description: URL of data to be downloaded and stored in the JupyterHub PVC.
-      default: ''
-
-    unarchive:
+    install_data_mount:
       type: boolean
-      description: Unarchive the downloaded file.
+      description: Whether to install the DataMountSpawner extension
       default: false
-      constraints:
-        - valid_values: [ false, true ]
 
   node_templates:
 
@@ -60,23 +53,10 @@ topology_template:
               authenticator_class: { get_input: [ auth_class ] }
               dummy_pass: { get_input: [ dummy_password ] }
               admin_user: { get_input: [ admin_user ] }
+              install_data_mount: { get_input: [ install_data_mount ] }
       requirements:
         - host: front
         - dependency: lrms_front_end
-
-    get_data:
-      type: tosca.nodes.SoftwareComponent
-      interfaces:
-        Standard:
-          configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/download_data.yml
-            inputs:
-              data_url: { get_input: data_url }
-              k8s_pvc_namespace: jupyter
-              k8s_pvc_name: claim-data
-              unarchive_file: { get_input: unarchive }
-      requirements:
-        - host: lrms_front_end
 
   outputs:
     jupyterhub_endpoint:
