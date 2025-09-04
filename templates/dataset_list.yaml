@@ -1,0 +1,49 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+imports:
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/dataset_list/custom_types.yaml
+
+description: Download a list of Datasets in VM local path
+
+metadata:
+  template_version: "1.0.0"
+  template_name: Download list of datasets
+  display_name: Download list of datasets
+  icon: images/dataset.png
+  parents:
+    - simple-node-disk.yml
+  tabs:
+    Download Dataset: .*
+
+topology_template:
+
+  inputs:
+
+    dataset_ids:
+      type: list
+      entry_schema:
+        type: string
+      description: List of URLs or DOIs of the data to Download.
+      default: []
+
+    dest:
+      type: string
+      description: Local path where the datasets will be downloaded
+      default: '/data'
+
+    owner:
+      type: string
+      description: Change the ownership of the directory where the datasets should be saved.
+      default: ''
+
+  node_templates:
+
+    # A Dataset downloaded directly to the local filesystem
+    my_dataset_list:
+      type: tosca.nodes.eosc.DatasetList
+      properties:
+        dataset_ids: { get_input: dataset_ids }
+        dest: { get_input: dest }
+        owner: { get_input: owner }
+      requirements:
+        - host: simple_node
