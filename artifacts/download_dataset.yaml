@@ -39,6 +39,15 @@
             dataset_url: "{{ dataset_url }}"
             output_dir: "{{ output_dir }}"
             owner: "{{ owner | default('') }}"
+          when: dataset_url is defined and dataset_url != ""
+
+        - name: Download dataset list item
+          grycap.dataset.download_dataset:
+            dataset_url: "{{ item }}"
+            output_dir: "{{ output_dir }}"
+            owner: "{{ owner | default('') }}"
+          when: dataset_urls is defined and dataset_urls != []
+          loop: "{{ dataset_urls }}"
 
     - when: remote_storage_endpoint is defined and remote_storage_endpoint != ""
       block:

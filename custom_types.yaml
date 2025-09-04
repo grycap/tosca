@@ -2085,6 +2085,42 @@ node_types:
             filter: { get_property: [ SELF, filter ] }
             owner: { get_property: [ SELF, owner ] }
 
+  tosca.nodes.eosc.DatasetList:
+    derived_from: tosca.nodes.Root
+    properties:
+      dataset_ids:
+        type: list
+        description: List of dataset IDs (DOIs) or URLs.
+        required: true
+      dest:
+        type: string
+        description: Path to download the set of files from the Dataset.
+        required: false
+        default: ''
+      owner:
+        type: string
+        description: Change the ownership of the directory where the dataset should be saved.
+        default: ''
+        required: false
+    requirements:
+      - host:
+          capability: tosca.capabilities.Compute
+          node: tosca.nodes.Compute
+          relationship: tosca.relationships.HostedOn
+    artifacts:
+      datase_collection:
+        file: git+https://github.com/grycap/ansible-collection-dataset
+        type: tosca.artifacts.AnsibleGalaxy.collection
+    interfaces:
+      Standard:
+        configure:
+          implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/download_dataset.yaml
+          inputs:
+            dataset_urls: { get_property: [ SELF, dataset_ids ] }
+            output_dir: { get_property: [ SELF, dest ] }
+            filter: ".*"
+            owner: { get_property: [ SELF, owner ] }
+
   tosca.nodes.eosc.dts.Dataset:
     derived_from: tosca.nodes.eosc.Dataset
     requirements:
