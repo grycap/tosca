@@ -39,6 +39,7 @@
             nvidia.com/gpu: 1
           extra_resource_guarantees:
             nvidia.com/gpu: 1
+    data_mount: "{{ install_data_mount | default(false) }}"
   tasks:
     - name: Add jupyterhub helm repo
       command: helm repo add jupyterhub https://jupyterhub.github.io/helm-chart/
@@ -142,6 +143,24 @@
                     mountPath: /home/jovyan/data
                     readOnly: True
               profileList: {{ jup_profile_list }}
+
+    - name: add data mount to values if required
+      when: install_data_mount
+      blockinfile:
+        path: /tmp/config.yaml
+        insertafter: 'hub:'
+        block: |
+          # Install datamountspawner
+            args:
+              - -c
+              - >-
+                pip install jupyterhub-datamountspawner &&
+                jupyterhub -f /usr/local/etc/jupyterhub/jupyterhub_config.py
+            command:
+              - /bin/bash
+            extraConfig:
+              customConfig: |
+                c.JupyterHub.spawner_class = 'datamountspawner.KubeSpawner'
 
     - name: Install (or upgrade) the chart
       command: helm upgrade --install jupyterhub jupyterhub/jupyterhub --namespace jupyter --create-namespace --values /tmp/config.yaml --timeout 10m
