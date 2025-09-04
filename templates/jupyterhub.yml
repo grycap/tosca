@@ -6,7 +6,7 @@ imports:
 description: Deploy JupyterHub on top of a Kubernetes Virtual Cluster.
 
 metadata:
-  template_version: "1.1.0"
+  template_version: "1.2.0"
   template_name: JupyterHub
   display_name: Deploy JupyterHub on top of a Kubernetes Virtual Cluster
   icon: images/jupyterhub.png
@@ -40,6 +40,8 @@ topology_template:
       type: boolean
       description: Whether to install the DataMountSpawner extension
       default: false
+      constraints:
+        - valid_values: [ false, true ]
 
   node_templates:
 
