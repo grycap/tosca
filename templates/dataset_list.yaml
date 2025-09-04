@@ -12,6 +12,7 @@ metadata:
   icon: images/dataset.png
   parents:
     - simple-node-disk.yml
+    - kubernetes.yaml
   tabs:
     Download Dataset: .*
 
@@ -36,6 +37,16 @@ topology_template:
       description: Change the ownership of the directory where the datasets should be saved.
       default: ''
 
+    pvc_name:
+      type: string
+      description: Name of the PVC where the dataset will be downloaded (only for Kubernetes deployments)
+      default: ''
+
+    pvc_namespace:
+      type: string
+      description: Namespace of the PVC where the dataset will be downloaded (only for Kubernetes deployments)
+      default: ''
+
   node_templates:
 
     # A Dataset downloaded directly to the local filesystem
@@ -45,5 +56,7 @@ topology_template:
         dataset_ids: { get_input: dataset_ids }
         dest: { get_input: dest }
         owner: { get_input: owner }
+        pvc_name: { get_input: pvc_name }
+        pvc_namespace: { get_input: pvc_namespace }
       requirements:
         - host: simple_node
