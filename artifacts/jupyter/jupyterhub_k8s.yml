@@ -145,7 +145,7 @@
               profileList: {{ jup_profile_list }}
 
     - name: add data mount to values if required
-      when: install_data_mount
+      when: data_mount
       blockinfile:
         path: /tmp/config.yaml
         insertafter: 'hub:'
