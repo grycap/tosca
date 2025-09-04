@@ -48,7 +48,7 @@ metadata:
     - proxy_host_k8s.yaml
     - ophidia_intertwin.yaml
     - kubevirt.yaml
-    - dataset_list.yaml
+    - dataset_list_k8s.yaml
 
 topology_template:
   inputs:
