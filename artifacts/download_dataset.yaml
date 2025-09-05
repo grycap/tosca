@@ -2,6 +2,8 @@
 - hosts: localhost
   vars:
     ansible_python_interpreter: /usr/bin/python3
+    k8s_pvc_name: "{{ pvc_name | default('') }}"
+    k8s_pvc_namespace: "{{ pvc_namespace | default('') }}"
   tasks:
     - name: Ensure python3-pip is installed
       ansible.builtin.package:
@@ -11,43 +13,106 @@
     - when: remote_storage_endpoint is not defined or remote_storage_endpoint == ""
       block:
 
-        - name: Set extra_args var
-          set_fact:
-            extra_args: "--ignore-installed"
+        - when: k8s_pvc_name == '' and k8s_pvc_namespace == ''
+          block:
 
-        - name: Set extra_args var in py3.11
-          set_fact:
-            extra_args: "--ignore-installed --break-system-packages"
-          when: ansible_python_version is version('3.11', '>=')
+            - name: Set extra_args var
+              set_fact:
+                extra_args: "--ignore-installed"
 
-        - name: Remove installed package python3-typing-extensions
-          package:
-            name: python3-typing-extensions
-            state: absent
-          ignore_errors: true
+            - name: Set extra_args var in py3.11
+              set_fact:
+                extra_args: "--ignore-installed --break-system-packages"
+              when: ansible_python_version is version('3.11', '>=')
 
-        - name: Install datahugger Python module
-          ansible.builtin.pip:
-            # name: datahugger
-            name: "git+https://github.com/grycap/datahugger/"
-            state: present
-            executable: pip3
-            extra_args: "{{ extra_args }}"
+            - name: Remove installed package python3-typing-extensions
+              package:
+                name: python3-typing-extensions
+                state: absent
+              ignore_errors: true
 
-        - name: Download the dataset
-          grycap.dataset.download_dataset:
-            dataset_url: "{{ dataset_url }}"
-            output_dir: "{{ output_dir }}"
-            owner: "{{ owner | default('') }}"
-          when: dataset_url is defined and dataset_url != ""
+            - name: Install datahugger Python module
+              ansible.builtin.pip:
+                # name: datahugger
+                name: "git+https://github.com/grycap/datahugger/"
+                state: present
+                executable: pip3
+                extra_args: "{{ extra_args }}"
 
-        - name: Download dataset list item
-          grycap.dataset.download_dataset:
-            dataset_url: "{{ item }}"
-            output_dir: "{{ output_dir }}"
-            owner: "{{ owner | default('') }}"
-          when: dataset_urls is defined and dataset_urls != []
-          loop: "{{ dataset_urls }}"
+            - name: Download the dataset
+              grycap.dataset.download_dataset:
+                dataset_url: "{{ dataset_url }}"
+                output_dir: "{{ output_dir }}"
+                owner: "{{ owner | default('') }}"
+              when: dataset_url is defined and dataset_url != ""
+
+            - name: Download dataset list item
+              grycap.dataset.download_dataset:
+                dataset_url: "{{ item }}"
+                output_dir: "{{ output_dir }}"
+                owner: "{{ owner | default('') }}"
+              when: dataset_urls is defined and dataset_urls != []
+              loop: "{{ dataset_urls }}"
+
+        - name: Download data to a K8s PVC
+          when: k8s_pvc_name != '' and k8s_pvc_namespace != ''
+          block:
+
+            - name: Gen URL hash
+              set_fact:
+                url_hash: "{{ dataset_url | hash('md5') }}"
+
+            - name: Set Download dataset job command
+              set_fact:
+                command: "datahugger '{{ dataset_url }}' /data"
+              when: dataset_url is defined and dataset_url != ""
+
+            - name: Init Download dataset list job command
+              when: dataset_urls is defined and dataset_urls != []
+              set_fact:
+                command: "pwd"
+
+            - name: Set Download dataset list job command
+              when: dataset_urls is defined and dataset_urls != []
+              set_fact:
+                command: "{{command}} && datahugger '{{ item }}' /data"
+              loop: "{{ dataset_urls }}"
+
+            - name: Create job file
+              copy:
+                content: |
+                  apiVersion: batch/v1
+                  kind: Job
+                  metadata:
+                    namespace: {{ pvc_namespace }}
+                    name: pv-load-{{ url_hash }}
+                  spec:
+                    template:
+                      spec:
+                        restartPolicy: OnFailure
+                        volumes:
+                          - name: pv-storage
+                            persistentVolumeClaim:
+                              claimName: {{ pvc_name }}
+                        containers:
+                          - name: pv-load
+                            image: python:3.10-alpine
+                            command:
+                            - sh
+                            - -c
+                            - apk add git --no-cache && pip install git+https://github.com/grycap/datahugger/ && {{ command }}
+                            volumeMounts:
+                              - mountPath: '/data'
+                                name: pv-storage
+                dest: "/opt/wget_job_{{ url_hash }}.yaml"
+                mode: '644'
+              register: job_file
+
+            - name: Create wget job
+              command: kubectl apply -f /opt/wget_job_{{ url_hash }}.yaml
+              environment:
+                KUBECONFIG: "/etc/kubernetes/admin.conf"
+              when: job_file is changed
 
     - when: remote_storage_endpoint is defined and remote_storage_endpoint != ""
       block:

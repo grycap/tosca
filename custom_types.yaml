@@ -2102,6 +2102,16 @@ node_types:
         description: Change the ownership of the directory where the dataset should be saved.
         default: ''
         required: false
+      pvc_name:
+        type: string
+        description: Name of the PVC where the dataset will be downloaded (only for Kubernetes deployments)
+        default: ''
+        required: false
+      pvc_namespace:
+        type: string
+        description: Namespace of the PVC where the dataset will be downloaded (only for Kubernetes deployments)
+        default: ''
+        required: false
     requirements:
       - host:
           capability: tosca.capabilities.Compute
@@ -2120,6 +2130,8 @@ node_types:
             output_dir: { get_property: [ SELF, dest ] }
             filter: ".*"
             owner: { get_property: [ SELF, owner ] }
+            pvc_name: { get_property: [ SELF, pvc_name ] }
+            pvc_namespace: { get_property: [ SELF, pvc_namespace ] }
 
   tosca.nodes.eosc.dts.Dataset:
     derived_from: tosca.nodes.eosc.Dataset
