@@ -6,12 +6,16 @@ imports:
 description: Deploy JupyterHub on top of a Kubernetes Virtual Cluster.
 
 metadata:
-  template_version: "1.2.0"
+  template_version: "1.2.1"
   template_name: JupyterHub
   display_name: Deploy JupyterHub on top of a Kubernetes Virtual Cluster
   icon: images/jupyterhub.png
   tabs:
-    JupyterHub: .*
+    JupyterHub:
+      - auth_class
+      - dummy_password
+      - admin_user
+      - install_data_mount
   parents:
     - kubernetes.yaml
 
