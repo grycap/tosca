@@ -61,6 +61,12 @@
             - name: Gen URL hash
               set_fact:
                 url_hash: "{{ dataset_url | hash('md5') }}"
+              when: dataset_url is defined and dataset_url != ""
+
+            - name: Gen URL hash for dataset list
+              set_fact:
+                url_hash: "{{ dataset_urls[0] | hash('md5') }}"
+              when: dataset_urls is defined and dataset_urls != []
 
             - name: Set Download dataset job command
               set_fact:
