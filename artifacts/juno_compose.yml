@@ -15,7 +15,7 @@
       file:
         path: /opt/jupyter/notebooks
         state: directory
-        mode: '755'
+        mode: '777'
 
     - name: Create docker-compose file
       copy:
