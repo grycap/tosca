@@ -13,7 +13,12 @@ metadata:
   parents:
     - kubernetes.yaml
   tabs:
-    Download Dataset: .*
+    Download Dataset:
+      - dataset_ids
+      - dest
+      - owner
+      - pvc_name
+      - pvc_namespace
 
 topology_template:
 

@@ -92,8 +92,6 @@
                   kind: Namespace
                   metadata:
                     name: {{ pvc_namespace }}
-                  labels:
-                    name: {{ pvc_namespace }}
                   ---
                   apiVersion: batch/v1
                   kind: Job
