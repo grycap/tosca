@@ -87,6 +87,14 @@
             - name: Create job file
               copy:
                 content: |
+                  ---
+                  apiVersion: v1
+                  kind: Namespace
+                  metadata:
+                    name: {{ pvc_namespace }}
+                  labels:
+                    name: {{ pvc_namespace }}
+                  ---
                   apiVersion: batch/v1
                   kind: Job
                   metadata:
