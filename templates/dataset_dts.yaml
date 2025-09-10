@@ -9,7 +9,7 @@ metadata:
   template_version: "1.0.0"
   template_name: Transfer dataset with DTS
   display_name: Transfer dataset with DTS
-  icon: images/dataset_dts.png
+  icon: images/dataset_fts.png
   tag: devel
   parents:
     - simple-node-disk.yml

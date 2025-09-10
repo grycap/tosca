@@ -12,7 +12,7 @@ metadata:
   display_name: Deploy Jupyter Notebook
   icon: images/jupyter.png
   tabs:
-    Jupyter  Data:
+    Jupyter Data:
       - jupyter_token:
           tag_type: password
       - letsencrypt_email
