@@ -96,7 +96,7 @@ topology_template:
           properties:
             type: linux
             distribution: ubuntu
-            version: '24.04'
+            # version: '24.04'
 
   outputs:
     url:
