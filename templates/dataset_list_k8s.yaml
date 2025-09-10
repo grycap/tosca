@@ -9,7 +9,7 @@ metadata:
   template_version: "1.0.0"
   template_name: Download list of datasets in K8s
   display_name: Download list of datasets in K8s
-  icon: images/dataset.png
+  icon: images/dataset_list.png
   parents:
     - kubernetes.yaml
   tabs:
