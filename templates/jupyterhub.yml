@@ -6,12 +6,16 @@ imports:
 description: Deploy JupyterHub on top of a Kubernetes Virtual Cluster.
 
 metadata:
-  template_version: "1.1.0"
+  template_version: "1.2.1"
   template_name: JupyterHub
   display_name: Deploy JupyterHub on top of a Kubernetes Virtual Cluster
   icon: images/jupyterhub.png
   tabs:
-    JupyterHub: .*
+    JupyterHub:
+      - auth_class
+      - dummy_password
+      - admin_user
+      - install_data_mount
   parents:
     - kubernetes.yaml
 
@@ -36,17 +40,24 @@ topology_template:
       description: Username of the Administrator user
       default: admin
 
-    data_url:
-      type: string
-      description: URL of data to be downloaded and stored in the JupyterHub PVC.
-      default: ''
-
-    unarchive:
+    install_data_mount:
       type: boolean
-      description: Unarchive the downloaded file.
+      description: Whether to install the DataMountSpawner extension
       default: false
       constraints:
         - valid_values: [ false, true ]
+
+    # Overwrite default Dataset list values
+
+    pvc_name:
+      type: string
+      description: Name of the PVC where the dataset will be downloaded (only for Kubernetes deployments)
+      default: 'claim-data'
+
+    pvc_namespace:
+      type: string
+      description: Namespace of the PVC where the dataset will be downloaded (only for Kubernetes deployments)
+      default: 'jupyter'
 
   node_templates:
 
@@ -60,23 +71,10 @@ topology_template:
               authenticator_class: { get_input: [ auth_class ] }
               dummy_pass: { get_input: [ dummy_password ] }
               admin_user: { get_input: [ admin_user ] }
+              install_data_mount: { get_input: [ install_data_mount ] }
       requirements:
         - host: front
         - dependency: lrms_front_end
-
-    get_data:
-      type: tosca.nodes.SoftwareComponent
-      interfaces:
-        Standard:
-          configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/download_data.yml
-            inputs:
-              data_url: { get_input: data_url }
-              k8s_pvc_namespace: jupyter
-              k8s_pvc_name: claim-data
-              unarchive_file: { get_input: unarchive }
-      requirements:
-        - host: lrms_front_end
 
   outputs:
     jupyterhub_endpoint:

@@ -47,6 +47,7 @@ metadata:
     - proxy_host_k8s.yaml
     - ophidia_intertwin.yaml
     - kubevirt.yaml
+    - dataset_list_k8s.yaml
 
 topology_template:
   inputs:
@@ -144,9 +145,9 @@ topology_template:
     kube_version:
       type: string
       description: Version of Kubernetes to install
-      default: "1.32.4"
+      default: "1.33.5"
       constraints:
-        - valid_values: [ "1.32.4", "1.33.0", "1.30.12", "1.31.8", "1.29.15", "1.28.15" ]
+        - valid_values: [ "1.33.5", "1.34.1", "1.32.9", "1.31.13", "1.30.14", "1.29.15", "1.28.15" ]
     kube_cri_runtime:
       type: string
       description: CRI Runtime to use with Kubernetes
