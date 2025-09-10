@@ -72,10 +72,13 @@ topology_template:
               dummy_pass: { get_input: [ dummy_password ] }
               admin_user: { get_input: [ admin_user ] }
               install_data_mount: { get_input: [ install_data_mount ] }
+              kube_public_dns_name: { get_input: kube_public_dns_name}
       requirements:
         - host: front
         - dependency: lrms_front_end
 
   outputs:
+    jupyterhub_dns_endpoint:
+      value: { concat: [ 'https://', get_input: kube_public_dns_name, '/jupyterhub/' ] }
     jupyterhub_endpoint:
       value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], '/jupyterhub/' ] }
