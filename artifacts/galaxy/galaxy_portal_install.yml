@@ -11,6 +11,14 @@
         state: absent
       ignore_errors: true
       when: ansible_os_family == "Debian"
+    - name: Remove web servers
+      package:
+        name:
+          - nginx
+          - apache2
+        state: absent
+      ignore_errors: true
+
   roles:
     - role: 'grycap.nfs'
       nfs_mode: 'front'
