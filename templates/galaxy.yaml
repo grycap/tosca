@@ -95,7 +95,7 @@ topology_template:
         os:
           properties:
             type: linux
-            distribution: ubuntu
+            distribution: ubuntu-noble
             # version: '24.04'
 
   outputs:
