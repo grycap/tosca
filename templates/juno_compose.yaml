@@ -56,7 +56,7 @@ topology_template:
     # Restrict some simple-node-disk input values
 
     dns_name:
-      default: jupyter.test.fedcloud.eu
+      default: jupyter-test.fedcloud.eu
       description: DNS hostname to access Jupyter Notebook
       type: string
 
