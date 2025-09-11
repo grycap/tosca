@@ -21,7 +21,7 @@ topology_template:
     fe_mem:
       type: scalar-unit.size
       description: Amount of Memory for the front-end node
-      default: 5 GiB
+      default: 8 GiB
     fe_disk_size:
       type: scalar-unit.size
       description: Size of the disk to be attached to the FE instance (Set 0 if disk is not needed)
@@ -44,49 +44,31 @@ topology_template:
       description: Size of the root disk of the WNs (in case of 0 disk will no be resized)
       default: 50 GiB
 
-    kube_admin_token:
-      type: string
-      description: Access Token for the Kubernetes admin user
-      default: not_very_secret_token
-    kube_version:
-      type: string
-      description: Version of Kubernetes to install
-      default: "1.32.4"
-    kube_cert_manager:
-      type: boolean
-      description: Flag to install Cert-Manager
-      default: true
-    kube_cert_user_email:
-      type: string
-      description: Email to be used in the Let's Encrypt issuer
-      default: "jhondoe@server.com"
     kube_public_dns_name:
       type: string
-      description: DNS name of the public interface of the FE node to generate the certificate
+      description: DNS name of the public interface of the JupyterHub
       default: "jupytermount.vm.fedcloud.eu"
 
-
     # JupyterHub parameters
-    dummy_password:
+    admin_password:
+      required: true
       type: string
-      description: Password of the Administrator user
+      description: Password of the JupyterHub Administrator user
       default: not_very_secret_pass
-
-    admin_user:
-      type: string
-      description: Username of the Administrator user
-      default: admin
 
     # Dataset list parameters
     dataset_ids:
+      required: true
       type: list
       entry_schema:
         type: string
       description: List of URLs or DOIs of the data to Download.
       default:
-        - 10.5281/zenodo.6614829
-        - 10.5281/zenodo.6625880
-
+        - 10.48372/84a70617-3606-499d-bbe6-2b52ccf33392
+        - 10.48372/29290d64-a840-4ffc-accf-5bf68deef233
+        - 10.48372/285eff33-55de-4d0e-8b7f-c995dc80478e
+        - 10.48372/98914415-765c-4650-b272-b16793231e8a
+        - 10.48372/30d8844e-1774-4c63-89c4-4d858f88317d
 
   node_templates:
 
@@ -110,8 +92,8 @@ topology_template:
             implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/jupyter/jupyterhub_k8s.yml
             inputs:
               authenticator_class: dummy
-              dummy_pass: { get_input: [ dummy_password ] }
-              admin_user: { get_input: [ admin_user ] }
+              dummy_pass: { get_input: [ admin_password ] }
+              admin_user: admin
               install_data_mount: yes
               kube_public_dns_name: { get_input: [ kube_public_dns_name ] }
       requirements:
@@ -133,11 +115,11 @@ topology_template:
       properties:
         admin_username: kubeuser
         install_nfs_client: true
-        admin_token: { get_input: kube_admin_token }
+        admin_token: ''
         install_kubeapps: false
-        version: { get_input: kube_version }
-        cert_manager: { get_input: kube_cert_manager }
-        cert_user_email: { get_input: kube_cert_user_email }
+        version: "1.32.4"
+        cert_manager: true
+        cert_user_email: jhondoe@server.com
         public_dns_name: { get_input: kube_public_dns_name}
         cri_runtime: docker
         csi_driver: NFS
@@ -179,7 +161,7 @@ topology_template:
       type: tosca.nodes.indigo.LRMS.WorkerNode.Kubernetes
       properties:
         front_end_ip: { get_attribute: [ front, private_address, 0 ] }
-        version: { get_input: kube_version }
+        version: "1.32.4"
         cri_runtime: docker
         csi_driver: NFS
       requirements:
