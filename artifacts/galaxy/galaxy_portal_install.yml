@@ -28,3 +28,26 @@
     - role: grycap.galaxy
       galaxy_export_dir: /home/export
       galaxy_slurm_server_name: '{{ galaxy_server_name }}'
+
+  tasks:
+    - name: Set default DNS name (nip.io)
+      set_fact:
+        galaxy_url: "https://galaxy.{{ public_ip_address }}.nip.io"
+      when: dns_name is not defined or dns_name == ""
+
+    - name: Set custom DNS name
+      set_fact:
+        galaxy_url: "https://{{ dns_name }}"
+      when: dns_name is defined and dns_name != ""
+
+    - name: Wait galaxy to be up and running
+      uri:
+        url: "{{ galaxy_url }}"
+        method: GET
+        status_code: 200
+        return_content: true
+        validate_certs: false
+      register: result
+      until: "'Galaxy is a community-driven web-based analysis platform for life science research' in result.content"
+      retries: 30
+      delay: 10
