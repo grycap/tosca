@@ -49,5 +49,5 @@
         validate_certs: false
       register: result
       until: "'Galaxy is a community-driven web-based analysis platform for life science research' in result.content"
-      retries: 30
+      retries: 60
       delay: 10
