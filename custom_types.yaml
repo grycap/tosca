@@ -367,6 +367,15 @@ capability_types:
         type: string
         description: Specific path in the storage system.
         required: false
+      type:
+        type: string
+        description: The type of the destination storage system (e.g., s3, dcache, storm ...). See DTS documentation for supported types
+        required: false
+      overwrite:
+        type: boolean
+        description: Whether to overwrite existing files at the destination.
+        required: false
+        default: false
 
 artifact_types:
 
@@ -421,6 +430,8 @@ relationship_types:
             remote_storage_endpoint: { get_property: [ TARGET, remote_storage, endpoint ] }
             remote_storage_credentials: { get_property: [ TARGET, remote_storage, credentials] }
             remote_storage_path: { get_property: [ TARGET, remote_storage, path ] }
+            remote_storage_type: { get_property: [ TARGET, remote_storage, type ] }
+            remote_storage_overwrite: { get_property: [ TARGET, remote_storage, overwrite ] }
 
 
 node_types:

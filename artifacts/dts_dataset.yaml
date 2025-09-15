@@ -29,6 +29,9 @@
         dts_endpoint: https://data-transfer.service.eosc-beyond.eu
         dts_token: "{{ dts_credential['token'] }}"
         destination: "{{ remote_storage_endpoint }}{{ remote_storage_path }}"
+        destination_type: "{{ remote_storage_type }}"
+        dest_authorization: "{{ remote_storage_credentials | default({}) }}"
+        overwrite: {{ remote_storage_overwrite | default(false) }}
       register: dts_job
 
     - name: Print JobID
