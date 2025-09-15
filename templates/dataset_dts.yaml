@@ -43,12 +43,19 @@ topology_template:
     storage_system_credentials_type:
       type: string
       description: Type of credentials to use for the storage system
-      default: 'basic_auth'
+      default: 'password'
+      constraints:
+        - valid_values: [ password, token ]
+
+    storage_system_credentials_user:
+      type: string
+      description: Username to use for the storage system (only for password type)
+      default: 'some_user'
 
     storage_system_credentials:
       type: string
-      description: Credentials to use for the storage system
-      default: 'some_user_pass'
+      description: Password or token to use for the storage system
+      default: 'some_pass_or_token'
 
   node_templates:
 
@@ -77,5 +84,6 @@ topology_template:
             endpoint: { get_input: storage_system_endpoint }
             credentials:
               token_type: { get_input: storage_system_credentials_type }
+              user: { get_input: storage_system_credentials_user }
               token: { get_input: storage_system_credentials }
             path: { get_input: storage_system_path }
