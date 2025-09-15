@@ -31,7 +31,7 @@
         destination: "{{ remote_storage_endpoint }}{{ remote_storage_path }}"
         destination_type: "{{ remote_storage_type }}"
         dest_authorization: "{{ remote_storage_credentials | default({}) }}"
-        overwrite: {{ remote_storage_overwrite | default(false) }}
+        overwrite: "{{ remote_storage_overwrite | default(false) }}"
       register: dts_job
 
     - name: Print JobID
