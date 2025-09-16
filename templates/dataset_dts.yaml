@@ -18,6 +18,7 @@ metadata:
       - dataset_id
       - dts_credential:
           tag_type: access_token
+      - storage_system_type
       - storage_system_endpoint
       - storage_system_path
       - storage_system_credentials_type
@@ -37,6 +38,13 @@ topology_template:
       type: string
       description: DTS access token to use for the transfer
       default: 'access_token'
+
+    storage_system_type:
+      type: string
+      description: Storage system type to use for the transfer
+      default: 's3s'
+      constraints:
+        - valid_values: [ s3s, s3, dcache, storm, ftp ]
 
     storage_system_endpoint:
       type: string
@@ -89,6 +97,7 @@ topology_template:
       capabilities:
         remote_storage:
           properties:
+            type: { get_input: storage_system_type }
             endpoint: { get_input: storage_system_endpoint }
             credentials:
               token_type: { get_input: storage_system_credentials_type }
