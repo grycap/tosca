@@ -408,7 +408,7 @@ relationship_types:
 
   tosca.relationships.eosc.Transfers:
     derived_from: tosca.relationships.Root
-    valid_target_types: [ tosca.capabilities. Storage ]
+    valid_target_types: [ tosca.capabilities.Storage ]
     properties:
       dts_endpoint:
         type: string
