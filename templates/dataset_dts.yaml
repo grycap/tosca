@@ -14,7 +14,15 @@ metadata:
   parents:
     - simple-node-disk.yml
   tabs:
-    Download Dataset: .*
+    Download Dataset:
+      - dataset_id
+      - dts_credential:
+          tag_type: access_token
+      - storage_system_endpoint
+      - storage_system_path
+      - storage_system_credentials_type
+      - storage_system_credentials_user
+      - storage_system_credentials
 
 topology_template:
 
