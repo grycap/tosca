@@ -14,7 +14,16 @@ metadata:
   parents:
     - simple-node-disk.yml
   tabs:
-    Download Dataset: .*
+    Download Dataset:
+      - dataset_id
+      - dts_credential:
+          tag_type: access_token
+      - storage_system_type
+      - storage_system_endpoint
+      - storage_system_path
+      - storage_system_credentials_type
+      - storage_system_credentials_user
+      - storage_system_credentials
 
 topology_template:
 
@@ -30,6 +39,13 @@ topology_template:
       description: DTS access token to use for the transfer
       default: 'access_token'
 
+    storage_system_type:
+      type: string
+      description: Storage system type to use for the transfer
+      default: 's3s'
+      constraints:
+        - valid_values: [ s3s, s3, dcache, storm, ftp ]
+
     storage_system_endpoint:
       type: string
       description: Storage system to use for the transfer
@@ -43,12 +59,19 @@ topology_template:
     storage_system_credentials_type:
       type: string
       description: Type of credentials to use for the storage system
-      default: 'basic_auth'
+      default: 'password'
+      constraints:
+        - valid_values: [ password, token ]
+
+    storage_system_credentials_user:
+      type: string
+      description: Username to use for the storage system (only for password type)
+      default: 'some_user'
 
     storage_system_credentials:
       type: string
-      description: Credentials to use for the storage system
-      default: 'some_user_pass'
+      description: Password or token to use for the storage system
+      default: 'some_pass_or_token'
 
   node_templates:
 
@@ -74,8 +97,10 @@ topology_template:
       capabilities:
         remote_storage:
           properties:
+            type: { get_input: storage_system_type }
             endpoint: { get_input: storage_system_endpoint }
             credentials:
               token_type: { get_input: storage_system_credentials_type }
+              user: { get_input: storage_system_credentials_user }
               token: { get_input: storage_system_credentials }
             path: { get_input: storage_system_path }
