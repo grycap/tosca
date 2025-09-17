@@ -68,7 +68,7 @@ topology_template:
       default: "/home/data"
     fe_dns_name:
       type: string
-      description: DNS name to set to the HT-Condor Front-end
+      description: DNS name to set to the SLURM Front-end
       default: ""
 
     wn_disk_size:
