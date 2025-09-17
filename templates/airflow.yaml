@@ -45,6 +45,7 @@ topology_template:
     airflow:
       type: tosca.nodes.indigo.Helm.Chart
       properties:
+        version: '1.11.0'
         namespace: airflow
         repository_name: apache-airflow
         repository_url: "https://airflow.apache.org"
