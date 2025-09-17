@@ -61,6 +61,10 @@ topology_template:
 
     wn_node:
       type: tosca.nodes.indigo.LRMS.WorkerNode.Slurm
+      properties:
+        front_end_ip: { get_attribute: [ lrms_server, private_address, 0 ] }
+        public_front_end_ip: { get_attribute: [ lrms_server, public_address, 0 ] }
+        version: { get_input: slurm_version }
       capabilities:
         wn:
           properties:
@@ -71,3 +75,6 @@ topology_template:
         public_front_end_ip: { get_attribute: [ lrms_server, public_address, 0 ] }
       requirements:
         - host: lrms_wn
+
+
+
