@@ -75,6 +75,3 @@ topology_template:
         public_front_end_ip: { get_attribute: [ lrms_server, public_address, 0 ] }
       requirements:
         - host: lrms_wn
-
-
-
