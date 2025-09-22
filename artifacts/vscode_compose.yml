@@ -1,0 +1,75 @@
+---
+- name: Install jupyter
+  hosts: localhost
+  connection: local
+  vars:
+    traefik_letsencrypt_email: "{{ letsencrypt_email | default('vscode.fedcloud.eu') }}"
+    traefik_dns_name: "{{ vscode_dns_name | default('vscode.fedcloud.eu') }}"
+    traefik_public_ip: "{{ vscode_public_ip | default(ansible_default_ipv4.address) }}"
+  roles:
+    - role: 'grycap.docker'
+  tasks:
+    - name: Create vscode directory
+      file:
+        path: /opt/vscode/workspace
+        state: directory
+        mode: '777'
+        recurse: yes
+
+    - name: Create docker-compose file
+      copy:
+        content: |
+          version: "3.3"
+          services:
+            traefik:
+              image: "traefik:v2.10"
+              container_name: "traefik"
+              command:
+                # - "--log.level=DEBUG"
+                - "--api.insecure=true"
+                - "--providers.docker=true"
+                - "--providers.docker.exposedbydefault=false"
+                - "--entrypoints.web.address=:80"
+                - "--entrypoints.websecure.address=:443"
+                - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+                - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+                - "--entrypoints.web.http.redirections.entrypoint.permanent=true"
+                - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
+                - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+                #- "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+                - "--certificatesresolvers.myresolver.acme.email={{ traefik_letsencrypt_email }}"
+                - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+              ports:
+                - "80:80"
+                - "443:443"
+                - "8080:8080"
+              volumes:
+                - "./letsencrypt:/letsencrypt"
+                - "/var/run/docker.sock:/var/run/docker.sock:ro"
+            vscode:
+              image: lscr.io/linuxserver/code-server:latest
+              expose:
+                - "8443"
+              volumes:
+                - ./workspace:/workspace
+              environment:
+                - PUID=1000
+                - PGID=1000
+                - TZ=Etc/UTC
+                - DEFAULT_WORKSPACE=/workspace
+                - PASSWORD={{ vscode_password }}
+              restart: unless-stopped
+              labels:
+                - "traefik.enable=true"
+                - "traefik.http.routers.vscode.service=vscode"
+                - "traefik.http.routers.vscode.rule=Host(`{{ traefik_dns_name }}`, `{{ traefik_public_ip }}`)"
+                - "traefik.http.routers.vscode.entrypoints=websecure"
+                - "traefik.http.routers.vscode.tls.certresolver=myresolver"
+                - "traefik.http.services.vscode.loadbalancer.server.port=8443"
+        dest: /opt/vscode/docker-compose.yaml
+        mode: '644'
+
+    - name: Exec docker-compose up
+      docker_compose:
+        project_src: /opt/vscode/
+        state: present
