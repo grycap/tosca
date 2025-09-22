@@ -92,9 +92,9 @@ topology_template:
               admin_user:
                 get_input: minio_accesskey
               dns_console:
-                { concat: ["console.minio.", { get_attribute: [ simple_node, public_address, 0 ] }, "nip.io"] }
+                { concat: ["console.minio.", { get_attribute: [ simple_node, public_address, 0 ] }, ".nip.io"] }
               dns_api:
-                { concat: ["minio.", { get_attribute: [ simple_node, public_address, 0 ] }, "nip.io"] }
+                { concat: ["minio.", { get_attribute: [ simple_node, public_address, 0 ] }, ".nip.io"] }
               letsencrypt_email:
                 get_input: minio_letsencrypt_email
               release:
