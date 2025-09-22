@@ -136,6 +136,6 @@ topology_template:
 
   outputs:
     minio_console:
-      value: { concat: ["https://console.minio.", { get_attribute: [ simple_node, public_address, 0 ] }, "nip.io"] }
+      value: { concat: ["https://console.minio.", { get_attribute: [ simple_node, public_address, 0 ] }, ".nip.io"] }
     minio_api:
-      value: { concat: ["https://minio.", { get_attribute: [ simple_node, public_address, 0 ] }, "nip.io"] }
+      value: { concat: ["https://minio.", { get_attribute: [ simple_node, public_address, 0 ] }, ".nip.io"] }
