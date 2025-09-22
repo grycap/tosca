@@ -54,6 +54,7 @@ metadata:
     - dataset_dts.yaml
     - ollama.yaml
     - juno_compose.yaml
+    - vscode_compose.yaml
 
 topology_template:
 
