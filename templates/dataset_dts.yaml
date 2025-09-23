@@ -15,7 +15,7 @@ metadata:
     - simple-node-disk.yml
   tabs:
     Download Dataset:
-      - dataset_id
+      - dataset_ids
       - dts_credential:
           tag_type: access_token
       - storage_system_type
