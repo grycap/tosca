@@ -426,7 +426,7 @@ relationship_types:
           inputs:
             dts_endpoint: { get_property: [ SELF, dts_endpoint ] }
             dts_credential: { get_property: [ SELF, dts_credential ] }
-            dataset_id: { get_property: [ SOURCE, dataset_id ] }
+            dataset_urls: { get_property: [ SOURCE, dataset_ids ] }
             remote_storage_endpoint: { get_property: [ TARGET, remote_storage, endpoint ] }
             remote_storage_credentials: { get_property: [ TARGET, remote_storage, credentials] }
             remote_storage_path: { get_property: [ TARGET, remote_storage, path ] }
@@ -2145,7 +2145,7 @@ node_types:
             pvc_namespace: { get_property: [ SELF, pvc_namespace ] }
 
   tosca.nodes.eosc.dts.Dataset:
-    derived_from: tosca.nodes.eosc.Dataset
+    derived_from: tosca.nodes.eosc.DatasetList
     requirements:
       - host:
           capability: tosca.capabilities.Compute
@@ -2164,7 +2164,7 @@ node_types:
         configure:
           implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/download_dataset.yaml
           inputs:
-            dataset_url: { get_property: [ SELF, dataset_id ] }
+            dataset_urls: { get_property: [ SELF, dataset_ids ] }
             output_dir: { get_property: [ SELF, dest ] }
             remote_storage_endpoint: { get_property: [ SELF, remote_storage, endpoint ] }
             remote_storage_credentials: { get_property: [ SELF, remote_storage, credentials] }

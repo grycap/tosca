@@ -1,7 +1,7 @@
 tosca_definitions_version: tosca_simple_yaml_1_0
 
 imports:
-  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/devel/custom_types.yaml
 
 description: Transfer a dataset to a storage system using the DTS
 
@@ -15,7 +15,7 @@ metadata:
     - simple-node-disk.yml
   tabs:
     Download Dataset:
-      - dataset_id
+      - dataset_ids
       - dts_credential:
           tag_type: access_token
       - storage_system_type
@@ -29,10 +29,12 @@ topology_template:
 
   inputs:
 
-    dataset_id:
-      type: string
-      description: DOI of the data to Download
-      default: 'doi:10.1234/example.doi'
+    dataset_ids:
+      type: list
+      entry_schema:
+        type: string
+      description: List of URLs or DOIs of the data to Download.
+      default: []
 
     dts_credential:
       type: string
@@ -75,11 +77,11 @@ topology_template:
 
   node_templates:
 
-    # A Dataset copied to a storage system using the DTS and mounted locally
+    # A set of Datasets copied to a storage system using the DTS and mounted locally
     my_dataset_dts:
       type: tosca.nodes.eosc.dts.Dataset
       properties:
-        dataset_id: { get_input: dataset_id }
+        dataset_ids: { get_input: dataset_ids }
       requirements:
         - host: simple_node
         - remote_storage:
