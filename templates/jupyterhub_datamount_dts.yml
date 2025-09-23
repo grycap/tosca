@@ -1,0 +1,249 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+imports:
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+
+description: >
+  Deploy a Kubernetes Virtual Cluster with JupyterHub and DataMountSpawner extension.
+  It also installs MinIO service where the list of datasets will be transfered using
+  the DTS service.
+
+metadata:
+  template_name: DataMount JupyterHub with MinIO server on Kubernetes
+  template_version: "1.0.0"
+
+topology_template:
+  inputs:
+    # Kubernetes Cluster parameters
+    fe_cpus:
+      type: integer
+      description: Number of CPUs for the front-end node
+      default: 4
+    fe_mem:
+      type: scalar-unit.size
+      description: Amount of Memory for the front-end node
+      default: 8 GiB
+    fe_disk_size:
+      type: scalar-unit.size
+      description: Size of the disk to be attached to the FE instance (Set 0 if disk is not needed)
+      default: 100 GiB
+
+    wn_num:
+      type: integer
+      description: Number of WNs in the cluster
+      default: 1
+    wn_cpus:
+      type: integer
+      description: Number of CPUs for the WNs
+      default: 4
+    wn_mem:
+      type: scalar-unit.size
+      description: Amount of Memory for the WNs
+      default: 8 GiB
+    wn_disk_size:
+      type: scalar-unit.size
+      description: Size of the root disk of the WNs (in case of 0 disk will no be resized)
+      default: 50 GiB
+
+    kube_public_dns_name:
+      type: string
+      description: DNS name of the public interface of the JupyterHub
+      default: "jupytermount.vm.fedcloud.eu"
+
+    # JupyterHub parameters
+    admin_password:
+      required: true
+      type: string
+      description: Password of the JupyterHub Administrator user
+      default: not_very_secret_pass
+
+    # MinIO parameters
+    minio_accesskey:
+      type: string
+      description: Access key credential for object storage and web access
+      default: minio
+    minio_secretkey:
+      type: string
+      description: Secret key credential for object storage and web access
+      default: minio123
+      constraints:
+        - min_length: 8
+
+    # Dataset list parameters
+    dataset_ids:
+      required: true
+      type: list
+      entry_schema:
+        type: string
+      description: List of URLs or DOIs of the data to Download.
+      default:
+        - 10.48372/84a70617-3606-499d-bbe6-2b52ccf33392
+        - 10.48372/29290d64-a840-4ffc-accf-5bf68deef233
+#        - 10.48372/285eff33-55de-4d0e-8b7f-c995dc80478e
+#        - 10.48372/98914415-765c-4650-b272-b16793231e8a
+#        - 10.48372/30d8844e-1774-4c63-89c4-4d858f88317d
+
+    dts_credential:
+      type: string
+      description: DTS Credential (EGI Checkin token)
+      default: 'eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJQVVlPaXJBM1ktZF9kR3BkajRpSkRIdzR6SGE4SVktYmhaZGFFajByamJVIn0.eyJleHAiOjE3NTg2MzY2MTQsImlhdCI6MTc1ODYzNTgzMCwiYXV0aF90aW1lIjoxNzU4NjA3ODE0LCJqdGkiOiJlZDZiYTg0ZS05NTRhLTQ2MmUtYWM3NS02OWJmYmIwOWI1MGUiLCJpc3MiOiJodHRwczovL2FhaS5lZ2kuZXUvYXV0aC9yZWFsbXMvZWdpIiwic3ViIjoiYTY3ZmZmOWMwNmU2MjQwMTk3NWFlYjI5YWQzNWI4ZmFmN2M0ZmM3NGI0NTI2YTU1MDRlNTEzMmIwMTQ5NjgzMUBlZ2kuZXUiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJpbS1kYXNoYm9hcmQiLCJzZXNzaW9uX3N0YXRlIjoiYzM3ZjM1NWYtZTk3My00ODBjLTgxM2ItOGQ3YmI2MzEwNTFlIiwic2NvcGUiOiJvcGVuaWQgb2ZmbGluZV9hY2Nlc3MgZWR1cGVyc29uX2VudGl0bGVtZW50IHByb2ZpbGUgZW1haWwiLCJzaWQiOiJjMzdmMzU1Zi1lOTczLTQ4MGMtODEzYi04ZDdiYjYzMTA1MWUiLCJlZHVwZXJzb25fYXNzdXJhbmNlIjpbImh0dHBzOi8vYWFpLmVnaS5ldS9Mb0EjTG93IiwiaHR0cHM6Ly9hYXJjLWNvbW11bml0eS5vcmcvcG9saWN5L2F1dGhuLWFzc3VyYW5jZS9hc3NhbSIsImh0dHBzOi8vcmVmZWRzLm9yZy9hc3N1cmFuY2UvSUFQL2xvdyIsImh0dHBzOi8vcmVmZWRzLm9yZy9hc3N1cmFuY2UvSUQvdW5pcXVlIiwiaHR0cHM6Ly9yZWZlZHMub3JnL2Fzc3VyYW5jZSJdfQ.l2X3tWTrjY6e1BvBGRAqFHeLSJP5Y6nG3Bvh_YuMqsUN9mmp5pEycnZ1oQsNoQadC2XZ41Z9hCANCHJJ9cswrgykkKBsPgwGnHmd72FMebbXabEkDuWAaabzmdxo2kxCZDP5tzMgjWlv5jby8ThNuPLea-gq-Zcnd-tYI6o9ADXYqralpfqeNyy7DLnG62WblMv8Jay-9mnWWsgSB7EyzKIh5GTratW2uqcfVpZs2oyk9YTtfzxbcFWNlR8ekLLpLVimkPPAc1bj0OWhDp8ewHmRgnsugmjhSzgJoFA6cT8vbBgd0jZ-IA2oTp2kLRHbEqdzhRdd1MVM4-sZ5SLzJg'
+
+  node_templates:
+
+    # A set of Datasets copied to a storage system using the DTS and mounted locally
+    my_dataset_dts:
+      type: tosca.nodes.eosc.dts.Dataset
+      properties:
+        dataset_ids: { get_input: dataset_ids }
+      requirements:
+        - host: front
+        - dependency: minio
+        - remote_storage:
+            node: storage_system
+            capability: tosca.capabilities.Storage
+            relationship:
+              type: tosca.relationships.eosc.Transfers
+              properties:
+                dts_credential:
+                  token_type: password
+                  token: { get_input: dts_credential }
+
+    storage_system:
+      type: tosca.nodes.StorageSystem
+      capabilities:
+        remote_storage:
+          properties:
+            type: 's3s'
+            endpoint: { concat: [ 's3.', get_input: kube_public_dns_name ] }
+            credentials:
+              token_type: password
+              user: { get_input: minio_accesskey }
+              token: { get_input: minio_secretkey }
+            path: '/demo/data'
+
+    minio:
+      type: tosca.nodes.ec3.Application
+      artifacts:
+        docker_role:
+          file: grycap.kubeminio,buckets
+          type: tosca.artifacts.AnsibleGalaxy.role
+      interfaces:
+        Standard:
+          configure:
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/minio.yml
+            inputs:
+              public_hostname_api: { concat: [ 's3.', get_input: kube_public_dns_name ] }
+              public_hostname_console: { concat: [ 'minio.', get_input: kube_public_dns_name ] }
+              minio_accesskey: { get_input: minio_accesskey }
+              minio_secretkey: { get_input: minio_secretkey }
+              enable_tls: true
+              buckets:
+                - name: demo
+      requirements:
+        - host: front
+        - dependency: lrms_front_end
+
+    jupyterhub:
+      type: tosca.nodes.ec3.Application
+      interfaces:
+        Standard:
+          configure:
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/jupyter/jupyterhub_k8s.yml
+            inputs:
+              authenticator_class: dummy
+              dummy_pass: { get_input: [ admin_password ] }
+              admin_user: admin
+              install_data_mount: yes
+              kube_public_dns_name: { get_input: [ kube_public_dns_name ] }
+      requirements:
+        - host: front
+        - dependency: lrms_front_end
+        - dependency: minio
+
+    lrms_front_end:
+      type: tosca.nodes.indigo.LRMS.FrontEnd.Kubernetes
+      capabilities:
+        endpoint:
+          properties:
+            ports:
+              http_port:
+                protocol: tcp
+                source: 80
+              https_port:
+                protocol: tcp
+                source: 443
+      properties:
+        admin_username: kubeuser
+        install_nfs_client: true
+        admin_token: ''
+        install_kubeapps: false
+        version: "1.32.4"
+        cert_manager: true
+        cert_user_email: jhondoe@server.com
+        public_dns_name: { get_input: kube_public_dns_name}
+        cri_runtime: docker
+        csi_driver: NFS
+      requirements:
+        - host: front
+
+    front:
+      type: tosca.nodes.indigo.Compute
+      capabilities:
+        endpoint:
+          properties:
+            dns_name: kubeserver
+            additional_dns_names:
+              - { concat: [ '*@', get_input: kube_public_dns_name ] }
+            network_name: PUBLIC
+        host:
+          properties:
+            num_cpus: { get_input: fe_cpus }
+            mem_size: { get_input: fe_mem }
+        os:
+          properties:
+            distribution: ubuntu
+            type: linux
+            version: 24.04
+      requirements:
+        - local_storage:
+            node: fe_block_storage
+            relationship:
+              type: AttachesTo
+              properties:
+                location: /pv
+
+    fe_block_storage:
+      type: tosca.nodes.BlockStorage
+      properties:
+        size: { get_input: fe_disk_size }
+
+    wn_node:
+      type: tosca.nodes.indigo.LRMS.WorkerNode.Kubernetes
+      properties:
+        front_end_ip: { get_attribute: [ front, private_address, 0 ] }
+        version: "1.32.4"
+        cri_runtime: docker
+        csi_driver: NFS
+      requirements:
+        - host: wn
+
+    wn:
+      type: tosca.nodes.indigo.Compute
+      capabilities:
+        scalable:
+          properties:
+            count: { get_input: wn_num }
+        host:
+          properties:
+            disk_size: { get_input: wn_disk_size }
+            num_cpus: { get_input: wn_cpus }
+            mem_size: { get_input: wn_mem }
+        os:
+          properties:
+            distribution: ubuntu
+            type: linux
+            version: 24.04
+
+  outputs:
+    jupyterhub_url:
+      value: { concat: [ 'https://', get_input: kube_public_dns_name, '/jupyterhub/' ] }
