@@ -3,7 +3,7 @@
   tasks:
     - name: Submit DTS transfer
       grycap.dataset.transfer_dataset_dts:
-        dataset_doi: "{{ dataset_url }}"
+        dataset_doi: "{{ item }}"
         dts_endpoint: https://data-transfer.service.eosc-beyond.eu
         dts_token: "{{ dts_credential['token'] }}"
         destination: "{{ remote_storage_endpoint }}{{ remote_storage_path }}"
@@ -11,7 +11,8 @@
         dest_authorization: "{{ remote_storage_credentials | default({}) }}"
         overwrite: "{{ remote_storage_overwrite | default(false) }}"
       register: dts_job
+      loop: "{{ dataset_urls }}"
 
-    - name: Print JobID
+    - name: Print JobIDs
       debug:
         var: dts_job
