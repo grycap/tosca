@@ -102,7 +102,7 @@ topology_template:
               type: tosca.relationships.eosc.Transfers
               properties:
                 dts_credential:
-                  token_type: password
+                  token_type: token
                   token: { get_input: dts_credential }
 
     storage_system:
@@ -111,7 +111,7 @@ topology_template:
         remote_storage:
           properties:
             type: 's3s'
-            endpoint: { concat: [ 's3.', get_input: kube_public_dns_name ] }
+            endpoint: { concat: [ 's3s://s3.', get_input: kube_public_dns_name ] }
             credentials:
               token_type: password
               user: { get_input: minio_accesskey }
