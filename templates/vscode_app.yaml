@@ -1,0 +1,73 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+imports:
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+
+description: TOSCA template for deploying VSCode in a container
+
+metadata:
+  template_version: "1.1.0"
+  template_name: VSCode Container
+  display_name: Deploy VSCode in a container
+
+topology_template:
+
+  inputs:
+    cpu:
+      type: float
+      description: Number of virtual cpus for the container
+      default: 2.0
+    gpu:
+      type: integer
+      description: Number of GPUs for the container
+      default: 0
+    memory:
+      type: scalar-unit.size
+      description: Memory size for the container
+      default: 8 GB
+
+    vscode_password:
+      type: string
+      description: VSCode password
+      default: vscode_pass
+      required: yes
+
+    endpoint:
+      type: string
+      description: DNS name to access the GeoServer instance
+      default: https://vscode
+
+  node_templates:
+
+    vscode_app:
+      type: tosca.nodes.Container.Application.Docker
+      properties:
+        environment:
+          DEFAULT_WORKSPACE: /workspace
+          PUID: 1000
+          PGID: 1000
+          TZ: Etc/UTC
+          PASSWORD: { get_input: vscode_password }
+      requirements:
+        - host: vscode_runtime
+      artifacts:
+        my_image:
+          file: 'lscr.io/linuxserver/code-server:latest'
+          type: tosca.artifacts.Deployment.Image.Container.Docker
+
+    # The properties of the runtime to host the container
+    vscode_runtime:
+      type: tosca.nodes.Container.Runtime.Docker
+      capabilities:
+        host:
+          properties:
+            num_cpus: { get_input: cpu }
+            num_gpus: { get_input: gpu }
+            mem_size: { get_input: memory }
+            publish_ports:
+              - target: 8443
+                endpoint: { get_input: endpoint }
+
+  outputs:
+    ai4eosc_app_url:
+      value: { concat: [ get_attribute: [ ai4eosc_app, endpoints, 0 ], 'ui' ] }
