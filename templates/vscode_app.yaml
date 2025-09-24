@@ -44,8 +44,8 @@ topology_template:
       properties:
         environment:
           DEFAULT_WORKSPACE: /workspace
-          PUID: 1000
-          PGID: 1000
+          PUID: '1000'
+          PGID: '1000'
           TZ: Etc/UTC
           PASSWORD: { get_input: vscode_password }
       requirements:
@@ -69,5 +69,5 @@ topology_template:
                 endpoint: { get_input: endpoint }
 
   outputs:
-    ai4eosc_app_url:
-      value: { concat: [ get_attribute: [ ai4eosc_app, endpoints, 0 ], 'ui' ] }
+    vscode_app_url:
+      value: { concat: [ get_attribute: [ vscode_app, endpoints, 0 ], '/' ] }
