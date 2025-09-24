@@ -10,7 +10,7 @@ description: >
 
 metadata:
   template_name: DataMount JupyterHub with MinIO server on Kubernetes
-  template_version: "1.0.0"
+  template_version: '1.0.0'
 
 topology_template:
   inputs:
@@ -43,12 +43,12 @@ topology_template:
     wn_disk_size:
       type: scalar-unit.size
       description: Size of the root disk of the WNs (in case of 0 disk will no be resized)
-      default: 50 GiB
+      default: 0 GiB
 
     kube_public_dns_name:
       type: string
       description: DNS name of the public interface of the JupyterHub
-      default: "jupytermount.vm.fedcloud.eu"
+      default: 'jupytermount.vm.fedcloud.eu'
 
     # JupyterHub parameters
     admin_password:
@@ -175,7 +175,7 @@ topology_template:
         install_nfs_client: true
         admin_token: ''
         install_kubeapps: false
-        version: "1.32.4"
+        version: '1.32.4'
         cert_manager: true
         cert_user_email: jhondoe@server.com
         public_dns_name: { get_input: kube_public_dns_name}
@@ -219,7 +219,7 @@ topology_template:
       type: tosca.nodes.indigo.LRMS.WorkerNode.Kubernetes
       properties:
         front_end_ip: { get_attribute: [ front, private_address, 0 ] }
-        version: "1.32.4"
+        version: '1.32.4'
         cri_runtime: docker
         csi_driver: NFS
       requirements:
