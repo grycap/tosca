@@ -246,6 +246,6 @@ topology_template:
     jupyterhub_url:
       value: { concat: [ 'https://', get_input: kube_public_dns_name, '/jupyterhub/' ] }
     minio_url:
-      value: { concat: [ 'https://minio.', get_input: kube_public_dns_name, '/jupyterhub/' ] }
+      value: { concat: [ 'https://minio.', get_input: kube_public_dns_name ] }
     minio_api_url:
-      value: { concat: [ 'https://s3.', get_input: kube_public_dns_name, '/jupyterhub/' ] }
+      value: { concat: [ 'https://s3.', get_input: kube_public_dns_name ] }
