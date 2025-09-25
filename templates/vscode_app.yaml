@@ -26,16 +26,20 @@ topology_template:
       description: Memory size for the container
       default: 8 GB
 
-    vscode_password:
-      type: string
-      description: VSCode password
-      default: vscode_pass
-      required: yes
+    pvc_size:
+      type: scalar-unit.size
+      description: Size of the workspace directory
+      default: 10 GB
 
     endpoint:
       type: string
       description: DNS name to access the GeoServer instance
       default: https://vscode
+
+    vscode_password:
+      type: string
+      description: Password for VSCode 
+      default: 'vscode123'
 
   node_templates:
 
@@ -43,17 +47,36 @@ topology_template:
       type: tosca.nodes.Container.Application.Docker
       properties:
         environment:
-          DEFAULT_WORKSPACE: /workspace
-          PUID: '1000'
-          PGID: '1000'
-          TZ: Etc/UTC
-          PASSWORD: { get_input: vscode_password }
+          SHELL: /bin/bash
+          HOME: /home/coder
+        command:
+         - code-server
+         - --config
+         - /home/coder/.config/code-server/config.yaml
+         - /home/workspace
       requirements:
         - host: vscode_runtime
       artifacts:
         my_image:
-          file: 'lscr.io/linuxserver/code-server:latest'
+          #file: 'codercom/code-server:latest'
+          file: 'grycap/vscode:latest'
           type: tosca.artifacts.Deployment.Image.Container.Docker
+        config_map:
+          file: "config.yaml"
+          type: tosca.artifacts.File
+          deploy_path: "/home/coder/.config/code-server/config.yaml"
+          properties:
+            content:
+              concat:
+                - |-
+                    bind-addr: 0.0.0.0:8080
+                    disable-telemetry: true
+                    auth: password
+                    cert: false
+                    user-data-dir: /home/coder/.local/share/code-server
+                    extensions-dir: /home/coder/.local/share/code-server
+                    password: 
+                - get_input: vscode_password
 
     # The properties of the runtime to host the container
     vscode_runtime:
@@ -65,9 +88,22 @@ topology_template:
             num_gpus: { get_input: gpu }
             mem_size: { get_input: memory }
             publish_ports:
-              - target: 8443
+              - target: 8080
                 endpoint: { get_input: endpoint }
+            volumes:
+              - "coder_vol:/home/coder"
+              - "project_vol:/home/workspace"
+
+    coder_vol:
+      type: tosca.nodes.BlockStorage
+      properties:
+        size: { get_input: pvc_size }
+
+    project_vol:
+      type: tosca.nodes.BlockStorage
+      properties:
+        size: { get_input: pvc_size }
 
   outputs:
     vscode_app_url:
-      value: { concat: [ get_attribute: [ vscode_app, endpoints, 0 ], '/' ] }
+      value: { concat: [ get_attribute: [ vscode_app, endpoints, 0 ] ] }
