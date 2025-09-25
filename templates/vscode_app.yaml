@@ -38,7 +38,7 @@ topology_template:
 
     vscode_password:
       type: string
-      description: Password for VSCode 
+      description: Password for VSCode
       default: 'vscode123'
 
   node_templates:
@@ -50,15 +50,15 @@ topology_template:
           SHELL: /bin/bash
           HOME: /home/coder
         command:
-         - code-server
-         - --config
-         - /home/coder/.config/code-server/config.yaml
-         - /home/workspace
+          - code-server
+          - --config
+          - /home/coder/.config/code-server/config.yaml
+          - /home/workspace
       requirements:
         - host: vscode_runtime
       artifacts:
         my_image:
-          #file: 'codercom/code-server:latest'
+          # file: 'codercom/code-server:latest'
           file: 'grycap/vscode:latest'
           type: tosca.artifacts.Deployment.Image.Container.Docker
         config_map:
@@ -75,7 +75,7 @@ topology_template:
                     cert: false
                     user-data-dir: /home/coder/.local/share/code-server
                     extensions-dir: /home/coder/.local/share/code-server
-                    password: 
+                    password:
                 - get_input: vscode_password
 
     # The properties of the runtime to host the container
