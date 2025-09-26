@@ -1,0 +1,197 @@
+---
+- name: Install jupyter
+  hosts: localhost
+  connection: local
+  vars:
+    traefik_letsencrypt_email: "{{ letsencrypt_email | default('haddock@fedcloud.eu') }}"
+    traefik_dns_name: "{{ haddock_dns_name | default('haddock.fedcloud.eu') }}"
+    traefik_public_ip: "{{ haddock_public_ip | default(ansible_default_ipv4.address) }}"
+  roles:
+    - role: 'grycap.docker'
+  tasks:
+    - name: Create haddock directory
+      file:
+        path: /opt/haddock
+        state: directory
+        mode: '777'
+        recurse: true
+
+    - name: Download bartender config file
+      get_url:
+        url: https://raw.githubusercontent.com/i-VRESSE/haddock3-webapp/refs/heads/main/deploy/arq/bartender-config.yaml
+        dest: /opt/haddock/bartender-config.yaml
+        mode: '644'
+
+    - name: Create docker-compose file
+      copy:
+        content: |
+          services:
+            traefik:
+              image: "traefik:v2.10"
+              container_name: "traefik"
+              command:
+                # - "--log.level=DEBUG"
+                - "--api.insecure=true"
+                - "--providers.docker=true"
+                - "--providers.docker.exposedbydefault=false"
+                - "--entrypoints.web.address=:80"
+                - "--entrypoints.websecure.address=:443"
+                - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+                - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+                - "--entrypoints.web.http.redirections.entrypoint.permanent=true"
+                - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
+                - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+                #- "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+                - "--certificatesresolvers.myresolver.acme.email={{ traefik_letsencrypt_email }}"
+                - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+              ports:
+                - "80:80"
+                - "443:443"
+              volumes:
+                - "./letsencrypt:/letsencrypt"
+                - "/var/run/docker.sock:/var/run/docker.sock:ro"
+            webapp:
+              image: ghcr.io/i-vresse/haddock3-webapp:${WEBAPP_TAG:-latest}
+              restart: always
+              entrypoint: /usr/bin/sh
+              command: ["-c", "/wait && npm run setup && npm run start"]
+              depends_on:
+                bartender:
+                  condition: service_started
+                webappdb:
+                  condition: service_healthy
+                h3restraints:
+                  condition: service_started
+              ports:
+                - "8080:8080"
+              environment:
+                - BARTENDER_API_URL=http://bartender:8000
+                - DATABASE_URL=postgresql://postgres:postgres@webappdb:5432/postgres
+                - BARTENDER_PRIVATE_KEY=/certs/private_key.pem
+                - SESSION_SECRET_FILE=/certs/session.secret
+                - WAIT_PATHS=/certs/private_key.pem
+                - HADDOCK3_RESTRAINTS_URL=http://h3restraints:5000
+                # The number of cpu cores a single HADDOCK3 job will use
+                # Together with bartender_config.yml:destinations.haddock3.scheduler.max_jobs
+                # you can control how your machine is used.
+                - HADDOCK3_NCORES=4
+                - HADDOCK3WEBAPP_REFRESH_RATE_MS
+                - HADDOCK3WEBAPP_GITHUB_CLIENT_ID
+                - HADDOCK3WEBAPP_GITHUB_CLIENT_SECRET
+                - HADDOCK3WEBAPP_GITHUB_CALLBACK_URL
+                - HADDOCK3WEBAPP_ORCID_CLIENT_ID
+                - HADDOCK3WEBAPP_ORCID_CLIENT_SECRET
+                - HADDOCK3WEBAPP_ORCID_CALLBACK_URL
+                - HADDOCK3WEBAPP_ORCID_SANDBOX
+              volumes:
+                - bartender-certs:/certs:ro
+              labels:
+                - "traefik.enable=true"
+                - "traefik.http.routers.webapp.service=webapp"
+                - "traefik.http.routers.webapp.rule=Host(`{{ traefik_dns_name }}`, `{{ traefik_public_ip }}`)"
+                - "traefik.http.routers.webapp.entrypoints=websecure"
+                - "traefik.http.routers.webapp.tls.certresolver=myresolver"
+                - "traefik.http.services.webapp.loadbalancer.server.port=8080"
+            webappdb:
+              image: postgres:15.4-bullseye
+              restart: always
+              environment:
+                - POSTGRES_USER=postgres
+                - POSTGRES_PASSWORD=postgres
+                - POSTGRES_DB=postgres
+              volumes:
+                - webapp-db-data:/var/lib/postgresql/data
+              healthcheck:
+                test: pg_isready -U postgres
+                interval: 2s
+                timeout: 3s
+                retries: 40
+            bartender:
+              image: ghcr.io/i-vresse/bartender:${BARTENDER_TAG:-latest}
+              restart: always
+              command: sh -c '/wait && alembic upgrade head && bartender serve'
+              volumes:
+                - type: bind
+                  source: ./bartender-config.yaml
+                  target: /opt/bartender/config.yaml
+                  read_only: true
+                - bartender-certs:/certs:ro
+                - bartender-job-data:/jobs
+              depends_on:
+                bartenderdb:
+                  condition: service_healthy
+                redis:
+                  condition: service_started
+              environment:
+                BARTENDER_HOST: 0.0.0.0
+                BARTENDER_DB_HOST: bartenderdb
+                BARTENDER_DB_PORT: 5432
+                BARTENDER_DB_USER: postgres
+                BARTENDER_DB_PASS: postgres
+                BARTENDER_DB_BASE: postgres
+                # Number of workers of the web service, increase to handle more http requests
+                BARTENDER_WORKERS_COUNT: 4
+                BARTENDER_LOG_LEVEL: error
+                BARTENDER_PUBLIC_KEY: /certs/public_key.pem
+                WAIT_PATHS: /certs/private_key.pem
+            bartenderdb:
+              image: postgres:15.4-bullseye
+              restart: always
+              environment:
+                - POSTGRES_USER=postgres
+                - POSTGRES_PASSWORD=postgres
+                - POSTGRES_DB=postgres
+              volumes:
+                - bartender-db-data:/var/lib/postgresql/data
+              healthcheck:
+                test: pg_isready -U postgres
+                interval: 2s
+                timeout: 3s
+                retries: 40
+            redis:
+              image: redis:6.2.6
+              restart: always
+            bartenderworker:
+              image: ghcr.io/i-vresse/bartender:${BARTENDER_TAG:-latest}
+              build:
+                context: ..
+                dockerfile: ./Dockerfile.bartenderhaddock3
+              restart: always
+              command: sh -c 'bartender perform'
+              volumes:
+                - type: bind
+                  source: ./bartender-config.yaml
+                  target: /opt/bartender/config.yaml
+                  read_only: true
+                - bartender-job-data:/jobs
+              depends_on:
+                redis:
+                  condition: service_started
+            certmaker:
+              image: ghcr.io/i-vresse/certmaker:${CERTMAKER_TAG:-latest}
+              build:
+                context: ..
+                dockerfile: ./Dockerfile.openssl
+              volumes:
+                - bartender-certs:/certs
+              working_dir: /certs
+              restart: "no"
+            h3restraints:
+              image: ghcr.io/i-vresse/bartender:${BARTENDER_TAG:-latest}
+              build:
+                context: ..
+                dockerfile: ./Dockerfile.bartenderhaddock3
+              restart: always
+              command: sh -c 'uvicorn --host 0.0.0.0 --port 5000 haddock.clis.restraints.webservice:app'
+          volumes:
+            webapp-db-data:
+            bartender-db-data:
+            bartender-job-data:
+            bartender-certs:
+        dest: /opt/vscode/haddock-compose.yaml
+        mode: '644'
+
+    - name: Exec docker-compose up
+      docker_compose:
+        project_src: /opt/haddock/
+        state: present
