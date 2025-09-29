@@ -24,7 +24,7 @@ topology_template:
       default: 4
       description: Number of cores used by a single haddock3 job.
       type: integer
-    
+
     haddock_max_jobs:
       default: 1
       description: Maximum number of concurrent haddock3 jobs.
