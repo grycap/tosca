@@ -20,6 +20,16 @@ metadata:
 topology_template:
   inputs:
 
+    haddock_cores:
+      default: 4
+      description: Number of cores used by a single haddock3 job.
+      type: integer
+    
+    haddock_max_jobs:
+      default: 1
+      description: Maximum number of concurrent haddock3 jobs.
+      type: integer
+
     letsencrypt_email:
       default: changeme@email.com
       description: Email to be used for Let's Encrypt certificates
@@ -58,6 +68,8 @@ topology_template:
               letsencrypt_email: { get_input: letsencrypt_email }
               haddock_dns_name: { get_input: dns_name }
               haddock_public_ip: { get_attribute: [ simple_node, public_address, 0 ] }
+              haddock_cores: { get_input: haddock_cores }
+              haddock_max_jobs: { get_input: haddock_max_jobs }
       requirements:
         - host: simple_node
 

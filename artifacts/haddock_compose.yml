@@ -21,6 +21,13 @@
         url: https://raw.githubusercontent.com/i-VRESSE/haddock3-webapp/refs/heads/main/deploy/arq/bartender-config.yaml
         dest: /opt/haddock/bartender-config.yaml
         mode: '644'
+        force: no
+
+    - name: Set haddock max_jobs in bartender config
+      replace:
+        path: /opt/haddock/bartender-config.yaml
+        regexp: '^max_jobs:.*$'
+        replace: 'max_jobs: {{ haddock_max_jobs | default(1) }}'
 
     - name: Create docker-compose file
       copy:
@@ -74,7 +81,7 @@
                 # The number of cpu cores a single HADDOCK3 job will use
                 # Together with bartender_config.yml:destinations.haddock3.scheduler.max_jobs
                 # you can control how your machine is used.
-                - HADDOCK3_NCORES=4
+                - HADDOCK3_NCORES={{ haddock_cores | default(4) }}
                 - HADDOCK3WEBAPP_REFRESH_RATE_MS
                 - HADDOCK3WEBAPP_GITHUB_CLIENT_ID
                 - HADDOCK3WEBAPP_GITHUB_CLIENT_SECRET
