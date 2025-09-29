@@ -35,7 +35,7 @@ topology_template:
         endpoint:
           properties:
             ports:
-              kube_api: # force to open the port 6443
+              kube_api:  # force to open the port 6443
                 protocol: tcp
                 source: 6443
       interfaces:
