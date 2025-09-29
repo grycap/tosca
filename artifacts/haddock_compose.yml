@@ -21,7 +21,7 @@
         url: https://raw.githubusercontent.com/i-VRESSE/haddock3-webapp/refs/heads/main/deploy/arq/bartender-config.yaml
         dest: /opt/haddock/bartender-config.yaml
         mode: '644'
-        force: no
+        force: false
 
     - name: Set haddock max_jobs in bartender config
       replace:
