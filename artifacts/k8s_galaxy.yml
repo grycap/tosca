@@ -68,9 +68,17 @@
             dest: /opt/rabbitmq_values.yaml
             mode: '644'
             content: |
+              credentialUpdaterImage:
+                repository: bitnamilegacy/rmq-default-credential-updater
+              rabbitmqImage:
+                repository: bitnamilegacy/rabbitmq
               clusterOperator:
+                image:
+                  repository: bitnamilegacy/rabbitmq-cluster-operator
                 {{ AFFINITY | to_yaml(indent=4) }}
               msgTopologyOperator:
+                image:
+                  repository: bitnamilegacy/rmq-messaging-topology-operator
                 {{ AFFINITY | to_yaml(indent=4) }}
 
         - name: Add helm repo bitnami
