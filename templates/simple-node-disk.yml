@@ -55,6 +55,7 @@ metadata:
     - ollama.yaml
     - juno_compose.yaml
     - vscode_compose.yaml
+    - haddock_compose.yaml
 
 topology_template:
 
