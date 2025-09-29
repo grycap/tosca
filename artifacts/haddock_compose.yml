@@ -153,9 +153,6 @@
               restart: always
             bartenderworker:
               image: ghcr.io/i-vresse/bartender:${BARTENDER_TAG:-latest}
-              build:
-                context: ..
-                dockerfile: ./Dockerfile.bartenderhaddock3
               restart: always
               command: sh -c 'bartender perform'
               volumes:
@@ -169,18 +166,12 @@
                   condition: service_started
             certmaker:
               image: ghcr.io/i-vresse/certmaker:${CERTMAKER_TAG:-latest}
-              build:
-                context: ..
-                dockerfile: ./Dockerfile.openssl
               volumes:
                 - bartender-certs:/certs
               working_dir: /certs
               restart: "no"
             h3restraints:
               image: ghcr.io/i-vresse/bartender:${BARTENDER_TAG:-latest}
-              build:
-                context: ..
-                dockerfile: ./Dockerfile.bartenderhaddock3
               restart: always
               command: sh -c 'uvicorn --host 0.0.0.0 --port 5000 haddock.clis.restraints.webservice:app'
           volumes:
