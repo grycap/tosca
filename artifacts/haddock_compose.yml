@@ -188,7 +188,7 @@
             bartender-db-data:
             bartender-job-data:
             bartender-certs:
-        dest: /opt/vscode/haddock-compose.yaml
+        dest: /opt/haddock/docker-compose.yaml
         mode: '644'
 
     - name: Exec docker-compose up

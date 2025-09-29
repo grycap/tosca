@@ -28,7 +28,7 @@ topology_template:
     # Restrict some simple-node-disk input values
 
     dns_name:
-      default: haddock-test.fedcloud.eu
+      default: haddock-test.vm.fedcloud.eu
       description: DNS hostname to access the Haddock Web UI
       type: string
 
