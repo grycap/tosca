@@ -54,7 +54,7 @@
               image: ghcr.io/i-vresse/haddock3-webapp:${WEBAPP_TAG:-latest}
               restart: always
               entrypoint: /usr/bin/sh
-              command: ["-c", "/wait && npm run setup && npm run start"]
+              command: ["-c", "apt update && apt install --no-install-recommends -y curl && /wait && npm run setup && npm run start"]
               depends_on:
                 bartender:
                   condition: service_started
