@@ -11,6 +11,7 @@ metadata:
   template_name: Haddock
   display_name: Deploy Haddock Web UI
   icon: images/haddock.png
+  tag: devel
   web: https://www.bonvinlab.org/haddock3/
   tabs:
     Haddock Data: .*
