@@ -11,6 +11,7 @@ metadata:
   template_name: VSCode
   display_name: Deploy VS Code Web UI
   icon: images/vscode.png
+  tag: devel
   tabs:
     VSCode Data: .*
   parents:
