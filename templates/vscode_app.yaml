@@ -29,7 +29,7 @@ topology_template:
     pvc_size:
       type: scalar-unit.size
       description: Size of the workspace directory
-      default: 10 GB
+      default: 5 GB
 
     endpoint:
       type: string
@@ -39,7 +39,8 @@ topology_template:
     vscode_password:
       type: string
       description: Password for VSCode
-      default: 'vscode123'
+      default: ''
+      required: true
 
   node_templates:
 
@@ -50,33 +51,19 @@ topology_template:
           SHELL: /bin/bash
           HOME: /home/coder
         command:
-          - code-server
-          - --config
-          - /home/coder/.config/code-server/config.yaml
-          - /home/workspace
+         - bash
+         - '-c'
+         - concat:
+           - '/config.sh '
+           - get_input: vscode_password
+           - ' && '
+           - 'code-server --config /home/coder/.config/code-server/config.yaml /home/workspace'
       requirements:
         - host: vscode_runtime
       artifacts:
         my_image:
-          # file: 'codercom/code-server:latest'
           file: 'grycap/vscode:latest'
           type: tosca.artifacts.Deployment.Image.Container.Docker
-        config_map:
-          file: "config.yaml"
-          type: tosca.artifacts.File
-          deploy_path: "/home/coder/.config/code-server/config.yaml"
-          properties:
-            content:
-              concat:
-                - |-
-                    bind-addr: 0.0.0.0:8080
-                    disable-telemetry: true
-                    auth: password
-                    cert: false
-                    user-data-dir: /home/coder/.local/share/code-server
-                    extensions-dir: /home/coder/.local/share/code-server
-                    password:
-                - get_input: vscode_password
 
     # The properties of the runtime to host the container
     vscode_runtime:
