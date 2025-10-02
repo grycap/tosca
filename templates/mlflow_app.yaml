@@ -7,7 +7,7 @@ description: MLFlow container applitacion
 
 metadata:
   template_name: MLFlow
-  template_version: "1.0.0"
+  template_version: "1.1.0"
   template_author: Miguel Caballer
   creation_date: 2024-02-16
   # namespace: namespace
@@ -44,6 +44,8 @@ topology_template:
     mlflow_app:
       type: tosca.nodes.Container.Application.Docker
       properties:
+        environment:
+          MLFLOW_FLASK_SERVER_SECRET_KEY: secret-key
         command:
           concat:
             - "mlflow server --app-name basic-auth --host 0.0.0.0 --default-artifact-root /data/mlartifacts --backend-store-uri"
@@ -54,12 +56,12 @@ topology_template:
         - host: mlflow_runtime
       artifacts:
         my_image:
-          file: grycap/mlflow:2.17.2
+          file: grycap/mlflow:3.4.0
           type: tosca.artifacts.Deployment.Image.Container.Docker
         config_map:
           file: "basic_auth.ini"
           type: tosca.artifacts.File
-          deploy_path: "/usr/local/lib/python3.8/site-packages/mlflow/server/auth/basic_auth.ini"
+          deploy_path: "/usr/local/lib/python3.10/site-packages/mlflow/server/auth/basic_auth.ini"
           properties:
             content:
               concat:
