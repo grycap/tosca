@@ -54,10 +54,10 @@ topology_template:
           - bash
           - '-c'
           - concat:
-            - '/config.sh '
-            - get_input: vscode_password
-            - ' && '
-            - 'code-server --config /home/coder/.config/code-server/config.yaml /home/workspace'
+              - '/config.sh '
+              - get_input: vscode_password
+              - ' && '
+              - 'code-server --config /home/coder/.config/code-server/config.yaml /home/workspace'
       requirements:
         - host: vscode_runtime
       artifacts:
