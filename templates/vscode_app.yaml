@@ -51,13 +51,13 @@ topology_template:
           SHELL: /bin/bash
           HOME: /home/coder
         command:
-         - bash
-         - '-c'
-         - concat:
-           - '/config.sh '
-           - get_input: vscode_password
-           - ' && '
-           - 'code-server --config /home/coder/.config/code-server/config.yaml /home/workspace'
+          - bash
+          - '-c'
+          - concat:
+            - '/config.sh '
+            - get_input: vscode_password
+            - ' && '
+            - 'code-server --config /home/coder/.config/code-server/config.yaml /home/workspace'
       requirements:
         - host: vscode_runtime
       artifacts:
