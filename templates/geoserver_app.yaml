@@ -61,6 +61,7 @@ topology_template:
           STABLE_EXTENSIONS: { get_input: geoserver_stable_extensions }
           COMMUNITY_EXTENSIONS: { get_input: geoserver_community_extensions }
           GEOSERVER_ADMIN_PASSWORD: { get_input: geoserver_admin_password }
+          GEOSERVER_ADMIN_USER: admin
           PROXY_BASE_URL: "/geoserver/"
           GEOSERVER_CSRF_DISABLED: "true"
       requirements:
@@ -82,14 +83,25 @@ topology_template:
               - target: 8080
                 endpoint: { get_input: endpoint }
             volumes:
-              - "container_vol:/opt/geoserver_data"
+              - "geoserver_data:/opt/geoserver_data"
+              - "tmp_vol:/tmp"
+              - "geoserver_libs:/opt/additional_libs/"
 
-    container_vol:
+    geoserver_data:
       type: tosca.nodes.BlockStorage
       properties:
         size: { get_input: pvc_size }
-        # Set the PV name in this field
-        # volume_id: "PV name"
+
+    tmp_vol:
+      type: tosca.nodes.BlockStorage
+      properties:
+        size: 5 GB
+
+    geoserver_libs:
+      type: tosca.nodes.BlockStorage
+      properties:
+        size: 5 GB
+
 
   outputs:
     geoserver_url:
