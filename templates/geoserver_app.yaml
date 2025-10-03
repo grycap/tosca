@@ -36,7 +36,7 @@ topology_template:
     geoserver_admin_password:
       type: string
       description: GeoServer Admin password
-      default: 'geoserver'
+      default: 'random(12)'
       required: yes
 
     geoserver_stable_extensions:
@@ -94,3 +94,7 @@ topology_template:
   outputs:
     geoserver_url:
       value: { concat: [{ get_attribute: [ geoserver_app, endpoints, 0 ] }, "geoserver/"] }
+    geoserver_admin_password:
+      value: { get_input: geoserver_admin_password }
+    geoserver_user:
+      value: admin

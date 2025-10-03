@@ -78,7 +78,7 @@ topology_template:
     htcondor_password:
       type: string
       description: Store HTCondor credentials
-      default: changeme
+      default: 'random(12)'
       required: yes
 
     htcondor_version:
@@ -176,3 +176,5 @@ topology_template:
       value: { get_attribute: [ lrms_server, endpoint, credential, 0 ] }
     htcondor_version:
       value: { get_input: [ htcondor_version ] }
+    htcondor_password:
+      value: { get_input: [ htcondor_password ] }

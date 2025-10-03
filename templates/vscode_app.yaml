@@ -39,7 +39,7 @@ topology_template:
     vscode_password:
       type: string
       description: Password for VSCode
-      default: ''
+      default: 'random(12)'
       required: true
 
   node_templates:
@@ -94,3 +94,5 @@ topology_template:
   outputs:
     vscode_app_url:
       value: { concat: [ get_attribute: [ vscode_app, endpoints, 0 ] ] }
+    vscode_password:
+      value: { get_input: vscode_password }

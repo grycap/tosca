@@ -36,7 +36,7 @@ topology_template:
     mlflow_password:
       type: string
       description: Password for the MLFlow admin user
-      default: 'mlflow_password'
+      default: 'random(12)'
 
 
   node_templates:
