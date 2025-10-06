@@ -1,0 +1,11 @@
+---
+- hosts: localhost
+  connection: local
+  tasks:
+  - name: MySQL | Make sure the MySQL packages are installed
+    apt: name=mysql-server update_cache=yes
+    when: ansible_os_family == "Debian"
+
+  - name: MySQL | Make sure the MySQL packages are installed
+    yum: name=mysql-server
+    when: ansible_os_family == "RedHat"

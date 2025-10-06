@@ -1,0 +1,25 @@
+---
+- hosts: localhost
+  connection: local
+  tasks:
+  - name: Install MySQL Python dependencies
+    package:
+      name: python3-PyMySQL
+      state: present
+
+  - name: Create MySQL database
+    community.mysql.mysql_db:
+      name: "{{ db_name }}"
+      state: present
+      login_user: root
+      login_password: "{{ mysql_root_password }}"
+
+  - name: Create MySQL user
+    community.mysql.mysql_user:
+      name: "{{ db_user }}"
+      password: "{{ db_password }}"
+      host: "{{ db_access_host }}"
+      priv: "{{ db_name }}.*:ALL"
+      state: present
+      login_user: root
+      login_password: "{{ mysql_root_password }}"

@@ -1,0 +1,26 @@
+---
+- hosts: localhost
+  connection: local
+  tasks:
+  - name: Apache | Make sure the Apache packages are installed
+    apt:
+      name:
+        - apache2
+        - php
+        - mysql-client
+        - php-mysql
+        - php-curl
+        - php-xml
+    when: ansible_os_family == "Debian"
+    
+  - name: Apache | Make sure the Apache packages are installed
+    yum:
+      name:
+        - httpd
+        - php
+        - mysql
+        - php-mysql
+        - php-curl
+        - php-xml
+    when: ansible_os_family == "RedHat"
+    

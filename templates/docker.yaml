@@ -1,0 +1,70 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+imports:
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+
+dedescription: Deploy a Galaxy Server using a local LRMS.
+
+metadata:
+  template_name: VM
+  template_version: "1.2.1"
+  template_author: Miguel Caballer
+
+topology_template:
+
+  inputs:
+    num_cpus:
+      type: integer
+      description: Number of virtual cpus for the VM
+      default: 2
+    mem_size:
+      type: scalar-unit.size
+      description: Amount of memory for the VM
+      default: 4 GB
+    disk_size:
+      type: scalar-unit.size
+      description: Size of the root disk of the VM
+      default: 20 GB
+    num_gpus:
+      type: integer
+      description: Number of GPUs to assing to this VM
+      default: 0
+
+  node_templates:
+
+    docker:
+      type: tosca.nodes.SoftwareComponent
+      requirements:
+        - host: simple_node
+      artifacts:
+        docker_role:
+          file: grycap.docker
+          type: tosca.artifacts.AnsibleGalaxy.role
+      interfaces:
+        Standard:
+          configure:
+            implementation: https://raw.githubusercontent.com/grycap/tosca/seminario/artifacts/docker.yml
+
+    simple_node:
+      type: tosca.nodes.indigo.Compute
+      capabilities:
+        endpoint:
+          properties:
+            network_name: PUBLIC
+        host:
+          properties:
+            disk_size: { get_input: disk_size }
+            num_cpus: { get_input: num_cpus }
+            mem_size: { get_input: mem_size }
+            num_gpus: { get_input: num_gpus }
+        os:
+          properties:
+            type: linux
+            distribution: ubuntu
+            version: '24.04'
+
+  outputs:
+    node_ip:
+      value: { get_attribute: [ simple_node, public_address, 0 ] }
+    node_creds:
+      value: { get_attribute: [ simple_node, endpoint, credential, 0 ] }

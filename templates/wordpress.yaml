@@ -1,0 +1,116 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+imports:
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+
+dedescription: Deploy a Galaxy Server using a local LRMS.
+
+metadata:
+  template_name: VM
+  template_version: "1.2.1"
+  template_author: Miguel Caballer
+
+topology_template:
+
+  inputs:
+    num_cpus:
+      type: integer
+      description: Number of virtual cpus for the VM
+      default: 2
+    mem_size:
+      type: scalar-unit.size
+      description: Amount of memory for the VM
+      default: 4 GB
+    disk_size:
+      type: scalar-unit.size
+      description: Size of the root disk of the VM
+      default: 20 GB
+
+
+    mysql_root_password:
+      type: string
+      description: MySQL root password
+      default: root_pass
+
+
+  node_templates:
+
+    mysql_db:
+      type: tosca.nodes.Database
+      properties:
+        name: wordpress
+        user: wp_user
+        password: wp_pass
+      requirements:
+        - host: mysql_server
+      artifacts:
+        mysql_collection:
+          file: community.mysql
+          type: tosca.artifacts.AnsibleGalaxy.collection
+      interfaces:
+        Standard:
+          create:
+            implementation: https://raw.githubusercontent.com/grycap/tosca/seminario/artifacts/mysql_db.yml
+            inputs:
+              db_name: { get_property: [ SELF, name ] }
+              db_user: { get_property: [ SELF, user ] }
+              db_password: { get_property: [ SELF, password ] }
+              db_access_host: "localhost"
+              mysql_root_password: { get_property: [ mysql_server, root_password ] }
+
+    mysql_server:
+      type: tosca.nodes.DBMS
+      properties:
+        root_password: { get_input: mysql_root_password }
+      requirements:
+        - host: simple_node
+      interfaces:
+        Standard:
+          create:
+            implementation: https://raw.githubusercontent.com/grycap/tosca/seminario/artifacts/mysql_install.yml
+            inputs:
+              mysql_root_password: { get_property: [ SELF, root_password ] }
+
+    wordproess:
+      type: tosca.nodes.WebApplication
+      requirements:
+        - host: apache
+        - dependency: mysql_db
+      interfaces:
+        Standard:
+          create:
+            implementation: https://raw.githubusercontent.com/grycap/tosca/seminario/artifacts/wordproess.yml
+
+    apache:
+      type: tosca.nodes.WebServer
+      requirements:
+        - host: simple_node
+      interfaces:
+        Standard:
+          create:
+            implementation: https://raw.githubusercontent.com/grycap/tosca/seminario/artifacts/apache_install.yml
+          start:
+            implementation: https://raw.githubusercontent.com/grycap/tosca/seminario/artifacts/apache_start.yml
+
+    simple_node:
+      type: tosca.nodes.indigo.Compute
+      capabilities:
+        endpoint:
+          properties:
+            network_name: PUBLIC
+        host:
+          properties:
+            disk_size: { get_input: disk_size }
+            num_cpus: { get_input: num_cpus }
+            mem_size: { get_input: mem_size }
+        os:
+          properties:
+            type: linux
+            distribution: ubuntu
+            version: '24.04'
+
+  outputs:
+    node_ip:
+      value: { get_attribute: [ simple_node, public_address, 0 ] }
+    node_creds:
+      value: { get_attribute: [ simple_node, endpoint, credential, 0 ] }
