@@ -21,7 +21,10 @@ topology_template:
       type: scalar-unit.size
       description: Amount of memory for the VM
       default: 4 GB
-
+    instance_type:
+      type: string
+      description: Instance type to use for the VM
+      default: Standard_B2s
 
     mysql_root_password:
       type: string
@@ -96,6 +99,7 @@ topology_template:
             network_name: PUBLIC
         host:
           properties:
+            instance_type: { get_input: instance_type }
             num_cpus: { get_input: num_cpus }
             mem_size: { get_input: mem_size }
         os:
@@ -115,5 +119,5 @@ topology_template:
 
     - deploy_on_region:
         type: tosca.policies.indigo.Placement
-        properties: { cloud_id: azure, availability_zone: centralus }  # estus, westus, centralus, italynorth, northcentralus, norwaywest
+        properties: { cloud_id: azure, availability_zone: westeurope }  # spaincentral
         targets: [ simple_node ]

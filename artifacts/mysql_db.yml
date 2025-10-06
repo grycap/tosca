@@ -4,7 +4,7 @@
   tasks:
   - name: Install MySQL Python dependencies
     package:
-      name: python3-PyMySQL
+      name: python3-pymysql
       state: present
 
   - name: Create MySQL database
