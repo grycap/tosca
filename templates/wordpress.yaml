@@ -75,7 +75,7 @@ topology_template:
       interfaces:
         Standard:
           create:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/seminario/artifacts/wordproess.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/seminario/artifacts/wordpress.yml
 
     apache:
       type: tosca.nodes.WebServer
@@ -84,9 +84,9 @@ topology_template:
       interfaces:
         Standard:
           create:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/seminario/artifacts/apache_install.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/seminario/artifacts/apache_install.yaml
           start:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/seminario/artifacts/apache_start.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/seminario/artifacts/apache_start.yaml
 
     simple_node:
       type: tosca.nodes.indigo.Compute
@@ -105,7 +105,15 @@ topology_template:
             version: '24.04'
 
   outputs:
+
     node_ip:
       value: { get_attribute: [ simple_node, public_address, 0 ] }
     node_creds:
       value: { get_attribute: [ simple_node, endpoint, credential, 0 ] }
+
+  policies:
+
+    - deploy_on_region:
+        type: tosca.policies.indigo.Placement
+        properties: { cloud_id: azure, availability_zone: centralus }  # estus, westus, centralus, italynorth, northcentralus, norwaywest
+        targets: [ simple_node ]
