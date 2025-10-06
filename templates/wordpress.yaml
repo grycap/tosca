@@ -70,7 +70,7 @@ topology_template:
             inputs:
               mysql_root_password: { get_property: [ SELF, root_password ] }
 
-    wordproess:
+    wordpress:
       type: tosca.nodes.WebApplication
       requirements:
         - host: apache
@@ -82,6 +82,10 @@ topology_template:
 
     apache:
       type: tosca.nodes.WebServer
+      capabilities:
+        data_endpoint:
+          properties:
+            port: 80
       requirements:
         - host: simple_node
       interfaces:
@@ -110,10 +114,8 @@ topology_template:
 
   outputs:
 
-    node_ip:
-      value: { get_attribute: [ simple_node, public_address, 0 ] }
-    node_creds:
-      value: { get_attribute: [ simple_node, endpoint, credential, 0 ] }
+    wordpress_url:
+      value: { concat: [ 'http://', get_attribute: [ simple_node, public_address, 0 ], '/' ] }
 
   policies:
 
