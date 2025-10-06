@@ -3,9 +3,11 @@
   connection: local
   tasks:
   - name: MySQL | Make sure the MySQL packages are installed
-    apt: name=mysql-server update_cache=yes
-    when: ansible_os_family == "Debian"
+    package:
+      name: mysql-server
 
-  - name: MySQL | Make sure the MySQL packages are installed
-    yum: name=mysql-server
-    when: ansible_os_family == "RedHat"
+  - name: Ensure MySQL service is started and enabled
+    service:
+      name: mysql
+      state: started
+      enabled: yes

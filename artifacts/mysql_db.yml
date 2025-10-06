@@ -7,6 +7,14 @@
       name: python3-pymysql
       state: present
 
+  - name: Set MySQL root password and authentication method
+    mysql_user:
+      name: root
+      host: localhost
+      password: "{{ mysql_root_password }}"
+      login_unix_socket: /var/run/mysqld/mysqld.sock
+      state: present
+
   - name: Create MySQL database
     community.mysql.mysql_db:
       name: "{{ db_name }}"
