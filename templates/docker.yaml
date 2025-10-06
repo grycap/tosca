@@ -3,7 +3,7 @@ tosca_definitions_version: tosca_simple_yaml_1_0
 imports:
   - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
 
-dedescription: Deploy a Galaxy Server using a local LRMS.
+description: Deploy a Galaxy Server using a local LRMS.
 
 metadata:
   template_name: VM
@@ -21,14 +21,6 @@ topology_template:
       type: scalar-unit.size
       description: Amount of memory for the VM
       default: 4 GB
-    disk_size:
-      type: scalar-unit.size
-      description: Size of the root disk of the VM
-      default: 20 GB
-    num_gpus:
-      type: integer
-      description: Number of GPUs to assing to this VM
-      default: 0
 
   node_templates:
 
@@ -53,10 +45,8 @@ topology_template:
             network_name: PUBLIC
         host:
           properties:
-            disk_size: { get_input: disk_size }
             num_cpus: { get_input: num_cpus }
             mem_size: { get_input: mem_size }
-            num_gpus: { get_input: num_gpus }
         os:
           properties:
             type: linux
