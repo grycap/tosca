@@ -17,7 +17,7 @@
     when: ansible_os_family == "RedHat"
     
   - name: Install PHP and related packages
-    packages:
+    package:
       name:
         - php
         - php-mysql
