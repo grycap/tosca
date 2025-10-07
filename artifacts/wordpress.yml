@@ -9,3 +9,21 @@
       remote_src: yes
     args:
       creates: /var/www/html/wordpresswp-config-sample.php
+
+  - name: Set permissions for WordPress directory
+    file:
+      path: /var/www/html/wordpress
+      state: directory
+      owner: www-data
+      group: www-data
+      recurse: yes
+    when: ansible_os_family == "Debian"
+
+  - name: Set permissions for WordPress directory on RedHat-based systems
+    file:
+      path: /var/www/html/wordpress
+      state: directory
+      owner: apache
+      group: apache
+      recurse: yes
+    when: ansible_os_family == "RedHat"
