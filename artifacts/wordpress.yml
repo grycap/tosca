@@ -7,7 +7,5 @@
       src: https://wordpress.org/latest.tar.gz
       dest: /var/www/html/
       remote_src: yes
-      extra_opts: [--strip-components=1]
     args:
-      creates: /var/www/html/wp-config-sample.php
-
+      creates: /var/www/html/wordpresswp-config-sample.php

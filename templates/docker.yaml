@@ -52,16 +52,10 @@ topology_template:
             type: linux
             distribution: ubuntu
             version: '24.04'
+            image: azr://westeurope/Canonical/ubuntu-24_04-lts/server/latest
 
   outputs:
     node_ip:
       value: { get_attribute: [ simple_node, public_address, 0 ] }
     node_creds:
       value: { get_attribute: [ simple_node, endpoint, credential, 0 ] }
-
-policies:
-
-  - deploy_on_cloudid:
-      type: tosca.policies.indigo.Placement
-      properties: { cloud_id: azure, availability_zone: eastus }
-      targets: [ simple_node ]

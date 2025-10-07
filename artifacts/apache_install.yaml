@@ -2,25 +2,24 @@
 - hosts: localhost
   connection: local
   tasks:
-  - name: Apache | Make sure the Apache packages are installed
+  - name: Install Apache and MySQL client packages on Debian-based systems
     apt:
       name:
         - apache2
-        - php
         - mysql-client
-        - php-mysql
-        - php-curl
-        - php-xml
     when: ansible_os_family == "Debian"
     
-  - name: Apache | Make sure the Apache packages are installed
+  - name: Install Apache and MySQL client packages on RedHat-based systems
     yum:
       name:
         - httpd
-        - php
         - mysql
+    when: ansible_os_family == "RedHat"
+    
+  - name: Install PHP and related packages
+    packages:
+      name:
+        - php
         - php-mysql
         - php-curl
         - php-xml
-    when: ansible_os_family == "RedHat"
-    
