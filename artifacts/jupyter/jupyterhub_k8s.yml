@@ -3,7 +3,7 @@
   connection: local
   vars:
     kubeconfig_path: '/etc/kubernetes/admin.conf'
-    jupyterhub_helm_chart_version: "4.3.0"
+    jupyterhub_helm_chart_version: "{{ helm_chart_version | default('4.3.0') }}"
     jup_auth_class: "{{ authenticator_class | default('dummy') }}"
     jup_dummy_pass: "{{ dummy_pass | default('dummy_pass') }}"
     jup_admin_user: "{{ admin_user | default('admin') }}"
