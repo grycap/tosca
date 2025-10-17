@@ -117,3 +117,9 @@ topology_template:
 
     wordpress_url:
       value: { concat: [ 'http://', get_attribute: [ simple_node, public_address, 0 ], '/wordpress/' ] }
+
+#  policies:
+#    - deploy_on_region:
+#        type: tosca.policies.indigo.Placement
+#        properties: { cloud_id: azure, availability_zone: westeurope }  # spaincentral
+#        targets: [ simple_node ]
