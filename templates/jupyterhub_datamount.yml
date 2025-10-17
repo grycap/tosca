@@ -89,7 +89,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/jupyter/jupyterhub_k8s.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/eosc_beyond/artifacts/jupyter/jupyterhub_k8s.yml
             inputs:
               authenticator_class: dummy
               dummy_pass: { get_input: [ admin_password ] }
