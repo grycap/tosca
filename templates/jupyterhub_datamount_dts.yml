@@ -122,7 +122,7 @@ topology_template:
       type: tosca.nodes.ec3.Application
       artifacts:
         docker_role:
-          file: grycap.kubeminio
+          file: grycap.kubeminio,proxy-body-size
           type: tosca.artifacts.AnsibleGalaxy.role
       interfaces:
         Standard:
