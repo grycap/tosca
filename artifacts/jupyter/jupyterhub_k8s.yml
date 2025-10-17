@@ -3,6 +3,7 @@
   connection: local
   vars:
     kubeconfig_path: '/etc/kubernetes/admin.conf'
+    jupyterhub_helm_chart_version: "4.3.0"
     jup_auth_class: "{{ authenticator_class | default('dummy') }}"
     jup_dummy_pass: "{{ dummy_pass | default('dummy_pass') }}"
     jup_admin_user: "{{ admin_user | default('admin') }}"
@@ -173,6 +174,6 @@
                 c.JupyterHub.spawner_class = 'datamountspawner.KubeSpawner'
 
     - name: Install (or upgrade) the chart
-      command: helm upgrade --install jupyterhub jupyterhub/jupyterhub --namespace jupyter --create-namespace --values /tmp/config.yaml --timeout 10m
+      command: helm upgrade --install jupyterhub jupyterhub/jupyterhub --namespace jupyter --create-namespace --values /tmp/config.yaml --timeout 10m --version {{ jupyterhub_helm_chart_version }}
       environment:
         KUBECONFIG: "{{ kubeconfig_path }}"
