@@ -1,0 +1,160 @@
+network private_net ()
+network public_net ( outbound = 'yes')
+
+system simple_node (
+  instance_name = 'simple_node' and
+  disk.0.os.name = 'linux' and
+  disk.0.os.flavour = 'ubuntu' and
+  disk.0.os.version = '24.04' and
+  instance_type = 'Standard_B2s' and
+  # availability_zone = 'westeurope' and
+  cpu.count >= 2 and
+  memory.size >= 4g and
+  disk.1.size = 40g and
+  disk.1.mount_path = '/var/www/html' and
+  disk.1.fstype = 'ext4' and
+  disk.0.applications contains (name = 'ansible.collections.community.mysql') and
+  net_interface.0.connection = 'private_net' and
+  net_interface.1.connection = 'public_net'
+)
+
+
+configure mysql_db (
+@begin
+---
+- tasks:
+  - name: Install MySQL Python dependencies
+    package:
+      name: python3-pymysql
+      state: present
+  - mysql_user:
+      host: localhost
+      login_unix_socket: /var/run/mysqld/mysqld.sock
+      name: root
+      password: '{{ mysql_root_password }}'
+      state: present
+    name: Set MySQL root password and authentication method
+  - community.mysql.mysql_db:
+      login_password: '{{ mysql_root_password }}'
+      login_user: root
+      name: '{{ db_name }}'
+      state: present
+    name: Create MySQL database
+  - community.mysql.mysql_user:
+      host: '{{ db_access_host }}'
+      login_password: '{{ mysql_root_password }}'
+      login_user: root
+      name: '{{ db_user }}'
+      password: '{{ db_password }}'
+      priv: '{{ db_name }}.*:ALL'
+      state: present
+    name: Create MySQL user
+  vars:
+    db_access_host: localhost
+    db_name: wordpress
+    db_password: wp_pass
+    db_user: wp_user
+    mysql_root_password: root_pass
+
+@end
+)
+
+
+configure mysql_server (
+@begin
+---
+- tasks:
+  - name: MySQL | Make sure the MySQL packages are installed
+    package:
+      name: mysql-server
+  - name: Ensure MySQL service is started and enabled
+    service:
+      enabled: true
+      name: mysql
+      state: started
+  vars:
+    mysql_root_password: root_pass
+
+@end
+)
+
+
+configure wordpress (
+@begin
+---
+- tasks:
+  - args:
+      creates: /var/www/html/wordpresswp-config-sample.php
+    name: Download and extract WordPress
+    unarchive:
+      dest: /var/www/html/
+      remote_src: true
+      src: https://wordpress.org/latest.tar.gz
+  - file:
+      group: www-data
+      owner: www-data
+      path: /var/www/html/wordpress
+      recurse: true
+      state: directory
+    name: Set permissions for WordPress directory
+    when: ansible_os_family == "Debian"
+  - file:
+      group: apache
+      owner: apache
+      path: /var/www/html/wordpress
+      recurse: true
+      state: directory
+    name: Set permissions for WordPress directory on RedHat-based systems
+    when: ansible_os_family == "RedHat"
+
+@end
+)
+
+
+configure apache (
+@begin
+---
+- tasks:
+  - apt:
+      name:
+      - apache2
+      - mysql-client
+    name: Install Apache and MySQL client packages on Debian-based systems
+    when: ansible_os_family == "Debian"
+  - name: Install Apache and MySQL client packages on RedHat-based systems
+    when: ansible_os_family == "RedHat"
+    yum:
+      name:
+      - httpd
+      - mysql
+  - name: Install PHP and related packages
+    package:
+      name:
+      - php
+      - php-mysql
+      - php-curl
+      - php-xml
+  - name: Start Apache service
+    service:
+      name: apache2
+      state: started
+    when: ansible_os_family == "Debian"
+  - name: Start Apache service
+    service:
+      name: httpd
+      state: started
+    when: ansible_os_family == "RedHat"
+
+@end
+)
+
+
+contextualize  (
+  system simple_node configure mysql_server step 1
+  system simple_node configure apache step 1
+  system simple_node configure mysql_db step 2
+  system simple_node configure wordpress step 3
+)
+
+
+deploy simple_node 1
