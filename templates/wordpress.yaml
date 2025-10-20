@@ -31,6 +31,11 @@ topology_template:
       description: MySQL root password
       default: root_pass
 
+    storage_size:
+      type: scalar-unit.size
+      description: Size of the extra HD added to the instance (Set 0 if disk is not needed)
+      default: 40 GiB
+
 
   node_templates:
 
@@ -112,6 +117,20 @@ topology_template:
             distribution: ubuntu
             version: '24.04'
             image: azr://westeurope/Canonical/ubuntu-24_04-lts/server/latest
+      requirements:
+        - local_storage:
+            node: my_block_storage
+            capability: tosca.capabilities.Attachment
+            relationship:
+              type: tosca.relationships.AttachesTo
+              properties:
+                location: /var/www/html
+
+    my_block_storage:
+      type: tosca.nodes.BlockStorage
+      properties:
+        size: { get_input: storage_size }
+
 
   outputs:
 
