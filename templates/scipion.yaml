@@ -9,7 +9,7 @@ metadata:
   template_author: Laura del Cano
   display_name: Scipion on SLURM cluster
   icon: images/scipion.png
-  
+
 topology_template:
   inputs:
     vnc_pass:
