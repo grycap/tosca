@@ -9,11 +9,7 @@ metadata:
   template_author: Laura del Cano
   display_name: Scipion on SLURM cluster
   icon: images/scipion.png
-  tabs:
-    Master Features: .*_master
-    Worker Features: .*_worker
-    App Features:
-      - vnc_pass
+  
 topology_template:
   inputs:
     vnc_pass:
@@ -22,28 +18,7 @@ topology_template:
       required: yes
       default: Scipion4u
 
-    num_gpus_master:
-      type: integer
-      description: Number of GPUs to assing to the master
-      required: yes
-      default: 0
-      constraints:
-        - valid_values: [ 0, 1, 2 ]
-    num_cpus_master:
-      type: integer
-      description: Numbers of CPUs to assign to the master
-      required: yes
-      default: 8
-      constraints:
-        - valid_values: [ 8, 2, 4, 16, 32, 64 ]
-    mem_size_master:
-      type: scalar-unit.size
-      description: Ammount of RAM (GiB) to assign to the master
-      default: 30 GiB
-      required: yes
-      constraints:
-        - valid_values: [ 30 GiB, 4 GiB, 8 GiB, 16 GiB, 32 GiB, 64 GiB, 128 GiB ]
-    disk_size_master:
+    disk_size:
       type: scalar-unit.size
       description: Size of the external disk attached to the server
       default: 200 GiB
@@ -56,21 +31,21 @@ topology_template:
       default: 0
       constraints:
         - valid_values: [ 0, 1 ]
-    num_gpus_worker:
+    num_gpus:
       type: integer
       description: Number of GPUs to assing to the worker
       required: yes
       default: 0
       constraints:
         - valid_values: [ 0, 1, 2 ]
-    num_cpus_worker:
+    num_cpus:
       type: integer
       description: Numbers of CPUs to assign to the worker
       required: yes
       default: 8
       constraints:
         - valid_values: [ 8, 2, 4, 16, 32, 64 ]
-    mem_size_worker:
+    mem_size:
       type: scalar-unit.size
       description: Ammount of RAM (GiB) to assign to the worker
       default: 30 GiB
@@ -129,9 +104,9 @@ topology_template:
         host:
           properties:
             disk_size: 50 GB
-            num_gpus: { get_input: num_gpus_master }
-            num_cpus: { get_input: num_cpus_master }
-            mem_size: { get_input: mem_size_master }
+            num_gpus: { get_input: num_gpus }
+            num_cpus: { get_input: num_cpus }
+            mem_size: { get_input: mem_size }
             gpu_vendor: 'nvidia'
         os:
           properties:
@@ -181,9 +156,9 @@ topology_template:
         host:
           properties:
             disk_size: 100 GB
-            num_gpus: { get_input: num_gpus_worker }
-            num_cpus: { get_input: num_cpus_worker }
-            mem_size: { get_input: mem_size_worker }
+            num_gpus: { get_input: num_gpus }
+            num_cpus: { get_input: num_cpus }
+            mem_size: { get_input: mem_size }
             gpu_vendor: 'nvidia'
         os:
           properties:
@@ -213,7 +188,7 @@ topology_template:
     my_block_storage:
       type: BlockStorage
       properties:
-        size: { get_input: disk_size_master }
+        size: { get_input: disk_size }
   outputs:
     no_vnc_endpoint:
       value: { concat: [ 'https://', get_attribute: [ lrms_server, public_address, 0 ], ':8443/vnc.html' ] }
