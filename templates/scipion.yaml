@@ -43,7 +43,7 @@ topology_template:
       required: yes
       constraints:
         - valid_values: [ 30 GiB, 4 GiB, 8 GiB, 16 GiB, 32 GiB, 64 GiB, 128 GiB ]
-    disk_size_master:
+    disk_size:
       type: scalar-unit.size
       description: Size of the external disk attached to the server
       default: 200 GiB
@@ -128,7 +128,7 @@ topology_template:
                 source: 8443
         host:
           properties:
-            disk_size: 50 GB
+            disk_size: 100 GB
             num_gpus: { get_input: num_gpus_master }
             num_cpus: { get_input: num_cpus_master }
             mem_size: { get_input: mem_size_master }
@@ -213,7 +213,7 @@ topology_template:
     my_block_storage:
       type: BlockStorage
       properties:
-        size: { get_input: disk_size_master }
+        size: { get_input: disk_size }
   outputs:
     no_vnc_endpoint:
       value: { concat: [ 'https://', get_attribute: [ lrms_server, public_address, 0 ], ':8443/vnc.html' ] }
