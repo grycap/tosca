@@ -33,13 +33,13 @@ topology_template:
       type: integer
       description: Numbers of CPUs to assign to the master
       required: yes
-      default: 8
+      default: 2
       constraints:
         - valid_values: [ 8, 2, 4, 16, 32, 64 ]
     mem_size_master:
       type: scalar-unit.size
       description: Ammount of RAM (GiB) to assign to the master
-      default: 30 GiB
+      default: 4 GiB
       required: yes
       constraints:
         - valid_values: [ 30 GiB, 4 GiB, 8 GiB, 16 GiB, 32 GiB, 64 GiB, 128 GiB ]
@@ -56,24 +56,24 @@ topology_template:
       default: 0
       constraints:
         - valid_values: [ 0, 1 ]
-    num_gpus_worker:
+    num_gpus:
       type: integer
       description: Number of GPUs to assing to the worker
       required: yes
       default: 0
       constraints:
         - valid_values: [ 0, 1, 2 ]
-    num_cpus_worker:
+    num_cpus:
       type: integer
       description: Numbers of CPUs to assign to the worker
       required: yes
-      default: 8
+      default: 2
       constraints:
         - valid_values: [ 8, 2, 4, 16, 32, 64 ]
-    mem_size_worker:
+    mem_size:
       type: scalar-unit.size
       description: Ammount of RAM (GiB) to assign to the worker
-      default: 30 GiB
+      default: 4 GiB
       required: yes
       constraints:
         - valid_values: [ 30 GiB, 4 GiB, 8 GiB, 16 GiB, 32 GiB, 64 GiB, 128 GiB ]
@@ -181,9 +181,9 @@ topology_template:
         host:
           properties:
             disk_size: 100 GB
-            num_gpus: { get_input: num_gpus_worker }
-            num_cpus: { get_input: num_cpus_worker }
-            mem_size: { get_input: mem_size_worker }
+            num_gpus: { get_input: num_gpus }
+            num_cpus: { get_input: num_cpus }
+            mem_size: { get_input: mem_size }
             gpu_vendor: 'nvidia'
         os:
           properties:
