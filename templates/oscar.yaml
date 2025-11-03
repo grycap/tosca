@@ -213,7 +213,7 @@ topology_template:
         install_metrics: true
         install_nfs_client: true
         install_ingress: true
-        version: '1.28.8'
+        version: '1.32.9'
         cert_manager: true
         cert_user_email: { get_input: cert_user_email }
         public_dns_name: { concat: [ get_input: cluster_name, '.', get_input: domain_name ] }
@@ -266,7 +266,7 @@ topology_template:
       type: tosca.nodes.indigo.LRMS.WorkerNode.Kubernetes
       properties:
         front_end_ip: { get_attribute: [ front, private_address, 0 ] }
-        version: '1.28.8'
+        version: '1.32.9'
         cri_runtime: containerd
         nvidia_support: { get_input: kube_nvidia_support }
       requirements:
