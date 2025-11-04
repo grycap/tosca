@@ -8,7 +8,7 @@ description: >
 
 metadata:
   template_name: VM
-  template_version: "1.2.0"
+  template_version: "1.2.1"
   template_author: Miguel Caballer
   creation_date: 2020-09-08
   display_name: Deploy a VM
@@ -69,9 +69,9 @@ topology_template:
     mem_size:
       type: scalar-unit.size
       description: Amount of memory for the VM
-      default: 4 GiB
+      default: 4 GB
       constraints:
-        - valid_values: [ 4 GiB, 8 GiB, 16 GiB, 32 GiB, 64 GiB, 128 GiB, 256 GiB, 512 GiB, 2 GiB ]
+        - valid_values: [ 4 GB, 8 GB, 16 GB, 32 GB, 64 GB, 128 GB, 256 GB, 512 GB, 2 GB ]
     disk_size:
       type: scalar-unit.size
       description: Size of the root disk of the VM (in case of 0 disk will no be resized)
