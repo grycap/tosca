@@ -1,0 +1,117 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+imports:
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+
+
+description: Deploy Jupyter Notebook.
+
+metadata:
+  template_version: '1.0.0'
+  template_name: Jupyter Notebook
+  display_name: Deploy Jupyter Notebook
+
+topology_template:
+  inputs:
+
+    num_cpus:
+      type: integer
+      description: Number of virtual cpus for the VM
+      default: 2
+    mem_size:
+      type: scalar-unit.size
+      description: Amount of memory for the VM
+      default: 4 GiB
+    disk_size:
+      type: scalar-unit.size
+      description: Size of the root disk of the VM (in case of 0 disk will no be resized)
+      default: 20 GiB
+
+    num_gpus:
+      type: integer
+      description: Number of GPUs to assing to this VM
+      default: 0
+
+    notebook_image:
+      default: jupyter/base-notebook
+      description: Jupyter Notebook image to use
+      type: string
+    jupyter_token:
+      default: 'random(12)'
+      description: Token to access Jupyter
+      type: string
+    dns_name:
+      default: jupyter.test.fedcloud.eu
+      description: DNS hostname to access Jupyter Notebook
+      type: string
+    letsencrypt_email:
+      default: changeme@email.com
+      description: Email to be used for Let's Encrypt certificates
+      type: string
+
+  node_templates:
+
+    # A Dataset downloaded directly to the local filesystem
+    my_dataset:
+      type: tosca.nodes.eosc.Dataset
+      properties:
+        dataset_id: { get_input: dataset_id }
+        filter: { get_input: filter }
+        dest: { get_input: dest }
+        owner: { get_input: owner }
+      requirements:
+        - host: simple_node
+
+    jupyter:
+      type: tosca.nodes.ec3.Application
+      artifacts:
+        docker_role:
+          file: grycap.docker
+          type: tosca.artifacts.AnsibleGalaxy.role
+      capabilities:
+        endpoint:
+          properties:
+            ports:
+              port_http:
+                protocol: tcp
+                source: 80
+              port_https:
+                protocol: tcp
+                source: 443
+      interfaces:
+        Standard:
+          configure:
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/juno_compose.yml
+            inputs:
+              letsencrypt_email: { get_input: letsencrypt_email }
+              jupyter_token: { get_input: jupyter_token }
+              jupyter_dns_name: { get_input: dns_name }
+              jupyter_notebook_image: { get_input: notebook_image }
+              jupyter_public_ip: { get_attribute: [ simple_node, public_address, 0 ] }
+      requirements:
+        - host: simple_node
+
+    simple_node:
+      type: tosca.nodes.indigo.Compute
+      capabilities:
+        endpoint:
+          properties:
+            network_name: PUBLIC
+            additional_dns_names:
+              - { get_input: dns_name }
+        host:
+          properties:
+            disk_size: { get_input: disk_size }
+            num_cpus: { get_input: num_cpus }
+            mem_size: { get_input: mem_size }
+            num_gpus: { get_input: num_gpus }
+            gpu_vendor: { get_input: gpu_vendor }
+        os:
+          properties:
+            type: linux
+
+  outputs:
+    jupyter_url_ip:
+      value: { concat: [ 'https://', get_attribute: [ simple_node, public_address, 0 ], '/' ] }
+    jupyter_dns_url:
+      value: { concat: [ 'https://', get_input: [ dns_name ], '/' ] }
