@@ -51,17 +51,6 @@ topology_template:
 
   node_templates:
 
-    # A Dataset downloaded directly to the local filesystem
-    my_dataset:
-      type: tosca.nodes.eosc.Dataset
-      properties:
-        dataset_id: { get_input: dataset_id }
-        filter: { get_input: filter }
-        dest: { get_input: dest }
-        owner: { get_input: owner }
-      requirements:
-        - host: simple_node
-
     jupyter:
       type: tosca.nodes.ec3.Application
       artifacts:
