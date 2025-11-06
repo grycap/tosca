@@ -31,6 +31,12 @@ topology_template:
       type: integer
       description: Number of GPUs to assing to this VM
       default: 0
+    gpu_vendor:
+      type: string
+      description: GPU Vendor
+      default: ''
+      constraints:
+        - valid_values: [ '', 'NVIDIA', 'AMD' ]
 
     notebook_image:
       default: jupyter/base-notebook
