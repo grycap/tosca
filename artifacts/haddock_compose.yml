@@ -10,7 +10,7 @@
     - role: 'grycap.docker'
   tasks:
     - set_fact:
-        traefik_dns_name: 'haddock{{ traefik_public_ip }}.nip.io'
+        traefik_dns_name: 'haddock.{{ traefik_public_ip }}.nip.io'
       when: traefik_dns_name == ''
 
     - name: Create haddock directory
