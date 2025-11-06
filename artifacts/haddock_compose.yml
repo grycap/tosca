@@ -4,11 +4,15 @@
   connection: local
   vars:
     traefik_letsencrypt_email: "{{ letsencrypt_email | default('haddock@fedcloud.eu') }}"
-    traefik_dns_name: "{{ haddock_dns_name | default('haddock.fedcloud.eu') }}"
+    traefik_dns_name: "{{ haddock_dns_name | default('') }}"
     traefik_public_ip: "{{ haddock_public_ip | default(ansible_default_ipv4.address) }}"
   roles:
     - role: 'grycap.docker'
   tasks:
+    - set_fact:
+        traefik_dns_name: 'haddock{{ traefik_public_ip }}.nip.io'
+      when: traefik_dns_name == ''
+
     - name: Create haddock directory
       file:
         path: /opt/haddock
