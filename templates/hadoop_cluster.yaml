@@ -131,3 +131,5 @@ topology_template:
       value: { concat: [ 'http://', get_attribute: [ hadoop_server, public_address, 0 ], ':9870' ] }
     yarn_url:
       value: { concat: [ 'http://', get_attribute: [ hadoop_server, public_address, 0 ], ':8088' ] }
+    node_creds:
+      value: { get_attribute: [ hadoop_server, endpoint, credential, 0 ] }
