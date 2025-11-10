@@ -164,3 +164,5 @@ topology_template:
   outputs:
     galaxy_url:
       value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], '/galaxy/' ] }
+    node_creds:
+      value: { get_attribute: [ front, endpoint, credential, 0 ] }
