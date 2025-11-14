@@ -114,6 +114,10 @@ topology_template:
           properties:
             dns_name: kubeserver
             network_name: PUBLIC
+            ports:
+              ssh_port:
+                source: 22
+                protocol: tcp
         host:
           properties:
             num_cpus: { get_input: fe_cpus }
