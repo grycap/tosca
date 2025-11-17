@@ -30,16 +30,6 @@ topology_template:
       type: integer
       description: Number of GPUs to assing to this VM
       default: 0
-    gpu_vendor:
-      type: string
-      description: GPU Vendor
-      default: ''
-      constraints:
-        - valid_values: [ '', 'NVIDIA', 'AMD' ]
-    gpu_model:
-      type: string
-      description: GPU Model
-      default: ''
 
     ollama_nvidia_support:
       type: boolean
@@ -51,14 +41,14 @@ topology_template:
     ollama_driver_version:
       type: string
       description: NVIDIA Driver version to install
-      default: "510"
+      default: "535"
 
     ollama_models_name:
       type: list
       entry_schema:
         type: string
       description: Name of the AI models to install (see https://ollama.com/models)
-      default: ["llama2", "deepseek-r1:7b"]
+      default: ["mistral", "llama3"]
       required: yes
 
   node_templates:
@@ -87,7 +77,7 @@ topology_template:
               ollama_driver_version: { get_input: ollama_driver_version }
               ollama_models_name: { get_input: ollama_models_name }
               node_public_address: { get_attribute: [ simple_node, public_address, 0 ] }
-              dns_node_name: ""
+              dns_node_name: { concat: [ "ollama.", { get_attribute: [ simple_node, public_address, 0 ] }, ".nip.io/"] }
 
     simple_node:
       type: tosca.nodes.indigo.Compute
@@ -101,8 +91,6 @@ topology_template:
             num_cpus: { get_input: num_cpus }
             mem_size: { get_input: mem_size }
             num_gpus: { get_input: num_gpus }
-            gpu_vendor: { get_input: gpu_vendor }
-            gpu_model: { get_input: gpu_model }
         os:
           properties:
             type: linux
@@ -110,4 +98,8 @@ topology_template:
 
   outputs:
     openwebui_url:
-      value: { concat: [ "https://", { get_attribute: [ simple_node, public_address, 0 ] }, "/"] }
+      value: { concat: [ "https://ollama.", { get_attribute: [ simple_node, public_address, 0 ] }, ".nip.io/"] }
+    node_ip:
+      value: { get_attribute: [ simple_node, public_address, 0 ] }
+    node_creds:
+      value: { get_attribute: [ simple_node, endpoint, credential, 0 ] }
