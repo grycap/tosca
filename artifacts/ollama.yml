@@ -78,7 +78,7 @@
                 - "traefik.http.services.openwebui.loadbalancer.server.port=8080"
                 - "traefik.docker.network=openwebui_frontend"
             traefik:
-              image: "traefik:v2.10"
+              image: "traefik:v2.11"
               container_name: "traefik"
               command:
               #- "--log.level=DEBUG"
