@@ -66,6 +66,7 @@
                 - .:/app/backend/data
               environment:
                 - OLLAMA_BASE_URL=http://ollama:11434
+                - OLLAMA_STREAM=false
               networks:
                 - backend
                 - frontend
@@ -77,6 +78,7 @@
                 - "traefik.http.routers.openwebui.tls.certresolver=myresolver"
                 - "traefik.http.services.openwebui.loadbalancer.server.port=8080"
                 - "traefik.docker.network=openwebui_frontend"
+                - "traefik.http.routers.openwebui.tls=true"
             traefik:
               image: "traefik:v2.11"
               container_name: "traefik"
