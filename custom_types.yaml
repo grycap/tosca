@@ -2188,8 +2188,9 @@ policy_types:
     derived_from: tosca.policies.Placement
     properties:
       cloud_id:
-        required: true
+        required: false
         type: string
+        default: 
       availability_zone:
         required: false
         type: string
