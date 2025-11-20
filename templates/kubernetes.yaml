@@ -48,6 +48,7 @@ metadata:
     - ophidia_intertwin.yaml
     - kubevirt.yaml
     - dataset_list_k8s.yaml
+    - argo-cd.yaml
 
 topology_template:
   inputs:
