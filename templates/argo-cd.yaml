@@ -1,0 +1,60 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+imports:
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+
+metadata:
+  template_version: "1.0.0"
+  template_name: Argo CD
+  display_name: Deploy Argo CD on top of a Kubernetes Virtual Cluster
+  icon: images/k8s_argo.png
+  parents:
+    - kubernetes.yaml
+
+description: TOSCA template for launching Argo CD on top of a Kubernetes Virtual Cluster.
+
+topology_template:
+
+  node_templates:
+
+    argo:
+      type: tosca.nodes.indigo.Helm.Chart
+      properties:
+        namespace: argo
+        repository_name: argo
+        repository_url: "https://argoproj.github.io/argo-helm"
+        name: argo-cd
+        values_file:
+          concat:
+            - |-
+                global:
+                  domain: "argocd.
+            - get_attribute: [ front, public_address, 0 ]
+            - |-
+                .nip.io"
+                configs:
+                  params:
+                    server.insecure: true
+                server:
+                  ingress:
+                    enabled: true
+                    ingressClassName: nginx
+                    annotations:
+                      nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+                      nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+                    extraTls:
+                      - hosts:
+                        - "argocd.
+            - get_attribute: [ front, public_address, 0 ]
+            - |-
+                .nip.io"
+                        secretName: argocd-tls
+      requirements:
+        - host: front
+        - dependency: lrms_front_end
+
+  outputs:
+    argo_dashboard:
+      value: { concat: [ 'https://argocd.', get_attribute: [ front, public_address, 0 ], 'nip.io/' ] }
+    argo_token:
+      value: { get_attribute: [ front, ansible_output, argo_client_front_conf_front, tasks, argo_token, output ] }
