@@ -69,5 +69,5 @@ topology_template:
   outputs:
     argo_dashboard:
       value: { concat: [ 'https://argocd.', get_attribute: [ front, public_address, 0 ], '.nip.io/' ] }
-    argo_token:
-      value: { get_attribute: [ front, ansible_output, argo_client_front_conf_front, tasks, argo_token, output ] }
+    argo_admin_password:
+      value: { get_input: argocd_admin_password }
