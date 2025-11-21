@@ -50,12 +50,12 @@
           set_fact:
             helm_params: "{{ item.key }}='{{ item.value }}',{{ helm_params }}"
           with_dict: "{{ helm_values }}"
-          when: helm_values is defined
+          when: helm_values != {}
 
         - name: Create params fact
           set_fact:
             helm_params: "--set {{ helm_params }}"
-          when: helm_values is defined
+          when: helm_values != {}
 
         - name: Create values file
           copy:
