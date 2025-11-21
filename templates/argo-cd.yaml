@@ -10,14 +10,25 @@ metadata:
   icon: images/k8s_argo.png
   parents:
     - kubernetes.yaml
+  tabs:
+    Argo-CD: argocd_.*
 
 description: TOSCA template for launching Argo CD on top of a Kubernetes Virtual Cluster.
 
 topology_template:
 
+  inputs:
+
+    argocd_admin_password:
+      type: string
+      description: "Admin password: You can create this hash with: echo `htpasswd -nbBC 10 "" $ARGO_PWD | tr -d ':\n' | sed 's/$2y/$2a/'`. Default value: 'argo-cd-admin-pass'"
+      default: $2a$10$nuazOCyuOY3A2kOz.Bh3JO.F0.vYfGC.LtyUEVCGndawaSae7JyfK
+      constraints:
+        - min_length: 8
+
   node_templates:
 
-    argo:
+    argocd:
       type: tosca.nodes.indigo.Helm.Chart
       properties:
         namespace: argo
@@ -25,7 +36,7 @@ topology_template:
         repository_url: "https://argoproj.github.io/argo-helm"
         name: argo-cd
         values:
-          server.ingress.enabled: "true"
+          configs.secret.argocdServerAdminPassword: { get_input: argocd_admin_password }
         values_file:
           concat:
             - |-
@@ -39,6 +50,7 @@ topology_template:
                     server.insecure: true
                 server:
                   ingress:
+                    enabled: true
                     ingressClassName: nginx
                     annotations:
                       nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
@@ -56,6 +68,6 @@ topology_template:
 
   outputs:
     argo_dashboard:
-      value: { concat: [ 'https://argocd.', get_attribute: [ front, public_address, 0 ], 'nip.io/' ] }
+      value: { concat: [ 'https://argocd.', get_attribute: [ front, public_address, 0 ], '.nip.io/' ] }
     argo_token:
       value: { get_attribute: [ front, ansible_output, argo_client_front_conf_front, tasks, argo_token, output ] }
