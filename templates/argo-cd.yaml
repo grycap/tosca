@@ -21,7 +21,7 @@ topology_template:
 
     argocd_admin_password:
       type: string
-      description: "Admin password: You can create this hash with: echo `htpasswd -nbBC 10 "" $ARGO_PWD | tr -d ':\n' | sed 's/$2y/$2a/'`. Default value: 'argo-cd-admin-pass'"
+      description: "Admin password: You can create this hash with: echo `htpasswd -nbBC 10 \"\" $ARGO_PWD | tr -d ':\\n' | sed 's/$2y/$2a/'`. Default value: 'argo-cd-admin-pass'"
       default: $2a$10$nuazOCyuOY3A2kOz.Bh3JO.F0.vYfGC.LtyUEVCGndawaSae7JyfK
       constraints:
         - min_length: 8
