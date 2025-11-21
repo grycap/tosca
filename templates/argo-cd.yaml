@@ -41,10 +41,10 @@ topology_template:
           concat:
             - |-
                 global:
-                  domain: "argocd.
+                  domain: 'argocd.
             - get_attribute: [ front, public_address, 0 ]
             - |-
-                .nip.io"
+                .nip.io'
                 configs:
                   params:
                     server.insecure: true
@@ -53,14 +53,14 @@ topology_template:
                     enabled: true
                     ingressClassName: nginx
                     annotations:
-                      nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-                      nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+                      nginx.ingress.kubernetes.io/force-ssl-redirect: 'true'
+                      nginx.ingress.kubernetes.io/backend-protocol: 'HTTP'
                     extraTls:
                       - hosts:
-                        - "argocd.
+                        - 'argocd.
             - get_attribute: [ front, public_address, 0 ]
             - |-
-                .nip.io"
+                .nip.io'
                         secretName: argocd-tls
       requirements:
         - host: front
@@ -69,5 +69,3 @@ topology_template:
   outputs:
     argo_dashboard:
       value: { concat: [ 'https://argocd.', get_attribute: [ front, public_address, 0 ], '.nip.io/' ] }
-    argo_admin_password:
-      value: { get_input: argocd_admin_password }
