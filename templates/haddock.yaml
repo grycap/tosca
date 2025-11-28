@@ -75,6 +75,8 @@ topology_template:
 
     simple_node:
       type: tosca.nodes.indigo.Compute
+      properties:
+        instance_name: 'haddock'
       capabilities:
         endpoint:
           properties:
