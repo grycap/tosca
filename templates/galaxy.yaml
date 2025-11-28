@@ -82,6 +82,8 @@ topology_template:
 
     simple_node:
       type: tosca.nodes.indigo.Compute
+      properties:
+        instance_name: 'galaxy_portal'
       capabilities:
         endpoint:
           properties:
