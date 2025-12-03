@@ -38,7 +38,7 @@
         content: |
           services:
             traefik:
-              image: "traefik:v2.10"
+              image: "traefik:v2.11"
               container_name: "traefik"
               command:
                 # - "--log.level=DEBUG"
@@ -99,7 +99,7 @@
               labels:
                 - "traefik.enable=true"
                 - "traefik.http.routers.webapp.service=webapp"
-                - "traefik.http.routers.webapp.rule=Host(`{{ traefik_dns_name }}`, `{{ traefik_public_ip }}`)"
+                - "traefik.http.routers.webapp.rule=Host(`{{ traefik_dns_name }}`)"
                 - "traefik.http.routers.webapp.entrypoints=websecure"
                 - "traefik.http.routers.webapp.tls.certresolver=myresolver"
                 - "traefik.http.services.webapp.loadbalancer.server.port=8080"
