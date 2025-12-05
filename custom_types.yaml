@@ -767,6 +767,10 @@ node_types:
         required: no
         type: boolean
         default: false
+      install_gateway_api:
+        required: no
+        type: boolean
+        default: true
     artifacts:
       kube_role:
         file: grycap.kubernetes
@@ -811,6 +815,7 @@ node_types:
             kube_deploy_dashboard: { get_property: [ SELF, install_dashboard ] }
             kube_csi_driver: { get_property: [ SELF, csi_driver ] }
             kube_use_public_ip: { get_property: [ SELF, use_public_ip ] }
+            kube_install_gateway_api: { get_property: [ SELF, install_gateway_api ] }
 
   tosca.nodes.indigo.LRMS.WorkerNode.Slurm:
     derived_from: tosca.nodes.indigo.LRMS.WorkerNode
