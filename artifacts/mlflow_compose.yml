@@ -107,7 +107,7 @@
                     - "traefik.http.services.web.loadbalancer.server.port=5000"
                     - "traefik.docker.network=mlflow_frontend"
               traefik:
-                  image: "traefik:v2.10"
+                  image: "traefik:v2.11"
                   container_name: "traefik"
                   command:
                     #- "--log.level=DEBUG"

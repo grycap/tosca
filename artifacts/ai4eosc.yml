@@ -46,7 +46,7 @@
                 - "traefik.http.routers.app.tls.certresolver=myresolver"
                 - "traefik.http.services.app.loadbalancer.server.port=5000"
             traefik:
-                image: "traefik:v2.10"
+                image: "traefik:v2.11"
                 container_name: "traefik"
                 command:
                   #- "--log.level=DEBUG"
