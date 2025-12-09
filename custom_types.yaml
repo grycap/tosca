@@ -705,7 +705,7 @@ node_types:
         default: true
       ingress_type:
         required: no
-        type: boolean
+        type: string
         default: ''
       install_dashboard:
         required: no
