@@ -703,6 +703,10 @@ node_types:
         required: no
         type: boolean
         default: true
+      ingress_type:
+        required: no
+        type: boolean
+        default: ''
       install_dashboard:
         required: no
         type: boolean
@@ -816,6 +820,7 @@ node_types:
             kube_csi_driver: { get_property: [ SELF, csi_driver ] }
             kube_use_public_ip: { get_property: [ SELF, use_public_ip ] }
             kube_install_gateway_api: { get_property: [ SELF, install_gateway_api ] }
+            kube_ingress_type: { get_property: [ SELF, ingress_type ] }
 
   tosca.nodes.indigo.LRMS.WorkerNode.Slurm:
     derived_from: tosca.nodes.indigo.LRMS.WorkerNode
