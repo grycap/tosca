@@ -139,7 +139,7 @@
                   task "traefik" {
                     driver = "docker"
                     config {
-                      image        = "traefik:v2.10"
+                      image        = "traefik:v2.11"
                       network_mode = "host"
                       volumes = [
                         "local/traefik.toml:/etc/traefik/traefik.toml",
