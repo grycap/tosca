@@ -775,6 +775,12 @@ node_types:
         required: no
         type: boolean
         default: true
+      public_additional_dns_names:
+        type: list
+        entry_schema:
+          type: string
+        required: false
+        default: []
     artifacts:
       kube_role:
         file: grycap.kubernetes
@@ -809,6 +815,7 @@ node_types:
             kube_cert_manager:  { get_property: [ SELF, cert_manager ] }
             kube_cert_user_email:  { get_property: [ SELF, cert_user_email ] }
             kube_public_dns_name:  { get_property: [ SELF, public_dns_name ] }
+            kube_public_additional_dns_names:  { get_property: [ SELF, public_additional_dns_names ] }
             kube_cert_manager_challenge: { get_property: [ SELF, cert_manager_challenge ] }
             kube_cert_manager_challenge_dns01_domain: { get_property: [ SELF, cert_manager_challenge_dns01_domain ] }
             kube_cert_manager_challenge_dns01_ak: { get_property: [ SELF, cert_manager_challenge_dns01_ak ] }
