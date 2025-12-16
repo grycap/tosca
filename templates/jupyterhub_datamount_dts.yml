@@ -83,7 +83,7 @@ topology_template:
     dts_credential:
       type: string
       description: DTS Credential (EGI Checkin token)
-      default: ''
+      default: 'access_token()'
 
   node_templates:
 
