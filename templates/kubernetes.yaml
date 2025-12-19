@@ -7,7 +7,7 @@ description: Deploy a Kubernetes Virtual Cluster.
 
 metadata:
   template_name: Kubernetes
-  template_version: "1.2.2"
+  template_version: "1.2.3"
   display_name: Deploy a Kubernetes Virtual Cluster
   icon: images/kubernetes.png
   order: 3
@@ -146,9 +146,9 @@ topology_template:
     kube_version:
       type: string
       description: Version of Kubernetes to install
-      default: "1.33.5"
+      default: "1.34.3"
       constraints:
-        - valid_values: [ "1.33.5", "1.34.1", "1.32.9", "1.31.13", "1.30.14", "1.29.15", "1.28.15" ]
+        - valid_values: [ "1.34.3", "1.35.0", "1.33.7", "1.32.11", "1.31.13", "1.30.14", "1.29.15", "1.28.15" ]
     kube_cri_runtime:
       type: string
       description: CRI Runtime to use with Kubernetes
