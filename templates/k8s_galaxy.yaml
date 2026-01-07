@@ -83,3 +83,5 @@ topology_template:
   outputs:
     galaxy_endpoint:
       value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], '/galaxy/' ] }
+    galaxy_dns_endpoint:
+      value: { concat: [ 'https://', get_input: kube_public_dns_name, '/galaxy/' ] }
