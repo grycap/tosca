@@ -68,6 +68,7 @@
             dest: /opt/rabbitmq_values.yaml
             mode: '644'
             content: |
+              nameOverride: rabbitmq
               credentialUpdaterImage:
                 repository: bitnamilegacy/rmq-default-credential-updater
               rabbitmqImage:
@@ -189,7 +190,7 @@
             KUBECONFIG: /etc/kubernetes/admin.conf
 
         - name: Deploy Galaxy
-          command: helm install --create-namespace -n {{ NAMESPACE }} galaxy galaxy/galaxy --timeout 10m -f /opt/galaxy_values.yaml --version 6.1.0
+          command: helm install --create-namespace -n {{ NAMESPACE }} galaxy galaxy/galaxy --timeout 10m -f /opt/galaxy_values.yaml --version 6.6.0
           environment:
             KUBECONFIG: /etc/kubernetes/admin.conf
 
