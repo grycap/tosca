@@ -6,7 +6,7 @@ imports:
 description: Deploy Galaxy on top of a Kubernetes Virtual Cluster.
 
 metadata:
-  template_version: "1.0.0"
+  template_version: "1.1.0"
   template_name: Galaxy
   display_name: Galaxy on top of a Kubernetes Virtual Cluster
   icon: images/galaxy.png
@@ -83,3 +83,5 @@ topology_template:
   outputs:
     galaxy_endpoint:
       value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], '/galaxy/' ] }
+    galaxy_dns_endpoint:
+      value: { concat: [ 'https://', get_input: kube_public_dns_name, '/galaxy/' ] }
