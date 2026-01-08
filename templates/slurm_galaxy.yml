@@ -37,17 +37,17 @@ topology_template:
     galaxy_version:
       type: string
       description: Version of the Galaxy portal
-      default: '24.2'
+      default: '25.1'
       constraints:
-        - valid_values: [ '24.2', '24.1' ]
+        - valid_values: [ '25.1', '24.2', '24.1' ]
 
 
     slurm_version:
       type: string
-      description: Version of SLURM to be installed
-      default: 21.08.8
+      description: Version of SLURM to be installed (24.11.7 for Galaxy 25.X and 21.08.8 for Galaxy 24.X)
+      default: 24.11.7
       constraints:
-        - valid_values: [ '21.08.8' ]
+        - valid_values: [ '24.11.7', '21.08.8' ]
 
     # Overwrite default FE and WN values
     fe_cpus:
