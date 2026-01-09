@@ -101,7 +101,7 @@ topology_template:
         front_end_ip: { get_attribute: [ lrms_server, private_address, 0 ] }
       requirements:
         - host: lrms_wn
-        - dependency: galaxy_portal
+        - dependency: lrms_front_end
 
   outputs:
     galaxy_nip_url:
