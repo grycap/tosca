@@ -66,9 +66,9 @@ topology_template:
       default: 2
       required: yes
     wn_mem:
-      type: scalar-unit.size
-      description: Amount of Memory for the WNs
-      default: 4 GiB
+      type: integer
+      description: Amount of Memory for the WNs in MiB
+      default: 4096
       required: yes
 
   node_templates:
