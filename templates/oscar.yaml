@@ -92,7 +92,7 @@ topology_template:
       description: Size of the root disk of the WNs
       default: 20 GiB
       constraints:
-        - valid_values: [ 20 GiB, 50 GiB, 100 GiB, 200 GiB ]
+        - valid_values: [ 20 GiB, 50 GiB, 100 GiB, 150 GiB, 200 GiB ]
     wn_instance_type:
       type: string
       description: Flavor name of the WN node. Only required in case of special flavors (i.e. with GPUs)
@@ -104,7 +104,7 @@ topology_template:
       default: 50 GiB
       required: yes
       constraints:
-        - valid_values: [ 30 GiB, 50 GiB, 100 GiB ]
+        - valid_values: [ 20 GiB, 50 GiB, 100 GiB, 150 GiB, 200 GiB ]
 
     admin_token:
       type: string
