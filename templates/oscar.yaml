@@ -36,12 +36,17 @@ metadata:
           tag_type: random
       - domain_name:
           tag_type: hidden
-      - kube_nvidia_support
-      - kube_install_yunikorn
+      - kube_nvidia_support:
+          tag_type: toggle
+      - kube_install_yunikorn:
+          tag_type: toggle
       - allowed_image_prefixes
-      - kueue_enable
-      - kueue_default_cpu
-      - kueue_default_memory
+      - kueue_enable:
+          tag_type: toggle
+      - kueue_default_cpu:
+          enabled_by: kueue_enable
+      - kueue_default_memory:
+          enabled_by: kueue_enable
   childs:
     - oscar_elastic.yaml
     - oscar_function.yaml
@@ -161,21 +166,15 @@ topology_template:
       type: boolean
       description: Flag to add NVIDIA support
       default: false
-      constraints:
-        - valid_values: [ false, true ]
     kube_install_yunikorn:
       type: boolean
       description: Flag to install Apache YuniKorn
       default: false
-      constraints:
-        - valid_values: [ false, true ]
 
     kueue_enable:
       type: boolean
       description: Flag to enable Kueue integration
       default: false
-      constraints:
-        - valid_values: [ false, true ]
     kueue_default_cpu:
       type: integer
       description: Default Kueue CPU user quota
