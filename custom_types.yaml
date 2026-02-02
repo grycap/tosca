@@ -1350,6 +1350,21 @@ node_types:
         description: List of allowed image prefixes
         required: false
         default: []
+      kueue_enable:
+        type: boolean
+        description: Parameter to enable Kueue integration
+        required: false
+        default: false
+      kueue_default_cpu:
+        type: integer
+        description: Default CPU user quota
+        required: false
+        default: 2
+      kueue_default_memory:
+        type: string
+        description: Default Memory user quota
+        required: false
+        default: "2 Gi"
     artifacts:
       minio_role:
         file: grycap.kubeminio
@@ -1383,6 +1398,9 @@ node_types:
             oidc_issuers: { get_property: [ SELF, oidc_issuers ] }
             yunikorn_enable:  { get_property: [ SELF, yunikorn_enable ] }
             allowed_image_prefixes: { get_property: [ SELF, allowed_image_prefixes ] }
+            kueue_enable: { get_property: [ SELF, kueue_enable ] }
+            kueue_default_cpu: { get_property: [ SELF, kueue_default_cpu ] }
+            kueue_default_memory: { get_property: [ SELF, kueue_default_memory ] }
     requirements:
       - host:
           capability: tosca.capabilities.Container

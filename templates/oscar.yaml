@@ -1,7 +1,7 @@
 tosca_definitions_version: tosca_simple_yaml_1_0
 
 imports:
-  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/kueue_oscar/custom_types.yaml
 
 description: Deploy an OSCAR Virtual Cluster.
 
@@ -39,6 +39,9 @@ metadata:
       - kube_nvidia_support
       - kube_install_yunikorn
       - allowed_image_prefixes
+      - kueue_enable
+      - kueue_default_cpu
+      - kueue_default_memory
   childs:
     - oscar_elastic.yaml
     - oscar_function.yaml
@@ -167,6 +170,21 @@ topology_template:
       constraints:
         - valid_values: [ false, true ]
 
+    kueue_enable:
+      type: boolean
+      description: Flag to enable Kueue integration
+      default: false
+      constraints:
+        - valid_values: [ false, true ]
+    kueue_default_cpu:
+      type: integer
+      description: Default Kueue CPU user quota
+      default: 2
+    kueue_default_memory:
+      type: string
+      description: Default Kueue Memory user quota
+      default: 2 Gi
+
   node_templates:
 
     oscar:
@@ -183,6 +201,9 @@ topology_template:
         oidc_issuers: { get_input: oidc_issuers }
         yunikorn_enable: { get_input: kube_install_yunikorn }
         allowed_image_prefixes: { get_input: allowed_image_prefixes }
+        kueue_enable: { get_input: kueue_enable }
+        kueue_default_cpu: { get_input: kueue_default_cpu }
+        kueue_default_memory: { get_input: kueue_default_memory }
       capabilities:
         endpoint:
           properties:
