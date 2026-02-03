@@ -13,9 +13,9 @@ metadata:
   icon: images/docker.png
   tabs:
     Docker Data:
-      - docker_nvidia_support
+      - nvidia_support
       - driver_version:
-          enabled_by: docker_nvidia_support
+          enabled_by: nvidia_support
   parents:
     - slurm_cluster.yml
 
