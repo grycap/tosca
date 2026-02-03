@@ -137,8 +137,6 @@ topology_template:
       type: boolean
       description: Launch Traefik job as reverse proxy
       default: false
-      constraints:
-        - valid_values: [ false, true ]
     traefik_letsencrypt_email:
       type: string
       description: Email address to use for Traefik Let's Encrypt

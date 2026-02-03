@@ -7,14 +7,24 @@ description: Deploy a Kubernetes Virtual Cluster.
 
 metadata:
   template_name: Kubernetes
-  template_version: "1.2.3"
+  template_version: "1.2.4"
   display_name: Deploy a Kubernetes Virtual Cluster
   icon: images/kubernetes.png
   order: 3
   tabs:
     FE Features: fe_.*
     WNs Features: wn_.*
-    Kubernetes Data: kube_.*
+    Kubernetes Data:
+      - kube_admin_token
+      - kube_version
+      - kube_cri_runtime
+      - kube_cert_manager
+      - kube_cert_user_email:
+          enabled_by: kube_cert_manager
+          tag_type: email
+      - kube_public_dns_name
+      - kube_allowed_cidr
+      - kube_csi_driver
 
   childs:
     - kubeapps.yml
@@ -84,8 +94,6 @@ topology_template:
       type: boolean
       description: Flag to add NVIDIA support in the FE (must be set if any WN has GPU)
       default: false
-      constraints:
-        - valid_values: [ false, true ]
 
     wn_num:
       type: integer
@@ -136,8 +144,6 @@ topology_template:
       type: boolean
       description: Flag to add NVIDIA support in the WN
       default: false
-      constraints:
-        - valid_values: [ false, true ]
 
     kube_admin_token:
       type: string
@@ -159,8 +165,6 @@ topology_template:
       type: boolean
       description: Flag to install Cert-Manager
       default: false
-      constraints:
-        - valid_values: [ false, true ]
     kube_cert_user_email:
       type: string
       description: Email to be used in the Let's Encrypt issuer

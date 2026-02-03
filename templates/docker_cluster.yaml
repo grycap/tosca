@@ -7,12 +7,15 @@ description: >
   Deploy a set of computing nodes with Docker and Docker Compose installed.
 
 metadata:
-  template_version: "1.0.0"
+  template_version: "1.0.1"
   template_name: Docker + Compose
   display_name: Install Docker + Docker Compose
   icon: images/docker.png
   tabs:
-    Docker Data: .*
+    Docker Data:
+      - nvidia_support
+      - driver_version:
+          enabled_by: nvidia_support
   parents:
     - slurm_cluster.yml
 
@@ -24,8 +27,6 @@ topology_template:
       type: boolean
       description: Flag to add the NVIDIA drivers and NVIDIA-Docker packages in the Worker nodes
       default: false
-      constraints:
-        - valid_values: [ false, true ]
 
     driver_version:
       type: string

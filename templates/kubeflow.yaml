@@ -36,8 +36,6 @@ topology_template:
       type: boolean
       description: Deploy embedded MLFlow in Kubeflow instance
       default: false
-      constraints:
-        - valid_values: [ false, true ]
 
     # Restrict some K8s input values
 

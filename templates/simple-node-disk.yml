@@ -8,7 +8,7 @@ description: >
 
 metadata:
   template_name: VM
-  template_version: "1.2.1"
+  template_version: "1.2.2"
   template_author: Miguel Caballer
   creation_date: 2020-09-08
   display_name: Deploy a VM
@@ -143,8 +143,6 @@ topology_template:
       type: boolean
       description: Assign a private IP to the VM. Change only if you know what you are doing.
       default: true
-      constraints:
-        - valid_values: [ true, false ]
 
   node_templates:
 

@@ -93,8 +93,6 @@ topology_template:
       description: Whether to enable SLURM DBD (Accounting Database Daemon) support (
         only available for SLURM versions >= 23.11.11)
       default: false
-      constraints:
-        - valid_values: [ false, true ]
 
     fe_ports:
       type: map

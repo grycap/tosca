@@ -33,8 +33,6 @@ topology_template:
       type: boolean
       description: Unarchive the downloaded file. (Setting this flag implies that 'Wait to download' will be ignored and set to true)
       default: false
-      constraints:
-        - valid_values: [ false, true ]
 
     max_download_time:
       type: integer

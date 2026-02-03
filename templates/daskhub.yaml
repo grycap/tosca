@@ -6,7 +6,7 @@ imports:
 description: TOSCA template for launching Daskhub on top of a Kubernetes Virtual Cluster.
 
 metadata:
-  template_version: "1.0.0"
+  template_version: "1.0.1"
   template_name: Daskhub
   display_name: Deploy Daskhub on top of a Kubernetes Virtual Cluster
   icon: images/dask.png
@@ -50,8 +50,6 @@ topology_template:
       type: boolean
       description: Unarchive the downloaded file.
       default: false
-      constraints:
-        - valid_values: [ false, true ]
 
   node_templates:
 

@@ -13,7 +13,7 @@ metadata:
   parents:
     - simple-node-disk.yml
 
-description: TOSCA template for deploying a DEEPaaS AI model (combime it with Dynamic DNS to set a DNS name)
+description: TOSCA template for deploying a DEEPaaS AI model (combine it with Dynamic DNS to set a DNS name)
 
 topology_template:
 
@@ -27,8 +27,6 @@ topology_template:
       type: boolean
       description: Enable GPU support (install nvidia drivers and nvidia-docker)
       default: false
-      constraints:
-        - valid_values: [ false, true ]
 
   node_templates:
 
