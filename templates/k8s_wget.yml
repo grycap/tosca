@@ -29,8 +29,6 @@ topology_template:
       type: boolean
       description: Unarchive the downloaded file.
       default: false
-      constraints:
-        - valid_values: [ false, true ]
 
     pvc_namespace:
       type: string

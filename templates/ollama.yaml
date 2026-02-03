@@ -6,12 +6,17 @@ imports:
 description: TOSCA template for deploying a Ollama + Open WebUI VM
 
 metadata:
-  template_version: "1.0.0"
+  template_version: "1.0.1"
   template_name: Ollama + Open WebUI
   display_name: Install Ollama + Open WebUI
   icon: images/ollama.png
   tabs:
-    Ollama: ollama_.*
+    Ollama:
+      - ollama_nvidia_support
+      - ollama_driver_version:
+          enabled_by: ollama_nvidia_support
+      - ollama_models_name
+      - ollama_dns_node_name
   parents:
     - simple-node-disk.yml
 
@@ -23,8 +28,6 @@ topology_template:
       type: boolean
       description: Flag to add the NVIDIA runtime to the Ollama installation
       default: false
-      constraints:
-        - valid_values: [ false, true ]
 
     ollama_driver_version:
       type: string

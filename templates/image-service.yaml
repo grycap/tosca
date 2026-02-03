@@ -78,8 +78,6 @@ topology_template:
       type: boolean
       description: Flag to enable https (you need to provide a DNS name)
       default: false
-      constraints:
-        - valid_values: [ false, true ]
 
 
   node_templates:

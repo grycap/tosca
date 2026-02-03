@@ -70,8 +70,6 @@ topology_template:
       type: boolean
       description: Flag to add NVIDIA support
       default: false
-      constraints:
-        - valid_values: [ false, true ]
 
   node_templates:
 

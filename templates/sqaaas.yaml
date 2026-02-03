@@ -95,8 +95,6 @@ topology_template:
       type: boolean
       description: Flag to install Cert-Manager and manage the generation of TLS certificas with Let's Encrypt
       default: false
-      constraints:
-        - valid_values: [ false, true ]
     kube_cert_user_email:
       type: string
       description: Email to be used in the Let's Encrypt issuer
@@ -132,8 +130,6 @@ topology_template:
       type: boolean
       description: Flag to set the Badgr server to be installed
       default: false
-      constraints:
-        - valid_values: [ false, true ]
 
   node_templates:
 

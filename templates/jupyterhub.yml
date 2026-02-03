@@ -44,8 +44,6 @@ topology_template:
       type: boolean
       description: Whether to install the DataMountSpawner extension
       default: false
-      constraints:
-        - valid_values: [ false, true ]
 
     # Overwrite default Dataset list values
 

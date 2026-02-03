@@ -83,8 +83,6 @@ topology_template:
       type: boolean
       description: Flag to add GPU support in the WN (install NCCL, CUDA and NVIDIA drivers)
       default: false
-      constraints:
-        - valid_values: [ false, true ]
 
   node_templates:
 

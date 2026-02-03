@@ -126,8 +126,6 @@ topology_template:
       type: boolean
       description: Launch Traefik job as reverse proxy
       default: false
-      constraints:
-        - valid_values: [ false, true ]
     consul_version:
       type: string
       description: Consul version to install
