@@ -27,7 +27,8 @@ metadata:
       - admin_token
       - oscar_password
       - minio_password
-      - cert_user_email
+      - cert_user_email:
+          tag_type: email
       - user_id:
           tag_type: userid
       - selected_vos
@@ -44,6 +45,7 @@ metadata:
           enabled_by: kueue_enable
       - kueue_default_memory:
           enabled_by: kueue_enable
+          pattern: "[0-9]*( )+[TGMK]i"
   childs:
     - oscar_elastic.yaml
     - oscar_function.yaml

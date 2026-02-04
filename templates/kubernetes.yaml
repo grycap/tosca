@@ -7,7 +7,7 @@ description: Deploy a Kubernetes Virtual Cluster.
 
 metadata:
   template_name: Kubernetes
-  template_version: "1.2.4"
+  template_version: "1.2.5"
   display_name: Deploy a Kubernetes Virtual Cluster
   icon: images/kubernetes.png
   order: 3
@@ -23,7 +23,8 @@ metadata:
           enabled_by: kube_cert_manager
           tag_type: email
       - kube_public_dns_name
-      - kube_allowed_cidr
+      - kube_allowed_cidr:
+          pattern: "([0-9]{1,3}\.){3}[0-9]{1,3}\/[0-9]{1,2}"
       - kube_csi_driver
 
   childs:
