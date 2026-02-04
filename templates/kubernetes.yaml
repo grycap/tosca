@@ -24,7 +24,7 @@ metadata:
           tag_type: email
       - kube_public_dns_name
       - kube_allowed_cidr:
-          pattern: "([0-9]{1,3}\.){3}[0-9]{1,3}\/[0-9]{1,2}"
+          pattern: '([0-9]{1,3}\.){3}[0-9]{1,3}\/[0-9]{1,2}'
       - kube_csi_driver
 
   childs:
