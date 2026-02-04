@@ -1,0 +1,36 @@
+---
+- hosts: localhost
+  connection: local
+  tasks:
+    - name: Ensure Python 3 & Git are installed
+      ansible.builtin.package:
+        name:
+          - python3
+          - python3-pip
+          - git
+        state: present
+
+    - name: Set extra_args var
+      set_fact:
+        extra_args: ""
+
+    - name: Set extra_args var in py3.11
+      set_fact:
+        extra_args: --break-system-packages
+      when: ansible_python_version is version('3.11', '>=')
+
+    - name: Clone EOSC Data Transfer Client repository
+      ansible.builtin.git:
+        repo: 'https://gitlab.cern.ch/batistal/eosc-data-transfer-client.git'
+        dest: '/tmp/eosc-data-transfer-client'
+        version: 'main'
+
+    - name: Install requirements
+      ansible.builtin.pip:
+        requirements: /tmp/eosc-data-transfer-client/requirements.txt
+        extra_args: "{{ extra_args }}"
+
+    - name: Install requirements
+      ansible.builtin.pip:
+        name: "/tmp/eosc-data-transfer-client"
+        extra_args: "{{ extra_args }}"
