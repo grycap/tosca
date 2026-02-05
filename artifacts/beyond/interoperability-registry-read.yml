@@ -1,0 +1,24 @@
+---
+- hosts: localhost
+  connection: local
+  vars:
+    java_package: "{{ 'java-17-openjdk-devel' if ansible_os_family == 'RedHat' else 'default-jdk' }}"
+  tasks:
+  - name: Install Java, Maven and Git
+    package:
+      name:
+        - "{{ java_package }}"
+        - maven
+        - git
+      state: present
+
+  - name: Clone Interoperability Registry Read repository
+    ansible.builtin.git:
+      repo: 'https://github.com/madgeek-arc/horizontal-adapters.git'
+      dest: '/tmp/horizontal-adapters'
+      version: 'main'
+      
+  - name: Maven clean install
+    command: mvn clean install
+    args:
+      chdir: /tmp/horizontal-adapters/clients/java/interoperability-registry-read
