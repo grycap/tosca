@@ -17,7 +17,7 @@
         repo: 'https://github.com/madgeek-arc/horizontal-adapters.git'
         dest: '/tmp/horizontal-adapters'
         version: 'main'
-        
+
     - name: Maven clean install
       command: mvn clean install
       args:
