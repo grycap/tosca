@@ -1,0 +1,105 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+imports:
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+
+description: Deploy RustFS on top of a Kubernetes Virtual Cluster.
+
+metadata:
+  template_version: "1.0.0"
+  template_name: RustFS
+  display_name: Deploy RustFS on top of a Kubernetes Virtual Cluster
+  icon: https://rustfs.com/images/rustfs-github.png
+  web: https://rustfs.com
+  tabs:
+    RustFS Data:
+      - admin_password
+      - standalone
+      - distributed
+      - replicas:
+          enabled_by: distributed
+      - rustfs_dns_name
+  parents:
+    - kubernetes.yaml
+
+topology_template:
+  inputs:
+
+    admin_password:
+      type: string
+      description: Password of the RustFS admin user (user rustfsadmin)
+      default: adminpass
+    
+    standalone:
+      type: boolean
+      description: Flag to install RustFS in standalone mode
+      default: true
+
+    distributed:
+      type: boolean
+      description: Flag to install RustFS in distributed mode
+      default: false
+
+    replicas:
+      type: integer
+      description: Number of replicas to deploy in distributed mode
+      default: 4
+      constraints:
+        - valid_values: [ 4, 16 ]
+    
+    rustfs_dns_name:
+      type: string
+      description: DNS name to access RustFS (set it in the Kubernetes DNS names)
+      default: ""
+      required: true
+
+# override the kube_public_dns_name input defined in the parent template to make it required for this template
+
+    kube_cert_manager:
+      type: boolean
+      description: Flag to install Cert-Manager
+      default: true
+      constraints:
+        - valid_values: [ true ]
+
+  node_templates:
+
+    rustfs:
+      type: tosca.nodes.indigo.Helm.Chart
+      properties:
+        namespace: rustfs
+        repository_name: rustfs
+        repository_url: "https://charts.rustfs.com"
+        name: rustfs
+        values_file: |
+          ingress:
+            enabled: true
+            className: nginx
+            traefikAnnotations: {}
+            hosts:
+              - host: rustfs.local
+                paths:
+                  - path: /
+                    pathType: Prefix
+            tls:
+              enabled: true
+              certManager:
+                enabled: true
+          gatewayApi:
+            enabled: false
+            gatewayClass: nginx
+          storageclass:
+            name: managed-nfs-storage
+        values:
+          secret.rustfs.secret_key: { get_input: admin_password }
+          ingress.hosts[0].host: { get_input: rustfs_dns_name }
+          mode.standalone.enabled: { get_input: standalone }
+          mode.distributed.enabled: { get_input: distributed }
+          replicaCount: { get_input: replicas }
+      requirements:
+        - host: front
+        - dependency: lrms_front_end
+
+  outputs:
+    rustfs_endpoint:
+      value: { concat: [ 'https://', get_input: rustfs_dns_name, '/' ] }
