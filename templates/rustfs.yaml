@@ -29,7 +29,7 @@ topology_template:
       type: string
       description: Password of the RustFS admin user (user rustfsadmin)
       default: adminpass
-    
+
     standalone:
       type: boolean
       description: Flag to install RustFS in standalone mode
@@ -46,14 +46,14 @@ topology_template:
       default: 4
       constraints:
         - valid_values: [ 4, 16 ]
-    
+
     rustfs_dns_name:
       type: string
       description: DNS name to access RustFS (set it in the Kubernetes DNS names)
       default: ""
       required: true
 
-# override the kube_public_dns_name input defined in the parent template to make it required for this template
+    # override the kube_public_dns_name input defined in the parent template to make it required for this template
 
     kube_cert_manager:
       type: boolean
