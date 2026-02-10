@@ -3,12 +3,17 @@
   connection: local
   tasks:
     - name: Ensure Python 3 & Git are installed
-      ansible.builtin.package:
+      package:
         name:
           - python3
           - python3-pip
           - git
         state: present
+
+    - name: Ensure Python typing-extensions package is not installed
+      package:
+        name: python3-typing-extensions
+        state: absent
 
     - name: Set extra_args var
       set_fact:
@@ -20,17 +25,17 @@
       when: ansible_python_version is version('3.11', '>=')
 
     - name: Clone EOSC Data Transfer Client repository
-      ansible.builtin.git:
+      git:
         repo: 'https://gitlab.cern.ch/batistal/eosc-data-transfer-client.git'
         dest: '/tmp/eosc-data-transfer-client'
         version: 'main'
 
     - name: Install requirements
-      ansible.builtin.pip:
+      pip:
         requirements: /tmp/eosc-data-transfer-client/requirements.txt
         extra_args: "{{ extra_args }}"
 
     - name: Install EOSC Data Transfer Client
-      ansible.builtin.pip:
+      pip:
         name: "/tmp/eosc-data-transfer-client"
         extra_args: "{{ extra_args }}"
