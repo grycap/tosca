@@ -58,6 +58,7 @@ metadata:
     - haddock_compose.yaml
     - eosc-dts-client.yml
     - interoperability-registry-read.yml
+    - pyhandle.yml
 
 topology_template:
 
