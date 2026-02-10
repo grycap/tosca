@@ -60,6 +60,7 @@ metadata:
     - kubevirt.yaml
     - dataset_list_k8s.yaml
     - argo-cd.yaml
+    - rustfs.yaml
 
 topology_template:
   inputs:

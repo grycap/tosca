@@ -22,3 +22,4 @@
       command: mvn clean install
       args:
         chdir: /tmp/horizontal-adapters/clients/java/interoperability-registry-read
+        creates: /tmp/horizontal-adapters/clients/java/interoperability-registry-read/target

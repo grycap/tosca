@@ -1,0 +1,28 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+imports:
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+
+description: Install EOSC Data Transfer Client
+
+metadata:
+  template_version: "1.0.0"
+  template_name: EOSC Data Transfer Client
+  display_name: Install EOSC Data Transfer Client
+  web: https://gitlab.cern.ch/batistal/eosc-data-transfer-client
+  icon: https://data-transfer.service.eosc-beyond.eu/swagger-ui/logo.png
+  parents:
+    - simple-node-disk.yml
+
+topology_template:
+
+  node_templates:
+
+    eosc-dts-client:
+      type: tosca.nodes.SoftwareComponent
+      interfaces:
+        Standard:
+          configure:
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/beyond/eosc-dts-client.yml
+      requirements:
+        - host: simple_node
