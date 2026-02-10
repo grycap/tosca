@@ -2,24 +2,44 @@
 - hosts: localhost
   connection: local
   vars:
+    cli_language: "{{ language | default('java') }}"
     java_package: "{{ 'java-17-openjdk-devel' if ansible_os_family == 'RedHat' else 'default-jdk' }}"
   tasks:
-    - name: Install Java, Maven and Git
+    - name: Install Git
       package:
-        name:
-          - "{{ java_package }}"
-          - maven
-          - git
-        state: present
+        name: git
 
     - name: Clone Interoperability Registry Read repository
-      ansible.builtin.git:
+      git:
         repo: 'https://github.com/madgeek-arc/horizontal-adapters.git'
         dest: '/tmp/horizontal-adapters'
         version: 'main'
 
-    - name: Maven clean install
-      command: mvn clean install
-      args:
-        chdir: /tmp/horizontal-adapters/clients/java/interoperability-registry-read
-        creates: /tmp/horizontal-adapters/clients/java/interoperability-registry-read/target
+    - when: cli_language == 'python'
+      block:
+        - name: Install Python
+          package:
+            name:
+              - python3
+              - python3-pip
+            state: present
+
+        - name: Pip install Python Interoperability Registry Read client
+          pip:
+            name: /tmp/horizontal-adapters/clients/python/interoperability-registry-read/
+
+    - when: cli_language == 'java'
+      block:
+
+        - name: Install Java and Maven
+          package:
+            name:
+              - "{{ java_package }}"
+              - maven
+            state: present
+
+        - name: Maven clean install
+          command: mvn clean install
+          args:
+            chdir: /tmp/horizontal-adapters/clients/java/interoperability-registry-read
+            creates: /tmp/horizontal-adapters/clients/java/interoperability-registry-read/target
