@@ -57,6 +57,7 @@ metadata:
     - vscode_compose.yaml
     - haddock_compose.yaml
     - eosc-dts-client.yml
+    - interoperability-registry-read.yml
 
 topology_template:
 
