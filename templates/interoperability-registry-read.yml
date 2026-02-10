@@ -33,7 +33,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/beyond/interoperability-registry-read-client.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/beyond/interoperability-registry-read.yml
             inputs:
               language: { get_input: language }
       requirements:
