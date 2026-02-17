@@ -1,0 +1,69 @@
+---
+- name: Install vip
+  hosts: localhost
+  connection: local
+  vars:
+    traefik_letsencrypt_email: "{{ letsencrypt_email | default('vip.fedcloud.eu') }}"
+    traefik_public_ip: "{{ vip_public_ip | default(ansible_default_ipv4.address) }}"
+    traefik_dns_name: "{{ vip_dns_name | default('vip.' + (vip_public_ip | default(ansible_default_ipv4.address)) + '.nip.io') }}"
+  roles:
+    - role: 'grycap.docker'
+  tasks:
+    - name: Create vip directory
+      file:
+        path: /opt/vip/storage
+        state: directory
+        mode: '777'
+        recurse: true
+
+    - name: Create docker-compose file
+      copy:
+        content: |
+          version: "3.3"
+          services:
+            traefik:
+              image: "traefik:v2.11"
+              container_name: "traefik"
+              command:
+                # - "--log.level=DEBUG"
+                - "--api.insecure=true"
+                - "--providers.docker=true"
+                - "--providers.docker.exposedbydefault=false"
+                - "--entrypoints.web.address=:80"
+                - "--entrypoints.websecure.address=:443"
+                - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+                - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+                - "--entrypoints.web.http.redirections.entrypoint.permanent=true"
+                - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
+                - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+                #- "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+                - "--certificatesresolvers.myresolver.acme.email={{ traefik_letsencrypt_email }}"
+                - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+              ports:
+                - "80:80"
+                - "443:443"
+                - "8080:8080"
+              volumes:
+                - "./letsencrypt:/letsencrypt"
+                - "/var/run/docker.sock:/var/run/docker.sock:ro"
+            vip:
+              image: viplatform/vip-portal
+              expose:
+                - "8080"
+              volumes:
+                - ./storage:/vip/storage
+              restart: unless-stopped
+              labels:
+                - "traefik.enable=true"
+                - "traefik.http.routers.vip.service=vip"
+                - "traefik.http.routers.vip.rule=Host(`{{ traefik_dns_name }}`) || Host(`{{ traefik_public_ip }}`)"
+                - "traefik.http.routers.vip.entrypoints=websecure"
+                - "traefik.http.routers.vip.tls.certresolver=myresolver"
+                - "traefik.http.services.vip.loadbalancer.server.port=8080"
+        dest: /opt/vip/docker-compose.yaml
+        mode: '644'
+
+    - name: Exec docker-compose up
+      docker_compose:
+        project_src: /opt/vip/
+        state: present
