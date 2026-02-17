@@ -4,7 +4,6 @@
   connection: local
   vars:
     traefik_letsencrypt_email: "{{ letsencrypt_email | default('vip.fedcloud.eu') }}"
-    traefik_public_ip: "{{ vip_public_ip | default(ansible_default_ipv4.address) }}"
     traefik_dns_name: "{{ vip_dns_name | default('vip.' + (vip_public_ip | default(ansible_default_ipv4.address)) + '.nip.io') }}"
   roles:
     - role: 'grycap.docker'
@@ -13,7 +12,6 @@
       file:
         path: /opt/vip/storage
         state: directory
-        mode: '777'
         recurse: true
 
     - name: Create docker-compose file
@@ -42,7 +40,6 @@
               ports:
                 - "80:80"
                 - "443:443"
-                - "8080:8080"
               volumes:
                 - "./letsencrypt:/letsencrypt"
                 - "/var/run/docker.sock:/var/run/docker.sock:ro"
@@ -56,12 +53,29 @@
               labels:
                 - "traefik.enable=true"
                 - "traefik.http.routers.vip.service=vip"
-                - "traefik.http.routers.vip.rule=Host(`{{ traefik_dns_name }}`) || Host(`{{ traefik_public_ip }}`)"
+                - "traefik.http.routers.vip.rule=Host(`{{ traefik_dns_name }}`)"
                 - "traefik.http.routers.vip.entrypoints=websecure"
                 - "traefik.http.routers.vip.tls.certresolver=myresolver"
                 - "traefik.http.services.vip.loadbalancer.server.port=8080"
         dest: /opt/vip/docker-compose.yaml
         mode: '644'
+
+    - name: Extract vip storage from image
+      shell: |
+        docker create --name temp-vip viplatform/vip-portal
+        docker cp temp-vip:/vip/storage/. storage/ || true
+        docker rm temp-vip
+      args:
+        chdir: /opt/vip
+        creates: /opt/vip/storage/logs
+
+    - name: Set permissions for vip storage
+      file:
+        path: /opt/vip/storage
+        state: directory
+        recurse: true
+        owner: 1000
+        group: 1000
 
     - name: Exec docker-compose up
       docker_compose:
