@@ -1,19 +1,14 @@
 tosca_definitions_version: tosca_simple_yaml_1_0
 imports:
   - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
-description: >
-  Deploy a cluster with Scipion via VNC
+
+description:  Deploy a cluster with Scipion via VNC
+
 metadata:
   template_name: Scipion
-  template_version: "2.0.0"
+  template_version: '2.0.0'
   template_author: Laura del Cano
-  display_name: Scipion on SLURM cluster
-  icon: images/scipion.png
-  tabs:
-    Master Features: .*_master
-    Worker Features: .*_worker
-    App Features:
-      - vnc_pass
+
 topology_template:
   inputs:
     vnc_pass:
@@ -22,33 +17,25 @@ topology_template:
       required: yes
       default: Scipion4u
 
-    num_gpus_master:
+    num_gpus:
       type: integer
       description: Number of GPUs to assing to the master
       required: yes
       default: 0
-      constraints:
-        - valid_values: [ 0, 1, 2 ]
-    num_cpus_master:
+    num_cpus:
       type: integer
       description: Numbers of CPUs to assign to the master
       required: yes
       default: 2
-      constraints:
-        - valid_values: [ 8, 2, 4, 16, 32, 64 ]
-    mem_size_master:
+    mem_size:
       type: scalar-unit.size
       description: Ammount of RAM (GiB) to assign to the master
       default: 4 GiB
       required: yes
-      constraints:
-        - valid_values: [ 30 GiB, 4 GiB, 8 GiB, 16 GiB, 32 GiB, 64 GiB, 128 GiB ]
     disk_size:
       type: scalar-unit.size
       description: Size of the external disk attached to the server
       default: 200 GiB
-      constraints:
-        - valid_values: [ 200 GiB, 500 GiB, 1 TiB, 5 TiB, 8TiB ]
 
     num_worker:
       type: integer
@@ -56,27 +43,21 @@ topology_template:
       default: 0
       constraints:
         - valid_values: [ 0, 1 ]
-    num_gpus:
+    num_gpus_worker:
       type: integer
       description: Number of GPUs to assing to the worker
       required: yes
       default: 0
-      constraints:
-        - valid_values: [ 0, 1, 2 ]
-    num_cpus:
+    num_cpus_worker:
       type: integer
       description: Numbers of CPUs to assign to the worker
       required: yes
       default: 2
-      constraints:
-        - valid_values: [ 8, 2, 4, 16, 32, 64 ]
-    mem_size:
+    mem_size_worker:
       type: scalar-unit.size
       description: Ammount of RAM (GiB) to assign to the worker
       default: 4 GiB
       required: yes
-      constraints:
-        - valid_values: [ 30 GiB, 4 GiB, 8 GiB, 16 GiB, 32 GiB, 64 GiB, 128 GiB ]
 
   node_templates:
     pub_network:
@@ -129,13 +110,15 @@ topology_template:
         host:
           properties:
             disk_size: 100 GB
-            num_gpus: { get_input: num_gpus_master }
-            num_cpus: { get_input: num_cpus_master }
-            mem_size: { get_input: mem_size_master }
+            num_gpus: { get_input: num_gpus }
+            num_cpus: { get_input: num_cpus }
+            mem_size: { get_input: mem_size }
             gpu_vendor: 'nvidia'
         os:
           properties:
             type: linux
+            # version: '24.04'
+            version: '22.04.4'
       requirements:
         - local_storage:
             node: my_block_storage
@@ -181,13 +164,15 @@ topology_template:
         host:
           properties:
             disk_size: 100 GB
-            num_gpus: { get_input: num_gpus }
-            num_cpus: { get_input: num_cpus }
-            mem_size: { get_input: mem_size }
+            num_gpus: { get_input: num_gpus_worker }
+            num_cpus: { get_input: num_cpus_worker }
+            mem_size: { get_input: mem_size_worker }
             gpu_vendor: 'nvidia'
         os:
           properties:
             type: linux
+            # version: '24.04'
+            version: '22.04.4'
 
     wn:
       type: tosca.nodes.SoftwareComponent
@@ -215,5 +200,5 @@ topology_template:
       properties:
         size: { get_input: disk_size }
   outputs:
-    no_vnc_endpoint:
+    url:
       value: { concat: [ 'https://', get_attribute: [ lrms_server, public_address, 0 ], ':8443/vnc.html' ] }
