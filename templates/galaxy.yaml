@@ -46,9 +46,9 @@ topology_template:
     version:
       type: string
       description: Version of the Galaxy portal
-      default: '24.2'
+      default: '25.1.1'
       constraints:
-        - valid_values: [ '24.2', '24.1' ]
+        - valid_values: [ '25.1.1', '24.2', '24.1' ]
 
 
   node_templates:
