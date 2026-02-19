@@ -134,7 +134,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/scipion/apptainer_master.yaml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/new_scipion/artifacts/scipion/apptainer_master.yaml
             inputs:
               vnc_pass: { get_input: vnc_pass }
               slurm_front_end_ip: { get_attribute: [ lrms_server, private_address, 0 ] }
@@ -181,7 +181,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/scipion/ansible_worker.yaml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/new_scipion/artifacts/scipion/ansible_worker.yaml
             inputs:
               slurm_front_end_ip: { get_attribute: [ lrms_server, private_address, 0 ] }
       artifacts:
