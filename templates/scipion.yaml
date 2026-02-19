@@ -2,7 +2,7 @@ tosca_definitions_version: tosca_simple_yaml_1_0
 imports:
   - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
 
-description:  Deploy a cluster with Scipion via VNC
+description: Deploy a cluster with Scipion via VNC
 
 metadata:
   template_name: Scipion
@@ -26,11 +26,11 @@ topology_template:
       type: integer
       description: Numbers of CPUs to assign to the master
       required: yes
-      default: 2
+      default: 8
     mem_size:
       type: scalar-unit.size
-      description: Ammount of RAM (GiB) to assign to the master
-      default: 4 GiB
+      description: Ammount of RAM (GB) to assign to the master
+      default: 30 GB
       required: yes
     disk_size:
       type: scalar-unit.size
@@ -52,11 +52,11 @@ topology_template:
       type: integer
       description: Numbers of CPUs to assign to the worker
       required: yes
-      default: 2
+      default: 8
     mem_size_worker:
       type: scalar-unit.size
       description: Ammount of RAM (GiB) to assign to the worker
-      default: 4 GiB
+      default: 30 GiB
       required: yes
 
   node_templates:
@@ -109,7 +109,7 @@ topology_template:
                 source: 8443
         host:
           properties:
-            disk_size: 100 GB
+            disk_size: 50 GB
             num_gpus: { get_input: num_gpus }
             num_cpus: { get_input: num_cpus }
             mem_size: { get_input: mem_size }
@@ -134,7 +134,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/eosc_beyond/artifacts/scipion/apptainer_master.yaml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/scipion/apptainer_master.yaml
             inputs:
               vnc_pass: { get_input: vnc_pass }
               slurm_front_end_ip: { get_attribute: [ lrms_server, private_address, 0 ] }
@@ -181,7 +181,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/eosc_beyond/artifacts/scipion/apptainer_worker.yaml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/scipion/ansible_worker.yaml
             inputs:
               slurm_front_end_ip: { get_attribute: [ lrms_server, private_address, 0 ] }
       artifacts:
@@ -194,6 +194,11 @@ topology_template:
         docker_role:
           file: usegalaxy_eu.apptainer
           type: tosca.artifacts.AnsibleGalaxy.role
+        os:
+          properties:
+            type: linux
+            # version: '24.04'
+            version: '22.04.4'
 
     my_block_storage:
       type: BlockStorage
