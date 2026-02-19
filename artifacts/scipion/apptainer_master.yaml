@@ -130,7 +130,7 @@
 
     - name:  Download scipion launcher
       get_url:
-        url: https://raw.githubusercontent.com/I2PC/scipion-containers/refs/heads/master/launcher.sh
+        url: https://raw.githubusercontent.com/I2PC/scipion-containers/refs/heads/master/launcher.sh.template
         dest: /home/scipionuser/ScipionUserData/launcher.sh
         mode: '0755'
         owner: scipionuser
