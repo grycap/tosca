@@ -14,6 +14,7 @@ metadata:
     Worker Features: .*_worker
     App Features:
       - vnc_pass
+      - scipion_flavour
 topology_template:
   inputs:
     vnc_pass:
@@ -21,6 +22,14 @@ topology_template:
       description: VNC password
       required: yes
       default: Scipion4u
+
+    scipion_flavour:
+      type: string
+      description: Scipion container flavor to use (base, spa, tomo or full)
+      required: yes
+      default: base
+      constraints:
+        - valid_values: [ base, spa, tomo, full ]
 
     num_gpus_master:
       type: integer
@@ -155,6 +164,7 @@ topology_template:
             inputs:
               vnc_pass: { get_input: vnc_pass }
               slurm_front_end_ip: { get_attribute: [ lrms_server, private_address, 0 ] }
+              scipion_flavour: { get_input: scipion_flavour }
       artifacts:
         vnc_role:
           file: grycap.vnc

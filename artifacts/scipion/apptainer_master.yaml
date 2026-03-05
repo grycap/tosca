@@ -22,7 +22,7 @@
         uid: 1042
         shell: /bin/bash
         group: scipionuser
-      
+
     - name: Create ScipionUserData directory
       file:
         path: /home/scipionuser
@@ -58,7 +58,7 @@
     - name: Install Apptainer
       include_role:
         name: usegalaxy_eu.apptainer
-  
+
     - name: Apply sysctl configuration
       sysctl:
         name: kernel.apparmor_restrict_unprivileged_userns
@@ -119,16 +119,16 @@
       vars:
         slurm_type_of_node: 'front'
         slurm_server_name: "{{ vnode_master }}"
-        slurm_wn_ips: '{{ groups["lrms_wn"]|map("extract", hostvars, "ansible_default_ipv4.address")|list if "lrms_wn" in groups else [] }}'
+        slurm_wn_ips: '{{ groups["lrms_wn"] | map("extract", hostvars, "ansible_default_ipv4.address") | list if "lrms_wn" in groups else [] }}'
         slurm_vnode_prefix: "{{ vnode_prefix }}"
-        slurm_wn_nodenames: '{{ groups["lrms_wn"]|map("extract", hostvars, "ansible_hostname")|list if "lrms_wn" in groups else [] }}'
-        slurm_wn_cpus: '{{IM_INFRASTRUCTURE_RADL|json_query("[?id == ''lrms_wn''].cpu_count_min|[0]")}}'
-        slurm_wn_mem: '{{(IM_INFRASTRUCTURE_RADL|json_query("[?id == ''lrms_wn''].memory_size_min|[0]") / 1048576) | int }}'
+        slurm_wn_nodenames: '{{ groups["lrms_wn"] | map("extract", hostvars, "ansible_hostname") | list if "lrms_wn" in groups else [] }}'
+        slurm_wn_cpus: '{{ IM_INFRASTRUCTURE_RADL | json_query("[?id == ''lrms_wn''].cpu_count_min|[0]") }}'
+        slurm_wn_mem: '{{ (IM_INFRASTRUCTURE_RADL | json_query("[?id == ''lrms_wn''].memory_size_min|[0]") / 1048576) | int }}'
         slurm_version: "{{ SLURM_VERSION }}"
         slurm_user: scipionuser
         slurm_user_id: 1042
 
-    - name:  Download scipion launcher
+    - name: Download scipion launcher
       get_url:
         url: https://raw.githubusercontent.com/I2PC/scipion-containers/refs/heads/master/launcher.sh.template
         dest: /home/scipionuser/ScipionUserData/launcher.sh
@@ -169,7 +169,7 @@
         regexp: '(.*)--containall(.*)'
         replace: '\1--containall {{ SLURM_DEPENDENCIES_CMD }}\2'
 
-    - name:  Create scipion hosts.conf
+    - name: Create scipion hosts.conf
       copy:
         content: |
           [localhost]
@@ -202,6 +202,7 @@
                         ["GPU_COUNT", "0", "Number of GPUs", "Select GPUs to allocate"]]
               }
         dest: /home/scipionuser/ScipionUserData/hosts.conf
+        mode: '644'
 
     - name: Flush handlers
       meta: flush_handlers
@@ -218,6 +219,7 @@
       until: pull_container_status.finished
       retries: 90
       delay: 60
+      become: true
       become_user: scipionuser
 
     - name: Set apptainer param for GPU support
