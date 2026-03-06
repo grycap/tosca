@@ -219,6 +219,9 @@ topology_template:
         docker_role:
           file: usegalaxy_eu.apptainer
           type: tosca.artifacts.AnsibleGalaxy.role
+        nvidia_role:
+          file: NVIDIA.nvidia_driver
+          type: tosca.artifacts.AnsibleGalaxy.role
 
     my_block_storage:
       type: BlockStorage
