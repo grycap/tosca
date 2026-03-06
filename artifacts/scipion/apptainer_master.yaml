@@ -6,7 +6,7 @@
     vnode_master: scipion-master
     CONTAINER_FLAVOUR: "{{ scipion_flavour | default('base') }}" # Available flavours are: base, spa, tomo, full
     CONTAINER_VERSION: "{{ scipion_version | default('latest') }}"
-    SLURM_VERSION: "23.11.8"
+    SLURM_VERSION: "25.11.2"
     nvidia_param: ""
 
   tasks:
