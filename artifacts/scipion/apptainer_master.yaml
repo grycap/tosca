@@ -208,7 +208,7 @@
         TMPDIR: /home/scipionuser/tmp
       become_user: scipionuser
       become: true
-      async: 5400
+      async: 7200
       poll: 60
 
     - name: Set apptainer param for GPU support
