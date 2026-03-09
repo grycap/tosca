@@ -65,18 +65,6 @@
         value: '0'
         sysctl_file: /etc/sysctl.d/90-disable-userns-restrictions.conf
 
-    - name: Pull Scipion apptainer container (will take a while - more than 1h -) so make it async
-      command: apptainer pull /home/scipionuser/container/apptainer-{{ CONTAINER_FLAVOUR }}:{{ CONTAINER_VERSION }}.sif  oras://rinchen.cnb.csic.es/scipion/apptainer-{{ CONTAINER_FLAVOUR }}:{{ CONTAINER_VERSION }}
-      args:
-        creates: /home/scipionuser/container/apptainer-{{ CONTAINER_FLAVOUR }}:{{ CONTAINER_VERSION }}.sif
-      environment:
-        TMPDIR: /home/scipionuser/tmp
-      become_user: scipionuser
-      become: true
-      async: 5400
-      poll: 0
-      register: pull_container
-
     - name: Set facts from IM_INFRASTRUCTURE_RADL
       set_fact:
         gpu_num_server: '{{ IM_INFRASTRUCTURE_RADL | json_query("[?id == ''lrms_server''].gpu_count_min|[0]") }}'
@@ -212,15 +200,16 @@
         name: openmpi-bin
         state: present
 
-    - name: Wait for Scipion container pull to finish
-      async_status:
-        jid: "{{ pull_container.ansible_job_id }}"
-      register: pull_container_status
-      until: pull_container_status.finished
-      retries: 90
-      delay: 60
-      become: true
+    - name: Pull Scipion apptainer container (will take a while - more than 1h -) so make it async
+      command: apptainer pull /home/scipionuser/container/apptainer-{{ CONTAINER_FLAVOUR }}:{{ CONTAINER_VERSION }}.sif  oras://rinchen.cnb.csic.es/scipion/apptainer-{{ CONTAINER_FLAVOUR }}:{{ CONTAINER_VERSION }}
+      args:
+        creates: /home/scipionuser/container/apptainer-{{ CONTAINER_FLAVOUR }}:{{ CONTAINER_VERSION }}.sif
+      environment:
+        TMPDIR: /home/scipionuser/tmp
       become_user: scipionuser
+      become: true
+      async: 5400
+      poll: 60
 
     - name: Set apptainer param for GPU support
       set_fact:
