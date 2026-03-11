@@ -206,7 +206,7 @@
         dest: /usr/local/bin
         mode: '0755'
         creates: /usr/local/bin/oras
-        remote_src: yes
+        remote_src: true
 
     - name: Pull Scipion apptainer container (will take a while - more than 1h -) so make it async
       shell: |
