@@ -211,7 +211,7 @@
     - name: Pull Scipion apptainer container (will take a while - more than 1h -) so make it async
       shell: |
         oras pull rinchen.cnb.csic.es/scipion/apptainer-{{ CONTAINER_FLAVOUR }}:{{ CONTAINER_VERSION }} \
-        && mv apptainer-{{ CONTAINER_FLAVOUR }}.sif apptainer-{{ CONTAINER_FLAVOUR }}:{{ CONTAINER_VERSION }}.sif
+        && mv *.sif apptainer-{{ CONTAINER_FLAVOUR }}:{{ CONTAINER_VERSION }}.sif
       args:
         chdir: /home/scipionuser/container
         creates: /home/scipionuser/container/apptainer-{{ CONTAINER_FLAVOUR }}:{{ CONTAINER_VERSION }}.sif
