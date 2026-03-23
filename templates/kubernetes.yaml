@@ -193,8 +193,6 @@ topology_template:
       constraints:
         - valid_values: [ false, true ]
 
-
-
     kube_allowed_cidr:
       type: string
       description: Allowed remote CIDR to extenal access
