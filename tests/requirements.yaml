@@ -31,6 +31,7 @@ roles:
     src: git+https://github.com/nordugrid/arc-ansible.git
   - name: pulsar
     src: git+https://github.com/sebastian-luna-valero/ansible-role-pulsar
+  - name: usegalaxy_eu.apptainer
 
 collections:
   - name: community.crypto
