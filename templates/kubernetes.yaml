@@ -7,7 +7,7 @@ description: Deploy a Kubernetes Virtual Cluster.
 
 metadata:
   template_name: Kubernetes
-  template_version: "1.2.6"
+  template_version: "1.2.7"
   display_name: Deploy a Kubernetes Virtual Cluster
   icon: images/kubernetes.png
   order: 3
@@ -26,6 +26,8 @@ metadata:
       - kube_allowed_cidr:
           pattern: '([0-9]{1,3}\.){3}[0-9]{1,3}\/[0-9]{1,2}'
       - kube_csi_driver
+      - kube_ingress_type
+      - kube_install_gateway_api
 
   childs:
     - kubeapps.yml
@@ -176,6 +178,19 @@ topology_template:
       description: DNS name to set to the Kubernetes Front-end
       default: ""
 
+    kube_ingress_type:
+      type: string
+      description: Select the type of controller to install
+      default: "nginx"
+      constraints:
+        - valid_values: [ "nginx", "traefik" ]
+    kube_install_gateway_api:
+      type: boolean
+      description: Flag to install Gateway API instead of Ingress
+      default: false
+      constraints:
+        - valid_values: [ false, true ]
+
     kube_allowed_cidr:
       type: string
       description: Allowed remote CIDR to extenal access
@@ -216,6 +231,8 @@ topology_template:
         public_dns_name: { get_input: kube_public_dns_name}
         cri_runtime: { get_input: kube_cri_runtime }
         csi_driver: { get_input: kube_csi_driver }
+        ingress_type: { get_input: kube_ingress_type }
+        install_gateway_api: { get_input: kube_install_gateway_api }
       requirements:
         - host: front
 
