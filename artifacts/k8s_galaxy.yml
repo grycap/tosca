@@ -181,6 +181,8 @@
                   annotations:
                     nginx.ingress.kubernetes.io/connection-proxy-header: "keep-alive"
                     nginx.ingress.kubernetes.io/enable-websockets: "true"
+                    traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
+                    traefik.ingress.kubernetes.io/router.tls: "true"
               # try to pack all the pods in the same nodes
               {{ AFFINITY | to_yaml }}
 

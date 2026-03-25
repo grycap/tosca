@@ -7,7 +7,7 @@ description: Deploy a Kubernetes Virtual Cluster.
 
 metadata:
   template_name: Kubernetes
-  template_version: "1.2.6"
+  template_version: "1.3.0"
   display_name: Deploy a Kubernetes Virtual Cluster
   icon: images/kubernetes.png
   order: 3
@@ -22,10 +22,12 @@ metadata:
       - kube_cert_user_email:
           enabled_by: kube_cert_manager
           tag_type: email
-      - kube_public_dns_name
+      - kube_public_additional_dns_names
       - kube_allowed_cidr:
           pattern: '([0-9]{1,3}\.){3}[0-9]{1,3}\/[0-9]{1,2}'
       - kube_csi_driver
+      - kube_ingress_type
+      - kube_install_gateway_api
 
   childs:
     - kubeapps.yml
@@ -171,10 +173,25 @@ topology_template:
       type: string
       description: Email to be used in the Let's Encrypt issuer
       default: "jhondoe@server.com"
-    kube_public_dns_name:
+    kube_public_additional_dns_names:
+      type: list
+      description: DNS names to set to the Kubernetes Front-end
+      entry_schema:
+        type: string
+      default: ['']
+
+    kube_ingress_type:
       type: string
-      description: DNS name to set to the Kubernetes Front-end
-      default: ""
+      description: Select the type of controller to install
+      default: "nginx"
+      constraints:
+        - valid_values: [ "nginx", "traefik" ]
+    kube_install_gateway_api:
+      type: boolean
+      description: Flag to install Gateway API instead of Ingress
+      default: false
+      constraints:
+        - valid_values: [ false, true ]
 
     kube_allowed_cidr:
       type: string
@@ -213,9 +230,12 @@ topology_template:
         nvidia_support: { get_input: fe_kube_nvidia_support }
         cert_manager: { get_input: kube_cert_manager }
         cert_user_email: { get_input: kube_cert_user_email }
-        public_dns_name: { get_input: kube_public_dns_name}
+        public_dns_name: ""
+        public_additional_dns_names: { get_input: kube_public_additional_dns_names }
         cri_runtime: { get_input: kube_cri_runtime }
         csi_driver: { get_input: kube_csi_driver }
+        ingress_type: { get_input: kube_ingress_type }
+        install_gateway_api: { get_input: kube_install_gateway_api }
       requirements:
         - host: front
 
@@ -225,11 +245,11 @@ topology_template:
         endpoint:
           properties:
             dns_name: kubeserver
-            additional_dns_names:
-              - { get_input: kube_public_dns_name}
+            additional_dns_names: { get_input: kube_public_additional_dns_names}
             network_name: PUBLIC
         host:
           properties:
+            disk_size: { get_input: wn_disk_size }
             num_cpus: { get_input: fe_cpus }
             mem_size: { get_input: fe_mem }
             instance_type: { get_input: fe_instance_type }
@@ -286,7 +306,7 @@ topology_template:
     dashboard_endpoint:
       value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], '/dashboard/' ] }
     dashboard_dns_endpoint:
-      value: { concat: [ 'https://', get_input: kube_public_dns_name, '/dashboard/' ] }
+      value: { concat: [ 'https://', get_property: [ lrms_front_end, public_additional_dns_names ], '/dashboard/' ] }
     api_endpoint:
       value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], ':6443' ] }
     kubeconfig:

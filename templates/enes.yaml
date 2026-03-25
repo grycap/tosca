@@ -78,7 +78,7 @@ topology_template:
           configure:
             implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/enes/enes.yml
             inputs:
-              enes_dns_name: { get_input: kube_public_dns_name }
+              enes_dns_name: { get_property: [ lrms_front_end, public_additional_dns_names, 0 ] }
               storage_size: { get_input: storage_size }
               enes_jupyterhub_crypt_key: { get_input: jupyterhub_crypt_key }
               enes_oidc_issuer: { get_input: enes_oidc_issuer }
@@ -90,4 +90,4 @@ topology_template:
 
   outputs:
     enes_web:
-      value: { concat: [ 'https://', get_input: kube_public_dns_name, '/' ] }
+      value: { concat: [ 'https://', get_property: [ lrms_front_end, public_additional_dns_names, 0 ], '/' ] }
