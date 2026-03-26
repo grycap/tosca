@@ -180,7 +180,9 @@ topology_template:
 
     kube_ingress_type:
       type: string
-      description: Select the type of controller to install
+      description: |
+        Select the type of controller to install. Note that <a href="https://kubernetes.io/blog/2025/11/11/ingress-nginx-retirement/" target="_blank">Nginx Ingress Controller is deprecated</a>. So it is highly recommended to use Traefik.
+        But some other related templates (like galaxy) may not support Traefik yet, so Nginx is still available as an option.
       default: "nginx"
       constraints:
         - valid_values: [ "nginx", "traefik" ]
