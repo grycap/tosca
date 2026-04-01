@@ -223,8 +223,6 @@ topology_template:
           metadata:
             name: nodered
             namespace: nodered
-            annotations:
-              kubernetes.io/ingress.class: 'nginx'
           spec:
             rules:
             - http:

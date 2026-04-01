@@ -115,7 +115,6 @@
           metadata:
             namespace: enes
             annotations:
-              kubernetes.io/ingress.class: nginx
               cert-manager.io/cluster-issuer: "letsencrypt-prod"
             name: apache-ingress
           spec:
@@ -230,8 +229,7 @@
           ingress:
             enabled: true
             annotations:
-              kubernetes.io/ingress.class: "nginx"
-              kubernetes.io/tls-acme: "true"
+              cert-manager.io/cluster-issuer: "letsencrypt-prod"
             hosts:
             - {{ dns_name }}
             tls:

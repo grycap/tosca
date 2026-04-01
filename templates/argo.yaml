@@ -29,7 +29,6 @@ topology_template:
             workflowNamespaces: [default, argo]
         values:
           server.ingress.enabled: "true"
-          server.ingress.ingressClassName: "nginx"
           workflow.serviceAccount.create: "true"
       requirements:
         - host: front

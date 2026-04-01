@@ -55,7 +55,6 @@
             capacity: "8Gi"
           ingress:
             enabled: true
-            className: "nginx"
             tls:
               - secretName: openeo-tls
                 hosts:

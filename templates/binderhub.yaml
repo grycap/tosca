@@ -56,7 +56,6 @@ topology_template:
         version: { get_input: version }
         values:
           ingress.enabled: 'true'
-          ingress.ingressClassName: 'nginx'
           ingress.hosts[0]: { get_input: host }
           config.BinderHub.use_registry: 'true'
           config.BinderHub.hub_url: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ] ] }

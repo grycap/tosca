@@ -40,7 +40,6 @@
           grafana:
             adminPassword: {{ grafana_admin_password }}
             ingress:
-              ingressClassName: nginx
               enabled: true
               annotations:
                 cert-manager.io/cluster-issuer: "letsencrypt-prod"
@@ -52,7 +51,6 @@
                     - grafana.{{ DNS_BASE_NAME }}
           influxdb:
             ingress:
-              ingressClassName: nginx
               enabled: true
               hostname: influxdb.{{ DNS_BASE_NAME }}
               annotations:

@@ -91,8 +91,6 @@ topology_template:
               - ReadWriteOnce
           ingress:
             enabled: true
-            annotations:
-              kubernetes.io/ingress.class: nginx
             path: /grafana/
             hosts: []
           grafana.ini:
@@ -175,8 +173,6 @@ topology_template:
           metadata:
             name: influxdb
             namespace: ai-sprint-mon
-            annotations:
-              kubernetes.io/ingress.class: nginx
           spec:
             rules:
             - http:

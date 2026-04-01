@@ -101,8 +101,6 @@
           metadata:
             name: istio-ingressgateway
             namespace: istio-system
-            annotations:
-              kubernetes.io/ingress.class: nginx
           spec:
             rules:
             - http:
