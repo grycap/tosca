@@ -22,7 +22,6 @@
           replicas: 2
           ingress:
             enabled: true
-            ingressClassName: nginx
             annotations:
               cert-manager.io/cluster-issuer: "letsencrypt-prod"
               nginx.ingress.kubernetes.io/ssl-redirect: "true"
@@ -37,7 +36,6 @@
                   - minio.{{ public_ip_address }}.nip.io
           consoleIngress:
             enabled: true
-            ingressClassName: nginx
             annotations:
               cert-manager.io/cluster-issuer: "letsencrypt-prod"
               nginx.ingress.kubernetes.io/ssl-redirect: "true"
