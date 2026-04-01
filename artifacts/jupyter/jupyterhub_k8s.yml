@@ -58,8 +58,6 @@
       set_fact:
         ingress: |
             ingress:
-              ingressClassName: nginx
-              annotations: { kubernetes.io/ingress.class: nginx }
               enabled: true
       when: dns_name == ''
 
@@ -67,8 +65,7 @@
       set_fact:
         ingress: |
             ingress:
-              ingressClassName: nginx
-              annotations: { kubernetes.io/ingress.class: nginx, cert-manager.io/cluster-issuer: "letsencrypt-prod" }
+              annotations: { cert-manager.io/cluster-issuer: "letsencrypt-prod" }
               enabled: true
               hosts: [{{ dns_name }}]
               tls:
