@@ -115,7 +115,6 @@
           metadata:
             namespace: enes
             annotations:
-              kubernetes.io/ingress.class: nginx
               cert-manager.io/cluster-issuer: "letsencrypt-prod"
             name: apache-ingress
           spec:

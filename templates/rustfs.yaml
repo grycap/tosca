@@ -74,7 +74,6 @@ topology_template:
         values_file: |
           ingress:
             enabled: true
-            className: nginx
             traefikAnnotations: {}
             hosts:
               - host: rustfs.local
@@ -87,7 +86,6 @@ topology_template:
                 enabled: true
           gatewayApi:
             enabled: false
-            gatewayClass: nginx
           storageclass:
             name: managed-nfs-storage
         values:

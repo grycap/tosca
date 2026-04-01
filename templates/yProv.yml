@@ -96,7 +96,6 @@ topology_template:
             name: yprov-ingress
             namespace: yprov
           spec:
-            ingressClassName: nginx
             rules:
             - http:
                 paths:

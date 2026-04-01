@@ -39,8 +39,6 @@ topology_template:
           metadata:
             name: kubeapps
             namespace: kubeapps
-            annotations:
-              kubernetes.io/ingress.class: nginx
           spec:
             rules:
             - http:
