@@ -176,8 +176,12 @@
                         {{ 'max_cores: ' ~ (max_cores | int - 1) if max_cores | int > 0 else '# no max_cores' }}
                         {{ 'max_mem: ' ~ max_mem if max_mem | int > 0 else '# no max_mem' }}
               # to fix https://github.com/galaxyproject/galaxy-helm/issues/513
+              ingress:
+                enabled: true
+                ingressClassName: ~
               tusd:
                 ingress:
+                  ingressClassName: ~
                   annotations:
                     nginx.ingress.kubernetes.io/connection-proxy-header: "keep-alive"
                     nginx.ingress.kubernetes.io/enable-websockets: "true"
