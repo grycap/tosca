@@ -23,6 +23,7 @@ metadata:
     - arc.yml
     - dtgeo_tools.yaml
     - proxy_host_cluster.yaml
+    - apptainer_cluster.yaml
 
 topology_template:
   inputs:
