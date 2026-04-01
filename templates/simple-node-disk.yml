@@ -59,6 +59,7 @@ metadata:
     - eosc-dts-client.yml
     - interoperability-registry-read.yml
     - pyhandle.yml
+    - apptainer.yaml
 
 topology_template:
 

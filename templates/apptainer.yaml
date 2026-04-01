@@ -1,0 +1,38 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+imports:
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+
+description: >
+  Deploy a set of computing nodes with Apptainer installed.
+
+metadata:
+  template_version: "1.0.0"
+  template_name: Apptainer
+  display_name: Install Apptainer
+  icon: images/apptainer.png
+  parents:
+    - simple-node-disk.yml
+
+topology_template:
+
+  node_templates:
+
+    apptainer:
+      type: tosca.nodes.SoftwareComponent
+      requirements:
+        - host: simple_node
+      artifacts:
+        apptainer_role:
+          file: usegalaxy_eu.apptainer
+          type: tosca.artifacts.AnsibleGalaxy.role
+      interfaces:
+        Standard:
+          configure:
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/ansible_tasks.yml
+            inputs:
+              ansible_tasks: |
+                  - name: Install Apptainer
+                    include_role:
+                        name: usegalaxy_eu.apptainer
+              ansible_name: install_apptainer
