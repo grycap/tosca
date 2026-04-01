@@ -7,7 +7,7 @@ description: Deploy a SLURM Virtual Cluster.
 
 metadata:
   template_name: SLURM
-  template_version: "1.2.0"
+  template_version: "1.3.0"
   display_name: SLURM virtual cluster
   icon: images/slurm.png
   order: 4
@@ -42,6 +42,10 @@ topology_template:
       description: Amount of Memory for the front-end node
       default: 1 GiB
       required: yes
+    fe_instance_type:
+      type: string
+      description: Flavor name for the FE
+      default: ""
     wn_cpus:
       type: integer
       description: Number of CPUs for the WNs
@@ -52,6 +56,10 @@ topology_template:
       description: Amount of Memory for the WNs in MiB
       default: 1024
       required: yes
+    wn_instance_type:
+      type: string
+      description: Flavor name for the WNs
+      default: ""
 
     fe_disk_size:
       type: scalar-unit.size
@@ -133,6 +141,7 @@ topology_template:
             ports: { get_input: fe_ports }
         host:
           properties:
+            instance_type: { get_input: fe_instance_type }
             num_cpus: { get_input: fe_cpus }
             mem_size: { get_input: fe_mem }
         os:
@@ -171,6 +180,7 @@ topology_template:
             count: { get_input: wn_num }
         host:
           properties:
+            instance_type: { get_input: wn_instance_type }
             num_cpus: { get_input: wn_cpus }
             mem_size:
               concat:
