@@ -71,7 +71,6 @@ topology_template:
             name: airflow-ingress
             namespace: airflow
           spec:
-            ingressClassName: 'nginx'
             rules:
             - http:
                 paths:

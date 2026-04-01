@@ -256,7 +256,6 @@
             templateBranch: master
           ingress:
             enabled: true
-            className: nginx
             hosts:
             - host: zoo-open.{{ public_ip_address }}.nip.io
               paths:

@@ -38,7 +38,6 @@ topology_template:
           grafana:
             ingress:
               enabled: true
-              ingressClassName: nginx
               path: '/grafana'
             grafana.ini:
               server:
