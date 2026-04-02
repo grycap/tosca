@@ -38,7 +38,7 @@ topology_template:
       default: 0
 
     jupyter_token:
-      default: changeme
+      default: 'changeme'
       description: Token to access Jupyter
       type: string
     dns_name:
@@ -117,6 +117,8 @@ topology_template:
         os:
           properties:
             type: linux
+            distribution: ubuntu
+            version: 24.04
       requirements:
         - local_storage:
             node: my_block_storage
@@ -133,6 +135,4 @@ topology_template:
 
   outputs:
     jupyter_url:
-      value: { concat: [ 'https://', get_attribute: [ simple_node, public_address, 0 ], '/' ] }
-    jupyter_url_dns:
-      value: { concat: [ 'https://', get_input: [ dns_name ], '/' ] }
+      value: { concat: [ 'https://', get_attribute: [ simple_node, public_address, 0 ], '/?token=', get_input: jupyter_token ] }
