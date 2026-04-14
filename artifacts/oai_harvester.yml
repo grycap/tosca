@@ -4,8 +4,8 @@
   connection: local
   vars:
     oai_harvester_letsencrypt_email: "{{ letsencrypt_email }}"
-    traefik_dns_name: "{{ oai_harvester_dns_name | default('oai_harvester.example.com') }}"
-    traefik_public_ip: "{{ oai_harvester_public_ip | default(ansible_default_ipv4.address) }}"
+    traefik_dns_name: "{{ dns_name | default('oaiharvester.example.com') }}"
+    traefik_public_ip: "{{ public_ip | default(ansible_default_ipv4.address) }}"
     docker_image: "{{ oai_harvester_image | default('artini76/simple-oai-collector:latest') }}"
   roles:
     - role: 'grycap.docker'
