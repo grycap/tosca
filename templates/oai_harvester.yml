@@ -1,0 +1,90 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+imports:
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+
+
+description: Deploy OAI harvester.
+
+metadata:
+  template_version: '1.0.0'
+  template_name: OAI harvester
+  display_name: Deploy OAI harvester
+
+topology_template:
+  inputs:
+
+    num_cpus:
+      type: integer
+      description: Number of virtual cpus for the VM
+      default: 2
+    mem_size:
+      type: scalar-unit.size
+      description: Amount of memory for the VM
+      default: 4 GiB
+    disk_size:
+      type: scalar-unit.size
+      description: Size of the root disk of the VM (in case of 0 disk will no be resized)
+      default: 20 GiB
+
+    dns_name:
+      default: oaiharvester.test.fedcloud.eu
+      description: DNS hostname to access OAI harvester
+      type: string
+    letsencrypt_email:
+      default: changeme@email.com
+      description: Email to be used for Let's Encrypt certificates
+      type: string
+
+  node_templates:
+
+    oai_harvester:
+      type: tosca.nodes.ec3.Application
+      artifacts:
+        docker_role:
+          file: grycap.docker
+          type: tosca.artifacts.AnsibleGalaxy.role
+      capabilities:
+        endpoint:
+          properties:
+            ports:
+              port_http:
+                protocol: tcp
+                source: 80
+              port_https:
+                protocol: tcp
+                source: 443
+      interfaces:
+        Standard:
+          configure:
+            implementation: https://raw.githubusercontent.com/grycap/tosca/refs/heads/eosc_beyond/artifacts/oai_harvester.yml
+            inputs:
+              letsencrypt_email: { get_input: letsencrypt_email }
+              dns_name: { get_input: dns_name }
+              oai_harvester_public_ip: { get_attribute: [ simple_node, public_address, 0 ] }
+      requirements:
+        - host: simple_node
+
+    simple_node:
+      type: tosca.nodes.indigo.Compute
+      capabilities:
+        endpoint:
+          properties:
+            network_name: PUBLIC
+            additional_dns_names:
+              - { get_input: dns_name }
+        host:
+          properties:
+            disk_size: { get_input: disk_size }
+            num_cpus: { get_input: num_cpus }
+            mem_size: { get_input: mem_size }
+            num_gpus: { get_input: num_gpus }
+        os:
+          properties:
+            type: linux
+            distribution: ubuntu
+            version: 24.04
+
+  outputs:
+    oai_harvester_url:
+      value: { concat: [ 'https://', get_input: dns_name, '/oai-collector-service/' ] }
