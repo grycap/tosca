@@ -78,7 +78,6 @@ topology_template:
             disk_size: { get_input: disk_size }
             num_cpus: { get_input: num_cpus }
             mem_size: { get_input: mem_size }
-            num_gpus: { get_input: num_gpus }
         os:
           properties:
             type: linux
