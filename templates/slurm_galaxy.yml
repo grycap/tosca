@@ -60,6 +60,12 @@ topology_template:
       description: Amount of Memory for the front-end node
       default: 8 GiB
       required: yes
+    fe_disk_size:
+      type: scalar-unit.size
+      description: Size of the root disk of the FE (in case of 0 disk will no be resized)
+      default: 50 GiB
+      constraints:
+        - valid_values: [ 50 GiB, 100 GiB, 200 GiB, 500 GiB ]
     wn_cpus:
       type: integer
       description: Number of CPUs for the WNs
