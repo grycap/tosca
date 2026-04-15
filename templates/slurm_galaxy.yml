@@ -6,7 +6,7 @@ imports:
 description: Deploy a Galaxy portal with an SLURM Virtual Cluster.
 
 metadata:
-  template_version: "1.2.1"
+  template_version: "1.2.2"
   template_name: Galaxy
   display_name: Deploy a Galaxy portal in a SLURM cluster
   icon: images/galaxy_slurm.png
@@ -37,14 +37,14 @@ topology_template:
     galaxy_version:
       type: string
       description: Version of the Galaxy portal
-      default: '25.1.1'
+      default: '26.0'
       constraints:
-        - valid_values: [ '25.1.1', '24.2', '24.1' ]
+        - valid_values: [ '26.0', '25.1.1', '24.2', '24.1' ]
 
 
     slurm_version:
       type: string
-      description: Version of SLURM to be installed (24.11.7 for Galaxy 25.X and 21.08.8 for Galaxy 24.X)
+      description: Version of SLURM to be installed (24.11.7 for Galaxy 25.X+ and 21.08.8 for Galaxy 24.X)
       default: 24.11.7
       constraints:
         - valid_values: [ '24.11.7', '21.08.8' ]
