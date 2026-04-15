@@ -7,7 +7,7 @@ description: Deploy a SLURM Virtual Cluster.
 
 metadata:
   template_name: SLURM
-  template_version: "1.3.0"
+  template_version: "1.4.0"
   display_name: SLURM virtual cluster
   icon: images/slurm.png
   order: 4
@@ -46,6 +46,12 @@ topology_template:
       type: string
       description: Flavor name for the FE
       default: ""
+    fe_disk_size:
+      type: scalar-unit.size
+      description: Size of the root disk of the FE (in case of 0 disk will no be resized)
+      default: 0 GiB
+      constraints:
+        - valid_values: [ 0 GiB, 10 GiB, 20 GiB, 50 GiB, 100 GiB, 200 GiB, 500 GiB ]
     wn_cpus:
       type: integer
       description: Number of CPUs for the WNs
@@ -60,8 +66,14 @@ topology_template:
       type: string
       description: Flavor name for the WNs
       default: ""
+    wn_disk_size:
+      type: scalar-unit.size
+      description: Size of the root disk of the WNs (in case of 0 disk will no be resized)
+      default: 0 GiB
+      constraints:
+        - valid_values: [ 0 GiB, 10 GiB, 20 GiB, 50 GiB, 100 GiB, 200 GiB, 500 GiB ]
 
-    fe_disk_size:
+    fe_extra_disk_size:
       type: scalar-unit.size
       description: Size of the disk to be attached to the FE instance (Set 0 if disk is not needed)
       default: 0 GiB
@@ -80,7 +92,7 @@ topology_template:
       description: DNS name to set to the SLURM Front-end
       default: ""
 
-    wn_disk_size:
+    wn_extra_disk_size:
       type: scalar-unit.size
       description: Size of the disk to be attached to the WN instances (Set 0 if disk is not needed)
       default: 0 GiB
@@ -141,6 +153,7 @@ topology_template:
             ports: { get_input: fe_ports }
         host:
           properties:
+            disk_size: { get_input: fe_disk_size }
             instance_type: { get_input: fe_instance_type }
             num_cpus: { get_input: fe_cpus }
             mem_size: { get_input: fe_mem }
@@ -159,7 +172,7 @@ topology_template:
     fe_block_storage:
       type: tosca.nodes.BlockStorage
       properties:
-        size: { get_input: fe_disk_size }
+        size: { get_input: fe_extra_disk_size }
         volume_id: { get_input: fe_volume_id }
 
     wn_node:
@@ -180,6 +193,7 @@ topology_template:
             count: { get_input: wn_num }
         host:
           properties:
+            disk_size: { get_input: wn_disk_size }
             instance_type: { get_input: wn_instance_type }
             num_cpus: { get_input: wn_cpus }
             mem_size:
@@ -201,7 +215,7 @@ topology_template:
     wn_block_storage:
       type: tosca.nodes.BlockStorage
       properties:
-        size: { get_input: wn_disk_size }
+        size: { get_input: wn_extra_disk_size }
 
   outputs:
     cluster_ip:
