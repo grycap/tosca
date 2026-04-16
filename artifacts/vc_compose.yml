@@ -1,0 +1,277 @@
+---
+- name: Install EDC
+  hosts: localhost
+  connection: local
+  vars:
+    domain_name: "{{ dns_name | default('example.com') }}"
+    password_env_vars:
+      - COMMON_DB_PASSWORD
+      - CONNECTOR_DB_PASSWORD
+      - KEYCLOAK_DB_PASSWORD
+      - KEYCLOAK_ADMIN_PASSWORD
+      - IDENTITY_HUB_DB_PASSWORD
+      - STORAGE_SECRET_KEY
+      - CATALOG_API_KEY
+      - CONNECTOR_STS_CLIENT_SECRET_ALIAS
+  pre_tasks:
+    - name: Validate required DID and dataspace variables
+      assert:
+        that:
+          - issuer_did is defined
+          - federated_catalog_address is defined
+          - dataspace_hub_url is defined
+          - connector_id is defined
+        fail_msg: >-
+          Missing required variables. You must define issuer_did,
+          federated_catalog_address, connector_id and dataspace_hub_url.
+
+    - name: Normalize compose profiles
+      set_fact:
+        compose_profiles_list: >-
+          {{ (compose_profiles | default('connector')).split(',')
+             | map('trim')
+             | reject('equalto', '')
+             | map('lower')
+             | unique
+             | list }}
+
+    - name: Validate compose profiles values
+      assert:
+        that:
+          - "'connector' in compose_profiles_list"
+          - (compose_profiles_list | difference(['connector', 'keycloak', 'identity', 'storage']) | length) == 0
+        fail_msg: >-
+          Invalid COMPOSE_PROFILES. Allowed profiles are: connector (mandatory),
+          keycloak, identity, storage.
+
+    - name: Validate external addresses for disabled profiles
+      assert:
+        that:
+          - "'keycloak' in compose_profiles_list or keycloak_address is defined"
+          - "'identity' in compose_profiles_list or identity_hub_address is defined"
+          - "'identity' in compose_profiles_list or vault_address is defined"
+        fail_msg: >-
+          Missing required variables for disabled profiles. If keycloak profile is not enabled,
+          define keycloak_address. If identity profile is not enabled, define
+          identity_hub_address and vault_address.
+  roles:
+    - role: 'grycap.docker'
+  tasks:
+    - name: Install make and openssl packages on Debian/RedHat
+      package:
+        name:
+          - make
+          - openssl
+        state: present
+
+    - name: install epel-release
+      package:
+        name: epel-release
+      when: ansible_os_family == 'RedHat'
+
+    - name: Install htpasswd package on Debian/RedHat
+      package:
+        name:
+          - "{{ 'apache2-utils' if ansible_os_family == 'Debian' else 'httpd-tools' }}"
+          - "{{ 'python3-venv' if ansible_os_family == 'Debian' else 'python3-virtualenv' }}"
+        state: present
+
+    - name: check 
+      stat:
+        path: /opt/edc/deployment/instruction/docker
+      register: env_file_stat
+
+    - name: Download EDC files
+      git:
+        repo: 'https://gitlab.pcss.pl/daisd-public/dpi-pipelines/psnc-edc-mvds/psnc-edc-mvds'
+        dest: /opt/edc/
+      when: not env_file_stat.stat.exists
+
+    - name: Fix permissions for some scripts
+      file:
+        path: "/opt/edc/deployment/instruction/docker/scripts/{{ item }}"
+        mode: '0755'
+      loop:
+        - vault-init-unseal.sh
+        - render/render-dashboard.sh
+
+    - name: make init
+      command: make init
+      args:
+        chdir: /opt/edc/deployment/instruction/docker
+        creates: /opt/edc/deployment/instruction/docker/.env
+
+    - name: Create secrets directory
+      file:
+        path: /opt/edc/deployment/instruction/docker/.secrets
+        state: directory
+        mode: '0700'
+
+    - name: Generate random passwords for .env variables
+      set_fact:
+        _generated_password: "{{ lookup('ansible.builtin.password', '/opt/edc/deployment/instruction/docker/.secrets/' ~ item ~ ' length=32') }}"
+      loop: "{{ password_env_vars }}"
+      changed_when: false
+      no_log: true
+
+    - name: Update generated passwords in .env
+      lineinfile:
+        path: /opt/edc/deployment/instruction/docker/.env
+        regexp: '^{{ item }}='
+        line: "{{ item }}={{ lookup('ansible.builtin.password', '/opt/edc/deployment/instruction/docker/.secrets/' ~ item ~ ' length=32') }}"
+      loop: "{{ password_env_vars }}"
+      no_log: true
+
+    - name: Update hosts variables in .env
+      lineinfile:
+        path: /opt/edc/deployment/instruction/docker/.env
+        regexp: '^{{ env_key }}='
+        line: "{{ env_key }}={{ value }}"
+      loop:
+        - { env_key: 'CONNECTOR_HOST', value: 'connector.{{ domain_name }}' }
+        - { env_key: 'DASHBOARD_HOST', value: 'dashboard.{{ domain_name }}' }
+        - { env_key: 'KEYCLOAK_HOST', value: 'keycloak.{{ domain_name }}' }
+        - { env_key: 'TRAEFIK_DASHBOARD_HOST', value: 'traefik.{{ domain_name }}' }
+        - { env_key: 'IDENTITY_HUB_HOST', value: 'identity-hub.{{ domain_name }}' }
+        - { env_key: 'VAULT_HOST', value: 'vault.{{ domain_name }}' }
+        - { env_key: 'CONSUMER_BACKEND_HOST', value: 'consumer-backend.{{ domain_name }}' }
+        - { env_key: 'STORAGE_HOST', value: 'storage.{{ domain_name }}' }
+
+    - name: Update LETSENCRYPT_EMAIL in .env
+      lineinfile:
+        path: /opt/edc/deployment/instruction/docker/.env
+        regexp: '^LETSENCRYPT_EMAIL='
+        line: "LETSENCRYPT_EMAIL={{ letsencrypt_email }}"
+
+    - name: Update IDENTITY_HUB_SUPERUSER_KEY in .env
+      lineinfile:
+        path: /opt/edc/deployment/instruction/docker/.env
+        regexp: '^IDENTITY_HUB_SUPERUSER_KEY='
+        line: >-
+          IDENTITY_HUB_SUPERUSER_KEY={{ (identity_hub_superuser_username | default('superuser') | b64encode) ~ '.' ~ (lookup('ansible.builtin.password', '/opt/edc/deployment/instruction/docker/.secrets/IDENTITY_HUB_SUPERUSER_SECRET length=32') | b64encode) }}
+      no_log: true
+
+    - name: Generate temporary TRAEFIK_PASS
+      set_fact:
+        traefik_pass: "{{ lookup('ansible.builtin.password', '/opt/edc/deployment/instruction/docker/.secrets/TRAEFIK_PASS length=20 chars=ascii_letters,digits') }}"
+      no_log: true
+      register: traefik_pass_fact
+
+    - name: Generate TRAEFIK_BASIC_AUTH value
+      command: htpasswd -nb admin {{ traefik_pass }}
+      register: traefik_basic_auth_cmd
+      changed_when: false
+      no_log: true
+      when: traefik_pass_fact is changed
+
+    - name: Update TRAEFIK_BASIC_AUTH in .env
+      lineinfile:
+        path: /opt/edc/deployment/instruction/docker/.env
+        regexp: '^TRAEFIK_BASIC_AUTH='
+        line: "TRAEFIK_BASIC_AUTH={{ traefik_basic_auth_cmd.stdout | regex_replace('\\$', '$$') }}"
+      no_log: true
+      when: traefik_pass_fact is changed
+
+    - name: Update COMPOSE_PROFILES in .env
+      lineinfile:
+        path: /opt/edc/deployment/instruction/docker/.env
+        regexp: '^COMPOSE_PROFILES='
+        line: COMPOSE_PROFILES={{ compose_profiles_list | join(',') }}
+      no_log: true
+
+    - name: Update DID and dataspace variables in .env
+      lineinfile:
+        path: /opt/edc/deployment/instruction/docker/.env
+        regexp: '^{{ item.env_key }}='
+        line: "{{ item.env_key }}={{ vars[item.ansible_var] }}"
+      loop:
+        - { env_key: 'ISSUER_DID', ansible_var: 'issuer_did' }
+        - { env_key: 'FEDERATED_CATALOG_ADDRESS', ansible_var: 'federated_catalog_address' }
+        - { env_key: 'DATASPACE_HUB_URL', ansible_var: 'dataspace_hub_url' }
+        - { env_key: 'CONNECTOR_ID', ansible_var: 'connector_id' }
+
+    - name: Update external addresses in .env when defined
+      lineinfile:
+        path: /opt/edc/deployment/instruction/docker/.env
+        regexp: '^{{ item.env_key }}='
+        line: "{{ item.env_key }}={{ vars[item.var_name] }}"
+      loop:
+        - { env_key: 'KEYCLOAK_ADDRESS', var_name: 'keycloak_address'}
+        - { env_key: 'IDENTITY_HUB_ADDRESS', var_name: 'identity_hub_address'}
+        - { env_key: 'VAULT_ADDRESS', var_name: 'vault_address'}
+      when: item.var_name in vars
+
+    - name: make render
+      command: make render
+      args:
+        chdir: /opt/edc/deployment/instruction/docker
+        creates: /opt/edc/deployment/instruction/docker/.generated/config/connector.properties
+
+    - name: Prepare ACME file for TLS certificates
+      file:
+        path: /opt/edc/deployment/instruction/docker/acme.json
+        mode: '0600'
+
+    - name: Check if vault-init is needed
+      command: grep VAULT_ROOT_TOKEN=hvs /opt/edc/deployment/instruction/docker/.env.secrets
+      register: vault_init_check
+      failed_when: false
+      changed_when: false
+
+    - name: make vault-init
+      command: make vault-init
+      args:
+        chdir: /opt/edc/deployment/instruction/docker
+      when:
+          - "'identity' in compose_profiles_list"
+          - vault_init_check.rc != 0
+
+    - name: make up
+      command: make up
+      args:
+        chdir: /opt/edc/deployment/instruction/docker
+
+    - name: Set extra_args var
+      set_fact:
+        extra_args: ''
+
+    - name: Set extra_args var in py3.11
+      set_fact:
+        extra_args: --break-system-packages
+      when: ansible_python_version is version('3.11', '>=')
+
+    - name: Install pip required packages
+      pip:
+        name:
+          - virtualenv
+        executable: pip3
+        extra_args: "{{ extra_args }}"
+
+    - name: Install python dependencies
+      pip:
+        requirements: /opt/edc/deployment/instruction/docker/scripts/keycloak/requirements.txt
+        extra_args: "{{ extra_args }}"
+
+    - name: Create Ansible virtualenv
+      command:
+        cmd: python -m virtualenv --system-site-packages /opt/edc/deployment/instruction/docker/venv
+        creates: /opt/edc/deployment/instruction/docker/venv
+
+    - name: make configure-keycloak-full
+      shell: make configure-keycloak-full && touch /opt/edc/deployment/instruction/docker/.keycloak_configured
+      args:
+        chdir: /opt/edc/deployment/instruction/docker
+        creates: /opt/edc/deployment/instruction/docker/.keycloak_configured
+      when:
+          - "'keycloak' in compose_profiles_list"
+
+    - name: make init-dataspace
+      shell: make init-dataspace && touch /opt/edc/deployment/instruction/docker/.dataspace_initialized
+      args:
+        chdir: /opt/edc/deployment/instruction/docker
+        creates: /opt/edc/deployment/instruction/docker/.dataspace_initialized
+
+    - name: make verify-dataspace
+      command: make verify-dataspace
+      args:
+        chdir: /opt/edc/deployment/instruction/docker
