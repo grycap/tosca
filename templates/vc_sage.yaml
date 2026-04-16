@@ -51,7 +51,7 @@ topology_template:
         - valid_values: [ 20 GiB, 50 GiB, 100 GiB, 200 GiB, 0 GiB ]
 
     domain_name:
-      default: ds.fedcloud.eu
+      default: ds.vm.fedcloud.eu
       description: DNS domain name to be used for the deployment.
       type: string
 
