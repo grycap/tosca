@@ -4,13 +4,13 @@ imports:
   - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
 
 
-description: Deploy Jupyter Notebook.
+description: Deploy SAGE EDC
 
 metadata:
   template_version: "1.0.0"
   template_name: SAGE EDC
-  display_name: Deploy Jupyter Notebook
-  icon: images/jupyter.png
+  display_name: Deploy SAGE EDC
+  icon: https://www.greendealdata.eu/wp-content/uploads/2026/01/Full_Logo-300x91.png
   tabs:
     VM Data:
       - num_cpus
