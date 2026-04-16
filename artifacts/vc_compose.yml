@@ -3,6 +3,7 @@
   hosts: localhost
   connection: local
   vars:
+    branch: develop
     domain_name: "{{ dns_name | default('example.com') }}"
     password_env_vars:
       - COMMON_DB_PASSWORD
@@ -76,7 +77,7 @@
           - "{{ 'python3-venv' if ansible_os_family == 'Debian' else 'python3-virtualenv' }}"
         state: present
 
-    - name: check 
+    - name: check if EDC files are already downloaded
       stat:
         path: /opt/edc/deployment/instruction/docker
       register: env_file_stat
@@ -85,6 +86,7 @@
       git:
         repo: 'https://gitlab.pcss.pl/daisd-public/dpi-pipelines/psnc-edc-mvds/psnc-edc-mvds'
         dest: /opt/edc/
+        version: "{{ branch }}"
       when: not env_file_stat.stat.exists
 
     - name: Fix permissions for some scripts
@@ -223,8 +225,8 @@
       args:
         chdir: /opt/edc/deployment/instruction/docker
       when:
-          - "'identity' in compose_profiles_list"
-          - vault_init_check.rc != 0
+        - "'identity' in compose_profiles_list"
+        - vault_init_check.rc != 0
 
     - name: make up
       command: make up
@@ -263,7 +265,7 @@
         chdir: /opt/edc/deployment/instruction/docker
         creates: /opt/edc/deployment/instruction/docker/.keycloak_configured
       when:
-          - "'keycloak' in compose_profiles_list"
+        - "'keycloak' in compose_profiles_list"
 
     - name: make init-dataspace
       shell: make init-dataspace && touch /opt/edc/deployment/instruction/docker/.dataspace_initialized
