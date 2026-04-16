@@ -80,6 +80,10 @@ topology_template:
       type: string
       default: 'connector'
       required: true
+    letsencrypt_email:
+      default: 'admin@example.com'
+      description: Email address to be used for Let's Encrypt certificate generation
+      type: string
 
     keycloak_address:
       default: ''
