@@ -8,7 +8,7 @@ description: Deploy Jupyter Notebook.
 
 metadata:
   template_version: "1.0.0"
-  template_name: SAGE EDC 
+  template_name: SAGE EDC
   display_name: Deploy Jupyter Notebook
   icon: images/jupyter.png
   tabs:
@@ -76,7 +76,7 @@ topology_template:
       type: string
       required: true
     compose_profiles:
-      description: Comma separated compose profiles to be used for the deployment: connector, identity, keycloak, storage
+      description: Comma separated compose profiles to be used for the deployment (connector, identity, keycloak, storage)
       type: string
       default: 'connector'
       required: true
