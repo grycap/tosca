@@ -55,7 +55,7 @@
           Missing required variables for disabled profiles. If keycloak profile is not enabled,
           define keycloak_address. If identity profile is not enabled, define
           identity_hub_address and vault_address.
-    
+
     - name: Set default values for keycloak_address when keycloak profile is enabled
       set_fact:
         keycloak_address: "keycloak.{{ domain_name }}"
