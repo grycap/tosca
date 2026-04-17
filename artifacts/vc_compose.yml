@@ -116,23 +116,11 @@
         chdir: /opt/edc/deployment/instruction/docker
         creates: /opt/edc/deployment/instruction/docker/.env
 
-    - name: Create secrets directory
-      file:
-        path: /opt/edc/deployment/instruction/docker/.secrets
-        state: directory
-
-    - name: Generate random passwords for .env variables
-      set_fact:
-        _generated_password: "{{ lookup('ansible.builtin.password', '/opt/edc/deployment/instruction/docker/.secrets/' ~ item ~ ' length=32') }}"
-      loop: "{{ password_env_vars }}"
-      changed_when: false
-      no_log: true
-
     - name: Update generated passwords in .env
       lineinfile:
         path: /opt/edc/deployment/instruction/docker/.env
         regexp: '^{{ item }}='
-        line: "{{ item }}={{ lookup('ansible.builtin.password', '/opt/edc/deployment/instruction/docker/.secrets/' ~ item ~ ' length=32') }}"
+        line: "{{ item }}={{ lookup('ansible.builtin.password', '/opt/edc/deployment/instruction/docker/.' ~ item | lower ~ '.secret length=32') }}"
       loop: "{{ password_env_vars }}"
       no_log: true
 
