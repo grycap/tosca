@@ -120,7 +120,6 @@
       file:
         path: /opt/edc/deployment/instruction/docker/.secrets
         state: directory
-        mode: '0700'
 
     - name: Generate random passwords for .env variables
       set_fact:
