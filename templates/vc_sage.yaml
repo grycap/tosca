@@ -72,7 +72,7 @@ topology_template:
       type: string
       required: true
     catalog_api_key:
-      default: 'edc'
+      default: ''
       description: API key to access the Dataspace Federated Catalog
       type: string
       required: true
@@ -163,3 +163,15 @@ topology_template:
       value: { concat: [ 'https://connector.', get_input: [ domain_name ], '/api' ] }
     dashboard_url:
       value: { concat: [ 'https://dashboard.', get_input: [ domain_name ], '/' ] }
+    keycloak_url:
+      value: { concat: [ 'https://keycloak.', get_input: [ domain_name ], '/' ] }
+    identity_hub_url:
+      value: { concat: [ 'https://identity-hub.', get_input: [ domain_name ], '/' ] }
+    vault_url:
+      value: { concat: [ 'https://vault.', get_input: [ domain_name ], '/' ] }
+    storage_url:
+      value: { concat: [ 'https://storage.', get_input: [ domain_name ], '/' ] }
+    consumer_backend_url:
+      value: { concat: [ 'https://consumer-backend.', get_input: [ domain_name ], '/' ] }
+    traefik_dashboard_url:
+      value: { concat: [ 'https://traefik.', get_input: [ domain_name ], '/' ] }
