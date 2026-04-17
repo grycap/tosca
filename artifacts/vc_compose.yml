@@ -12,7 +12,6 @@
       - KEYCLOAK_ADMIN_PASSWORD
       - IDENTITY_HUB_DB_PASSWORD
       - STORAGE_SECRET_KEY
-      - CATALOG_API_KEY
       - CONNECTOR_STS_CLIENT_SECRET_ALIAS
   pre_tasks:
     - name: Validate required DID and dataspace variables
@@ -22,9 +21,10 @@
           - federated_catalog_address is defined
           - dataspace_hub_url is defined
           - connector_id is defined
+          - catalog_api_key is defined
         fail_msg: >-
           Missing required variables. You must define issuer_did,
-          federated_catalog_address, connector_id and dataspace_hub_url.
+          federated_catalog_address, connector_id, dataspace_hub_url and catalog_api_key.
 
     - name: Normalize compose profiles
       set_fact:
@@ -144,6 +144,12 @@
         - { env_key: 'CONSUMER_BACKEND_HOST', value: 'consumer-backend.{{ domain_name }}' }
         - { env_key: 'STORAGE_HOST', value: 'storage.{{ domain_name }}' }
 
+    - name: Update CATALOG_API_KEY in .env
+      lineinfile:
+        path: /opt/edc/deployment/instruction/docker/.env
+        regexp: '^CATALOG_API_KEY='
+        line: "CATALOG_API_KEY={{ catalog_api_key }}"
+
     - name: Update LETSENCRYPT_EMAIL in .env
       lineinfile:
         path: /opt/edc/deployment/instruction/docker/.env
@@ -258,6 +264,19 @@
       command:
         cmd: python -m virtualenv --system-site-packages /opt/edc/deployment/instruction/docker/venv
         creates: /opt/edc/deployment/instruction/docker/venv
+
+    - name: Wait for Keycloak endpoint to be active
+      uri:
+        url: "{{ keycloak_address }}/realms/master/.well-known/openid-configuration"
+        method: GET
+        status_code: 200
+        validate_certs: false
+      register: keycloak_health
+      until: keycloak_health.status == 200
+      retries: 30
+      delay: 10
+      when:
+        - "'keycloak' in compose_profiles_list"
 
     - name: make configure-keycloak-full
       shell: make configure-keycloak-full && touch /opt/edc/deployment/instruction/docker/.keycloak_configured

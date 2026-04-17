@@ -20,6 +20,7 @@ metadata:
     Data Space Data:
       - issuer_did
       - federated_catalog_address
+      - catalog_api_key
       - dataspace_hub_url
       - connector_id
       - compose_profiles
@@ -51,34 +52,39 @@ topology_template:
         - valid_values: [ 20 GiB, 50 GiB, 100 GiB, 200 GiB, 0 GiB ]
 
     domain_name:
-      default: ds.vm.fedcloud.eu
+      default: dc.vm.fedcloud.eu
       description: DNS domain name to be used for the deployment.
       type: string
 
-    issuer_did:
-      default: ''
-      description: DID of the issuer to be used for the VC issuance
-      type: string
-      required: true
-    federated_catalog_address:
-      default: ''
-      description: Address of the Dataspace Federated Catalog
-      type: string
-      required: true
-    dataspace_hub_url:
-      default: ''
-      description: URL of the Dataspace Hub
-      type: string
-      required: true
     connector_id:
       default: ''
       description: Dataspace Connector ID
       type: string
       required: true
+    issuer_did:
+      default: 'did:web:data-space-hub-sage-data-space.apps.bst2.paas.psnc.pl'
+      description: DID of the issuer to be used for the VC issuance
+      type: string
+      required: true
+    federated_catalog_address:
+      default: 'https://federated-catalog-sage-data-space.apps.bst2.paas.psnc.pl'
+      description: Address of the Dataspace Federated Catalog
+      type: string
+      required: true
+    catalog_api_key:
+      default: 'edc'
+      description: API key to access the Dataspace Federated Catalog
+      type: string
+      required: true
+    dataspace_hub_url:
+      default: 'https://data-space-hub-sage-data-space.apps.bst2.paas.psnc.pl'
+      description: URL of the Dataspace Hub
+      type: string
+      required: true
     compose_profiles:
       description: Comma separated compose profiles to be used for the deployment (connector, identity, keycloak, storage)
       type: string
-      default: 'connector'
+      default: 'connector,identity,keycloak,storage'
       required: true
     letsencrypt_email:
       default: 'admin@example.com'
@@ -131,6 +137,7 @@ topology_template:
               federated_catalog_address: { get_input: federated_catalog_address }
               dataspace_hub_url: { get_input: dataspace_hub_url }
               connector_id: { get_input: connector_id }
+              catalog_api_key: { get_input: catalog_api_key }
       requirements:
         - host: simple_node
 
