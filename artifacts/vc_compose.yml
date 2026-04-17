@@ -116,13 +116,18 @@
         chdir: /opt/edc/deployment/instruction/docker
         creates: /opt/edc/deployment/instruction/docker/.env
 
-    - name: Update generated passwords in .env
+    - name: Create secrets directory
+      file:
+        path: /opt/edc/deployment/instruction/docker/.secrets
+        state: directory
+        mode: '0777'
+
+    - name: Generate passwords in .env
       lineinfile:
         path: /opt/edc/deployment/instruction/docker/.env
         regexp: '^{{ item }}='
-        line: "{{ item }}={{ lookup('ansible.builtin.password', '/opt/edc/deployment/instruction/docker/.' ~ item | lower ~ '.secret length=32') }}"
+        line: "{{ item }}={{ lookup('ansible.builtin.password', '/opt/edc/deployment/instruction/docker/.secrets/' ~ item ~ ' length=32') }}"
       loop: "{{ password_env_vars }}"
-      no_log: true
 
     - name: Update hosts variables in .env
       lineinfile:
@@ -151,19 +156,16 @@
         regexp: '^IDENTITY_HUB_SUPERUSER_KEY='
         line: >-
           IDENTITY_HUB_SUPERUSER_KEY={{ (identity_hub_superuser_username | default('superuser') | b64encode) ~ '.' ~ (lookup('ansible.builtin.password', '/opt/edc/deployment/instruction/docker/.secrets/IDENTITY_HUB_SUPERUSER_SECRET length=32') | b64encode) }}
-      no_log: true
 
     - name: Generate temporary TRAEFIK_PASS
       set_fact:
         traefik_pass: "{{ lookup('ansible.builtin.password', '/opt/edc/deployment/instruction/docker/.secrets/TRAEFIK_PASS length=20 chars=ascii_letters,digits') }}"
-      no_log: true
       register: traefik_pass_fact
 
     - name: Generate TRAEFIK_BASIC_AUTH value
       command: htpasswd -nb admin {{ traefik_pass }}
       register: traefik_basic_auth_cmd
       changed_when: false
-      no_log: true
       when: traefik_pass_fact is changed
 
     - name: Update TRAEFIK_BASIC_AUTH in .env
@@ -171,7 +173,6 @@
         path: /opt/edc/deployment/instruction/docker/.env
         regexp: '^TRAEFIK_BASIC_AUTH='
         line: "TRAEFIK_BASIC_AUTH={{ traefik_basic_auth_cmd.stdout | regex_replace('\\$', '$$') }}"
-      no_log: true
       when: traefik_pass_fact is changed
 
     - name: Update COMPOSE_PROFILES in .env
@@ -179,7 +180,6 @@
         path: /opt/edc/deployment/instruction/docker/.env
         regexp: '^COMPOSE_PROFILES='
         line: COMPOSE_PROFILES={{ compose_profiles_list | join(',') }}
-      no_log: true
 
     - name: Update DID and dataspace variables in .env
       lineinfile:
