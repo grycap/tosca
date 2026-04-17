@@ -55,6 +55,19 @@
           Missing required variables for disabled profiles. If keycloak profile is not enabled,
           define keycloak_address. If identity profile is not enabled, define
           identity_hub_address and vault_address.
+    
+    - name: Set default values for keycloak_address when keycloak profile is enabled
+      set_fact:
+        keycloak_address: "keycloak.{{ domain_name }}"
+      when:
+        - "'keycloak' in compose_profiles_list"
+
+    - name: Set default values for identity_hub_address and vault_address when identity profile is enabled
+      set_fact:
+        identity_hub_address: "identity-hub.{{ domain_name }}"
+        vault_address: "vault.{{ domain_name }}"
+      when:
+        - "'identity' in compose_profiles_list"
   roles:
     - role: 'grycap.docker'
   tasks:
@@ -127,8 +140,8 @@
     - name: Update hosts variables in .env
       lineinfile:
         path: /opt/edc/deployment/instruction/docker/.env
-        regexp: '^{{ env_key }}='
-        line: "{{ env_key }}={{ value }}"
+        regexp: '^{{ item.env_key }}='
+        line: "{{ item.env_key }}={{ item.value }}"
       loop:
         - { env_key: 'CONNECTOR_HOST', value: 'connector.{{ domain_name }}' }
         - { env_key: 'DASHBOARD_HOST', value: 'dashboard.{{ domain_name }}' }
