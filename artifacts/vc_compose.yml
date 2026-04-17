@@ -58,14 +58,14 @@
 
     - name: Set default values for keycloak_address when keycloak profile is enabled
       set_fact:
-        keycloak_address: "keycloak.{{ domain_name }}"
+        keycloak_address: "https://keycloak.{{ domain_name }}"
       when:
         - "'keycloak' in compose_profiles_list"
 
     - name: Set default values for identity_hub_address and vault_address when identity profile is enabled
       set_fact:
-        identity_hub_address: "identity-hub.{{ domain_name }}"
-        vault_address: "vault.{{ domain_name }}"
+        identity_hub_address: "https://identity-hub.{{ domain_name }}"
+        vault_address: "https://vault.{{ domain_name }}"
       when:
         - "'identity' in compose_profiles_list"
   roles:
