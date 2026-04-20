@@ -175,3 +175,5 @@ topology_template:
       value: { concat: [ 'https://consumer-backend.', get_input: [ domain_name ], '/' ] }
     traefik_dashboard_url:
       value: { concat: [ 'https://traefik.', get_input: [ domain_name ], '/' ] }
+    env_file:
+      value: { get_attribute: [ simple_node, ansible_output, vc_sage_simple_node_conf_simple_node, tasks, env_file, output ] }

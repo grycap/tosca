@@ -110,6 +110,14 @@
         - vault-init-unseal.sh
         - render/render-dashboard.sh
 
+    - name: Check if cert file exists
+      copy:
+        src: /opt/edc/deployment/instruction/docker/scripts/configure/config/certs/consumer_public.pem
+        dest: /opt/edc/deployment/instruction/docker/scripts/configure/config/certs/connector_public.pem
+        mode: '0644'
+        remote_src: yes
+      ignore_errors: true
+
     - name: make init
       command: make init
       args:
@@ -156,30 +164,39 @@
         regexp: '^LETSENCRYPT_EMAIL='
         line: "LETSENCRYPT_EMAIL={{ letsencrypt_email }}"
 
+    - name: Generate IDENTITY_HUB_SUPERUSER_SECRET
+      shell: openssl rand -base64 32 | tr -d '\r\n' > /opt/edc/deployment/instruction/docker/.secrets/IDENTITY_HUB_SUPERUSER_SECRET
+      args:
+        creates: /opt/edc/deployment/instruction/docker/.secrets/IDENTITY_HUB_SUPERUSER_SECRET
+
     - name: Update IDENTITY_HUB_SUPERUSER_KEY in .env
       lineinfile:
         path: /opt/edc/deployment/instruction/docker/.env
         regexp: '^IDENTITY_HUB_SUPERUSER_KEY='
         line: >-
-          IDENTITY_HUB_SUPERUSER_KEY={{ (identity_hub_superuser_username | default('superuser') | b64encode) ~ '.' ~ (lookup('ansible.builtin.password', '/opt/edc/deployment/instruction/docker/.secrets/IDENTITY_HUB_SUPERUSER_SECRET length=32') | b64encode) }}
+          IDENTITY_HUB_SUPERUSER_KEY={{ (identity_hub_superuser_username | default('super-user') | b64encode) ~ '.' ~ (lookup('ansible.builtin.file', '/opt/edc/deployment/instruction/docker/.secrets/IDENTITY_HUB_SUPERUSER_SECRET') | trim | b64encode) }}
+
+    - name: check if TRAEFIK_PASS file exists
+      stat:
+        path: /opt/edc/deployment/instruction/docker/.secrets/TRAEFIK_PASS
+      register: traefik_pass_file
 
     - name: Generate temporary TRAEFIK_PASS
       set_fact:
         traefik_pass: "{{ lookup('ansible.builtin.password', '/opt/edc/deployment/instruction/docker/.secrets/TRAEFIK_PASS length=20 chars=ascii_letters,digits') }}"
-      register: traefik_pass_fact
 
     - name: Generate TRAEFIK_BASIC_AUTH value
       command: htpasswd -nb admin {{ traefik_pass }}
       register: traefik_basic_auth_cmd
       changed_when: false
-      when: traefik_pass_fact is changed
+      when: not traefik_pass_file.stat.exists
 
     - name: Update TRAEFIK_BASIC_AUTH in .env
       lineinfile:
         path: /opt/edc/deployment/instruction/docker/.env
         regexp: '^TRAEFIK_BASIC_AUTH='
         line: "TRAEFIK_BASIC_AUTH={{ traefik_basic_auth_cmd.stdout | regex_replace('\\$', '$$') }}"
-      when: traefik_pass_fact is changed
+      when: not traefik_pass_file.stat.exists
 
     - name: Update COMPOSE_PROFILES in .env
       lineinfile:
@@ -296,3 +313,11 @@
       command: make verify-dataspace
       args:
         chdir: /opt/edc/deployment/instruction/docker
+
+    - name: Read .env file
+      slurp: src=/opt/edc/deployment/instruction/docker/.env
+      register: slurpfile
+      ignore_errors: true
+    - name: env_file
+      debug: msg="{{ slurpfile['content'] | b64decode }}"
+      ignore_errors: true
