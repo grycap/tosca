@@ -115,7 +115,7 @@
         src: /opt/edc/deployment/instruction/docker/scripts/configure/config/certs/consumer_public.pem
         dest: /opt/edc/deployment/instruction/docker/scripts/configure/config/certs/connector_public.pem
         mode: '0644'
-        remote_src: yes
+        remote_src: true
       ignore_errors: true
 
     - name: make init
