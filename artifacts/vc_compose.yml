@@ -277,7 +277,7 @@
         requirements: /opt/edc/deployment/instruction/docker/scripts/keycloak/requirements.txt
         extra_args: "{{ extra_args }}"
 
-    - name: Create Ansible virtualenv
+    - name: Create virtualenv
       command:
         cmd: python -m virtualenv --system-site-packages /opt/edc/deployment/instruction/docker/venv
         creates: /opt/edc/deployment/instruction/docker/venv
