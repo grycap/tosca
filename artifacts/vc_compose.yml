@@ -110,13 +110,11 @@
         - vault-init-unseal.sh
         - render/render-dashboard.sh
 
-    - name: Check if cert file exists
-      copy:
-        src: /opt/edc/deployment/instruction/docker/scripts/configure/config/certs/consumer_public.pem
-        dest: /opt/edc/deployment/instruction/docker/scripts/configure/config/certs/connector_public.pem
-        mode: '0644'
-        remote_src: true
-      ignore_errors: true
+    - name: Replace connector_public.pem with consumer_public.pem
+      replace:
+        path: /opt/edc/deployment/instruction/docker/scripts/configure/render-dataspace-config.sh
+        regexp: 'connector_public.pem'
+        replace: 'consumer_public.pem'
 
     - name: make init
       command: make init
