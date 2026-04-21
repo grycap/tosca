@@ -34,22 +34,22 @@ topology_template:
 
     num_cpus:
       type: integer
-      description: Number of virtual cpus for the VM
-      default: 2
+      description: Number of virtual CPUs for the VM
+      default: 4
       constraints:
-        - valid_values: [ 2, 4, 8, 16, 32, 64, 1 ]
+        - valid_values: [ 4, 8, 16, 32, 64, 1 ]
     mem_size:
       type: scalar-unit.size
       description: Amount of memory for the VM
-      default: 4 GB
+      default: 8 GB
       constraints:
-        - valid_values: [ 4 GB, 8 GB, 16 GB, 32 GB, 64 GB, 128 GB, 256 GB, 512 GB, 2 GB ]
+        - valid_values: [ 8 GB, 16 GB, 32 GB, 64 GB, 128 GB, 256 GB, 512 GB, 2 GB ]
     disk_size:
       type: scalar-unit.size
       description: Size of the root disk of the VM (in case of 0 disk will no be resized)
-      default: 20 GiB
+      default: 50 GiB
       constraints:
-        - valid_values: [ 20 GiB, 50 GiB, 100 GiB, 200 GiB, 0 GiB ]
+        - valid_values: [ 50 GiB, 100 GiB, 200 GiB, 0 GiB ]
 
     domain_name:
       default: dc.vm.fedcloud.eu
