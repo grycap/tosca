@@ -1,0 +1,179 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+imports:
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+
+
+description: Deploy SAGE EDC
+
+metadata:
+  template_version: "1.0.0"
+  template_name: SAGE EDC
+  display_name: Deploy SAGE EDC
+  icon: https://www.greendealdata.eu/wp-content/uploads/2026/01/Full_Logo-300x91.png
+  tabs:
+    VM Data:
+      - num_cpus
+      - mem_size
+      - disk_size
+      - domain_name
+    Data Space Data:
+      - issuer_did
+      - federated_catalog_address
+      - catalog_api_key
+      - dataspace_hub_url
+      - connector_id
+      - compose_profiles
+      - keycloak_address
+      - identity_hub_address
+      - vault_address
+      - letsencrypt_email
+
+topology_template:
+  inputs:
+
+    num_cpus:
+      type: integer
+      description: Number of virtual CPUs for the VM
+      default: 4
+      constraints:
+        - valid_values: [ 4, 8, 16, 32, 64, 1 ]
+    mem_size:
+      type: scalar-unit.size
+      description: Amount of memory for the VM
+      default: 8 GB
+      constraints:
+        - valid_values: [ 8 GB, 16 GB, 32 GB, 64 GB, 128 GB, 256 GB, 512 GB, 2 GB ]
+    disk_size:
+      type: scalar-unit.size
+      description: Size of the root disk of the VM (in case of 0 disk will no be resized)
+      default: 50 GiB
+      constraints:
+        - valid_values: [ 50 GiB, 100 GiB, 200 GiB, 0 GiB ]
+
+    domain_name:
+      default: dc.vm.fedcloud.eu
+      description: DNS domain name to be used for the deployment.
+      type: string
+
+    connector_id:
+      default: ''
+      description: Dataspace Connector ID
+      type: string
+      required: true
+    issuer_did:
+      default: 'did:web:data-space-hub-sage-data-space.apps.bst2.paas.psnc.pl'
+      description: DID of the issuer to be used for the VC issuance
+      type: string
+      required: true
+    federated_catalog_address:
+      default: 'https://federated-catalog-sage-data-space.apps.bst2.paas.psnc.pl'
+      description: Address of the Dataspace Federated Catalog
+      type: string
+      required: true
+    catalog_api_key:
+      default: ''
+      description: API key to access the Dataspace Federated Catalog
+      type: string
+      required: true
+    dataspace_hub_url:
+      default: 'https://data-space-hub-sage-data-space.apps.bst2.paas.psnc.pl'
+      description: URL of the Dataspace Hub
+      type: string
+      required: true
+    compose_profiles:
+      description: Comma separated compose profiles to be used for the deployment (connector, identity, keycloak, storage)
+      type: string
+      default: 'connector,identity,keycloak,storage'
+      required: true
+    letsencrypt_email:
+      default: 'admin@example.com'
+      description: Email address to be used for Let's Encrypt certificate generation
+      type: string
+
+    keycloak_address:
+      default: ''
+      description: Address of the Keycloak server (only needed if the 'keycloak' compose profile is not used)
+      type: string
+    identity_hub_address:
+      default: ''
+      description: Address of the Identity Hub server (only needed if the 'identity' compose profile is not used)
+      type: string
+    vault_address:
+      default: ''
+      description: Address of the Vault server (only needed if the 'identity' compose profile is not used)
+      type: string
+
+  node_templates:
+
+    vc_sage:
+      type: tosca.nodes.ec3.Application
+      artifacts:
+        docker_role:
+          file: grycap.docker
+          type: tosca.artifacts.AnsibleGalaxy.role
+      capabilities:
+        endpoint:
+          properties:
+            ports:
+              port_http:
+                protocol: tcp
+                source: 80
+              port_https:
+                protocol: tcp
+                source: 443
+      interfaces:
+        Standard:
+          configure:
+            implementation: https://raw.githubusercontent.com/grycap/tosca/sage/artifacts/vc_compose.yml
+            inputs:
+              letsencrypt_email: { get_input: letsencrypt_email }
+              dns_name: { get_input: domain_name }
+              compose_profiles: { get_input: compose_profiles }
+              keycloak_address: { get_input: keycloak_address }
+              identity_hub_address: { get_input: identity_hub_address }
+              vault_address: { get_input: vault_address }
+              issuer_did: { get_input: issuer_did }
+              federated_catalog_address: { get_input: federated_catalog_address }
+              dataspace_hub_url: { get_input: dataspace_hub_url }
+              connector_id: { get_input: connector_id }
+              catalog_api_key: { get_input: catalog_api_key }
+      requirements:
+        - host: simple_node
+
+    simple_node:
+      type: tosca.nodes.indigo.Compute
+      capabilities:
+        endpoint:
+          properties:
+            additional_dns_names:
+              - { concat: [ '*@', get_input: domain_name ] }
+            network_name: PUBLIC
+        host:
+          properties:
+            disk_size: { get_input: disk_size }
+            num_cpus: { get_input: num_cpus }
+            mem_size: { get_input: mem_size }
+        os:
+          properties:
+            type: linux
+
+  outputs:
+    connector_url:
+      value: { concat: [ 'https://connector.', get_input: [ domain_name ], '/api' ] }
+    dashboard_url:
+      value: { concat: [ 'https://dashboard.', get_input: [ domain_name ], '/' ] }
+    keycloak_url:
+      value: { concat: [ 'https://keycloak.', get_input: [ domain_name ], '/' ] }
+    identity_hub_url:
+      value: { concat: [ 'https://identity-hub.', get_input: [ domain_name ], '/' ] }
+    vault_url:
+      value: { concat: [ 'https://vault.', get_input: [ domain_name ], '/' ] }
+    storage_url:
+      value: { concat: [ 'https://storage.', get_input: [ domain_name ], '/' ] }
+    consumer_backend_url:
+      value: { concat: [ 'https://consumer-backend.', get_input: [ domain_name ], '/' ] }
+    traefik_dashboard_url:
+      value: { concat: [ 'https://traefik.', get_input: [ domain_name ], '/' ] }
+    env_file:
+      value: { get_attribute: [ simple_node, ansible_output, vc_sage_simple_node_conf_simple_node, tasks, env_file, output ] }
