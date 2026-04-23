@@ -10,16 +10,34 @@ metadata:
   template_version: "1.0.0"
   template_name: yProvStore
   display_name: Deploy yProvStore
-  icon: images/yProvStore.png
-  tag: devel
-  tabs:
-    yProvStore Data: .*
-  parents:
-    - simple-node-disk.yml
 
 topology_template:
   inputs:
+    num_cpus:
+      type: integer
+      description: Number of virtual cpus for the VM
+      default: 2
+    mem_size:
+      type: scalar-unit.size
+      description: Amount of memory for the VM
+      default: 4 GiB
+    disk_size:
+      type: scalar-unit.size
+      description: Size of the root disk of the VM (in case of 0 disk will no be resized)
+      default: 20 GiB
 
+    storage_size:
+      type: scalar-unit.size
+      description: Size of the extra HD added to the instance
+      default: 50 GiB
+      constraints:
+        - valid_values: [ 50 GiB, 100 GiB, 200 GiB, 500 GiB, 1 TiB, 2 TiB, 10 TiB, 20 TiB, 40 TiB, 100 TiB ]
+    mount_path:
+      type: string
+      description: Path to mount the extra disk
+      default: /data
+
+  
     letsencrypt_email:
       default: changeme@email.com
       description: Email to be used for Let's Encrypt certificates
@@ -60,6 +78,35 @@ topology_template:
               public_ip: { get_attribute: [ simple_node, public_address, 0 ] }
       requirements:
         - host: simple_node
+
+    simple_node:
+      type: tosca.nodes.indigo.Compute
+      capabilities:
+        endpoint:
+          properties:
+            network_name: PUBLIC
+        host:
+          properties:
+            disk_size: { get_input: disk_size }
+            num_cpus: { get_input: num_cpus }
+            mem_size: { get_input: mem_size }
+        os:
+          properties:
+            type: linux
+            distribution: ubuntu
+      requirements:
+        - local_storage:
+            node: my_block_storage
+            capability: tosca.capabilities.Attachment
+            relationship:
+              type: tosca.relationships.AttachesTo
+              properties:
+                location: { get_input: mount_path }
+
+    my_block_storage:
+      type: tosca.nodes.BlockStorage
+      properties:
+        size: { get_input: storage_size }
 
   outputs:
     yprovstore_url:
