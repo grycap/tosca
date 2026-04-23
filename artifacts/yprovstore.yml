@@ -5,8 +5,8 @@
   vars:
     branch: "v2.0.1"
     traefik_letsencrypt_email: "{{ letsencrypt_email | default('server@yprovstore.fedcloud.eu') }}"
-    traefik_dns_name: "{{ vscode_dns_name | default('yprovstore.fedcloud.eu') }}"
-    traefik_public_ip: "{{ vscode_public_ip | default(ansible_default_ipv4.address) }}"
+    traefik_dns_name: "{{ dns_name | default('yprovstore.fedcloud.eu') }}"
+    traefik_public_ip: "{{ public_ip | default(ansible_default_ipv4.address) }}"
   roles:
     - role: 'grycap.docker'
   tasks:
