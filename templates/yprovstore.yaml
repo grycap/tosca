@@ -43,7 +43,7 @@ topology_template:
       type: string
 
     dns_name:
-      default: yprovstore-test.fedcloud.eu
+      default: yprovstore-test.vm.fedcloud.eu
       description: DNS hostname to access yProvStore
       type: string
 

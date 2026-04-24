@@ -37,8 +37,8 @@ topology_template:
       default: /data
 
     dns_name:
-      default: yprovstore-test.fedcloud.eu
-      description: DNS hostname to access yProvStore
+      default: stac-test.vm.fedcloud.eu
+      description: DNS hostname to access STAC
       type: string
 
     stac_letsencrypt_email:
