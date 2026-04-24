@@ -114,6 +114,6 @@ topology_template:
 
   outputs:
     default_stac_api_endpoint:
-      value: { concat: [ 'https://stac.', get_input: dns_name, '/api/' ] }
+      value: { concat: [ 'https://', get_input: dns_name, '/api/' ] }
     default_stac_browser_endpoint:
-      value: { concat: [ 'https://stac.', get_input: dns_name, '/' ] }
+      value: { concat: [ 'https://', get_input: dns_name, '/' ] }
