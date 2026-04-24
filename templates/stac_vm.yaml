@@ -33,36 +33,13 @@ topology_template:
         - valid_values: [ 50 GiB, 100 GiB, 200 GiB, 500 GiB, 1 TiB, 2 TiB, 10 TiB, 20 TiB, 40 TiB, 100 TiB ]
     mount_path:
       type: string
-      description: Path to mount the extra disk
+      description: Path to mount the extra disk where the STAC data will be stored
       default: /data
 
-    num_gpus:
-      type: integer
-      description: Number of GPUs to assing to this VM
-      default: 0
-    gpu_vendor:
+    dns_name:
+      default: yprovstore-test.fedcloud.eu
+      description: DNS hostname to access yProvStore
       type: string
-      description: GPU Vendor
-      default: ''
-      constraints:
-        - valid_values: [ '', 'NVIDIA', 'AMD' ]
-
-    ports:
-      type: map
-      entry_schema:
-        type: PortSpec
-      description: |
-        List of ports to be Opened in the Cloud site (eg. 22,80,443,2000:2100).
-        You can also include the remote CIDR (eg. 8.8.0.0/24).
-      default:
-        http_port:
-          source: 80
-          protocol: tcp
-          remote_cidr: 0.0.0.0/0
-        https_port:
-          source: 443
-          protocol: tcp
-          remote_cidr: 0.0.0.0/0
 
     stac_letsencrypt_email:
       default: changeme@email.com
@@ -99,9 +76,8 @@ topology_template:
             inputs:
               stac_fastapi_image: { get_input: stac_fastapi_image }
               public_address: { get_attribute: [ simple_node, public_address, 0 ] }
-              dns_name: { concat: [ 'stac.', get_attribute: [ simple_node, public_address, 0 ], '.nip.io' ] }
-              letsencrypt_email:
-                get_input: stac_letsencrypt_email
+              dns_name: { get_input: dns_name }
+              letsencrypt_email: {get_input: stac_letsencrypt_email }
       requirements:
         - host: simple_node
 
@@ -111,14 +87,13 @@ topology_template:
         endpoint:
           properties:
             network_name: PUBLIC
-            ports: { get_input: ports }
+            additional_dns_names:
+              - { get_input: dns_name }
         host:
           properties:
             disk_size: { get_input: disk_size }
             num_cpus: { get_input: num_cpus }
             mem_size: { get_input: mem_size }
-            num_gpus: { get_input: num_gpus }
-            gpu_vendor: { get_input: gpu_vendor }
         os:
           properties:
             type: linux
@@ -139,6 +114,6 @@ topology_template:
 
   outputs:
     default_stac_api_endpoint:
-      value: { concat: [ 'https://stac.', get_attribute: [ simple_node, public_address, 0 ], '.nip.io/api/' ] }
+      value: { concat: [ 'https://stac.', get_input: dns_name, '/api/' ] }
     default_stac_browser_endpoint:
-      value: { concat: [ 'https://stac.', get_attribute: [ simple_node, public_address, 0 ], '.nip.io/' ] }
+      value: { concat: [ 'https://stac.', get_input: dns_name, '/' ] }
