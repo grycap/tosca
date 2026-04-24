@@ -42,8 +42,6 @@ topology_template:
       description: Email to be used for Let's Encrypt certificates
       type: string
 
-    # Restrict some simple-node-disk input values
-
     dns_name:
       default: yprovstore-test.fedcloud.eu
       description: DNS hostname to access yProvStore
