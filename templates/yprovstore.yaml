@@ -37,7 +37,6 @@ topology_template:
       description: Path to mount the extra disk
       default: /data
 
-  
     letsencrypt_email:
       default: changeme@email.com
       description: Email to be used for Let's Encrypt certificates
@@ -71,7 +70,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/yprovstore.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/eosc_beyond/artifacts/yprovstore.yml
             inputs:
               letsencrypt_email: { get_input: letsencrypt_email }
               dns_name: { get_input: dns_name }
