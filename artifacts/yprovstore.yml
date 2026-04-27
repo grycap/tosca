@@ -7,6 +7,11 @@
     traefik_letsencrypt_email: "{{ letsencrypt_email | default('server@yprovstore.fedcloud.eu') }}"
     traefik_dns_name: "{{ dns_name | default('yprovstore.fedcloud.eu') }}"
     traefik_public_ip: "{{ public_ip | default(ansible_default_ipv4.address) }}"
+    minio_endpoint: "localhost:9000"
+    minio_root_password: "minio123"
+    minio_root_user: "minio"
+    minio_bucket_name: "yprov-documents"
+    minio_secure: "False"
   roles:
     - role: 'grycap.docker'
   tasks:
@@ -43,6 +48,15 @@
         mode: '644'
         force: false
 
+    - name: Set MinIO connection variables
+      set_fact:
+        minio_endpoint: "{{ storage_connection_string | urlsplit('hostname') }}"
+        minio_root_password: "{{ storage_connection_string | urlsplit('password') }}"
+        minio_root_user: "{{ storage_connection_string | urlsplit('username') }}"
+        minio_bucket_name: "{{ storage_connection_string | urlsplit('path') | regex_replace('^/', '') }}"
+        minio_secure: "True"
+      when: storage_connection_string is defined and storage_connection_string != ''
+
     - name: Update .env file
       lineinfile:
         path: /opt/yProvStore/.env
@@ -50,15 +64,23 @@
         line: '{{ item.var }}={{ item.value }}'
       loop:
         - { var: 'USE_LOCAL_PID_SERVICE', value: 'True' }
-        - { var: 'MINIO_ROOT_USER', value: 'minio' }
-        - { var: 'MINIO_ROOT_PASSWORD', value: '{{ minio_root_password | default("minio123") }}' }
-        - { var: 'MINIO_BUCKET_NAME', value: 'yprov-documents' }
-        - { var: 'MINIO_ENDPOINT', value: 'localhost:9000' }
-        - { var: 'MINIO_SECURE', value: 'False' }
+        - { var: 'MINIO_ROOT_USER', value: '{{ minio_root_user }}' }
+        - { var: 'MINIO_ROOT_PASSWORD', value: '{{ minio_root_password }}' }
+        - { var: 'MINIO_BUCKET_NAME', value: '{{ minio_bucket_name }}' }
+        - { var: 'MINIO_ENDPOINT', value: '{{ minio_endpoint }}' }
+        - { var: 'MINIO_SECURE', value: '{{ minio_secure }}' }
         - { var: 'POSTGRES_USER', value: 'postgres' }
         - { var: 'POSTGRES_PASSWORD', value: 'postgres123' }
         - { var: 'POSTGRES_DB', value: 'yprovstore' }
         - { var: 'APP_PORT', value: '8000' }
+        - { var: 'DOCUMENT_SIZE_LIMIT', value: '{{ document_size_limit | default(100) }}' }
+
+    - name: Update .env file
+      lineinfile:
+        path: /opt/yProvStore/.env
+        regexp: '^DB_CONNECTION_STRING='
+        line: 'DB_CONNECTION_STRING={{ db_connection_string }}'
+      when: db_connection_string is defined and db_connection_string != ''
 
     - name: Update docker-compose.yml with Traefik configuration
       blockinfile:

@@ -47,6 +47,19 @@ topology_template:
       description: DNS hostname to access yProvStore
       type: string
 
+    db_connection_string:
+      default: ''
+      description: Database connection string for yProvStore (format postgresql://user:pass@pgserver/db)
+      type: string
+    storage_connection_string:
+      default: ''
+      description: Storage connection string for yProvStore (format s3://access_key:secret_key@endpoint/bucket)
+      type: string
+    document_size_limit:
+      default: 100
+      description: Maximum size in MB of documents that can be stored in yProvStore
+      type: integer
+
   node_templates:
 
     yprovstore:
@@ -73,6 +86,9 @@ topology_template:
               letsencrypt_email: { get_input: letsencrypt_email }
               dns_name: { get_input: dns_name }
               public_ip: { get_attribute: [ simple_node, public_address, 0 ] }
+              db_connection_string: { get_input: db_connection_string }
+              storage_connection_string: { get_input: storage_connection_string }
+              document_size_limit: { get_input: document_size_limit }
       requirements:
         - host: simple_node
 
