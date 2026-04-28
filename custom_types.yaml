@@ -781,6 +781,10 @@ node_types:
           type: string
         required: false
         default: []
+      install_local_path_provisioner:
+        required: no
+        type: boolean
+        default: false
     artifacts:
       kube_role:
         file: grycap.kubernetes
@@ -828,6 +832,7 @@ node_types:
             kube_use_public_ip: { get_property: [ SELF, use_public_ip ] }
             kube_install_gateway_api: { get_property: [ SELF, install_gateway_api ] }
             kube_ingress_type: { get_property: [ SELF, ingress_type ] }
+            kube_install_local_path: { get_property: [ SELF, install_local_path_provisioner ] }
 
   tosca.nodes.indigo.LRMS.WorkerNode.Slurm:
     derived_from: tosca.nodes.indigo.LRMS.WorkerNode

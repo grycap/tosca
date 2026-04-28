@@ -204,6 +204,12 @@ topology_template:
       default: NFS
       constraints:
         - valid_values: [ NFS, Longhorn ]
+    kube_install_local_path:
+      type: boolean
+      description: Flag to install the Local Path Provisioner
+      default: false
+      constraints:
+        - valid_values: [ false, true ]
 
   node_templates:
 
@@ -235,6 +241,7 @@ topology_template:
         csi_driver: { get_input: kube_csi_driver }
         ingress_type: { get_input: kube_ingress_type }
         install_gateway_api: { get_input: kube_install_gateway_api }
+        install_local_path_provisioner: { get_input: kube_install_local_path }
       requirements:
         - host: front
 
