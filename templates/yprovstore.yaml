@@ -1,0 +1,99 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+imports:
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+
+
+description: Deploy yProvStore, a provenance store for scientific workflows.
+
+metadata:
+  template_version: "1.0.0"
+  template_name: yProvStore
+  display_name: Deploy yProvStore
+  web: https://github.com/HPCI-Lab/yProvStore
+  parents:
+    - simple-node-disk.yml
+  tabs:
+    yProvStore:
+      - letsencrypt_email
+      - db_connection_string
+      - storage_connection_string
+      - document_size_limit
+
+topology_template:
+  inputs:
+
+    letsencrypt_email:
+      default: changeme@email.com
+      description: Email to be used for Let's Encrypt certificates
+      type: string
+
+    db_connection_string:
+      default: ''
+      description: Database connection string for yProvStore (format postgresql://user:pass@pgserver/db)
+      type: string
+    storage_connection_string:
+      default: ''
+      description: Storage connection string for yProvStore (format s3://access_key:secret_key@endpoint/bucket)
+      type: string
+    document_size_limit:
+      default: 100
+      description: Maximum size in MB of documents that can be stored in yProvStore
+      type: integer
+
+    # Restrict some simple-node-disk input values
+
+    storage_size:
+      type: scalar-unit.size
+      description: Size of the extra HD added to the instance (Set 0 if disk is not needed)
+      default: 50 GiB
+      constraints:
+        - valid_values: [ 50 GiB, 100 GiB, 200 GiB, 500 GiB, 1 TiB, 2 TiB, 10 TiB, 20 TiB, 40 TiB, 100 TiB ]
+
+    mount_path:
+      type: string
+      description: Path to mount the extra disk
+      default: /data
+
+    dns_name:
+      default: yprovstore-test.vm.fedcloud.eu
+      description: DNS hostname to access yProvStore
+      type: string
+
+  node_templates:
+
+    yprovstore:
+      type: tosca.nodes.ec3.Application
+      artifacts:
+        docker_role:
+          file: grycap.docker
+          type: tosca.artifacts.AnsibleGalaxy.role
+      capabilities:
+        endpoint:
+          properties:
+            ports:
+              port_http:
+                protocol: tcp
+                source: 80
+              port_https:
+                protocol: tcp
+                source: 443
+      interfaces:
+        Standard:
+          configure:
+            implementation: https://raw.githubusercontent.com/grycap/tosca/eosc_beyond/artifacts/yprovstore.yml
+            inputs:
+              letsencrypt_email: { get_input: letsencrypt_email }
+              dns_name: { get_input: dns_name }
+              public_ip: { get_attribute: [ simple_node, public_address, 0 ] }
+              db_connection_string: { get_input: db_connection_string }
+              storage_connection_string: { get_input: storage_connection_string }
+              document_size_limit: { get_input: document_size_limit }
+      requirements:
+        - host: simple_node
+
+  outputs:
+    yprovstore_url:
+      value: { concat: [ 'https://', get_attribute: [ simple_node, public_address, 0 ], '/docs' ] }
+    yprovstore_url_dns:
+      value: { concat: [ 'https://', get_input: [ dns_name ], '/docs' ] }
