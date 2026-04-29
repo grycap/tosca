@@ -31,7 +31,7 @@
       copy:
         src: /opt/yProvStore/.env.example
         dest: /opt/yProvStore/.env
-        remote_src: yes
+        remote_src: true
         mode: '644'
         force: false
 
