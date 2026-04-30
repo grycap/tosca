@@ -30,11 +30,15 @@ topology_template:
 
     db_connection_string:
       default: ''
-      description: Database connection string for yProvStore (format postgresql://user:pass@pgserver/db)
+      description: |
+        Database connection string for yProvStore (format postgresql://user:pass@pgserver/db).
+        If not provided, a local PostgreSQL instance will be deployed and used.
       type: string
     storage_connection_string:
       default: ''
-      description: Storage connection string for yProvStore (format s3://access_key:secret_key@endpoint/bucket)
+      description: |
+        Storage connection string for yProvStore (format s3://access_key:secret_key@endpoint/bucket).
+        If not provided, a local MinIO instance will be deployed and used.
       type: string
     document_size_limit:
       default: 100
