@@ -243,6 +243,8 @@ topology_template:
         cri_runtime: containerd
         nvidia_support: { get_input: kube_nvidia_support }
         install_yunikorn: { get_input: kube_install_yunikorn }
+        ingress_type: traefik
+        install_gateway_api: true
       requirements:
         - host: front
 

@@ -30,7 +30,8 @@
 
     - role: 'grycap.kubeoscar'
       oscar_pass: '{{ oscar_password }}'
-      create_ingress: true
+      create_ingress: false
+      create_httproute: true
       minio_endpoint: '{{ oscar_minio_endpoint }}'
       minio_secret_key: '{{ oscar_minio_secretkey }}'
       master_deploy: true
@@ -39,3 +40,4 @@
       additional_config:
         allowedImagePrefix: '{{ allowed_image_prefixes }}'
       oidc_issuer: "{{ oidc_issuers | default(['https://aai.egi.eu/auth/realms/egi']) | join(',') }}"
+
