@@ -37,6 +37,29 @@ topology_template:
       description: Path to mount the extra disk
       default: /data
 
+
+    use_oidc_auth:
+      type: boolean
+      description: Whether to use OIDC authentication for yProvStore
+      default: false
+
+    oidc_instrospection_endpoint:
+      type: string
+      description: OIDC introspection endpoint
+      default: 'https://enes-proxy.pilot.eosc-beyond.eu/auth/realms/enes/protocol/openid-connect/token/introspect'
+    oidc_required_entitlements:
+      type: string
+      description: Required entitlement to access yProvStore
+      default: 'urn:mace:egi.eu:group:enes.pilot.eosc-beyond.eu:role=member#aai.egi.eu'
+    oidc_client_id:
+      type: string
+      description: OIDC Client ID
+      default: ''
+    oidc_client_secret:
+      type: string
+      description: OIDC Client Secret
+      default: ''
+
     letsencrypt_email:
       default: changeme@email.com
       description: Email to be used for Let's Encrypt certificates
@@ -89,6 +112,11 @@ topology_template:
               db_connection_string: { get_input: db_connection_string }
               storage_connection_string: { get_input: storage_connection_string }
               document_size_limit: { get_input: document_size_limit }
+              use_oidc_auth: { get_input: use_oidc_auth }
+              oidc_instrospection_endpoint: { get_input: oidc_instrospection_endpoint }
+              oidc_required_entitlements: { get_input: oidc_required_entitlements }
+              oidc_client_id: { get_input: oidc_client_id }
+              oidc_client_secret: { get_input: oidc_client_secret }
       requirements:
         - host: simple_node
 
