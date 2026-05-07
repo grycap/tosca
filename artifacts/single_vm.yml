@@ -38,7 +38,7 @@
             dest: /opt/compose/docker-compose.yml
 
         - name: Exec docker-compose up
-          docker_compose_v2:
+          docker_compose:
             project_src: /opt/compose/
             state: present
           environment: '{{ environment }}'

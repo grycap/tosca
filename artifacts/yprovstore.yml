@@ -142,6 +142,6 @@
         insertafter: '    dos2unix \\'
 
     - name: Exec docker-compose up
-      docker_compose_v2:
+      docker_compose:
         project_src: /opt/yProvStore/
         state: present
