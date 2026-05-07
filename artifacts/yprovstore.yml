@@ -82,6 +82,19 @@
         line: 'DB_CONNECTION_STRING={{ db_connection_string }}'
       when: db_connection_string is defined and db_connection_string != ''
 
+    - name: Update .env file with OIDC authentication variables
+      lineinfile:
+        path: /opt/yProvStore/.env
+        regexp: '^{{ item.var }}='
+        line: '{{ item.var }}={{ item.value }}'
+      loop:
+        - { var: 'USE_EGI_CHECKIN_AUTH', value: 'True' }
+        - { var: 'EGI_CHECKIN_INTROSPECTION_ENDPOINT', value: '{{ oidc_instrospection_endpoint }}' }
+        - { var: 'EGI_CHECKIN_CLIENT_ID', value: '{{ oidc_client_id }}' }
+        - { var: 'EGI_CHECKIN_CLIENT_SECRET', value: '{{ oidc_client_secret }}' }
+        - { var: 'EGI_CHECKIN_REQUIRED_ENTITLEMENTS', value: '{{ oidc_required_entitlements }}' }
+      when: use_oidc_auth | bool | default(false)
+
     - name: Update docker-compose.yml with Traefik configuration
       blockinfile:
         path: /opt/yProvStore/docker-compose.yml
