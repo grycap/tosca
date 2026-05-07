@@ -81,6 +81,6 @@
         mode: '644'
 
     - name: Exec docker-compose up
-      docker_compose:
+      docker_compose_v2:
         project_src: /opt/minio/
         state: present

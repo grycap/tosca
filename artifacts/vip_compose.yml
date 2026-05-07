@@ -78,6 +78,6 @@
         group: 1000
 
     - name: Exec docker-compose up
-      docker_compose:
+      docker_compose_v2:
         project_src: /opt/vip/
         state: present

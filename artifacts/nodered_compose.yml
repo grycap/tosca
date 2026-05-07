@@ -121,6 +121,6 @@
                 start_period: 30s
 
     - name: docker-compose up
-      docker_compose:
+      docker_compose_v2:
         project_src: /opt/nodered/
         state: present

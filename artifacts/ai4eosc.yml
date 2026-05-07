@@ -72,6 +72,6 @@
                   - "/var/run/docker.sock:/var/run/docker.sock:ro"
 
     - name: Exec docker-compose up
-      docker_compose:
+      docker_compose_v2:
         project_src: /opt/ai4eosc/
         state: present
