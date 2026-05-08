@@ -148,6 +148,6 @@
         mode: '644'
 
     - name: Exec docker-compose up
-      docker_compose_v2:
+      community.docker.docker_compose_v2:
         project_src: /opt/stac/
         state: present

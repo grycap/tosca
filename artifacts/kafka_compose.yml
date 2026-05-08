@@ -86,7 +86,7 @@
                 - "-DbasicAuthentication.password={{ client_pass }}"
 
     - name: docker-compose up
-      docker_compose_v2:
+      community.docker.docker_compose_v2:
         project_src: /opt/kafka/
         state: present
 

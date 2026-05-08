@@ -122,5 +122,5 @@
           }
 
     - name: Create and start services
-      docker_compose_v2:
+      community.docker.docker_compose_v2:
         project_src: /opt/guacamole
