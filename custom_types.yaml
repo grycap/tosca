@@ -702,7 +702,7 @@ node_types:
       install_ingress:
         required: no
         type: boolean
-        default: true
+        default: false
       ingress_type:
         required: no
         type: string
@@ -774,7 +774,7 @@ node_types:
       install_gateway_api:
         required: no
         type: boolean
-        default: true
+        default: false
       public_additional_dns_names:
         type: list
         entry_schema:
