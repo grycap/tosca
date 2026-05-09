@@ -702,7 +702,7 @@ node_types:
       install_ingress:
         required: no
         type: boolean
-        default: false
+        default: true
       ingress_type:
         required: no
         type: string
