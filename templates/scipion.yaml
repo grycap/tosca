@@ -60,39 +60,6 @@ topology_template:
       required: yes
 
   node_templates:
-    pub_network:
-      type: tosca.nodes.network.Network
-      properties:
-        network_type: public
-
-    server_pub_port:
-      type: tosca.nodes.network.Port
-      properties:
-        order: 1
-      requirements:
-        - binding: lrms_server
-        - link: pub_network
-
-    priv_network:
-      type: tosca.nodes.network.Network
-      properties:
-        network_type: private
-
-    server_port:
-      type: tosca.nodes.network.Port
-      properties:
-        order: 0
-      requirements:
-        - binding: lrms_server
-        - link: priv_network
-
-    wn_port:
-      type: tosca.nodes.network.Port
-      properties:
-        order: 0
-      requirements:
-        - binding: lrms_wn
-        - link: priv_network
 
     lrms_server:
       type: tosca.nodes.indigo.Compute
@@ -161,6 +128,7 @@ topology_template:
         endpoint:
           properties:
             dns_name: scipion-wn-#N#
+            network_name: PUBLIC
         host:
           properties:
             disk_size: 100 GB
@@ -207,3 +175,9 @@ topology_template:
   outputs:
     url:
       value: { concat: [ 'https://', get_attribute: [ lrms_server, public_address, 0 ], ':8443/vnc.html' ] }
+    ssh:
+      value:
+        node_ip:
+          value: { get_attribute: [ simple_node, public_address, 0 ] }
+        node_creds:
+          value: { get_attribute: [ simple_node, endpoint, credential, 0 ] }
