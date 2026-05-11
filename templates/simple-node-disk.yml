@@ -60,6 +60,7 @@ metadata:
     - interoperability-registry-read.yml
     - pyhandle.yml
     - apptainer.yaml
+    - yprovstore.yaml
 
 topology_template:
 
