@@ -23,21 +23,29 @@
             poll_time: 0
           when: wait_to_download | bool
 
-        - name: Download "{{ data_url }}" on "{{ local_path }}"
-          get_url:
-            url: "{{ data_url }}"
-            dest: "{{ local_path }}"
-            mode: '644'
-          async: "{{ max_time }}"
-          poll: "{{ poll_time }}"
-          when: not unarchive
+        - name: Download "{{ data_url }}" on "{{ local_path }}" using rsync
+          command: rsync -avP "{{ data_url }}" "{{ local_path }}"
+          when: data_url | urlsplit("scheme") == "rsync"
 
-        - name: Unarchive "{{ data_url }}" on "{{ local_path }}"
-          unarchive:
-            src: "{{ data_url }}"
-            dest: "{{ local_path }}"
-            remote_src: true
-          when: unarchive
+        - block:
+
+          - name: Download "{{ data_url }}" on "{{ local_path }}"
+            get_url:
+              url: "{{ data_url }}"
+              dest: "{{ local_path }}"
+              mode: '644'
+            async: "{{ max_time }}"
+            poll: "{{ poll_time }}"
+            when: not unarchive
+
+          - name: Unarchive "{{ data_url }}" on "{{ local_path }}"
+            unarchive:
+              src: "{{ data_url }}"
+              dest: "{{ local_path }}"
+              remote_src: true
+            when: unarchive
+          
+          when: data_url | urlsplit("scheme") != "rsync"
 
 
     - name: Download data to a K8s PVC
