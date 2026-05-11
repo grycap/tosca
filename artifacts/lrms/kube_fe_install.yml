@@ -10,7 +10,6 @@
     admin_username: "{{ kube_admin_username | default('admin') }}"
     admin_token: "{{ kube_admin_token | default(lookup('password', '/var/tmp/kubeadminpass chars=ascii_letters,digits length=16')) }}"
     use_public_ip: "{{ kube_use_public_ip | default(false) }}"
-    install_ingress: "{{ kube_install_ingress if kube_install_ingress is defined else (not (kube_install_gateway_api | default(false))) }}"
 
   pre_tasks:
     - name: Set the admin token
@@ -69,7 +68,6 @@
       kube_install_metrics: true
       kube_cert_public_ip: "{{ IM_NODE_PUBLIC_IP }}"
       kube_ingress_in_master: "{{ use_public_ip }}"
-      kube_install_ingress: "{{ install_ingress }}"
 
   tasks:
     - name: Read kubeconfig file
