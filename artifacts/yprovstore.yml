@@ -3,7 +3,7 @@
   hosts: localhost
   connection: local
   vars:
-    branch: "v2.0.1"
+    branch: "{{ yprovstore_branch | default('main') }}"
     traefik_letsencrypt_email: "{{ letsencrypt_email | default('server@yprovstore.fedcloud.eu') }}"
     traefik_dns_name: "{{ dns_name | default('yprovstore.fedcloud.eu') }}"
     traefik_public_ip: "{{ public_ip | default(ansible_default_ipv4.address) }}"
@@ -19,6 +19,11 @@
       stat:
         path: /opt/yProvStore/docker-compose.yml
       register: docker_file_stat
+
+    - name: Set yProvStore branch to integrate-egi-authentication if OIDC authentication is enabled
+      set_fact:
+        yprovstore_branch: "integrate-egi-authentication"
+      when: use_oidc_auth | bool | default(false)
 
     - name: Download yProvStore files
       git:
