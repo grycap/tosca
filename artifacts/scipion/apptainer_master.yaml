@@ -8,7 +8,7 @@
     CONTAINER_VERSION: "{{ scipion_version | default('latest') }}"
     SLURM_VERSION: "25.11.2"
     nvidia_param: ""
-    single_vm: {{ scipion_single_vm | default(false) }}
+    single_vm: "{{ scipion_single_vm | default(false) }}"
     SLURM_DEPENDENCIES_CMD: ""
 
   tasks:
