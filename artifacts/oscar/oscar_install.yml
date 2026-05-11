@@ -19,7 +19,7 @@
       minio_secretkey: '{{ oscar_minio_secretkey }}'
       master_deploy: true
       enable_tls: true
-      enable_ingress: '{{ minio_enable_ingress }}'
+      enable_httproute: '{{ minio_enable_ingress }}'
       public_hostname_api: "{{ minio_dns_host }}"
       public_hostname_console: "{{ minio_dns_host_console }}"
 
