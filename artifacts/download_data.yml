@@ -24,29 +24,34 @@
           when: wait_to_download | bool
 
         - name: Download "{{ data_url }}" on "{{ local_path }}" using rsync
-          command: rsync -avP "{{ data_url }}" "{{ local_path }}"
+          synchronize:
+            src: "{{ data_url }}"
+            dest: "{{ local_path }}"
+            mode: pull
+            rsync_opts:
+              - "-a"
+              - "-P"
           when: data_url | urlsplit("scheme") == "rsync"
 
-        - block:
-
-          - name: Download "{{ data_url }}" on "{{ local_path }}"
-            get_url:
-              url: "{{ data_url }}"
-              dest: "{{ local_path }}"
-              mode: '644'
-            async: "{{ max_time }}"
-            poll: "{{ poll_time }}"
-            when: not unarchive
-
-          - name: Unarchive "{{ data_url }}" on "{{ local_path }}"
-            unarchive:
-              src: "{{ data_url }}"
-              dest: "{{ local_path }}"
-              remote_src: true
-            when: unarchive
-          
+        - name: Download "{{ data_url }}" on "{{ local_path }}" with get_url
           when: data_url | urlsplit("scheme") != "rsync"
+          block:
 
+            - name: Download "{{ data_url }}" on "{{ local_path }}"
+              get_url:
+                url: "{{ data_url }}"
+                dest: "{{ local_path }}"
+                mode: '644'
+              async: "{{ max_time }}"
+              poll: "{{ poll_time }}"
+              when: not unarchive
+
+            - name: Unarchive "{{ data_url }}" on "{{ local_path }}"
+              unarchive:
+                src: "{{ data_url }}"
+                dest: "{{ local_path }}"
+                remote_src: true
+              when: unarchive
 
     - name: Download data to a K8s PVC
       when: data_url != '' and pvc_name != '' and pvc_namespace != ''
