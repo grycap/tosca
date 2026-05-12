@@ -66,6 +66,7 @@
         name: kernel.apparmor_restrict_unprivileged_userns
         value: '0'
         sysctl_file: /etc/sysctl.d/90-disable-userns-restrictions.conf
+      ignore_errors: yes
 
     - name: Set facts from IM_INFRASTRUCTURE_RADL
       set_fact:
