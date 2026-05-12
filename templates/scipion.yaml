@@ -2,12 +2,12 @@ tosca_definitions_version: tosca_simple_yaml_1_0
 imports:
   - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
 
-description: Deploy a cluster with Scipion via VNC
+description: Deploy a VM with Scipion via VNC
 
 metadata:
   template_name: Scipion
-  template_version: '2.0.0'
-  template_author: Laura del Cano
+  template_version: '3.0.0'
+  template_author: Miguel Caballer
 
 topology_template:
   inputs:
@@ -26,37 +26,21 @@ topology_template:
       type: integer
       description: Numbers of CPUs to assign to the master
       required: yes
-      default: 8
+      default: 4
     mem_size:
       type: scalar-unit.size
       description: Ammount of RAM (GB) to assign to the master
-      default: 30 GB
+      default: 16 GB
       required: yes
     disk_size:
       type: scalar-unit.size
       description: Size of the external disk attached to the server
       default: 200 GiB
 
-    num_worker:
-      type: integer
-      description: Number of worker nodes in cluster
-      default: 0
-      constraints:
-        - valid_values: [ 0, 1 ]
-    num_gpus_worker:
-      type: integer
-      description: Number of GPUs to assing to the worker
-      required: yes
-      default: 0
-    num_cpus_worker:
-      type: integer
-      description: Numbers of CPUs to assign to the worker
-      required: yes
-      default: 8
-    mem_size_worker:
-      type: scalar-unit.size
-      description: Ammount of RAM (GiB) to assign to the worker
-      default: 30 GiB
+    scipion_flavour:
+      type: string
+      description: Scipion flavour to deploy.
+      default: spa
       required: yes
 
   node_templates:
@@ -101,83 +85,32 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/new_scipion/artifacts/scipion/apptainer_master.yaml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/eosc_dc/artifacts/scipion/apptainer_master.yaml
             inputs:
               vnc_pass: { get_input: vnc_pass }
               slurm_front_end_ip: { get_attribute: [ lrms_server, private_address, 0 ] }
+              scipion_flavour: { get_input: scipion_flavour }
+              scipion_single_vm: true
       artifacts:
         vnc_role:
           file: grycap.vnc
           type: tosca.artifacts.AnsibleGalaxy.role
-        slurm_role:
-          file: grycap.slurm
-          type: tosca.artifacts.AnsibleGalaxy.role
-        nfs_role:
-          file: grycap.nfs
-          type: tosca.artifacts.AnsibleGalaxy.role
         docker_role:
           file: usegalaxy_eu.apptainer
           type: tosca.artifacts.AnsibleGalaxy.role
 
-    lrms_wn:
-      type: tosca.nodes.indigo.Compute
-      capabilities:
-        scalable:
-          properties:
-            count: { get_input: num_worker }
-        endpoint:
-          properties:
-            dns_name: scipion-wn-#N#
-            network_name: PUBLIC
-        host:
-          properties:
-            disk_size: 100 GB
-            num_gpus: { get_input: num_gpus_worker }
-            num_cpus: { get_input: num_cpus_worker }
-            mem_size: { get_input: mem_size_worker }
-            gpu_vendor: 'nvidia'
-        os:
-          properties:
-            type: linux
-            # version: '24.04'
-            version: '22.04.4'
-
-    wn:
-      type: tosca.nodes.SoftwareComponent
-      requirements:
-        - host: lrms_wn
-      interfaces:
-        Standard:
-          configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/new_scipion/artifacts/scipion/ansible_worker.yaml
-            inputs:
-              slurm_front_end_ip: { get_attribute: [ lrms_server, private_address, 0 ] }
-      artifacts:
-        slurm_role:
-          file: grycap.slurm
-          type: tosca.artifacts.AnsibleGalaxy.role
-        nfs_role:
-          file: grycap.nfs
-          type: tosca.artifacts.AnsibleGalaxy.role
-        docker_role:
-          file: usegalaxy_eu.apptainer
-          type: tosca.artifacts.AnsibleGalaxy.role
-        os:
-          properties:
-            type: linux
-            # version: '24.04'
-            version: '22.04.4'
 
     my_block_storage:
       type: BlockStorage
       properties:
         size: { get_input: disk_size }
+  
   outputs:
     url:
       value: { concat: [ 'https://', get_attribute: [ lrms_server, public_address, 0 ], ':8443/vnc.html' ] }
     ssh:
       value:
         node_ip:
-          value: { get_attribute: [ simple_node, public_address, 0 ] }
+          value: { get_attribute: [ lrms_server, public_address, 0 ] }
         node_creds:
-          value: { get_attribute: [ simple_node, endpoint, credential, 0 ] }
+          value: { get_attribute: [ lrms_server, endpoint, credential, 0 ] }
