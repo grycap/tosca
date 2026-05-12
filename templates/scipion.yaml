@@ -51,6 +51,7 @@ topology_template:
         endpoint:
           properties:
             dns_name: scipion-master
+            network_name: PUBLIC
             ports:
               ssh_port:
                 protocol: tcp
