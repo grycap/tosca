@@ -32,6 +32,8 @@
       oscar_pass: '{{ oscar_password }}'
       create_ingress: false
       create_httproute: true
+      loki_exposed_namespace: traefik
+      loki_exposed_app_label: traefik
       exposed_services_route_kind: httproute
       minio_endpoint: '{{ oscar_minio_endpoint }}'
       minio_secret_key: '{{ oscar_minio_secretkey }}'
