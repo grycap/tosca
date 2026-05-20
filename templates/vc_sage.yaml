@@ -19,9 +19,7 @@ metadata:
       - sub_domain_name:
           pattern: "^[a-zA-Z0-9\\-]+$"
           tag_type: text
-      - domain_name:
-          pattern: "^[a-zA-Z0-9\\-]+$"
-          tag_type: text
+      - domain_name
     Data Space Data:
       - connector_id:
           pattern: "^[a-zA-Z0-9_\\-]+$"
@@ -77,7 +75,7 @@ topology_template:
       type: string
       required: true
       constraints:
-        - max_length: 20
+        - max_length: 32
     issuer_did:
       default: 'did:web:data-space-hub-sage-data-space.apps.bst2.paas.psnc.pl'
       description: DID of the issuer to be used for the VC issuance
