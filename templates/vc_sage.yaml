@@ -197,23 +197,17 @@ topology_template:
   outputs:
     dashboard_url:
       value: { concat: [ 'https://dashboard.', get_input: sub_domain_name, '.', get_input: [ domain_name ], '/' ] }
-    dashboard_username:
-      value: { get_attribute: [ simple_node, ansible_output, vc_sage_simple_node_conf_simple_node, tasks, dashboard_username, output ] }
-    dashboard_password:
-      value: { get_attribute: [ simple_node, ansible_output, vc_sage_simple_node_conf_simple_node, tasks, dashboard_password, output ] }
     connector_url:
       value: { concat: [ 'https://connector.', get_input: sub_domain_name, '.', get_input: [ domain_name ], '/api' ] }
     keycloak_url:
       value: { concat: [ 'https://keycloak.', get_input: sub_domain_name, '.', get_input: [ domain_name ], '/' ] }
     identity_hub_url:
       value: { concat: [ 'https://identity-hub.', get_input: sub_domain_name, '.', get_input: [ domain_name ], '/' ] }
-    vault_url:
-      value: { concat: [ 'https://vault.', get_input: sub_domain_name, '.', get_input: [ domain_name ], '/' ] }
     storage_url:
       value: { concat: [ 'https://storage.', get_input: sub_domain_name, '.', get_input: [ domain_name ], '/' ] }
-    consumer_backend_url:
-      value: { concat: [ 'https://consumer-backend.', get_input: sub_domain_name, '.', get_input: [ domain_name ], '/' ] }
-    traefik_dashboard_url:
-      value: { concat: [ 'https://traefik.', get_input: sub_domain_name, '.', get_input: [ domain_name ], '/' ] }
+    dashboard_username:
+      value: { get_attribute: [ simple_node, ansible_output, vc_sage_simple_node_conf_simple_node, tasks, dashboard_username, output ] }
+    dashboard_password:
+      value: { get_attribute: [ simple_node, ansible_output, vc_sage_simple_node_conf_simple_node, tasks, dashboard_password, output ] }
     env_file:
       value: { get_attribute: [ simple_node, ansible_output, vc_sage_simple_node_conf_simple_node, tasks, env_file, output ] }
