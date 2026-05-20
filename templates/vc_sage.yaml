@@ -64,7 +64,7 @@ topology_template:
 
     sub_domain_name:
       default: dc
-      description: DNS subdomain to be used for the deployment (e.g. if domain name is 'vm.fedcloud.eu' and sub_domain_name is 'dc', the deployment will be accessible at 'dc.vm.fedcloud.eu'). Must be unique!.
+      description: DNS subdomain to be used for the deployment (e.g. if domain name is 'vm.fedcloud.eu' and subdomain is 'dc', the deployment will be accessible at 'dc.vm.fedcloud.eu'). Must be unique!.
       type: string
     domain_name:
       default: vm.fedcloud.eu

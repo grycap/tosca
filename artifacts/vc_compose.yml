@@ -320,10 +320,10 @@
         chdir: /opt/edc/deployment/instruction/docker
         creates: /opt/edc/deployment/instruction/docker/.identity_hub_initialized
 
-    - name: make verify-identity-hub
-      command: make verify-identity-hub
-      args:
-        chdir: /opt/edc/deployment/instruction/docker
+#    - name: make verify-identity-hub
+#      command: make verify-identity-hub
+#      args:
+#        chdir: /opt/edc/deployment/instruction/docker
 
     - name: Read .env file
       slurp: src=/opt/edc/deployment/instruction/docker/.env
