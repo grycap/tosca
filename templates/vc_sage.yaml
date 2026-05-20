@@ -16,14 +16,19 @@ metadata:
       - num_cpus
       - mem_size
       - disk_size
-      - sub_domain_name
-      - domain_name
+      - sub_domain_name:
+          pattern: "^[a-zA-Z0-9-]+$"
+          tag_type: text
+      - domain_name:
+          pattern: "^[a-zA-Z0-9-]+$"
+          tag_type: text
     Data Space Data:
       - connector_id:
           pattern: "^[a-zA-Z0-9_-]+$"
           tag_type: text
       - catalog_api_key
-      - letsencrypt_email
+      - letsencrypt_email:
+          tag_type: email
     Advanced Data:
       - federated_catalog_address
       - dataspace_hub_url
@@ -59,7 +64,7 @@ topology_template:
 
     sub_domain_name:
       default: dc
-      description: DNS subdomain to be used for the deployment (e.g. if domain name is 'vm.fedcloud.eu' and sub_domain_name is 'dc', the deployment will be accessible at 'dc.vm.fedcloud.eu')
+      description: DNS subdomain to be used for the deployment (e.g. if domain name is 'vm.fedcloud.eu' and sub_domain_name is 'dc', the deployment will be accessible at 'dc.vm.fedcloud.eu'). Must be unique!.
       type: string
     domain_name:
       default: vm.fedcloud.eu
