@@ -99,24 +99,24 @@ topology_template:
       type: string
       required: true
     compose_profiles:
-      description: Comma separated compose profiles to be used for the deployment (connector, identity, keycloak, storage)
+      description: Comma separated compose profiles to be used for the deployment (identity, keycloak, storage)
       type: string
-      default: 'connector,identity,keycloak,storage'
+      default: 'identity,keycloak,storage'
       required: true
       constraints:
         - valid_values:
-            - 'connector,identity,keycloak,storage'
-            - 'connector,identity,keycloak'
-            - 'connector,identity,storage'
-            - 'connector,keycloak,storage'
-            - 'connector,identity'
-            - 'connector,storage'
-            - 'connector,keycloak'
-            - 'connector'
+            - 'identity,keycloak,storage'
+            - 'identity,keycloak'
+            - 'identity,storage'
+            - 'keycloak,storage'
+            - 'identity'
+            - 'storage'
+            - 'keycloak'
     letsencrypt_email:
-      default: 'admin@example.com'
+      default: "jhondoe@server.com"
       description: Email address to be used for Let's Encrypt certificate generation
       type: string
+      required: true
 
     dashboard_username:
       default: 'test'
@@ -165,7 +165,7 @@ topology_template:
             inputs:
               letsencrypt_email: { get_input: letsencrypt_email }
               dns_name: { concat: [ get_input: sub_domain_name, '.', get_input: domain_name ] }
-              compose_profiles: { get_input: compose_profiles }
+              compose_profiles: { concat: [ 'connector,', get_input: compose_profiles] }
               keycloak_address: { get_input: keycloak_address }
               identity_hub_address: { get_input: identity_hub_address }
               vault_address: { get_input: vault_address }
@@ -185,7 +185,7 @@ topology_template:
         endpoint:
           properties:
             additional_dns_names:
-              - { concat: [ '*@', get_input: domain_name ] }
+              - { concat: [ '*@', get_input: sub_domain_name, '.', get_input: domain_name ] }
             network_name: PUBLIC
         host:
           properties:
