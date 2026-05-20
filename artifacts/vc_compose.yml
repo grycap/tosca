@@ -140,6 +140,12 @@
         dashboard_password: "{{ lookup('ansible.builtin.password', '/opt/edc/deployment/instruction/docker/.secrets/dashboard_password length=8') }}"
       when: dashboard_password is not defined or dashboard_password == ''
 
+    - name: dashboard_username
+      debug: msg="{{ dashboard_username | default("test") }}"
+
+    - name: dashboard_password
+      debug: msg="{{ dashboard_password }}"
+
     - name: Update hosts variables in .env
       lineinfile:
         path: /opt/edc/deployment/instruction/docker/.env
@@ -327,9 +333,3 @@
     - name: env_file
       debug: msg="{{ slurpfile['content'] | b64decode }}"
       ignore_errors: true
-
-    - name: dashboard_username
-      debug: msg="{{ dashboard_username }}"
-
-    - name: dashboard_password
-      debug: msg="{{ dashboard_password }}"
