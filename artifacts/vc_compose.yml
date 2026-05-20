@@ -135,6 +135,11 @@
         line: "{{ item }}={{ lookup('ansible.builtin.password', '/opt/edc/deployment/instruction/docker/.secrets/' ~ item ~ ' length=32') }}"
       loop: "{{ password_env_vars }}"
 
+    - name: Generate random password for dashboard if not set
+      set_fact:
+        dashboard_password: "{{ lookup('ansible.builtin.password', '/opt/edc/deployment/instruction/docker/.secrets/dashboard_password length=8') }}"
+      when: dashboard_password is not defined or dashboard_password == ''
+
     - name: Update hosts variables in .env
       lineinfile:
         path: /opt/edc/deployment/instruction/docker/.env
@@ -149,6 +154,8 @@
         - { env_key: 'VAULT_HOST', value: 'vault.{{ domain_name }}' }
         - { env_key: 'CONSUMER_BACKEND_HOST', value: 'consumer-backend.{{ domain_name }}' }
         - { env_key: 'STORAGE_HOST', value: 'storage.{{ domain_name }}' }
+        - { env_key: 'DASHBOARD_USER_NAME', value: '{{ dashboard_username | default("test") }}' }
+        - { env_key: 'DASHBOARD_USER_PASS', value: dashboard_password }
 
     - name: Update CATALOG_API_KEY in .env
       lineinfile:
@@ -301,14 +308,14 @@
       when:
         - "'keycloak' in compose_profiles_list"
 
-    - name: make init-dataspace
-      shell: make init-dataspace && touch /opt/edc/deployment/instruction/docker/.dataspace_initialized
+    - name: make init-identity-hub
+      shell: make init-identity-hub && touch /opt/edc/deployment/instruction/docker/.identity_hub_initialized
       args:
         chdir: /opt/edc/deployment/instruction/docker
-        creates: /opt/edc/deployment/instruction/docker/.dataspace_initialized
+        creates: /opt/edc/deployment/instruction/docker/.identity_hub_initialized
 
-    - name: make verify-dataspace
-      command: make verify-dataspace
+    - name: make verify-identity-hub
+      command: make verify-identity-hub
       args:
         chdir: /opt/edc/deployment/instruction/docker
 
@@ -316,6 +323,13 @@
       slurp: src=/opt/edc/deployment/instruction/docker/.env
       register: slurpfile
       ignore_errors: true
+
     - name: env_file
       debug: msg="{{ slurpfile['content'] | b64decode }}"
       ignore_errors: true
+
+    - name: dashboard_username
+      debug: msg="{{ dashboard_username }}"
+
+    - name: dashboard_password
+      debug: msg="{{ dashboard_password }}"

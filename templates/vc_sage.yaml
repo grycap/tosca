@@ -182,10 +182,14 @@ topology_template:
             type: linux
 
   outputs:
-    connector_url:
-      value: { concat: [ 'https://connector.', get_input: [ domain_name ], '/api' ] }
     dashboard_url:
       value: { concat: [ 'https://dashboard.', get_input: [ domain_name ], '/' ] }
+    dashboard_username:
+      value: { get_attribute: [ simple_node, ansible_output, vc_sage_simple_node_conf_simple_node, tasks, dashboard_username, output ] }
+    dashboard_password:
+      value: { get_attribute: [ simple_node, ansible_output, vc_sage_simple_node_conf_simple_node, tasks, dashboard_password, output ] }
+    connector_url:
+      value: { concat: [ 'https://connector.', get_input: [ domain_name ], '/api' ] }
     keycloak_url:
       value: { concat: [ 'https://keycloak.', get_input: [ domain_name ], '/' ] }
     identity_hub_url:
