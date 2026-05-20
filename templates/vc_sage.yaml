@@ -17,14 +17,14 @@ metadata:
       - mem_size
       - disk_size
       - sub_domain_name:
-          pattern: "^[a-zA-Z0-9-]+$"
+          pattern: "^[a-zA-Z0-9\\-]+$"
           tag_type: text
       - domain_name:
-          pattern: "^[a-zA-Z0-9-]+$"
+          pattern: "^[a-zA-Z0-9\\-]+$"
           tag_type: text
     Data Space Data:
       - connector_id:
-          pattern: "^[a-zA-Z0-9_-]+$"
+          pattern: "^[a-zA-Z0-9_\\-]+$"
           tag_type: text
       - catalog_api_key
       - letsencrypt_email:
