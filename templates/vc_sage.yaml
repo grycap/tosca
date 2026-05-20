@@ -59,7 +59,7 @@ topology_template:
 
     sub_domain_name:
       default: dc
-      description: DNS subdomain to be used for the deployment (e.g. if domain name is 'example.com' and sub_domain_name is 'dc', the deployment will be accessible at 'dc.vm.fedcloud.eu')
+      description: DNS subdomain to be used for the deployment (e.g. if domain name is 'vm.fedcloud.eu' and sub_domain_name is 'dc', the deployment will be accessible at 'dc.vm.fedcloud.eu')
       type: string
     domain_name:
       default: vm.fedcloud.eu
@@ -98,6 +98,16 @@ topology_template:
       type: string
       default: 'connector,identity,keycloak,storage'
       required: true
+      constraints:
+        - valid_values:
+            - 'connector,identity,keycloak,storage'
+            - 'connector,identity,keycloak'
+            - 'connector,identity,storage'
+            - 'connector,keycloak,storage'
+            - 'connector,identity'
+            - 'connector,storage'
+            - 'connector,keycloak'
+            - 'connector'
     letsencrypt_email:
       default: 'admin@example.com'
       description: Email address to be used for Let's Encrypt certificate generation
