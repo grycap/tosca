@@ -71,7 +71,7 @@ topology_template:
 
     connector_id:
       default: ''
-      description: Dataspace Connector ID
+      description: Dataspace Connector ID (use letters, numbers, underscore and dash)
       type: string
       required: true
       constraints:

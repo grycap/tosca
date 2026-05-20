@@ -161,7 +161,7 @@
         - { env_key: 'CONSUMER_BACKEND_HOST', value: 'consumer-backend.{{ domain_name }}' }
         - { env_key: 'STORAGE_HOST', value: 'storage.{{ domain_name }}' }
         - { env_key: 'DASHBOARD_USER_NAME', value: '{{ dashboard_username | default("test") }}' }
-        - { env_key: 'DASHBOARD_USER_PASS', value: dashboard_password }
+        - { env_key: 'DASHBOARD_USER_PASS', value: '{{ dashboard_password }}' }
 
     - name: Update CATALOG_API_KEY in .env
       lineinfile:
