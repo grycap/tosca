@@ -71,11 +71,6 @@ topology_template:
             type: linux
             # version: '24.04'
             version: '22.04.4'
-      # Add dummy task to activate context
-      interfaces:
-        Standard:
-          configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/dummy.yml
       requirements:
         - local_storage:
             node: my_block_storage
