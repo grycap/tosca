@@ -70,7 +70,7 @@ topology_template:
           properties:
             type: linux
             # version: '24.04'
-            version: '22.04.4'
+            version: '24.04.0'
       # Add dummy task to activate context
       interfaces:
         Standard:
