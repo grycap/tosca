@@ -217,21 +217,22 @@
         name: openmpi-bin
         state: present
 
-    - name: Install ORAS client
+    - name: Install harbor-sif-download file
       unarchive:
-        src: https://github.com/oras-project/oras/releases/download/v1.3.0/oras_1.3.0_linux_amd64.tar.gz
-        dest: /usr/local/bin
+        src: https://raw.githubusercontent.com/grycap/tosca/eosc_dc/artifacts/scipion/harbor_sif_download.py
+        dest: /home/scipionuser/container
         mode: '0755'
-        creates: /usr/local/bin/oras
+        creates: /home/scipionuser/container/harbor_sif_download.py
         remote_src: true
 
     - name: Pull Scipion apptainer container (will take a while - more than 1h -) so make it async
       shell: |
-        oras pull rinchen.cnb.csic.es/scipion/apptainer-{{ CONTAINER_FLAVOUR }}:{{ CONTAINER_VERSION }} \
-        && mv *.sif apptainer-{{ CONTAINER_FLAVOUR }}:{{ CONTAINER_VERSION }}.sif
+        python3 harbor_sif_download.py rinchen.cnb.csic.es/scipion/apptainer-{{ CONTAINER_FLAVOUR }}:{{ CONTAINER_VERSION }} \
+        -o apptainer-{{ CONTAINER_FLAVOUR }}:{{ CONTAINER_VERSION }}.sif && \
+        touch apptainer-{{ CONTAINER_FLAVOUR }}:{{ CONTAINER_VERSION }}.downloaded
       args:
         chdir: /home/scipionuser/container
-        creates: /home/scipionuser/container/apptainer-{{ CONTAINER_FLAVOUR }}:{{ CONTAINER_VERSION }}.sif
+        creates: /home/scipionuser/container/apptainer-{{ CONTAINER_FLAVOUR }}:{{ CONTAINER_VERSION }}.downloaded
       become_user: scipionuser
       become: true
       async: 7200
