@@ -218,12 +218,11 @@
         state: present
 
     - name: Install harbor-sif-download file
-      unarchive:
-        src: https://raw.githubusercontent.com/grycap/tosca/eosc_dc/artifacts/scipion/harbor_sif_download.py
+      get_url:
+        url: https://raw.githubusercontent.com/grycap/tosca/eosc_dc/artifacts/scipion/harbor_sif_download.py
         dest: /home/scipionuser/container
         mode: '0755'
-        creates: /home/scipionuser/container/harbor_sif_download.py
-        remote_src: true
+        owner: scipionuser
 
     - name: Pull Scipion apptainer container (will take a while - more than 1h -) so make it async
       shell: |
