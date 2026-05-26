@@ -116,7 +116,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/refs/heads/interlink/artifacts/lrms/intelink.yaml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/refs/heads/interlink/artifacts/lrms/interlink.yaml
             inputs:
               interlink_type_of_node: 'kubernetes'
               interlink_edge_ip: { get_attribute: [ slurm_server, public_address, 0 ] }
@@ -134,7 +134,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/refs/heads/interlink/artifacts/lrms/intelink.yaml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/refs/heads/interlink/artifacts/lrms/interlink.yaml
             inputs:
               interlink_type_of_node: 'slurm'
               interlink_edge_ip: { get_attribute: [ slurm_server, public_address, 0 ] }
