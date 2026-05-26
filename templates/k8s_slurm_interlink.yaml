@@ -12,7 +12,6 @@ metadata:
   icon: images/interlink.png
   tabs:
     Slurm Data: slurm_.*
-    Interlink Data:
   parents:
     - oscar.yaml
     - kubernetes.yaml
@@ -117,7 +116,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/intelink/artifacts/lrms/interlink.yaml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/refs/heads/interlink/artifacts/lrms/intelink.yaml
             inputs:
               interlink_type_of_node: 'kubernetes'
               interlink_edge_ip: { get_attribute: [ slurm_server, public_address, 0 ] }
@@ -135,7 +134,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/intelink/artifacts/lrms/interlink.yaml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/refs/heads/interlink/artifacts/lrms/intelink.yaml
             inputs:
               interlink_type_of_node: 'slurm'
               interlink_edge_ip: { get_attribute: [ slurm_server, public_address, 0 ] }
@@ -147,7 +146,7 @@ topology_template:
     slurm_front_end:
       type: tosca.nodes.indigo.LRMS.FrontEnd.Slurm
       properties:
-        wn_ips: { get_attribute: [ lrms_wn, private_address ] }
+        wn_ips: { get_attribute: [ slurm_wn, private_address ] }
         version: { get_input: slurm_version }
         wn_cpus: { get_input: slurm_wn_cpus }
         wn_mem: { get_input: slurm_wn_mem }
