@@ -111,7 +111,7 @@ topology_template:
       type: tosca.nodes.ec3.Application
       artifacts:
         ssh_role:
-          file: grycap.intelink
+          file: grycap.interlink
           type: tosca.artifacts.AnsibleGalaxy.role
       interfaces:
         Standard:
