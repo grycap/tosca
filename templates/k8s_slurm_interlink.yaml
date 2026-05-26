@@ -1,0 +1,238 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+imports:
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+
+description: Deploy an OSCAR Virtual Cluster with an Slurm cluster to offload the jobs using Interlink.
+
+metadata:
+  template_version: "1.0.0"
+  template_name: Interlink
+  display_name: Interlink OSCAR + Slurm
+  icon: images/interlink.png
+  tabs:
+    Slurm Data: slurm_.*
+    Interlink Data:
+  parents:
+    - oscar.yaml
+    - kubernetes.yaml
+
+topology_template:
+  inputs:
+    #SLURM
+    slurm_fe_cpus:
+      type: integer
+      description: Number of CPUs for the front-end node
+      default: 1
+      required: yes
+    slurm_fe_mem:
+      type: scalar-unit.size
+      description: Amount of Memory for the front-end node
+      default: 1 GiB
+      required: yes
+    slurm_fe_instance_type:
+      type: string
+      description: Flavor name for the FE
+      default: ""
+    slurm_fe_disk_size:
+      type: scalar-unit.size
+      description: Size of the root disk of the FE (in case of 0 disk will no be resized)
+      default: 0 GiB
+      constraints:
+        - valid_values: [ 0 GiB, 10 GiB, 20 GiB, 50 GiB, 100 GiB, 200 GiB, 500 GiB ]
+
+    slurm_fe_extra_disk_size:
+      type: scalar-unit.size
+      description: Size of the disk to be attached to the FE instance (Set 0 if disk is not needed)
+      default: 0 GiB
+      constraints:
+        - valid_values: [ 0 GiB, 10 GiB, 20 GiB, 50 GiB, 100 GiB, 200 GiB, 500 GiB, 1 TiB, 2 TiB ]
+    slurm_fe_volume_id:
+      type: string
+      description: "Or URL of the disk to be attached to the FE instance (format: ost://api.cloud.ifca.es/<vol_id>"
+      default: ""
+    slurm_fe_mount_path:
+      type: string
+      description: "Path to mount the FE attached disk"
+      default: "/home/data"
+    slurm_fe_dns_name:
+      type: string
+      description: DNS name to set to the SLURM Front-end
+      default: ""
+
+    slurm_wn_num:
+      type: integer
+      description: Number of WNs in the cluster
+      default: 1
+      required: yes
+    slurm_wn_cpus:
+      type: integer
+      description: Number of CPUs for the WNs
+      default: 1
+      required: yes
+    slurm_wn_mem:
+      type: integer
+      description: Amount of Memory for the WNs in MiB
+      default: 1024
+      required: yes
+    slurm_wn_instance_type:
+      type: string
+      description: Flavor name for the WNs
+      default: ""
+    slurm_wn_disk_size:
+      type: scalar-unit.size
+      description: Size of the root disk of the WNs (in case of 0 disk will no be resized)
+      default: 0 GiB
+      constraints:
+        - valid_values: [ 0 GiB, 10 GiB, 20 GiB, 50 GiB, 100 GiB, 200 GiB, 500 GiB ]
+
+    slurm_wn_extra_disk_size:
+      type: scalar-unit.size
+      description: Size of the disk to be attached to the WN instances (Set 0 if disk is not needed)
+      default: 0 GiB
+      constraints:
+        - valid_values: [ 0 GiB, 10 GiB, 20 GiB, 50 GiB, 100 GiB, 200 GiB, 500 GiB, 1 TiB, 2 TiB ]
+    slurm_wn_mount_path:
+      type: string
+      description: "Path to mount the WN attached disk"
+      default: "/mnt/data"
+
+    slurm_version:
+      type: string
+      description: Version of SLURM to be installed
+      default: 25.11.2
+      constraints:
+        - valid_values: [ '25.11.2' ]
+
+
+  node_templates:
+
+
+    interlink_k8s:
+      type: tosca.nodes.ec3.Application
+      artifacts:
+        ssh_role:
+          file: grycap.intelink
+          type: tosca.artifacts.AnsibleGalaxy.role
+      interfaces:
+        Standard:
+          configure:
+            implementation: https://raw.githubusercontent.com/grycap/tosca/intelink/artifacts/lrms/intelink.yaml
+            inputs:
+              interlink_type_of_node: 'kubernetes'
+              interlink_edge_ip: nip.{ get_attribute: [ slurm_server, public_address, 0 ] }
+              interlink_edge_hostname: { concat: [ 'https://slurm.', get_attribute: [ slurm_server, public_address, 0 ], '.nip.io' ] }
+      requirements:
+        - host: front
+        - dependency: lrms_front_end
+
+    interlink_slurm:
+      type: tosca.nodes.ec3.Application
+      artifacts:
+        ssh_role:
+          file: grycap.intelink
+          type: tosca.artifacts.AnsibleGalaxy.role
+      interfaces:
+        Standard:
+          configure:
+            implementation: https://raw.githubusercontent.com/grycap/tosca/intelink/artifacts/lrms/intelink.yaml
+            inputs:
+              interlink_type_of_node: 'slurm'
+              interlink_edge_ip: nip.{ get_attribute: [ slurm_server, public_address, 0 ] }
+              interlink_edge_hostname: { concat: [ 'https://slurm.', get_attribute: [ slurm_server, public_address, 0 ], '.nip.io' ] }
+      requirements:
+        - host: slurm_server
+        - dependency: slurm_front_end
+
+    slurm_front_end:
+      type: tosca.nodes.indigo.LRMS.FrontEnd.Slurm
+      properties:
+        wn_ips: { get_attribute: [ lrms_wn, private_address ] }
+        version: { get_input: slurm_version }
+        wn_cpus: { get_input: slurm_wn_cpus }
+        wn_mem: { get_input: slurm_wn_mem }
+        dbd: false
+      requirements:
+        - host: slurm_server
+
+    slurm_server:
+      type: tosca.nodes.indigo.Compute
+      capabilities:
+        endpoint:
+          properties:
+            dns_name: slurmserver
+            network_name: PUBLIC
+            additional_dns_names:
+              - { get_input: slurm_fe_dns_name }
+            ports:
+              ssh_port:
+                source: 22
+                protocol: tcp
+              interlink_port:
+                source: 30443
+                protocol: tcp
+        host:
+          properties:
+            disk_size: { get_input: slurm_fe_disk_size }
+            instance_type: { get_input: slurm_fe_instance_type }
+            num_cpus: { get_input: slurm_fe_cpus }
+            mem_size: { get_input: slurm_fe_mem }
+        os:
+          properties:
+            distribution: ubuntu
+            type: linux
+      requirements:
+        - local_storage:
+            node: fe_block_storage
+            relationship:
+              type: AttachesTo
+              properties:
+                location: { get_input: slurm_fe_mount_path }
+
+    fe_block_storage:
+      type: tosca.nodes.BlockStorage
+      properties:
+        size: { get_input: slurm_fe_extra_disk_size }
+        volume_id: { get_input: slurm_fe_volume_id }
+
+    slurm_node:
+      type: tosca.nodes.indigo.LRMS.WorkerNode.Slurm
+      properties:
+        front_end_ip: { get_attribute: [ slurm_server, private_address, 0 ] }
+        public_front_end_ip: { get_attribute: [ slurm_server, public_address, 0 ] }
+        version: { get_input: slurm_version }
+        dbd: false
+      requirements:
+        - host: slurm_wn
+
+    slurm_wn:
+      type: tosca.nodes.indigo.Compute
+      capabilities:
+        scalable:
+          properties:
+            count: { get_input: slurm_wn_num }
+        host:
+          properties:
+            disk_size: { get_input: slurm_wn_disk_size }
+            instance_type: { get_input: slurm_wn_instance_type }
+            num_cpus: { get_input: slurm_wn_cpus }
+            mem_size:
+              concat:
+                - { get_input: slurm_wn_mem }
+                - " MiB"
+        os:
+          properties:
+            distribution: ubuntu
+            type: linux
+      requirements:
+        - local_storage:
+            node: wn_block_storage
+            relationship:
+              type: AttachesTo
+              properties:
+                location: { get_input: slurm_wn_mount_path }
+
+    wn_block_storage:
+      type: tosca.nodes.BlockStorage
+      properties:
+        size: { get_input: slurm_wn_extra_disk_size }
