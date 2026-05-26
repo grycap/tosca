@@ -117,10 +117,10 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/intelink/artifacts/lrms/intelink.yaml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/intelink/artifacts/lrms/interlink.yaml
             inputs:
               interlink_type_of_node: 'kubernetes'
-              interlink_edge_ip: nip.{ get_attribute: [ slurm_server, public_address, 0 ] }
+              interlink_edge_ip: { get_attribute: [ slurm_server, public_address, 0 ] }
               interlink_edge_hostname: { concat: [ 'https://slurm.', get_attribute: [ slurm_server, public_address, 0 ], '.nip.io' ] }
       requirements:
         - host: front
