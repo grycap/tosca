@@ -23,7 +23,7 @@
       when: ansible_os_family == "Debian"
     - name: Set slurm_wn_nodenames if not defined
       set_fact:
-        slurm_wn_nodenames: '{{ groups[wn_group_name]|map("extract", hostvars, "ansible_hostname")|list if wn_group_name in groups else [] }}
+        slurm_wn_nodenames: '{{ groups[wn_group_name]|map("extract", hostvars, "ansible_hostname")|list if wn_group_name in groups else [] }}'
       when: slurm_wn_nodenames is not defined
   roles:
     - role: grycap.nfs
