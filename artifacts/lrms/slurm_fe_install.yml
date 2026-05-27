@@ -3,7 +3,7 @@
   connection: local
   vars:
     vnode_prefix: 'vnode-'
-    wn_group_name: '{{ slurm_wn_group_name | default("wn") }}'
+    wn_group_name: "{{ slurm_wn_group_name | default('wn') }}"
   pre_tasks:
     - name: Stop and disable firewalls
       service:
