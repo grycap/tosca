@@ -2,7 +2,7 @@
 - hosts: localhost
   connection: local
   vars:
-    vnode_prefix: "{{ slurm_vnode_prefix | default('vnode-') }}"
+    vnode_prefix: "{{ slurm_node_prefix | default('vnode-') }}"
     wn_group_name: "{{ slurm_wn_group_name | default('wn') }}"
   pre_tasks:
     - name: Stop and disable firewalls
