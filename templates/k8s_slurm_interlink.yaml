@@ -167,7 +167,6 @@ topology_template:
               max_number_of_nodes: { get_property: [ wn_node, wn, max_instances] }
               slurm_nfs: { get_property: [ SELF, nfs ] }
               slurm_version: { get_property: [ SELF, version ] }
-              slurm_wn_nodenames: { get_property: [ SELF, wn_nodenames ] }
               slurm_wn_cpus: { get_property: [ SELF, wn_cpus ] }
               slurm_wn_mem: { get_property: [ SELF, wn_mem ] }
               slurm_dbd: { get_property: [ SELF, dbd ] }
