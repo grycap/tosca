@@ -24,7 +24,7 @@
     - name: Set slurm_wn_nodenames if not defined
       set_fact:
         slurm_wn_nodenames: '{{ groups[wn_group_name]|map("extract", hostvars, "ansible_hostname")|list if wn_group_name in groups else [] }}'
-      when: slurm_wn_nodenames is not defined
+      when: slurm_wn_nodenames is not defined or slurm_wn_nodenames is none
   roles:
     - role: grycap.nfs
       nfs_mode: 'front'
