@@ -22,12 +22,12 @@ topology_template:
     slurm_fe_cpus:
       type: integer
       description: Number of CPUs for the front-end node
-      default: 1
+      default: 2
       required: yes
     slurm_fe_mem:
       type: scalar-unit.size
       description: Amount of Memory for the front-end node
-      default: 1 GiB
+      default: 4 GiB
       required: yes
     slurm_fe_instance_type:
       type: string
@@ -67,12 +67,12 @@ topology_template:
     slurm_wn_cpus:
       type: integer
       description: Number of CPUs for the WNs
-      default: 1
+      default: 2
       required: yes
     slurm_wn_mem:
       type: integer
       description: Amount of Memory for the WNs in MiB
-      default: 1024
+      default: 4096
       required: yes
     slurm_wn_instance_type:
       type: string
@@ -156,6 +156,23 @@ topology_template:
         dbd: false
       requirements:
         - host: slurm_server
+      interfaces:
+        Standard:
+          configure:
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/lrms/slurm_fe_install.yml
+            inputs:
+              wn_num: { get_property: [ SELF, wn_num ] }
+              wn_ips: { get_property: [ SELF, wn_ips ] }
+              front_end_ip: { get_attribute: [ HOST, private_address, 0 ] }
+              max_number_of_nodes: { get_property: [ wn_node, wn, max_instances] }
+              slurm_nfs: { get_property: [ SELF, nfs ] }
+              slurm_version: { get_property: [ SELF, version ] }
+              slurm_wn_nodenames: { get_property: [ SELF, wn_nodenames ] }
+              slurm_wn_cpus: { get_property: [ SELF, wn_cpus ] }
+              slurm_wn_mem: { get_property: [ SELF, wn_mem ] }
+              slurm_dbd: { get_property: [ SELF, dbd ] }
+              slurm_vnode_prefix: "slurm-wn-"
+              slurm_wn_group_name: "slurm_wn"
 
     slurm_server:
       type: tosca.nodes.indigo.Compute
@@ -206,10 +223,24 @@ topology_template:
         dbd: false
       requirements:
         - host: slurm_wn
+      interfaces:
+        Standard:
+          configure:
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/lrms/slurm_wn_install.yml
+            inputs:
+              slurm_front_end_ip: { get_property: [ SELF, front_end_ip ] }
+              slurm_public_front_end_ip: { get_property: [ SELF, public_front_end_ip ] }
+              slurm_nfs: { get_property: [ SELF, nfs ] }
+              slurm_version: { get_property: [ SELF, version ] }
+              slurm_dbd: { get_property: [ SELF, dbd ] }
+              slurm_vnode_prefix: "slurm-wn-"
 
     slurm_wn:
       type: tosca.nodes.indigo.Compute
       capabilities:
+        endpoint:
+          properties:
+            dns_name: slurm-wn-#N#
         scalable:
           properties:
             count: { get_input: slurm_wn_num }
