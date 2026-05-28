@@ -114,6 +114,18 @@ data_types:
         type: string
         required: no
 
+  tosca.datatypes.grycap.TLSCertificate:
+    derived_from: tosca.datatypes.Root
+    properties:
+      cert:
+        type: string
+        description: The TLS certificate in PEM format
+        required: true
+      key:
+        type: string
+        description: The TLS private key in PEM format
+        required: true
+
 capability_types:
 
   tosca.capabilities.indigo.OperatingSystem:
@@ -453,6 +465,10 @@ node_types:
         type: map
         entry_schema:
           type: tosca.datatypes.indigo.CtxtTask
+      tls_certificates:
+        type: map
+        entry_schema:
+          type: tosca.datatypes.grycap.TLSCertificate
     properties:
       os_users:
         type: list
