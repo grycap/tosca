@@ -234,6 +234,25 @@ topology_template:
               slurm_dbd: { get_property: [ SELF, dbd ] }
               slurm_vnode_prefix: "slurm-wn-"
 
+    apptainer_slurm_wn:
+      type: tosca.nodes.SoftwareComponent
+      requirements:
+        - host: slurm_wn
+      artifacts:
+        apptainer_role:
+          file: usegalaxy_eu.apptainer
+          type: tosca.artifacts.AnsibleGalaxy.role
+      interfaces:
+        Standard:
+          configure:
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/ansible_tasks.yml
+            inputs:
+              ansible_tasks: |
+                  - name: Install Apptainer
+                    include_role:
+                        name: usegalaxy_eu.apptainer
+              ansible_name: install_apptainer
+
     slurm_wn:
       type: tosca.nodes.indigo.Compute
       capabilities:
