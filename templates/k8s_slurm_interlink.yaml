@@ -142,6 +142,7 @@ topology_template:
               interlink_edge_hostname: { concat: [ 'slurm.', get_attribute: [ slurm_server, public_address, 0 ], '.nip.io' ] }
               interlink_service_user: "slurm"
               interlink_service_group: "slurm"
+              interlink_base_dir: "/home/interlink"
       requirements:
         - host: slurm_server
         - dependency: slurm_front_end
