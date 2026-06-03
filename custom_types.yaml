@@ -313,11 +313,21 @@ capability_types:
         description: The optional additional IP to set to the endpoint
         type: string
         required: false
+      tls:
+        description: Whether to generate TLS certificates for this endpoint DNS names
+        type: boolean
+        default: false
+        required: false
     attributes:
       credential:
         type: list
         entry_schema:
           type: tosca.datatypes.Credential
+      tls_certificates:
+        description: TLS certificates for the endpoint, with the dns name as key
+        type: map
+        entry_schema:
+          type: tosca.datatypes.grycap.TLSCertificate
 
   tosca.capabilities.Container.Docker:
     derived_from: tosca.capabilities.Container
@@ -465,10 +475,6 @@ node_types:
         type: map
         entry_schema:
           type: tosca.datatypes.indigo.CtxtTask
-      tls_certificates:
-        type: map
-        entry_schema:
-          type: tosca.datatypes.grycap.TLSCertificate
     properties:
       os_users:
         type: list
