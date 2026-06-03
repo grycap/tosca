@@ -85,6 +85,7 @@ topology_template:
                   resources:
                     requests:
                       storage:
+            - ' '
             - get_input: jupyterhub_storage_volume
       requirements:
         - host: lrms_front_end
