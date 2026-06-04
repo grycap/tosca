@@ -7,7 +7,7 @@ description: Deploy a Kubernetes Virtual Cluster.
 
 metadata:
   template_name: Kubernetes
-  template_version: "1.3.0"
+  template_version: "1.3.1"
   display_name: Deploy a Kubernetes Virtual Cluster
   icon: images/kubernetes.png
   order: 3
@@ -177,6 +177,12 @@ topology_template:
       type: string
       description: DNS name to set to the Kubernetes Front-end
       default: ""
+    kube_tls_certificates:
+      type: map
+      description: TLS certificates map keyed by DNS name (cert/key PEM)
+      entry_schema:
+        type: tosca.datatypes.grycap.TLSCertificate
+      default: {}
 
     kube_ingress_type:
       type: string
@@ -236,6 +242,7 @@ topology_template:
         nvidia_support: { get_input: fe_kube_nvidia_support }
         cert_manager: { get_input: kube_cert_manager }
         cert_user_email: { get_input: kube_cert_user_email }
+        tls_certificates: { get_input: kube_tls_certificates }
         public_dns_name: { get_input: kube_public_dns_name}
         cri_runtime: { get_input: kube_cri_runtime }
         csi_driver: { get_input: kube_csi_driver }
@@ -251,6 +258,7 @@ topology_template:
         endpoint:
           properties:
             dns_name: kubeserver
+            tls: true
             additional_dns_names:
               - { get_input: kube_public_dns_name}
             network_name: PUBLIC
