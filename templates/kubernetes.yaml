@@ -1,13 +1,13 @@
 tosca_definitions_version: tosca_simple_yaml_1_0
 
 imports:
-  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/k8s_tls/custom_types.yaml
 
 description: Deploy a Kubernetes Virtual Cluster.
 
 metadata:
   template_name: Kubernetes
-  template_version: "1.3.0"
+  template_version: "1.4.0"
   display_name: Deploy a Kubernetes Virtual Cluster
   icon: images/kubernetes.png
   order: 3
@@ -211,6 +211,13 @@ topology_template:
       constraints:
         - valid_values: [ false, true ]
 
+    kube_gen_tls_certificates:
+      type: boolean
+      description: Flag to generate self-signed TLS certificates for the cluster
+      default: false
+      constraints:
+        - valid_values: [ false, true ]
+
   node_templates:
 
     lrms_front_end:
@@ -236,6 +243,7 @@ topology_template:
         nvidia_support: { get_input: fe_kube_nvidia_support }
         cert_manager: { get_input: kube_cert_manager }
         cert_user_email: { get_input: kube_cert_user_email }
+        tls_certificates: { get_attribute: [ HOST, endpoint, tls_certificates ] }
         public_dns_name: { get_input: kube_public_dns_name}
         cri_runtime: { get_input: kube_cri_runtime }
         csi_driver: { get_input: kube_csi_driver }
@@ -251,6 +259,7 @@ topology_template:
         endpoint:
           properties:
             dns_name: kubeserver
+            tls: { get_input: kube_gen_tls_certificates }
             additional_dns_names:
               - { get_input: kube_public_dns_name}
             network_name: PUBLIC
