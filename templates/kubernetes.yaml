@@ -7,7 +7,7 @@ description: Deploy a Kubernetes Virtual Cluster.
 
 metadata:
   template_name: Kubernetes
-  template_version: "1.3.1"
+  template_version: "1.4.0"
   display_name: Deploy a Kubernetes Virtual Cluster
   icon: images/kubernetes.png
   order: 3
@@ -210,6 +210,13 @@ topology_template:
       default: false
       constraints:
         - valid_values: [ false, true ]
+    
+    kube_gen_tls_certificates:
+      type: boolean
+      description: Flag to generate self-signed TLS certificates for the cluster
+      default: false
+      constraints:
+        - valid_values: [ false, true ]
 
   node_templates:
 
@@ -252,7 +259,7 @@ topology_template:
         endpoint:
           properties:
             dns_name: kubeserver
-            tls: true
+            tls: { get_input: kube_gen_tls_certificates }
             additional_dns_names:
               - { get_input: kube_public_dns_name}
             network_name: PUBLIC
