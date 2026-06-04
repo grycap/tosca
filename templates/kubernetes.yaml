@@ -177,12 +177,6 @@ topology_template:
       type: string
       description: DNS name to set to the Kubernetes Front-end
       default: ""
-    kube_tls_certificates:
-      type: map
-      description: TLS certificates map keyed by DNS name (cert/key PEM)
-      entry_schema:
-        type: tosca.datatypes.grycap.TLSCertificate
-      default: {}
 
     kube_ingress_type:
       type: string
@@ -242,7 +236,7 @@ topology_template:
         nvidia_support: { get_input: fe_kube_nvidia_support }
         cert_manager: { get_input: kube_cert_manager }
         cert_user_email: { get_input: kube_cert_user_email }
-        tls_certificates: { get_input: kube_tls_certificates }
+        tls_certificates: { get_attribute: [ HOST, endpoint, tls_certificates ] }
         public_dns_name: { get_input: kube_public_dns_name}
         cri_runtime: { get_input: kube_cri_runtime }
         csi_driver: { get_input: kube_csi_driver }
