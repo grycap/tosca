@@ -846,7 +846,7 @@ node_types:
             kube_nvidia_support:  { get_property: [ SELF, nvidia_support ] }
             kube_cert_manager:  { get_property: [ SELF, cert_manager ] }
             kube_cert_user_email:  { get_property: [ SELF, cert_user_email ] }
-            kube_tls_certificates: { get_attribute: [ HOST, endpoint, tls_certificates ] }
+            kube_tls_certificates: { get_property: [ SELF, tls_certificates ] }
             kube_public_dns_name:  { get_property: [ SELF, public_dns_name ] }
             kube_public_additional_dns_names:  { get_property: [ SELF, public_additional_dns_names ] }
             kube_cert_manager_challenge: { get_property: [ SELF, cert_manager_challenge ] }
