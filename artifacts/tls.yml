@@ -1,0 +1,35 @@
+---
+- hosts: localhost
+  connection: local
+  tasks:
+    - when: tls_certificates | default({}) | length > 0
+      block:
+
+        - name: Ensure certificates target directory exists
+          file:
+            path: /etc/certs
+            state: directory
+            mode: '0700'
+          become: true
+
+        - name: Create TLS certificate files
+          copy:
+            content: "{{ item.value.cert }}"
+            dest: "/etc/certs/{{ item.key | regex_replace('[^A-Za-z0-9._-]', '_') }}.crt"
+            mode: '0644'
+          loop: "{{ (tls_certificates | default({})) | dict2items }}"
+          when:
+            - item.value is mapping
+            - item.value.cert is defined
+          become: true
+
+        - name: Create TLS private key files
+          copy:
+            content: "{{ item.value.key }}"
+            dest: "/etc/certs/{{ item.key | regex_replace('[^A-Za-z0-9._-]', '_') }}.key"
+            mode: '0600'
+          loop: "{{ (tls_certificates | default({})) | dict2items }}"
+          when:
+            - item.value is mapping
+            - item.value.key is defined
+          become: true

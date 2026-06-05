@@ -28,6 +28,7 @@ metadata:
       - ports
       - dns_name
       - private_ip
+      - gen_tls_certificates
     GPU Data: .*gpu.*
   childs:
     - docker.yaml
@@ -143,6 +144,13 @@ topology_template:
       description: DNS name to be used for the VM
       default: ""
 
+    gen_tls_certificates:
+      type: boolean
+      description: Flag to generate TLS certificates for the VM (will be stored at /etc/certs).
+      default: false
+      constraints:
+        - valid_values: [ false, true ]
+
     private_ip:
       type: boolean
       description: Assign a private IP to the VM. Change only if you know what you are doing.
@@ -155,6 +163,7 @@ topology_template:
       capabilities:
         endpoint:
           properties:
+            tls: { get_input: gen_tls_certificates }
             additional_dns_names:
               - { get_input: dns_name }
             network_name: PUBLIC
@@ -175,11 +184,12 @@ topology_template:
         os:
           properties:
             type: linux
-      # Add dummy task to activate context
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/dummy.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/tls.yml
+            inputs:
+              tls_certificates: { get_attribute: [ SELF, endpoint, tls_certificates ] }
       requirements:
         - local_storage:
             node: my_block_storage
