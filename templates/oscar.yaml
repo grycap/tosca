@@ -46,6 +46,7 @@ metadata:
       - kueue_default_memory:
           enabled_by: kueue_enable
           pattern: "[0-9]*( )+[TGMK]i"
+      - kube_gen_tls_certificates
   childs:
     - oscar_elastic.yaml
     - oscar_function.yaml
@@ -104,6 +105,13 @@ topology_template:
       type: string
       description: Flavor name of the WN node. Only required in case of special flavors (i.e. with GPUs)
       default: ""
+
+    kube_gen_tls_certificates:
+      type: boolean
+      description: Flag to generate self-signed TLS certificates for the cluster
+      default: false
+      constraints:
+        - valid_values: [ false, true ]
 
     storage_size:
       type: string
@@ -239,15 +247,12 @@ topology_template:
         public_additional_dns_names:
           - { concat: [ "minio.", get_input: cluster_name, '.', get_input: domain_name ] }
           - { concat: [ "console.minio.", get_input: cluster_name, '.', get_input: domain_name ] }
-        # cert_manager_challenge: dns01
-        # cert_manager_challenge_dns01_domain: { get_input: domain_name }
-        # cert_manager_challenge_dns01_ak: AK
-        # cert_manager_challenge_dns01_sk: SK
         cri_runtime: containerd
         nvidia_support: { get_input: kube_nvidia_support }
         install_yunikorn: { get_input: kube_install_yunikorn }
         ingress_type: traefik
         install_gateway_api: true
+        tls_certificates: { get_attribute: [ HOST, endpoint, tls_certificates ] }
       requirements:
         - host: front
 
@@ -256,6 +261,7 @@ topology_template:
       capabilities:
         endpoint:
           properties:
+            tls: { get_input: kube_gen_tls_certificates }
             dns_name: kubeserver
             additional_dns_names:
               - { concat: [ get_input: cluster_name, '@', get_input: domain_name ] }
