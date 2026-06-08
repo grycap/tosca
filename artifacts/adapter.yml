@@ -52,8 +52,8 @@
       when: install_method == 'ansible_install'
 
     - name: Install Docker and dependencies for docker-compose installation
-      import_roles:
-        - role: 'grycap.docker'
+      include_role:
+        name: grycap.docker
       when: install_method == 'docker_compose'
 
     - name: Run repository docker compose installer
