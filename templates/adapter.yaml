@@ -1,0 +1,87 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+imports:
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+
+description: Deploy EOSC Beyond Adapter.
+
+metadata:
+  template_version: "1.0.0"
+  template_name: EOSC Beyond Adapter.
+  display_name: Deploy EOSC Beyond Adapter
+
+topology_template:
+  inputs:
+    num_cpus:
+      type: integer
+      description: Number of virtual cpus for the VM
+      default: 2
+    mem_size:
+      type: scalar-unit.size
+      description: Amount of memory for the VM
+      default: 4 GiB
+    disk_size:
+      type: scalar-unit.size
+      description: Size of the root disk of the VM (in case of 0 disk will no be resized)
+      default: 20 GiB
+
+    dns_name:
+      default: ''
+      description: DNS hostname to access the adapter. If empty, it will be set to the public IP of the VM
+      type: string
+    adapter_repo:
+      default: ''
+      description: Git repository containing the adapter code.
+      type: string
+      required: true
+
+  node_templates:
+
+    adapter:
+      type: tosca.nodes.ec3.Application
+      artifacts:
+        docker_role:
+          file: grycap.docker
+          type: tosca.artifacts.AnsibleGalaxy.role
+      capabilities:
+        endpoint:
+          properties:
+            ports:
+              port_http:
+                protocol: tcp
+                source: 80
+              port_https:
+                protocol: tcp
+                source: 443
+      interfaces:
+        Standard:
+          configure:
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/adapter.yml
+            inputs:
+              adapter_repo: { get_input: adapter_repo }
+      requirements:
+        - host: simple_node
+
+    simple_node:
+      type: tosca.nodes.indigo.Compute
+      capabilities:
+        endpoint:
+          properties:
+            network_name: PUBLIC
+            additional_dns_names:
+              - { get_input: dns_name }
+        host:
+          properties:
+            disk_size: { get_input: disk_size }
+            num_cpus: { get_input: num_cpus }
+            mem_size: { get_input: mem_size }
+        os:
+          properties:
+            type: linux
+            distribution: ubuntu
+
+  outputs:
+    node_ip:
+      value: { get_attribute: [ simple_node, public_address, 0 ] }
+    node_creds:
+      value: { get_attribute: [ simple_node, endpoint, credential, 0 ] }

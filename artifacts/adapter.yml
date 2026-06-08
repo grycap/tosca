@@ -1,0 +1,122 @@
+---
+- hosts: localhost
+  connection: local
+  become: true
+  vars:
+    adapter_checkout_dir: /opt/adapter
+
+  tasks:
+    - name: Ensure base checkout directory exists
+      ansible.builtin.file:
+        path: "{{ adapter_checkout_dir }}"
+        state: directory
+        mode: '0755'
+
+    - name: Clone adapter repository
+      ansible.builtin.git:
+        repo: "{{ adapter_repo }}"
+        dest: "{{ adapter_checkout_dir }}"
+
+    - name: Check installation entrypoints in repository root
+      ansible.builtin.stat:
+        path: "{{ adapter_checkout_dir }}/{{ item }}"
+      register: repo_entrypoints
+      loop:
+        - ansible_install.yml
+        - docker-compose.yaml
+        - install.sh
+        - requirements.txt
+        - pyproject.toml
+        - package.json
+
+    - name: Build installation file map
+      ansible.builtin.set_fact:
+        install_files: "{{ install_files | default({}) | combine({item.item: item.stat.exists}) }}"
+      loop: "{{ repo_entrypoints.results }}"
+
+    - name: Resolve installation method by priority
+      ansible.builtin.set_fact:
+        install_method: "{{
+          'ansible_install' if install_files['ansible_install.yml'] else
+          'docker_compose' if install_files['docker-compose.yaml'] else
+          'install_script' if install_files['install.sh'] else
+          'deps'
+          }}"
+
+    - name: Report selected installation method
+      ansible.builtin.debug:
+        msg: "Selected installation method: {{ install_method }}"
+
+    - name: Import Ansible installation tasks
+      include_tasks: ansible_install.yml
+      when: install_method == 'ansible_install'
+
+    - name: Install Docker and dependencies for docker-compose installation
+      import_roles:
+        - role: 'grycap.docker'
+      when: install_method == 'docker_compose'
+
+    - name: Run repository docker compose installer
+      community.docker.docker_compose_v2:
+        project_src: "{{ adapter_checkout_dir }}"
+        files:
+          - docker-compose.yaml
+        build: always
+        state: present
+      when: install_method == 'docker_compose'
+
+    - name: Ensure install script is executable
+      ansible.builtin.file:
+        path: "{{ adapter_checkout_dir }}/install.sh"
+        mode: '0755'
+      when: install_method == 'install_script'
+
+    - name: Run repository install script
+      ansible.builtin.command:
+        cmd: ./install.sh
+        chdir: "{{ adapter_checkout_dir }}"
+      when: install_method == 'install_script'
+
+    - name: Install Python pip
+      package:
+        name:
+          - python3
+          - python3-pip
+        state: present
+      when:
+        - install_method == 'deps'
+        - install_files['requirements.txt'] or install_files['pyproject.toml']
+
+    - name: Install Python requirements
+      ansible.builtin.pip:
+        requirements: "{{ adapter_checkout_dir }}/requirements.txt"
+      when:
+        - install_method == 'deps'
+        - install_files['requirements.txt']
+
+    - name: Install Python project from pyproject using pip
+      ansible.builtin.command:
+        cmd: pip install .
+        chdir: "{{ adapter_checkout_dir }}"
+      when:
+        - install_method == 'deps'
+        - install_files['pyproject.toml']
+        - poetry_check.rc != 0
+
+    - name: Install Node.js and npm
+      package:
+        name:
+          - nodejs
+          - npm
+        state: present
+      when:
+        - install_method == 'deps'
+        - install_files['package.json']
+
+    - name: Install Node.js dependencies
+      ansible.builtin.command:
+        cmd: npm install
+        chdir: "{{ adapter_checkout_dir }}"
+      when:
+        - install_method == 'deps'
+        - install_files['package.json']
