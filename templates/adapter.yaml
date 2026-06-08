@@ -56,7 +56,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/adapter.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/eosc_beyond/artifacts/adapter.yml
             inputs:
               adapter_repo: { get_input: adapter_repo }
       requirements:
