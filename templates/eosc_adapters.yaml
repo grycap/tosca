@@ -15,7 +15,7 @@ metadata:
   tabs:
     EOSC Adapter:
       - adapter_repo
-      - apapter_path
+      - adapter_path
 
 topology_template:
 
