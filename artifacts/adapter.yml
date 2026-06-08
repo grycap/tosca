@@ -17,6 +17,11 @@
         repo: "{{ adapter_repo }}"
         dest: "{{ adapter_checkout_dir }}"
 
+    - name: Set adapter checkout directory to subdirectory if adapter_path is provided
+      set_fact:
+        adapter_checkout_dir: "{{ adapter_checkout_dir }}/{{ adapter_path }}"
+      when: adapter_path != ''
+
     - name: Check installation entrypoints in repository root
       ansible.builtin.stat:
         path: "{{ adapter_checkout_dir }}/{{ item }}"

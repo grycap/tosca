@@ -34,6 +34,10 @@ topology_template:
       description: Git repository containing the adapter code.
       type: string
       required: true
+    adapter_path:
+      default: ''
+      description: Subdirectory in the repository containing the adapter install artifacts (if not in the root).
+      type: string
 
   node_templates:
 
@@ -49,6 +53,7 @@ topology_template:
             implementation: https://raw.githubusercontent.com/grycap/tosca/eosc_beyond/artifacts/adapter.yml
             inputs:
               adapter_repo: { get_input: adapter_repo }
+              adapter_path: { get_input: adapter_path }
       requirements:
         - host: simple_node
 
