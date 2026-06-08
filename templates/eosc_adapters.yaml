@@ -1,0 +1,51 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+imports:
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+
+description: Deploy EOSC Beyond Adapter.
+
+metadata:
+  template_version: "1.0.0"
+  template_name: EOSC Beyond Adapter.
+  display_name: Deploy EOSC Beyond Adapter
+  icon: https://cdn.eosc-beyond.eu/app/uploads/2024/04/logo-eosc-beyond-horizontal-fc.png
+  parents:
+    - simple-node-disk.yml
+  tabs:
+    EOSC Adapter:
+      - adapter_repo
+
+topology_template:
+
+  inputs:
+
+    adapter_repo:
+      default: ''
+      description: Git repository containing the adapter code.
+      type: string
+      required: true
+
+    adapter_path:
+      default: ''
+      description: Subdirectory in the repository containing the adapter install artifacts (if not in the root).
+      type: string
+
+  node_templates:
+
+    adapter:
+      type: tosca.nodes.ec3.Application
+      artifacts:
+        docker_role:
+          file: grycap.docker
+          type: tosca.artifacts.AnsibleGalaxy.role
+      interfaces:
+        Standard:
+          configure:
+            implementation: https://raw.githubusercontent.com/grycap/tosca/eosc_beyond/artifacts/adapter.yml
+            inputs:
+              adapter_repo: { get_input: adapter_repo }
+              adapter_path: { get_input: adapter_path }
+      requirements:
+        - host: simple_node
+

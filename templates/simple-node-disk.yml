@@ -56,10 +56,8 @@ metadata:
     - juno_compose.yaml
     - vscode_compose.yaml
     - haddock_compose.yaml
-    - eosc-dts-client.yml
-    - interoperability-registry-read.yml
-    - pyhandle.yml
     - apptainer.yaml
+    - eosc_adapters.yaml
 
 topology_template:
 
