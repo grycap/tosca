@@ -1,7 +1,6 @@
 ---
 - hosts: localhost
   connection: local
-  become: true
   vars:
     adapter_checkout_dir: /opt/adapter
 
