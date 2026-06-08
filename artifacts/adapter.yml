@@ -30,8 +30,8 @@
         - ansible_install.yml
         - docker-compose.yaml
         - install.sh
-        - requirements.txt
         - pyproject.toml
+        - requirements.txt
         - package.json
 
     - name: Build installation file map
