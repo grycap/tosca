@@ -1,7 +1,7 @@
 tosca_definitions_version: tosca_simple_yaml_1_0
 
 imports:
-  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/oscar_minio_quotas/custom_types.yaml
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
 
 description: Deploy an OSCAR Virtual Cluster.
 
@@ -28,8 +28,10 @@ metadata:
       - oscar_password
       - minio_password
       - minio_quota_enabled
-      - minio_quota_buckets
-      - minio_quota_storage
+      - minio_quota_buckets:
+          enabled_by: minio_quota_enabled
+      - minio_quota_storage:
+          enabled_by: minio_quota_enabled
       - cert_user_email:
           tag_type: email
       - user_id:
