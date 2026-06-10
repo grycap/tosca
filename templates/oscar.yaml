@@ -1,7 +1,7 @@
 tosca_definitions_version: tosca_simple_yaml_1_0
 
 imports:
-  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/oscar_minio_quotas/custom_types.yaml
 
 description: Deploy an OSCAR Virtual Cluster.
 
@@ -27,6 +27,9 @@ metadata:
       - admin_token
       - oscar_password
       - minio_password
+      - minio_quota_enabled
+      - minio_quota_buckets
+      - minio_quota_storage
       - cert_user_email:
           tag_type: email
       - user_id:
@@ -46,6 +49,7 @@ metadata:
       - kueue_default_memory:
           enabled_by: kueue_enable
           pattern: "[0-9]*( )+[TGMK]i"
+      - oscar_metrics
   childs:
     - oscar_elastic.yaml
     - oscar_function.yaml
@@ -127,6 +131,19 @@ topology_template:
       default: minio123
       constraints:
         - min_length: 8
+    minio_quota_enabled:
+      type: boolean
+      description: Flag to enable MinIO quotas
+      default: false
+    minio_quota_buckets:
+      type: integer
+      description: Number of buckets allowed if MinIO quotas are enabled
+      default: 5
+    minio_quota_storage:
+      type: string
+      description: Storage allowed if MinIO quotas are enabled
+      default: 5 Gi
+
     cert_user_email:
       type: string
       description: Email to be used in the Let's Encrypt issuer
@@ -182,6 +199,11 @@ topology_template:
       type: string
       description: Default Kueue Memory user quota
       default: 2 Gi
+    
+    oscar_metrics:
+      type: boolean
+      description: Flag to enable OSCAR metrics
+      default: false
 
   node_templates:
 
@@ -202,6 +224,10 @@ topology_template:
         kueue_enable: { get_input: kueue_enable }
         kueue_default_cpu: { get_input: kueue_default_cpu }
         kueue_default_memory: { get_input: kueue_default_memory }
+        metrics: { get_input: oscar_metrics }
+        minio_quota_enabled: { get_input: minio_quota_enabled }
+        minio_quota_buckets: { get_input: minio_quota_buckets }
+        minio_quota_storage: { get_input: minio_quota_storage }
       capabilities:
         endpoint:
           properties:

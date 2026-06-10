@@ -1399,6 +1399,26 @@ node_types:
         description: Default Memory user quota
         required: false
         default: "2 Gi"
+      minio_quota_enabled:
+        type: boolean
+        description: Flag to enable MinIO quotas
+        required: false
+        default: false
+      minio_quota_buckets:
+        type: string
+        description: Number of buckets allowed if MinIO quotas are enabled
+        required: false
+        default: "5"
+      minio_quota_storage:
+        type: string
+        description: Storage allowed if MinIO quotas are enabled
+        required: false
+        default: "5 Gi"
+      metrics:
+        type: boolean
+        description: Enable metrics collection with Prometheus and Grafana
+        required: false
+        default: false
     artifacts:
       minio_role:
         file: grycap.kubeminio
@@ -1435,6 +1455,10 @@ node_types:
             kueue_enable: { get_property: [ SELF, kueue_enable ] }
             kueue_default_cpu: { get_property: [ SELF, kueue_default_cpu ] }
             kueue_default_memory: { get_property: [ SELF, kueue_default_memory ] }
+            minio_quota_enabled: { get_property: [ SELF, minio_quota_enabled ] }
+            minio_quota_buckets: { get_property: [ SELF, minio_quota_buckets ] }
+            minio_quota_storage: { get_property: [ SELF, minio_quota_storage ] }
+            metrics: { get_property: [ SELF, metrics ] }
     requirements:
       - host:
           capability: tosca.capabilities.Container
