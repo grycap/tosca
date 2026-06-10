@@ -23,7 +23,7 @@
     brand: "{{ galaxy_brand | default('IM Deployed Galaxy K8s Cluster') }}"
     max_mem: "{{ galaxy_max_mem | default(0) }}"
     max_cores: "{{ galaxy_max_cores | default(0) }}"
-    gateway_api: "{{ galaxy_gateway_api | false }}"
+    gateway_api: "{{ galaxy_gateway_api | default(false) }}"
   tasks:
 
     - name: "Check if postgres-operator is already deployed"
