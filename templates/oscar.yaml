@@ -199,7 +199,7 @@ topology_template:
       type: string
       description: Default Kueue Memory user quota
       default: 2 Gi
-    
+
     oscar_metrics:
       type: boolean
       description: Flag to enable OSCAR metrics
