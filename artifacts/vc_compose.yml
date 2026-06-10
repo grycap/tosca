@@ -333,3 +333,12 @@
     - name: env_file
       debug: msg="{{ slurpfile['content'] | b64decode }}"
       ignore_errors: true
+
+    - name: onboarding_file
+      debug:
+        msg: |
+          DSP_URL = https://connector.{{ domain_name }}/API/dsp
+          DID = "did:web:{{ identity_hub_address}}:{{ connector_id }}"          
+          IDENTITY_HUB_URL = {{ identity_hub_address }}/api/identity
+          API_KEY = IDENTITY_HUB_SUPERUSER_KEY={{ (identity_hub_superuser_username | default('super-user') | b64encode) ~ '.' ~ (lookup('ansible.builtin.file', '/opt/edc/deployment/instruction/docker/.secrets/IDENTITY_HUB_SUPERUSER_SECRET') | trim | b64encode) }}
+      ignore_errors: true
