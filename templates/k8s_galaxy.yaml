@@ -6,7 +6,7 @@ imports:
 description: Deploy Galaxy on top of a Kubernetes Virtual Cluster.
 
 metadata:
-  template_version: "1.1.0"
+  template_version: "1.2.0"
   template_name: Galaxy
   display_name: Galaxy on top of a Kubernetes Virtual Cluster
   icon: images/galaxy.png
@@ -79,6 +79,7 @@ topology_template:
               galaxy_brand: { get_input: galaxy_brand }
               galaxy_max_mem: { get_input: wn_mem }
               galaxy_max_cores: { get_input: wn_cpus }
+              galaxy_gateway_api: { get_input: kube_install_gateway_api }
 
   outputs:
     galaxy_endpoint:
