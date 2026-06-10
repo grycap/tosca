@@ -28,8 +28,10 @@ metadata:
       - oscar_password
       - minio_password
       - minio_quota_enabled
-      - minio_quota_buckets
-      - minio_quota_storage
+      - minio_quota_buckets:
+          enabled_by: minio_quota_enabled
+      - minio_quota_storage:
+          enabled_by: minio_quota_enabled
       - cert_user_email:
           tag_type: email
       - user_id:
