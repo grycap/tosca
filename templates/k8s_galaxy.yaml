@@ -6,7 +6,7 @@ imports:
 description: Deploy Galaxy on top of a Kubernetes Virtual Cluster.
 
 metadata:
-  template_version: "1.1.0"
+  template_version: "1.2.0"
   template_name: Galaxy
   display_name: Galaxy on top of a Kubernetes Virtual Cluster
   icon: images/galaxy.png
@@ -73,7 +73,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/k8s_galaxy.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca//artifacts/k8s_galaxy.yml
             inputs:
               galaxy_admin_users: { get_input: galaxy_admin_users }
               galaxy_brand: { get_input: galaxy_brand }
