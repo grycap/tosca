@@ -71,17 +71,18 @@
   roles:
     - role: 'grycap.docker'
   tasks:
+    - name: install epel-release
+      package:
+        name: epel-release
+      when: ansible_os_family == 'RedHat'
+
     - name: Install make and openssl packages on Debian/RedHat
       package:
         name:
           - make
           - openssl
+          - python3-pip
         state: present
-
-    - name: install epel-release
-      package:
-        name: epel-release
-      when: ansible_os_family == 'RedHat'
 
     - name: Install htpasswd package on Debian/RedHat
       package:
