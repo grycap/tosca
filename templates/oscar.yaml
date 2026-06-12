@@ -1,7 +1,7 @@
 tosca_definitions_version: tosca_simple_yaml_1_0
 
 imports:
-  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/new_oscar_inputs/custom_types.yaml
 
 description: Deploy an OSCAR Virtual Cluster.
 
@@ -50,8 +50,27 @@ metadata:
           enabled_by: kueue_enable
       - kueue_default_memory:
           enabled_by: kueue_enable
-          pattern: "[0-9]*( )+[TGMK]i"
+          pattern: "[0-9]*[TGMK]i"
+      - kueue_default_ephemeral_storage:
+          enabled_by: kueue_enable
+          pattern: "[0-9]*[TGMK]i"
+      - kueue_default_gpu:
+          enabled_by: kueue_enable
       - oscar_metrics
+      - kserve_enable
+      - volume_enable
+      - volume_default_available:
+          enabled_by: volume_enable
+          pattern: "[0-9]*[TGMK]i"
+      - volume_default_max:
+          enabled_by: volume_enable
+      - volume_default_max_disk:
+          enabled_by: volume_enable
+          pattern: "[0-9]*[TGMK]i"
+      - volume_default_min_disk:
+          enabled_by: volume_enable
+          pattern: "[0-9]*[TGMK]i"
+
   childs:
     - oscar_elastic.yaml
     - oscar_function.yaml
@@ -144,7 +163,7 @@ topology_template:
     minio_quota_storage:
       type: string
       description: Storage allowed if MinIO quotas are enabled
-      default: 5 Gi
+      default: 5Gi
 
     cert_user_email:
       type: string
@@ -200,12 +219,46 @@ topology_template:
     kueue_default_memory:
       type: string
       description: Default Kueue Memory user quota
-      default: 2 Gi
+      default: 2Gi
+    kueue_default_ephemeral_storage:
+      type: string
+      description: Default Kueue Ephemeral Storage user quota
+      default: 5Gi
+    kueue_default_gpu:
+      type: integer
+      description: Default Kueue GPU user quota
+      default: 0
 
     oscar_metrics:
       type: boolean
       description: Flag to enable OSCAR metrics
       default: false
+
+    kserve_enable:
+      type: boolean
+      description: Flag to enable KServe integration
+      default: false
+
+    volume_enable:
+      type: boolean
+      description: Flag to enable volume management in OSCAR
+      default: false
+    volume_default_available:
+      type: string
+      description: Default available volume size
+      default: 7Gi
+    volume_default_max:
+      type: integer
+      description: Default maximum number of volumes per user
+      default: 5
+    volume_default_max_disk:
+      type: string
+      description: Default maximum disk size per volume
+      default: 5Gi
+    volume_default_min_disk:
+      type: string
+      description: Default minimum disk size per volume
+      default: 200Mi
 
   node_templates:
 
@@ -226,10 +279,18 @@ topology_template:
         kueue_enable: { get_input: kueue_enable }
         kueue_default_cpu: { get_input: kueue_default_cpu }
         kueue_default_memory: { get_input: kueue_default_memory }
+        kueue_default_ephemeral_storage: { get_input: kueue_default_ephemeral_storage }
+        kueue_default_gpu: { get_input: kueue_default_gpu }
         metrics: { get_input: oscar_metrics }
         minio_quota_enabled: { get_input: minio_quota_enabled }
         minio_quota_buckets: { get_input: minio_quota_buckets }
         minio_quota_storage: { get_input: minio_quota_storage }
+        kserve_enable: { get_input: kserve_enable }
+        volume_enable: { get_input: volume_enable }
+        volume_default_available: { get_input: volume_default_available }
+        volume_default_max: { get_input: volume_default_max }
+        volume_default_max_disk: { get_input: volume_default_max_disk }
+        volume_default_min_disk: { get_input: volume_default_min_disk }
       capabilities:
         endpoint:
           properties:
