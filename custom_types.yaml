@@ -1398,7 +1398,17 @@ node_types:
         type: string
         description: Default Memory user quota
         required: false
-        default: "2 Gi"
+        default: "2Gi"
+      kueue_default_ephemeral_storage:
+        type: string
+        description: Default ephemeral storage user quota
+        required: false
+        default: "2Gi"
+      kueue_default_gpu:
+        type: integer
+        description: Default GPU user quota
+        required: false
+        default: 0
       minio_quota_enabled:
         type: boolean
         description: Flag to enable MinIO quotas
@@ -1413,12 +1423,42 @@ node_types:
         type: string
         description: Storage allowed if MinIO quotas are enabled
         required: false
-        default: "5 Gi"
+        default: "5Gi"
       metrics:
         type: boolean
         description: Enable metrics collection with Prometheus and Grafana
         required: false
         default: false
+      kserve_enable:
+        type: boolean
+        description: Enable KServe for model serving capabilities
+        required: false
+        default: false
+      volume_enable:
+        type: boolean
+        description: Enable persistent volume support in OSCAR
+        required: false
+        default: false
+      volume_default_available:
+        type: string
+        description: Default maximum available storage for users
+        required: false
+        default: "7Gi"
+      volume_default_max:
+        type: integer
+        description: Default maximum number of volumes per user
+        required: false
+        default: 5
+      volume_default_max_disk:
+        type: string
+        description: Default maximum disk size per volume
+        required: false
+        default: "5Gi"
+      volume_default_min_disk:
+        type: string
+        description: Default minimum disk size per volume
+        required: false
+        default: "200Mi"
     artifacts:
       minio_role:
         file: grycap.kubeminio
