@@ -25,8 +25,6 @@ metadata:
           pattern: "^[a-zA-Z0-9_\\-]+$"
           tag_type: text
       - catalog_api_key
-      - letsencrypt_email:
-          tag_type: email
     Advanced Data:
       - federated_catalog_address
       - dataspace_hub_url
@@ -37,6 +35,7 @@ metadata:
       - vault_address
       - dashboard_username
       - dashboard_password
+      - identity_provider_image
 
 topology_template:
   inputs:
@@ -110,11 +109,6 @@ topology_template:
             - 'identity'
             - 'storage'
             - 'keycloak'
-    letsencrypt_email:
-      default: "jhondoe@server.com"
-      description: Email address to be used for Let's Encrypt certificate generation
-      type: string
-      required: true
 
     dashboard_username:
       default: 'test'
@@ -123,6 +117,11 @@ topology_template:
     dashboard_password:
       default: ''
       description: Password for the Connector Dashboard. If not provided, a random password will be generated.
+      type: string
+
+    identity_provider_image:
+      default: ''
+      description: Set a custom docker image to be used for the Identity Provider service (keycloak).
       type: string
 
     keycloak_address:
@@ -161,10 +160,11 @@ topology_template:
           configure:
             implementation: https://raw.githubusercontent.com/grycap/tosca/sage/artifacts/vc_compose.yml
             inputs:
-              letsencrypt_email: { get_input: letsencrypt_email }
+              letsencrypt_email: "jhondoe@server.com"
               dns_name: { concat: [ get_input: sub_domain_name, '.', get_input: domain_name ] }
               compose_profiles: { concat: [ 'connector,', get_input: compose_profiles] }
               keycloak_address: { get_input: keycloak_address }
+              identity_provider_image: { get_input: identity_provider_image }
               identity_hub_address: { get_input: identity_hub_address }
               vault_address: { get_input: vault_address }
               issuer_did: { get_input: issuer_did }

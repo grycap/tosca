@@ -238,6 +238,15 @@
         - { env_key: 'VAULT_ADDRESS', var_name: 'vault_address'}
       when: item.var_name in vars
 
+    - name: Update identity-provider image in docker-compose.yml
+      lineinfile:
+        path: /opt/edc/deployment/instruction/docker/docker-compose.yml
+        regexp: '    image: .*/identity-provider:.*'
+        line: "    image: {{ identity_provider_image }}"
+      when:
+        - "'keycloak' in compose_profiles_list"
+        - identity_provider_image is defined and identity_provider_image != ''
+
     - name: make render
       command: make render
       args:
