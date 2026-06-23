@@ -21,6 +21,7 @@
     - name: Install cvmfs yum repo
       yum:
         name: https://cvmrepo.s3.cern.ch/cvmrepo/yum/cvmfs-release-latest.noarch.rpm
+        disable_gpg_check: true
       when: ansible_os_family == "RedHat"
 
     - name: Install cvmfs
