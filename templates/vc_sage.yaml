@@ -35,7 +35,18 @@ metadata:
       - vault_address
       - dashboard_username
       - dashboard_password
-      - identity_provider_image
+      - use_custom_identity_provider_image
+      - identity_provider_image:
+          enabled_by: use_custom_identity_provider_image
+      - identity_provider_db_image:
+          enabled_by: use_custom_identity_provider_image
+      - identity_provider_ca_file:
+          tag_type: textarea
+          enabled_by: use_custom_identity_provider_image
+      - identity_provider_satellite_id:
+          enabled_by: use_custom_identity_provider_image
+      - identity_provider_satellite_url:
+          enabled_by: use_custom_identity_provider_image
 
 topology_template:
   inputs:
@@ -119,9 +130,31 @@ topology_template:
       description: Password for the Connector Dashboard. If not provided, a random password will be generated.
       type: string
 
+    use_custom_identity_provider_image:
+      default: false
+      description: |
+        Set to true if you want to use a custom docker image for the Identity Provider service (keycloak).
+        If set to true, you must provide the 'identity_provider_image' and 'identity_provider_db_image' inputs.
+      type: boolean
     identity_provider_image:
-      default: ''
+      default: 'registry.egi.eu/sage.greendealdata.eu/rciam-ishare-keycloak:latest'
       description: Set a custom docker image to be used for the Identity Provider service (keycloak).
+      type: string
+    identity_provider_db_image:
+      default: 'registry.egi.eu/sage.greendealdata.eu/rciam-ishare-postgres:latest'
+      description: Set a custom docker image to be used for the Identity Provider database service.
+      type: string
+    identity_provider_ca_file:
+      default: ''
+      description: Set a custom CA file to be used for the Identity Provider service (keycloak)
+      type: string
+    identity_provider_satellite_id:
+      default: ''
+      description: Set a custom satellite ID to be used for the Identity Provider service (keycloak)
+      type: string
+    identity_provider_satellite_url:
+      default: ''
+      description: Set a custom satellite URL to be used for the Identity Provider service (keycloak
       type: string
 
     keycloak_address:
@@ -164,7 +197,6 @@ topology_template:
               dns_name: { concat: [ get_input: sub_domain_name, '.', get_input: domain_name ] }
               compose_profiles: { concat: [ 'connector,', get_input: compose_profiles] }
               keycloak_address: { get_input: keycloak_address }
-              identity_provider_image: { get_input: identity_provider_image }
               identity_hub_address: { get_input: identity_hub_address }
               vault_address: { get_input: vault_address }
               issuer_did: { get_input: issuer_did }
@@ -174,6 +206,12 @@ topology_template:
               catalog_api_key: { get_input: catalog_api_key }
               dashboard_username: { get_input: dashboard_username }
               dashboard_password: { get_input: dashboard_password }
+              use_custom_identity_provider_image: { get_input: use_custom_identity_provider_image }
+              identity_provider_image: { get_input: identity_provider_image }
+              identity_provider_db_image: { get_input: identity_provider_db_image }
+              identity_provider_ca_file: { get_input: identity_provider_ca_file }
+              identity_provider_satellite_id: { get_input: identity_provider_satellite_id }
+              identity_provider_satellite_url: { get_input: identity_provider_satellite_url }
       requirements:
         - host: simple_node
 
