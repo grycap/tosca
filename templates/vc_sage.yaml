@@ -194,7 +194,7 @@ topology_template:
             implementation: https://raw.githubusercontent.com/grycap/tosca/sage/artifacts/vc_compose.yml
             inputs:
               letsencrypt_email: "jhondoe@server.com"
-              dns_name: { concat: [ get_input: sub_domain_name, '.', get_input: domain_name ] }
+              domain_name: { concat: [ get_input: sub_domain_name, '.', get_input: domain_name ] }
               compose_profiles: { concat: [ 'connector,', get_input: compose_profiles] }
               keycloak_address: { get_input: keycloak_address }
               identity_hub_address: { get_input: identity_hub_address }
