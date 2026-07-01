@@ -149,11 +149,11 @@ topology_template:
       description: Set a custom CA file to be used for the Identity Provider service (keycloak)
       type: string
     identity_provider_satellite_id:
-      default: 'did:ishare:EU.NL.NTRNL-TESTPIRSAT1'
+      default: 'EU.EORI.PL12345678'
       description: Set a custom satellite ID to be used for the Identity Provider service (keycloak)
       type: string
     identity_provider_satellite_url:
-      default: 'https://isharesat-mw.pir.test.ishareworks.nl/v2.1.1'
+      default: 'https://pr-middleware.62.3.175.232.nip.io/v2.0.1'
       description: Set a custom satellite URL to be used for the Identity Provider service (keycloak)
       type: string
 
@@ -244,10 +244,10 @@ topology_template:
     storage_url:
       value: { concat: [ 'https://storage.', get_input: sub_domain_name, '.', get_input: [ domain_name ], '/' ] }
     dashboard_username:
-      value: { get_attribute: [ simple_node, ansible_output, vc_sage_simple_node_conf_simple_node, tasks, dashboard_username, output ] }
+      value: { get_attribute: [ simple_node, ansible_output, vc_sage_simple_node_conf_simple_node, tasks, 'grycap.sage_edc : dashboard_username', output ] }
     dashboard_password:
-      value: { get_attribute: [ simple_node, ansible_output, vc_sage_simple_node_conf_simple_node, tasks, dashboard_password, output ] }
+      value: { get_attribute: [ simple_node, ansible_output, vc_sage_simple_node_conf_simple_node, tasks, 'grycap.sage_edc : dashboard_password', output ] }
     env_file:
-      value: { get_attribute: [ simple_node, ansible_output, vc_sage_simple_node_conf_simple_node, tasks, env_file, output ] }
+      value: { get_attribute: [ simple_node, ansible_output, vc_sage_simple_node_conf_simple_node, tasks, 'grycap.sage_edc : env_file', output ] }
     onboarding_file:
-      value: { get_attribute: [ simple_node, ansible_output, vc_sage_simple_node_conf_simple_node, tasks, onboarding_file, output ] }
+      value: { get_attribute: [ simple_node, ansible_output, vc_sage_simple_node_conf_simple_node, tasks, 'grycap.sage_edc : onboarding_file', output ] }
