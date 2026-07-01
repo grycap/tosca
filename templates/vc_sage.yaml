@@ -149,12 +149,12 @@ topology_template:
       description: Set a custom CA file to be used for the Identity Provider service (keycloak)
       type: string
     identity_provider_satellite_id:
-      default: ''
+      default: 'did:ishare:EU.NL.NTRNL-TESTPIRSAT1'
       description: Set a custom satellite ID to be used for the Identity Provider service (keycloak)
       type: string
     identity_provider_satellite_url:
-      default: ''
-      description: Set a custom satellite URL to be used for the Identity Provider service (keycloak
+      default: 'https://isharesat-mw.pir.test.ishareworks.nl/v2.1.1'
+      description: Set a custom satellite URL to be used for the Identity Provider service (keycloak)
       type: string
 
     keycloak_address:
