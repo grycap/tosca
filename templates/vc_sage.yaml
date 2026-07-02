@@ -131,7 +131,7 @@ topology_template:
       type: string
 
     use_custom_identity_provider_image:
-      default: false
+      default: true
       description: |
         Set to true if you want to use a custom docker image for the Identity Provider service (keycloak).
         If set to true, you must provide the 'identity_provider_image' and 'identity_provider_db_image' inputs.
