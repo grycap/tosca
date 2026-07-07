@@ -237,6 +237,13 @@
       async: 7200
       poll: 60
 
+    - name: Install scipion launcher script
+      get_url:
+        url: https://raw.githubusercontent.com/grycap/tosca/eosc_dc/artifacts/scipion/scipion_EMPIAR.py
+        dest: /home/scipionuser/ScipionUserData/scipion_EMPIAR.py
+        mode: '0755'
+        owner: scipionuser
+
     - name: Launch Scipion container
       shell: |
           xhost +SI:localuser:scipionuser &&
