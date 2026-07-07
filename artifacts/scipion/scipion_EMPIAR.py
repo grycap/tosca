@@ -29,8 +29,10 @@ Uso:
 
 import argparse
 import json
+import os
 import re
 import sys
+import subprocess
 
 import requests
 
@@ -352,10 +354,39 @@ def format_params(params):
     )
 
 
+def exec_scipion(params, template_path, display=":1", scipion_user_data="/home/scipionuser/ScipionUserData",
+                 container_path="/home/scipionuser/container/apptainer-spa:latest.sif"):
+    
+    cmd = ["apptainer", "exec", "--containall",
+           "--env", f"DISPLAY={display}",
+           "--env", f"SCIPION_USER_DATA={scipion_user_data}",
+           "--bind", "/run",
+           "--bind", "/tmp/.X11-unix",
+           "--bind", "/etc/resolv.conf",
+           "--bind", f"{scipion_user_data}",
+           container_path,
+           "/scipion/scipion3",
+           "template",
+           f"{scipion_user_data}/{template_path}"]
+
+    for k, v in params.items():
+        if isinstance(v, str) and v.startswith("./"):
+            v = f"{scipion_user_data}{v.lstrip('.')}"
+        cmd.append(f"{k}={v}")
+
+    print(f"Ejecutando: {' '.join(cmd)}")
+    subprocess.run(cmd, check=True)
+
+
 def main():
+    
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("empiar_id", help="ID de la entrada EMPIAR, p.ej. 10352 o EMPIAR-10352")
     parser.add_argument("--json", action="store_true", help="imprime JSON en vez de los parámetros del template")
+    parser.add_argument("--template", action="store", help="ejecuta Scipion con los parámetros obtenidos, usando la plantilla indicada (ruta relativa a ScipionUserData)")
+    parser.add_argument("--container", action="store", help="ruta al contenedor de Scipion", default="/home/scipionuser/container/apptainer-spa:latest.sif")
+    parser.add_argument("--display", action="store", default=":1", help="valor de DISPLAY para ejecutar Scipion")
+    parser.add_argument("--scipion-user-data", action="store", default=os.getcwd(), help=f"ruta a ScipionUserData")
     args = parser.parse_args()
 
     try:
@@ -364,7 +395,10 @@ def main():
         print(f"Error consultando EMPIAR/EMDB: {e}", file=sys.stderr)
         sys.exit(1)
 
-    if args.json:
+    if args.template:
+        exec_scipion(params, args.template, container_path=args.container,
+                     display=args.display, scipion_user_data=args.scipion_user_data)
+    elif args.json:
         print(json.dumps(params, indent=4))
     else:
         print(format_params(params))
@@ -372,4 +406,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
