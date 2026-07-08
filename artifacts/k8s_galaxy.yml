@@ -23,6 +23,7 @@
     brand: "{{ galaxy_brand | default('IM Deployed Galaxy K8s Cluster') }}"
     max_mem: "{{ galaxy_max_mem | default(0) }}"
     max_cores: "{{ galaxy_max_cores | default(0) }}"
+    gateway_api: "{{ galaxy_gateway_api | default(false) }}"
   tasks:
 
     - name: "Check if postgres-operator is already deployed"
@@ -147,11 +148,9 @@
             max_mem: "{{ max_mem[:-3] | float - 1 }}"
           when: max_mem and "GiB" in max_mem
 
-        - name: Create galaxy helm chart values file
-          copy:
-            dest: /opt/galaxy_values.yaml
-            mode: '644'
-            content: |
+        - name: Set galaxy values content
+          set_fact:
+            values_content: |
               persistence:
                 accessMode: ReadWriteMany
               s3csi:
@@ -175,6 +174,15 @@
                         runner: k8s
                         {{ 'max_cores: ' ~ (max_cores | int - 1) if max_cores | int > 0 else '# no max_cores' }}
                         {{ 'max_mem: ' ~ max_mem if max_mem | int > 0 else '# no max_mem' }}
+              # try to pack all the pods in the same nodes
+              {{ AFFINITY | to_yaml }}
+
+        - name: Add Ingress configuration
+          set_fact:
+            values_content: |
+              {{ values_content }}
+              gateway:
+                enabled: false
               # to fix https://github.com/galaxyproject/galaxy-helm/issues/513
               ingress:
                 enabled: true
@@ -187,8 +195,26 @@
                     nginx.ingress.kubernetes.io/enable-websockets: "true"
                     traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
                     traefik.ingress.kubernetes.io/router.tls: "true"
-              # try to pack all the pods in the same nodes
-              {{ AFFINITY | to_yaml }}
+          when: not gateway_api
+
+        - name: Add Gateway API configuration
+          set_fact:
+            values_content: |
+              {{ values_content }}
+              ingress:
+                enabled: false
+              gateway:
+                enabled: true
+                create: false
+                existingGateway: traefik-gateway
+                existingGatewayNamespace: traefik
+          when: gateway_api
+
+        - name: Create galaxy helm chart values file
+          copy:
+            dest: /opt/galaxy_values.yaml
+            mode: '644'
+            content: "{{ values_content }}"
 
         - name: Add helm repo galaxy
           command: helm repo add galaxy https://raw.githubusercontent.com/CloudVE/helm-charts/master/
@@ -196,7 +222,7 @@
             KUBECONFIG: /etc/kubernetes/admin.conf
 
         - name: Deploy Galaxy
-          command: helm install --create-namespace -n {{ NAMESPACE }} galaxy galaxy/galaxy --timeout 10m -f /opt/galaxy_values.yaml --version 6.6.0
+          command: helm install --create-namespace -n {{ NAMESPACE }} galaxy galaxy/galaxy --timeout 10m -f /opt/galaxy_values.yaml --version {{ galaxy_helm_chart_version | default('6.8.0') }}
           environment:
             KUBECONFIG: /etc/kubernetes/admin.conf
 
