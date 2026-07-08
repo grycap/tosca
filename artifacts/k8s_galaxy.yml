@@ -206,7 +206,7 @@
               gateway:
                 enabled: true
                 create: false
-                existingGateway: traeik-gateway
+                existingGateway: traefik-gateway
                 existingGatewayNamespace: traefik
           when: gateway_api
 
