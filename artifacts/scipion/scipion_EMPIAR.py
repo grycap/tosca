@@ -10,7 +10,8 @@ https://workflowhub.eu/workflows/2169
 Fuentes de datos:
   - EMPIAR REST API  (https://www.ebi.ac.uk/empiar/api/entry/<id>/)
       -> imageset de movies: directory, pixel size (sr)
-  - EMPIAR FTP/HTTPS listing (https://ftp.ebi.ac.uk/empiar/world_availability/<id>/)
+  - Directorio local descargado o EMPIAR FTP/HTTPS listing
+    (https://ftp.ebi.ac.uk/empiar/world_availability/<id>/)
       -> localización real de los ficheros (la estructura de "directory" que
          devuelve la API no siempre coincide 1:1 con el árbol FTP, así que se
          verifica) y búsqueda del fichero de gain junto a las movies.
@@ -23,8 +24,9 @@ por defecto habitual en crio-EM (0.1). Cuando cualquier otro dato no se
 puede obtener, se rellena con el valor por defecto correspondiente.
 
 Uso:
-    python3 Harvesting_EMPIAR.py 10352
-    python3 Harvesting_EMPIAR.py EMPIAR-10352 --json
+    python3 scipion_EMPIAR.py 10352
+    python3 scipion_EMPIAR.py EMPIAR-10352 --json
+    python3 scipion_EMPIAR.py 10352 --template workflow.json
 """
 
 import argparse
@@ -75,6 +77,18 @@ def get_empiar_entry(empiar_num):
     return data.get(key) or data[list(data.keys())[0]]
 
 
+def is_url(path):
+    return str(path).startswith(("http://", "https://"))
+
+
+def as_dir(path):
+    return path.rstrip("/") + "/" if is_url(path) else os.path.join(path, "")
+
+
+def join_path(base, name):
+    return base.rstrip("/") + "/" + name if is_url(base) else os.path.join(base, name.rstrip("/"))
+
+
 def pick_movie_imageset(imagesets):
     if not imagesets:
         return None
@@ -88,18 +102,33 @@ def pick_movie_imageset(imagesets):
     return imagesets[0]
 
 
-def dir_exists(url):
+def dir_exists(path):
+    if not is_url(path):
+        return os.path.isdir(path)
+
     try:
-        r = requests.head(url, timeout=TIMEOUT, allow_redirects=True)
+        r = requests.head(path, timeout=TIMEOUT, allow_redirects=True)
         return r.status_code == 200
     except requests.RequestException:
         return False
 
 
-def list_dir(url):
-    """Devuelve [(nombre, es_directorio), ...] de un listado Apache/nginx."""
+def list_dir(path):
+    """Devuelve [(nombre, es_directorio), ...] de un directorio local o listado web."""
+    if not is_url(path):
+        try:
+            entries = []
+            with os.scandir(path) as it:
+                for entry in it:
+                    name = entry.name
+                    is_dir = entry.is_dir()
+                    entries.append((name + "/" if is_dir else name, is_dir))
+            return entries
+        except OSError:
+            return []
+
     try:
-        r = requests.get(url, timeout=TIMEOUT)
+        r = requests.get(path, timeout=TIMEOUT)
         r.raise_for_status()
     except requests.RequestException:
         return []
@@ -115,11 +144,11 @@ def list_dir(url):
 
 def bfs_find_movies_dir(root_url, leaf_name, max_nodes=200, max_depth=5):
     """
-    Busca en el árbol FTP de la entrada un directorio cuyo nombre coincida
+    Busca en el árbol FTP/local de la entrada un directorio cuyo nombre coincida
     con leaf_name (nombre de carpeta reportado por la API de EMPIAR).
     Necesario porque la API no siempre refleja la ruta FTP real.
     """
-    queue = [(root_url.rstrip("/") + "/", 0)]
+    queue = [(as_dir(root_url), 0)]
     visited = set()
     nodes = 0
 
@@ -133,9 +162,10 @@ def bfs_find_movies_dir(root_url, leaf_name, max_nodes=200, max_depth=5):
         for name, is_dir in list_dir(url):
             if not is_dir:
                 continue
+            child = join_path(url, name)
             if name.rstrip("/").lower() == leaf_name.lower():
-                return url + name
-            queue.append((url + name, depth + 1))
+                return as_dir(child)
+            queue.append((child, depth + 1))
 
     return None
 
@@ -155,63 +185,77 @@ def refine_to_files_dir(url, max_depth=3):
         if files or len(dirs) != 1:
             return url
 
-        url = url + dirs[0]
+        url = as_dir(join_path(url, dirs[0]))
 
     return url
 
 
 def find_movies_directory(empiar_num, directory_hint):
     """
-    Localiza la URL FTP real de la carpeta de movies.
-    Prueba primero las dos convenciones observadas en EMPIAR:
+    Localiza la ruta real de la carpeta de movies.
+    Si existe ./<id>/, prueba primero ese árbol local. Si no encuentra nada,
+    usa el FTP y prueba las dos convenciones observadas en EMPIAR:
       - <root>/<directory>/
       - <root>/data/<directory>/   (algunos depositantes anidan "data/data/…")
     y si ninguna existe, recorre el árbol buscando por nombre de carpeta.
     El resultado se refina por si las movies están un nivel más adentro.
     """
-    root = EMPIAR_FTP_ROOT.format(id=empiar_num)
-
     if not directory_hint:
         return None
 
     directory_hint = directory_hint.strip("/")
+    roots = []
+    local_root = f"./{empiar_num}"
+    if os.path.isdir(local_root):
+        roots.append(local_root)
+    roots.append(EMPIAR_FTP_ROOT.format(id=empiar_num))
 
-    candidates = [
-        f"{root}/{directory_hint}/",
-        f"{root}/data/{directory_hint}/",
-    ]
+    for root in roots:
+        candidates = [
+            as_dir(join_path(root, directory_hint)),
+            as_dir(join_path(join_path(root, "data"), directory_hint)),
+        ]
 
-    for candidate in candidates:
-        if dir_exists(candidate):
-            return refine_to_files_dir(candidate)
+        for candidate in candidates:
+            if dir_exists(candidate):
+                return refine_to_files_dir(candidate)
 
-    leaf = directory_hint.split("/")[-1]
-    found = bfs_find_movies_dir(root, leaf)
-    return refine_to_files_dir(found) if found else None
+        leaf = directory_hint.split("/")[-1]
+        found = bfs_find_movies_dir(root, leaf)
+        if found:
+            return refine_to_files_dir(found)
+
+    return None
 
 
-def parent_url(url):
-    trimmed = url.rstrip("/")
-    idx = trimmed.rfind("/")
-    return trimmed[: idx + 1]
+def parent_location(path):
+    if is_url(path):
+        trimmed = path.rstrip("/")
+        idx = trimmed.rfind("/")
+        return trimmed[: idx + 1]
+    return as_dir(os.path.dirname(os.path.normpath(path)))
 
 
 def is_gain_file(name):
     return any(k in name.lower() for k in GAIN_KEYWORDS) or name.lower().endswith(".gain")
 
 
-def find_gain_file(empiar_num, movies_dir_url, max_levels_up=2):
+def find_gain_file(empiar_num, movies_dir, max_levels_up=2):
     """
     Busca el fichero de gain en la carpeta de movies y, si no está ahí,
     en los directorios padre (hasta max_levels_up niveles, sin salir de la
     carpeta de la propia entrada EMPIAR) — es habitual que el gain se
     deposite junto a "data/" cubriendo varias subcarpetas de movies.
     """
-    if not movies_dir_url:
+    if not movies_dir:
         return None, None
 
-    root = EMPIAR_FTP_ROOT.format(id=empiar_num).rstrip("/") + "/"
-    url = movies_dir_url
+    root = (
+        EMPIAR_FTP_ROOT.format(id=empiar_num).rstrip("/") + "/"
+        if is_url(movies_dir)
+        else as_dir(f"./{empiar_num}")
+    )
+    url = as_dir(movies_dir)
     visited = set()
 
     for _ in range(max_levels_up + 1):
@@ -225,15 +269,18 @@ def find_gain_file(empiar_num, movies_dir_url, max_levels_up=2):
 
         if url == root:
             break
-        url = parent_url(url)
+        url = parent_location(url)
 
     return None, None
 
 
-def to_local_moviespath(empiar_num, movies_dir_url):
+def to_local_moviespath(empiar_num, movies_dir):
+    if not is_url(movies_dir):
+        return "./" + as_dir(os.path.relpath(movies_dir, "."))
+
     root = EMPIAR_FTP_ROOT.format(id=empiar_num)
-    suffix = movies_dir_url[len(root):]
-    return f"./EMPIAR-{empiar_num}{suffix}"
+    suffix = movies_dir[len(root):]
+    return f"./{empiar_num}{suffix}"
 
 
 def parse_float(value_of):
@@ -302,7 +349,7 @@ def harvest(empiar_id):
             else ""
         )
     else:
-        moviespath = f"./EMPIAR-{num}/data/{directory_hint}/" if directory_hint else ""
+        moviespath = f"./{num}/data/{directory_hint}/" if directory_hint else ""
         gain = ""
 
     if not gain:
