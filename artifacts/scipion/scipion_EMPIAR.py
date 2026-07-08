@@ -190,10 +190,24 @@ def refine_to_files_dir(url, max_depth=3):
     return url
 
 
-def find_movies_directory(empiar_num, directory_hint):
+def local_entry_roots(empiar_num, scipion_user_data=None):
+    roots = []
+    for base in (".", scipion_user_data):
+        if not base:
+            continue
+
+        root = os.path.abspath(os.path.join(base, str(empiar_num)))
+        if os.path.isdir(root) and root not in roots:
+            roots.append(root)
+
+    return roots
+
+
+def find_movies_directory(empiar_num, directory_hint, scipion_user_data=None):
     """
     Localiza la ruta real de la carpeta de movies.
-    Si existe ./<id>/, prueba primero ese árbol local. Si no encuentra nada,
+    Si existe ./<id>/, prueba primero ese árbol local. Si scipion_user_data es
+    distinto y contiene <id>/, prueba también ese árbol. Si no encuentra nada,
     usa el FTP y prueba las dos convenciones observadas en EMPIAR:
       - <root>/<directory>/
       - <root>/data/<directory>/   (algunos depositantes anidan "data/data/…")
@@ -204,10 +218,7 @@ def find_movies_directory(empiar_num, directory_hint):
         return None
 
     directory_hint = directory_hint.strip("/")
-    roots = []
-    local_root = f"./{empiar_num}"
-    if os.path.isdir(local_root):
-        roots.append(local_root)
+    roots = local_entry_roots(empiar_num, scipion_user_data)
     roots.append(EMPIAR_FTP_ROOT.format(id=empiar_num))
 
     for root in roots:
@@ -240,7 +251,7 @@ def is_gain_file(name):
     return any(k in name.lower() for k in GAIN_KEYWORDS) or name.lower().endswith(".gain")
 
 
-def find_gain_file(empiar_num, movies_dir, max_levels_up=2):
+def find_gain_file(empiar_num, movies_dir, max_levels_up=2, scipion_user_data=None):
     """
     Busca el fichero de gain en la carpeta de movies y, si no está ahí,
     en los directorios padre (hasta max_levels_up niveles, sin salir de la
@@ -250,11 +261,19 @@ def find_gain_file(empiar_num, movies_dir, max_levels_up=2):
     if not movies_dir:
         return None, None
 
-    root = (
-        EMPIAR_FTP_ROOT.format(id=empiar_num).rstrip("/") + "/"
-        if is_url(movies_dir)
-        else as_dir(f"./{empiar_num}")
-    )
+    if is_url(movies_dir):
+        root = EMPIAR_FTP_ROOT.format(id=empiar_num).rstrip("/") + "/"
+    else:
+        root = as_dir(os.path.abspath(os.path.join(".", str(empiar_num))))
+        movies_abs = os.path.abspath(movies_dir)
+        for entry_root in local_entry_roots(empiar_num, scipion_user_data):
+            try:
+                if os.path.commonpath([movies_abs, entry_root]) == entry_root:
+                    root = as_dir(entry_root)
+                    break
+            except ValueError:
+                pass
+
     url = as_dir(movies_dir)
     visited = set()
 
@@ -274,13 +293,14 @@ def find_gain_file(empiar_num, movies_dir, max_levels_up=2):
     return None, None
 
 
-def to_local_moviespath(empiar_num, movies_dir):
+def to_local_moviespath(empiar_num, movies_dir, scipion_user_data=None):
     if not is_url(movies_dir):
-        return "./" + as_dir(os.path.relpath(movies_dir, "."))
+        return as_dir(os.path.abspath(movies_dir))
 
     root = EMPIAR_FTP_ROOT.format(id=empiar_num)
     suffix = movies_dir[len(root):]
-    return f"./{empiar_num}{suffix}"
+    base = os.path.abspath(scipion_user_data or ".")
+    return as_dir(os.path.join(base, f"{empiar_num}{suffix}"))
 
 
 def parse_float(value_of):
@@ -331,25 +351,26 @@ def get_emdb_microscopy(emd_id):
     return sa, total_dose, n_frames
 
 
-def harvest(empiar_id):
+def harvest(empiar_id, scipion_user_data=None):
     num = clean_id(empiar_id)
     entry = get_empiar_entry(num)
 
     imageset = pick_movie_imageset(entry.get("imagesets", []))
     directory_hint = (imageset or {}).get("directory")
 
-    movies_dir_url = find_movies_directory(num, directory_hint)
+    movies_dir_url = find_movies_directory(num, directory_hint, scipion_user_data)
 
     if movies_dir_url:
-        moviespath = to_local_moviespath(num, movies_dir_url)
-        gain_dir_url, gain_file = find_gain_file(num, movies_dir_url)
+        moviespath = to_local_moviespath(num, movies_dir_url, scipion_user_data)
+        gain_dir_url, gain_file = find_gain_file(num, movies_dir_url, scipion_user_data=scipion_user_data)
         gain = (
-            f"{to_local_moviespath(num, gain_dir_url)}{gain_file}"
+            f"{to_local_moviespath(num, gain_dir_url, scipion_user_data)}{gain_file}"
             if gain_file
             else ""
         )
     else:
-        moviespath = f"./{num}/data/{directory_hint}/" if directory_hint else ""
+        base = os.path.abspath(scipion_user_data or ".")
+        moviespath = f"{base}/{num}/data/{directory_hint}/" if directory_hint else ""
         gain = ""
 
     if not gain:
@@ -417,8 +438,6 @@ def exec_scipion(params, template_path, display=":1", scipion_user_data="/home/s
            f"{scipion_user_data}/{template_path}"]
 
     for k, v in params.items():
-        if isinstance(v, str) and v.startswith("./"):
-            v = f"{scipion_user_data}{v.lstrip('.')}"
         cmd.append(f"{k}={v}")
 
     print(f"Ejecutando: {' '.join(cmd)}")
@@ -437,7 +456,7 @@ def main():
     args = parser.parse_args()
 
     try:
-        params = harvest(args.empiar_id)
+        params = harvest(args.empiar_id, args.scipion_user_data)
     except requests.RequestException as e:
         print(f"Error consultando EMPIAR/EMDB: {e}", file=sys.stderr)
         sys.exit(1)
