@@ -435,7 +435,7 @@ def exec_scipion(params, template_path, display=":1", scipion_user_data="/home/s
            container_path,
            "/scipion/scipion3",
            "template",
-           f"{scipion_user_data}/{template_path}"]
+           f"{template_path}"]
 
     for k, v in params.items():
         cmd.append(f"{k}={v}")
