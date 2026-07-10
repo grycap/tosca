@@ -1499,6 +1499,7 @@ node_types:
             minio_quota_buckets: { get_property: [ SELF, minio_quota_buckets ] }
             minio_quota_storage: { get_property: [ SELF, minio_quota_storage ] }
             metrics: { get_property: [ SELF, metrics ] }
+            kserve_enable: : { get_property: [ SELF, kserve_enable ] }
     requirements:
       - host:
           capability: tosca.capabilities.Container
