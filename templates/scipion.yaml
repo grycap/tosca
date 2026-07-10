@@ -35,7 +35,7 @@ topology_template:
     disk_size:
       type: scalar-unit.size
       description: Size of the external disk attached to the server
-      default: 200 GiB
+      default: 200 GB
 
     scipion_flavour:
       type: string
