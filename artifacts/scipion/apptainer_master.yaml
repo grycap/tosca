@@ -57,6 +57,20 @@
         group: scipionuser
         mode: '0777'
 
+    - name: Start pulling Scipion apptainer container asynchronously
+      shell: |
+        python3 harbor_sif_download.py rinchen.cnb.csic.es/scipion/apptainer-{{ CONTAINER_FLAVOUR }}:{{ CONTAINER_VERSION }} \
+        -o apptainer-{{ CONTAINER_FLAVOUR }}:{{ CONTAINER_VERSION }}.sif --no-verify && \
+        touch apptainer-{{ CONTAINER_FLAVOUR }}:{{ CONTAINER_VERSION }}.downloaded
+      args:
+        chdir: /home/scipionuser/container
+        creates: /home/scipionuser/container/apptainer-{{ CONTAINER_FLAVOUR }}:{{ CONTAINER_VERSION }}.downloaded
+      become_user: scipionuser
+      become: true
+      async: 7200
+      poll: 0
+      register: scipion_container_download_job
+
     - name: Install Apptainer
       include_role:
         name: usegalaxy_eu.apptainer
@@ -224,25 +238,23 @@
         mode: '0755'
         owner: scipionuser
 
-    - name: Pull Scipion apptainer container (will take a while - more than 1h -) so make it async
-      shell: |
-        python3 harbor_sif_download.py rinchen.cnb.csic.es/scipion/apptainer-{{ CONTAINER_FLAVOUR }}:{{ CONTAINER_VERSION }} \
-        -o apptainer-{{ CONTAINER_FLAVOUR }}:{{ CONTAINER_VERSION }}.sif --no-verify && \
-        touch apptainer-{{ CONTAINER_FLAVOUR }}:{{ CONTAINER_VERSION }}.downloaded
-      args:
-        chdir: /home/scipionuser/container
-        creates: /home/scipionuser/container/apptainer-{{ CONTAINER_FLAVOUR }}:{{ CONTAINER_VERSION }}.downloaded
-      become_user: scipionuser
-      become: true
-      async: 7200
-      poll: 60
-
     - name: Install scipion launcher script
       get_url:
         url: https://raw.githubusercontent.com/grycap/tosca/eosc_dc/artifacts/scipion/scipion_EMPIAR.py
         dest: /home/scipionuser/ScipionUserData/scipion_EMPIAR.py
         mode: '0755'
         owner: scipionuser
+
+    - name: Wait for Scipion apptainer container download to finish
+      async_status:
+        jid: "{{ scipion_container_download_job.ansible_job_id }}"
+      become: true
+      become_user: scipionuser
+      register: scipion_container_download_result
+      until: scipion_container_download_result.finished
+      retries: 120
+      delay: 60
+      when: scipion_container_download_job.ansible_job_id is defined
 
     - name: Launch Scipion container
       shell: |
