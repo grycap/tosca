@@ -57,6 +57,13 @@
         group: scipionuser
         mode: '0777'
 
+    - name: Install harbor-sif-download file
+      get_url:
+        url: https://raw.githubusercontent.com/grycap/tosca/eosc_dc/artifacts/scipion/harbor_sif_download.py
+        dest: /home/scipionuser/container
+        mode: '0755'
+        owner: scipionuser
+
     - name: Start pulling Scipion apptainer container asynchronously
       shell: |
         python3 harbor_sif_download.py rinchen.cnb.csic.es/scipion/apptainer-{{ CONTAINER_FLAVOUR }}:{{ CONTAINER_VERSION }} \
@@ -230,13 +237,6 @@
       apt:
         name: openmpi-bin
         state: present
-
-    - name: Install harbor-sif-download file
-      get_url:
-        url: https://raw.githubusercontent.com/grycap/tosca/eosc_dc/artifacts/scipion/harbor_sif_download.py
-        dest: /home/scipionuser/container
-        mode: '0755'
-        owner: scipionuser
 
     - name: Install scipion launcher script
       get_url:
