@@ -68,7 +68,6 @@
             mode: '644'
             dest: /tmp/{{ helm_namespace }}_{{ helm_app_name }}_values.yml
 
-
         - name: Deploy {{ helm_app_name }} app
           command: >
             helm upgrade {{ helm_app_name | lower }} --install {{ helm_install_name }} {{ '' if helm_version == 'latest' else ('--version ' + helm_version) }}

@@ -111,7 +111,7 @@ topology_template:
           consoleIngress.hosts[0].host: { get_input: console_rustfs_dns_name }
           mode.standalone.enabled: { get_input: standalone }
           mode.distributed.enabled: { get_input: distributed }
-          
+
       requirements:
         - host: front
         - dependency: lrms_front_end
