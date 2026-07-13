@@ -27,7 +27,7 @@ topology_template:
 
     admin_password:
       type: string
-      description: Password of the RustFS admin user (user rustfsadmin)
+      description: Password of the RustFS admin user (user admin)
       default: adminpass
 
     standalone:
@@ -90,6 +90,9 @@ topology_template:
             gatewayClass: nginx
           storageclass:
             name: managed-nfs-storage
+          secret:
+            rustfs:
+              access_key: admin
         values:
           secret.rustfs.secret_key: { get_input: admin_password }
           ingress.hosts[0].host: { get_input: rustfs_dns_name }
