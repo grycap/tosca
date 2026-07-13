@@ -52,6 +52,11 @@ topology_template:
       description: DNS name to access RustFS (set it in the Kubernetes DNS names)
       default: ""
       required: true
+    console_rustfs_dns_name:
+      type: string
+      description: DNS name to access RustFS console (set it in the Kubernetes DNS names)
+      default: ""
+      required: true
 
     # override the kube_public_dns_name input defined in the parent template to make it required for this template
 
@@ -68,8 +73,7 @@ topology_template:
       type: tosca.nodes.indigo.Helm.Chart
       properties:
         namespace: rustfs
-        repository_name: rustfs
-        repository_url: "https://charts.rustfs.com"
+        oci_registry: oci://registry-1.docker.io/cloudpirates/rustfs
         name: rustfs
         values_file: |
           ingress:
@@ -81,19 +85,33 @@ topology_template:
                   - path: /
                     pathType: Prefix
             tls:
-              enabled: true
-              certManager:
-                enabled: true
+              - enabled: true
+                certManager:
+                  enabled: true
+          consoleIngress:
+            enabled: true
+            traefikAnnotations: {}
+            hosts:
+              - host: rustfs.local
+                paths:
+                  - path: /
+                    pathType: Prefix
+            tls:
+              - enabled: true
+                certManager:
+                  enabled: true
           gatewayApi:
             enabled: false
           storageclass:
             name: managed-nfs-storage
         values:
-          secret.rustfs.secret_key: { get_input: admin_password }
+          auth.secretKey: { get_input: admin_password }
+          replicaCount: { get_input: replicas }
           ingress.hosts[0].host: { get_input: rustfs_dns_name }
+          consoleIngress.hosts[0].host: { get_input: console_rustfs_dns_name }
           mode.standalone.enabled: { get_input: standalone }
           mode.distributed.enabled: { get_input: distributed }
-          replicaCount: { get_input: replicas }
+          
       requirements:
         - host: front
         - dependency: lrms_front_end

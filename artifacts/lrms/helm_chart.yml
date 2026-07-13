@@ -46,6 +46,11 @@
               set_fact:
                 helm_install_name: "/opt/{{ helm_app_name }}.tgz"
 
+        - name: Use OCI Registry
+          set_fact:
+            helm_install_name: "{{ helm_oci_registry }}"
+          when: helm_oci_registry is defined and helm_oci_registry != ""
+
         - name: Create params fact
           set_fact:
             helm_params: "{{ item.key }}='{{ item.value }}',{{ helm_params }}"
@@ -62,6 +67,7 @@
             content: "{{ helm_values_file }}"
             mode: '644'
             dest: /tmp/{{ helm_namespace }}_{{ helm_app_name }}_values.yml
+
 
         - name: Deploy {{ helm_app_name }} app
           command: >

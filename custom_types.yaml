@@ -1833,6 +1833,11 @@ node_types:
   tosca.nodes.indigo.Helm.Chart:
     derived_from: tosca.nodes.ec3.Application
     properties:
+      oci_registry:
+        type: string
+        description: The Helm OCI registry
+        required: false
+        default: ""
       chart_url:
         type: string
         description: The Helm chat file url
@@ -1895,6 +1900,7 @@ node_types:
             helm_namespace: { get_property: [ SELF, namespace ] }
             helm_values_file: { get_property: [ SELF, values_file ] }
             helm_chart_url: { get_property: [ SELF, chart_url ] }
+            helm_oci_registry: { get_property: [ SELF, oci_registry ] }
 
   tosca.nodes.ec3.DNSRegistry:
     derived_from: tosca.nodes.SoftwareComponent
