@@ -222,7 +222,7 @@
             KUBECONFIG: /etc/kubernetes/admin.conf
 
         - name: Deploy Galaxy
-          command: helm install --create-namespace -n {{ NAMESPACE }} galaxy galaxy/galaxy --timeout 10m -f /opt/galaxy_values.yaml --version {{ galaxy_helm_chart_version | default('6.8.0') }}
+          command: helm install --create-namespace -n {{ NAMESPACE }} galaxy galaxy/galaxy --timeout 10m -f /opt/galaxy_values.yaml --version {{ galaxy_helm_chart_version | default('6.8.1') }}
           environment:
             KUBECONFIG: /etc/kubernetes/admin.conf
 
