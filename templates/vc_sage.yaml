@@ -7,7 +7,7 @@ imports:
 description: Deploy SAGE EDC
 
 metadata:
-  template_version: "1.2.0"
+  template_version: "1.3.0"
   template_name: SAGE EDC
   display_name: Deploy SAGE EDC
   icon: https://www.greendealdata.eu/wp-content/uploads/2026/01/Full_Logo-300x91.png
@@ -25,6 +25,8 @@ metadata:
           pattern: "^[a-zA-Z0-9_\\-]+$"
           tag_type: text
       - catalog_api_key
+      - ishare_client_id:
+          reconfigure: true
     Advanced Data:
       - federated_catalog_address
       - dataspace_hub_url
@@ -170,13 +172,18 @@ topology_template:
       description: Address of the Vault server (only needed if the 'identity' compose profile is not used)
       type: string
 
+    ishare_client_id:
+      default: 'EU.EORI.XX12345678'
+      description: iSHARE Client ID (only used in reconfiguration)
+      type: string
+
   node_templates:
 
     vc_sage:
       type: tosca.nodes.ec3.Application
       artifacts:
         docker_role:
-          file: grycap.sage_edc
+          file: grycap.sage_edc,devel
           type: tosca.artifacts.AnsibleGalaxy.role
       capabilities:
         endpoint:
@@ -191,7 +198,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/sage/artifacts/vc_compose.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/new_sage/artifacts/vc_compose.yml
             inputs:
               letsencrypt_email: "jhondoe@server.com"
               domain_name: { concat: [ get_input: sub_domain_name, '.', get_input: domain_name ] }
@@ -212,6 +219,9 @@ topology_template:
               identity_provider_ca_file: { get_input: identity_provider_ca_file }
               identity_provider_satellite_id: { get_input: identity_provider_satellite_id }
               identity_provider_satellite_url: { get_input: identity_provider_satellite_url }
+              ishare_client_id: { get_input: ishare_client_id }
+              ishare_pr_iss: { get_input: identity_provider_satellite_id }
+              branch: DEM-579_PR-extension
       requirements:
         - host: simple_node
 
@@ -251,3 +261,4 @@ topology_template:
       value: { get_attribute: [ simple_node, ansible_output, vc_sage_simple_node_conf_simple_node, tasks, 'grycap.sage_edc : env_file', output ] }
     onboarding_file:
       value: { get_attribute: [ simple_node, ansible_output, vc_sage_simple_node_conf_simple_node, tasks, 'grycap.sage_edc : onboarding_file', output ] }
+
