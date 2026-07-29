@@ -7,7 +7,7 @@ imports:
 description: Deploy SAGE EDC
 
 metadata:
-  template_version: "1.3.0"
+  template_version: "1.4.0"
   template_name: SAGE EDC
   display_name: Deploy SAGE EDC
   icon: https://www.greendealdata.eu/wp-content/uploads/2026/01/Full_Logo-300x91.png
@@ -27,6 +27,10 @@ metadata:
       - catalog_api_key
       - ishare_client_id:
           reconfigure: true
+      - ishare_certificate:
+          tag_type: secret
+      - ishare_certificate_pass:
+          tag_type: password
     Advanced Data:
       - federated_catalog_address
       - dataspace_hub_url
@@ -176,6 +180,16 @@ topology_template:
       default: 'EU.EORI.XX12345678'
       description: iSHARE Client ID (only used in reconfiguration)
       type: string
+    ishare_certificate:
+      default: ''
+      description: iSHARE certificate
+      type: string
+      required: true
+    ishare_certificate_pass:
+      default: ''
+      description: iSHARE certificate password
+      type: string
+      required: true
 
   node_templates:
 
@@ -221,6 +235,8 @@ topology_template:
               identity_provider_satellite_url: { get_input: identity_provider_satellite_url }
               ishare_client_id: { get_input: ishare_client_id }
               ishare_pr_iss: { get_input: identity_provider_satellite_id }
+              sage_tls_cert: { get_input: ishare_certificate }
+              sage_tls_cert_password: { get_input: ishare_certificate_pass }
               branch: DEM-579_PR-extension
       requirements:
         - host: simple_node
