@@ -32,6 +32,7 @@ roles:
   - name: pulsar
     src: git+https://github.com/sebastian-luna-valero/ansible-role-pulsar
   - name: usegalaxy_eu.apptainer
+  - name: grycap.sage_edc
 
 collections:
   - name: community.crypto
