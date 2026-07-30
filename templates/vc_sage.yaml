@@ -7,7 +7,7 @@ imports:
 description: Deploy SAGE EDC
 
 metadata:
-  template_version: "1.0.0"
+  template_version: "1.4.0"
   template_name: SAGE EDC
   display_name: Deploy SAGE EDC
   icon: https://www.greendealdata.eu/wp-content/uploads/2026/01/Full_Logo-300x91.png
@@ -16,18 +16,43 @@ metadata:
       - num_cpus
       - mem_size
       - disk_size
+      - sub_domain_name:
+          pattern: "^[a-zA-Z0-9\\-]+$"
+          tag_type: text
       - domain_name
     Data Space Data:
-      - issuer_did
-      - federated_catalog_address
+      - connector_id:
+          pattern: "^[a-zA-Z0-9_\\-]+$"
+          tag_type: text
       - catalog_api_key
+      - ishare_client_id:
+          reconfigure: true
+      - ishare_certificate:
+          tag_type: secret
+      - ishare_certificate_pass:
+          tag_type: password
+    Advanced Data:
+      - federated_catalog_address
       - dataspace_hub_url
-      - connector_id
+      - issuer_did
       - compose_profiles
       - keycloak_address
       - identity_hub_address
       - vault_address
-      - letsencrypt_email
+      - dashboard_username
+      - dashboard_password
+      - use_custom_identity_provider_image
+      - identity_provider_image:
+          enabled_by: use_custom_identity_provider_image
+      - identity_provider_db_image:
+          enabled_by: use_custom_identity_provider_image
+      - identity_provider_ca_file:
+          tag_type: textarea
+          enabled_by: use_custom_identity_provider_image
+      - identity_provider_satellite_id:
+          enabled_by: use_custom_identity_provider_image
+      - identity_provider_satellite_url:
+          enabled_by: use_custom_identity_provider_image
 
 topology_template:
   inputs:
@@ -51,16 +76,22 @@ topology_template:
       constraints:
         - valid_values: [ 50 GiB, 100 GiB, 200 GiB, 0 GiB ]
 
+    sub_domain_name:
+      default: dc
+      description: DNS subdomain to be used for the deployment (e.g. if domain name is 'vm.fedcloud.eu' and subdomain is 'dc', the deployment will be accessible at 'dc.vm.fedcloud.eu'). Must be unique!.
+      type: string
     domain_name:
-      default: dc.vm.fedcloud.eu
-      description: DNS domain name to be used for the deployment.
+      default: vm.fedcloud.eu
+      description: DNS domain name to be used for the deployment. (only change if you have a custom domain that you control and you want to use it instead of 'vm.fedcloud.eu')
       type: string
 
     connector_id:
       default: ''
-      description: Dataspace Connector ID
+      description: Dataspace Connector ID (use letters, numbers, underscore and dash)
       type: string
       required: true
+      constraints:
+        - max_length: 32
     issuer_did:
       default: 'did:web:data-space-hub-sage-data-space.apps.bst2.paas.psnc.pl'
       description: DID of the issuer to be used for the VC issuance
@@ -82,13 +113,54 @@ topology_template:
       type: string
       required: true
     compose_profiles:
-      description: Comma separated compose profiles to be used for the deployment (connector, identity, keycloak, storage)
+      description: Comma separated compose profiles to be used for the deployment (identity, keycloak, storage)
       type: string
-      default: 'connector,identity,keycloak,storage'
+      default: 'identity,keycloak,storage'
       required: true
-    letsencrypt_email:
-      default: 'admin@example.com'
-      description: Email address to be used for Let's Encrypt certificate generation
+      constraints:
+        - valid_values:
+            - 'identity,keycloak,storage'
+            - 'identity,keycloak'
+            - 'identity,storage'
+            - 'keycloak,storage'
+            - 'identity'
+            - 'storage'
+            - 'keycloak'
+
+    dashboard_username:
+      default: 'test'
+      description: Username for the Connector Dashboard
+      type: string
+    dashboard_password:
+      default: ''
+      description: Password for the Connector Dashboard. If not provided, a random password will be generated.
+      type: string
+
+    use_custom_identity_provider_image:
+      default: true
+      description: |
+        Set to true if you want to use a custom docker image for the Identity Provider service (keycloak).
+        If set to true, you must provide the 'identity_provider_image' and 'identity_provider_db_image' inputs.
+      type: boolean
+    identity_provider_image:
+      default: 'registry.egi.eu/sage.greendealdata.eu/rciam-ishare-keycloak:latest'
+      description: Set a custom docker image to be used for the Identity Provider service (keycloak).
+      type: string
+    identity_provider_db_image:
+      default: 'registry.egi.eu/sage.greendealdata.eu/rciam-ishare-postgres:latest'
+      description: Set a custom docker image to be used for the Identity Provider database service.
+      type: string
+    identity_provider_ca_file:
+      default: ''
+      description: Set a custom CA file to be used for the Identity Provider service (keycloak)
+      type: string
+    identity_provider_satellite_id:
+      default: 'EU.EORI.PL12345678'
+      description: Set a custom satellite ID to be used for the Identity Provider service (keycloak)
+      type: string
+    identity_provider_satellite_url:
+      default: 'https://pr-middleware.62.3.175.232.nip.io/v2.0.1'
+      description: Set a custom satellite URL to be used for the Identity Provider service (keycloak)
       type: string
 
     keycloak_address:
@@ -104,13 +176,28 @@ topology_template:
       description: Address of the Vault server (only needed if the 'identity' compose profile is not used)
       type: string
 
+    ishare_client_id:
+      default: 'EU.EORI.XX12345678'
+      description: iSHARE Client ID (only used in reconfiguration)
+      type: string
+    ishare_certificate:
+      default: ''
+      description: iSHARE certificate
+      type: string
+      required: true
+    ishare_certificate_pass:
+      default: ''
+      description: iSHARE certificate password
+      type: string
+      required: true
+
   node_templates:
 
     vc_sage:
       type: tosca.nodes.ec3.Application
       artifacts:
         docker_role:
-          file: grycap.docker
+          file: grycap.sage_edc,devel
           type: tosca.artifacts.AnsibleGalaxy.role
       capabilities:
         endpoint:
@@ -125,11 +212,11 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/sage/artifacts/vc_compose.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/new_sage/artifacts/vc_compose.yml
             inputs:
-              letsencrypt_email: { get_input: letsencrypt_email }
-              dns_name: { get_input: domain_name }
-              compose_profiles: { get_input: compose_profiles }
+              letsencrypt_email: "jhondoe@server.com"
+              domain_name: { concat: [ get_input: sub_domain_name, '.', get_input: domain_name ] }
+              compose_profiles: { concat: [ 'connector,', get_input: compose_profiles] }
               keycloak_address: { get_input: keycloak_address }
               identity_hub_address: { get_input: identity_hub_address }
               vault_address: { get_input: vault_address }
@@ -138,6 +225,19 @@ topology_template:
               dataspace_hub_url: { get_input: dataspace_hub_url }
               connector_id: { get_input: connector_id }
               catalog_api_key: { get_input: catalog_api_key }
+              dashboard_username: { get_input: dashboard_username }
+              dashboard_password: { get_input: dashboard_password }
+              use_custom_identity_provider_image: { get_input: use_custom_identity_provider_image }
+              identity_provider_image: { get_input: identity_provider_image }
+              identity_provider_db_image: { get_input: identity_provider_db_image }
+              identity_provider_ca_file: { get_input: identity_provider_ca_file }
+              identity_provider_satellite_id: { get_input: identity_provider_satellite_id }
+              identity_provider_satellite_url: { get_input: identity_provider_satellite_url }
+              ishare_client_id: { get_input: ishare_client_id }
+              ishare_pr_iss: { get_input: identity_provider_satellite_id }
+              sage_tls_cert: { get_input: ishare_certificate }
+              sage_tls_cert_password: { get_input: ishare_certificate_pass }
+              branch: DEM-579_PR-extension
       requirements:
         - host: simple_node
 
@@ -147,7 +247,7 @@ topology_template:
         endpoint:
           properties:
             additional_dns_names:
-              - { concat: [ '*@', get_input: domain_name ] }
+              - { concat: [ '*@', get_input: sub_domain_name, '.', get_input: domain_name ] }
             network_name: PUBLIC
         host:
           properties:
@@ -159,21 +259,21 @@ topology_template:
             type: linux
 
   outputs:
-    connector_url:
-      value: { concat: [ 'https://connector.', get_input: [ domain_name ], '/api' ] }
     dashboard_url:
-      value: { concat: [ 'https://dashboard.', get_input: [ domain_name ], '/' ] }
+      value: { concat: [ 'https://dashboard.', get_input: sub_domain_name, '.', get_input: [ domain_name ], '/' ] }
+    connector_url:
+      value: { concat: [ 'https://connector.', get_input: sub_domain_name, '.', get_input: [ domain_name ], '/api' ] }
     keycloak_url:
-      value: { concat: [ 'https://keycloak.', get_input: [ domain_name ], '/' ] }
+      value: { concat: [ 'https://keycloak.', get_input: sub_domain_name, '.', get_input: [ domain_name ], '/' ] }
     identity_hub_url:
-      value: { concat: [ 'https://identity-hub.', get_input: [ domain_name ], '/' ] }
-    vault_url:
-      value: { concat: [ 'https://vault.', get_input: [ domain_name ], '/' ] }
+      value: { concat: [ 'https://identity-hub.', get_input: sub_domain_name, '.', get_input: [ domain_name ], '/' ] }
     storage_url:
-      value: { concat: [ 'https://storage.', get_input: [ domain_name ], '/' ] }
-    consumer_backend_url:
-      value: { concat: [ 'https://consumer-backend.', get_input: [ domain_name ], '/' ] }
-    traefik_dashboard_url:
-      value: { concat: [ 'https://traefik.', get_input: [ domain_name ], '/' ] }
+      value: { concat: [ 'https://storage.', get_input: sub_domain_name, '.', get_input: [ domain_name ], '/' ] }
+    dashboard_username:
+      value: { get_attribute: [ simple_node, ansible_output, vc_sage_simple_node_conf_simple_node, tasks, 'grycap.sage_edc : dashboard_username', output ] }
+    dashboard_password:
+      value: { get_attribute: [ simple_node, ansible_output, vc_sage_simple_node_conf_simple_node, tasks, 'grycap.sage_edc : dashboard_password', output ] }
     env_file:
-      value: { get_attribute: [ simple_node, ansible_output, vc_sage_simple_node_conf_simple_node, tasks, env_file, output ] }
+      value: { get_attribute: [ simple_node, ansible_output, vc_sage_simple_node_conf_simple_node, tasks, 'grycap.sage_edc : env_file', output ] }
+    onboarding_file:
+      value: { get_attribute: [ simple_node, ansible_output, vc_sage_simple_node_conf_simple_node, tasks, 'grycap.sage_edc : onboarding_file', output ] }
