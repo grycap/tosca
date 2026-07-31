@@ -178,16 +178,16 @@ topology_template:
 
     ishare_client_id:
       default: 'EU.EORI.XX12345678'
-      description: iSHARE Client ID (only used in reconfiguration)
+      description: Participant ID
       type: string
     ishare_certificate:
       default: ''
-      description: iSHARE certificate
+      description: Participant Certificate
       type: string
       required: true
     ishare_certificate_pass:
       default: ''
-      description: iSHARE certificate password
+      description: Participant Certificate password
       type: string
       required: true
 
