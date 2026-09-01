@@ -27,6 +27,8 @@ metadata:
       - catalog_api_key
       - ishare_client_id:
           reconfigure: true
+          pattern: "^EU\\.EORI\\.[a-zA-Z]{2}[0-9]{8}$"
+          tag_type: text
       - ishare_certificate:
           tag_type: secret
       - ishare_certificate_pass:
@@ -259,6 +261,12 @@ topology_template:
             type: linux
 
   outputs:
+    participant_id:
+      value: { get_input: ishare_client_id }
+    dataspace_connector_id:
+      value: { get_input: connector_id }
+    hostname:
+      value: { concat: [ get_input: sub_domain_name, '.', get_input: domain_name ] }
     dashboard_url:
       value: { concat: [ 'https://dashboard.', get_input: sub_domain_name, '.', get_input: [ domain_name ], '/' ] }
     connector_url:
