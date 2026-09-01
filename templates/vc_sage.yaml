@@ -27,6 +27,8 @@ metadata:
       - catalog_api_key
       - ishare_client_id:
           reconfigure: true
+          pattern: "^EU\\.EORI\\.[a-zA-Z]{2}[0-9]{8}$"
+          tag_type: text
       - ishare_certificate:
           tag_type: secret
       - ishare_certificate_pass:
