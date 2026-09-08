@@ -3,14 +3,14 @@
   connection: local
   vars:
     kubeconfig_path: '/etc/kubernetes/admin.conf'
-    jupyterhub_helm_chart_version: "{{ helm_chart_version | default('4.3.0') }}"
+    jupyterhub_helm_chart_version: "{{ helm_chart_version | default('4.4.2') }}"
     jup_auth_class: "{{ authenticator_class | default('dummy') }}"
     jup_dummy_pass: "{{ dummy_pass | default('dummy_pass') }}"
     jup_admin_user: "{{ admin_user | default('admin') }}"
     dns_name: "{{ kube_public_dns_name | default('') }}"
     jup_storage_size: "{{ storage_size | default('10Gi') }}"
     single_user_image: 'jupyterhub/k8s-singleuser-sample'
-    single_user_tag: '2.0.0'
+    single_user_tag: "{{ helm_chart_version | default('4.4.2') }}"
     default_profile_list:
       - display_name: '1CPU 1GB environment'
         description: '1CPU 1GB environment'
@@ -120,6 +120,7 @@
               baseUrl: /jupyterhub/
               config:
                 Authenticator:
+                  allow_all: true
                   admin_users:
                     - {{ jup_admin_user }}
                 DummyAuthenticator:
@@ -132,6 +133,8 @@
                 type: ClusterIP
             {{ ingress }}
             singleuser:
+              cloudMetadata:
+                blockWithIptables: false
               image:
                 name: {{ single_user_image }}
                 tag: {{ single_user_tag }}
