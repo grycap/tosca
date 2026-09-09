@@ -1,0 +1,147 @@
+---
+- name: Install yProvStore
+  hosts: localhost
+  connection: local
+  vars:
+    branch: "v2.0.1"
+    traefik_letsencrypt_email: "{{ letsencrypt_email | default('server@yprovstore.fedcloud.eu') }}"
+    traefik_dns_name: "{{ dns_name | default('yprovstore.fedcloud.eu') }}"
+    traefik_public_ip: "{{ public_ip | default(ansible_default_ipv4.address) }}"
+    minio_endpoint: "localhost:9000"
+    minio_root_password: "minio123"
+    minio_root_user: "minio"
+    minio_bucket_name: "yprov-documents"
+    minio_secure: "False"
+  roles:
+    - role: 'grycap.docker'
+  tasks:
+    - name: check if yProvStore files are already downloaded
+      stat:
+        path: /opt/yProvStore/docker-compose.yml
+      register: docker_file_stat
+
+    - name: Download yProvStore files
+      git:
+        repo: 'https://github.com/HPCI-Lab/yProvStore'
+        dest: /opt/yProvStore
+        version: "{{ branch }}"
+      when: not docker_file_stat.stat.exists
+
+    - name: copy .env.example to .env
+      copy:
+        src: /opt/yProvStore/.env.example
+        dest: /opt/yProvStore/.env
+        remote_src: true
+        mode: '644'
+        force: false
+
+    - name: Create keys directory
+      file:
+        path: /opt/yProvStore/keys/
+        state: directory
+        mode: '644'
+
+    - name: Create private key file for
+      copy:
+        content: ""
+        dest: /opt/yProvStore/keys/user_private.pem
+        mode: '644'
+        force: false
+
+    - name: Set MinIO connection variables
+      set_fact:
+        minio_endpoint: "{{ storage_connection_string | urlsplit('hostname') }}"
+        minio_root_password: "{{ storage_connection_string | urlsplit('password') }}"
+        minio_root_user: "{{ storage_connection_string | urlsplit('username') }}"
+        minio_bucket_name: "{{ storage_connection_string | urlsplit('path') | regex_replace('^/', '') }}"
+        minio_secure: "True"
+      when: storage_connection_string is defined and storage_connection_string != ''
+
+    - name: Update .env file
+      lineinfile:
+        path: /opt/yProvStore/.env
+        regexp: '^{{ item.var }}='
+        line: '{{ item.var }}={{ item.value }}'
+      loop:
+        - { var: 'USE_LOCAL_PID_SERVICE', value: 'True' }
+        - { var: 'MINIO_ROOT_USER', value: '{{ minio_root_user }}' }
+        - { var: 'MINIO_ROOT_PASSWORD', value: '{{ minio_root_password }}' }
+        - { var: 'MINIO_BUCKET_NAME', value: '{{ minio_bucket_name }}' }
+        - { var: 'MINIO_ENDPOINT', value: '{{ minio_endpoint }}' }
+        - { var: 'MINIO_SECURE', value: '{{ minio_secure }}' }
+        - { var: 'POSTGRES_USER', value: 'postgres' }
+        - { var: 'POSTGRES_PASSWORD', value: 'postgres123' }
+        - { var: 'POSTGRES_DB', value: 'yprovstore' }
+        - { var: 'APP_PORT', value: '8000' }
+        - { var: 'DOCUMENT_SIZE_LIMIT', value: '{{ document_size_limit | default(100) }}' }
+
+    - name: Update .env file
+      lineinfile:
+        path: /opt/yProvStore/.env
+        regexp: '^DB_CONNECTION_STRING='
+        line: 'DB_CONNECTION_STRING={{ db_connection_string }}'
+      when: db_connection_string is defined and db_connection_string != ''
+
+    - name: Update .env file with OIDC authentication variables
+      lineinfile:
+        path: /opt/yProvStore/.env
+        regexp: '^{{ item.var }}='
+        line: '{{ item.var }}={{ item.value }}'
+      loop:
+        - { var: 'USE_EGI_CHECKIN_AUTH', value: 'True' }
+        - { var: 'EGI_CHECKIN_INTROSPECTION_ENDPOINT', value: '{{ oidc_instrospection_endpoint }}' }
+        - { var: 'EGI_CHECKIN_CLIENT_ID', value: '{{ oidc_client_id }}' }
+        - { var: 'EGI_CHECKIN_CLIENT_SECRET', value: '{{ oidc_client_secret }}' }
+        - { var: 'EGI_CHECKIN_REQUIRED_ENTITLEMENTS', value: '{{ oidc_required_entitlements }}' }
+      when: use_oidc_auth | bool | default(false)
+
+    - name: Update docker-compose.yml with Traefik configuration
+      blockinfile:
+        path: /opt/yProvStore/docker-compose.yml
+        insertbefore: '^  minio:'
+        prepend_newline: true
+        block: |
+          # Traefik reverse proxy configuration
+              labels:
+                - "traefik.enable=true"
+                - "traefik.http.routers.api.service=api"
+                - "traefik.http.routers.api.rule=Host(`{{ traefik_dns_name }}`, `{{ traefik_public_ip }}`)"
+                - "traefik.http.routers.api.entrypoints=websecure"
+                - "traefik.http.routers.api.tls.certresolver=myresolver"
+                - "traefik.http.services.api.loadbalancer.server.port=8000"
+            traefik:
+              image: "traefik:v2.11"
+              container_name: "traefik"
+              command:
+                # - "--log.level=DEBUG"
+                - "--api.insecure=true"
+                - "--providers.docker=true"
+                - "--providers.docker.exposedbydefault=false"
+                - "--entrypoints.web.address=:80"
+                - "--entrypoints.websecure.address=:443"
+                - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+                - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+                - "--entrypoints.web.http.redirections.entrypoint.permanent=true"
+                - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
+                - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+                #- "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+                - "--certificatesresolvers.myresolver.acme.email={{ traefik_letsencrypt_email }}"
+                - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+              ports:
+                - "80:80"
+                - "443:443"
+                - "8080:8080"
+              volumes:
+                - "./letsencrypt:/letsencrypt"
+                - "/var/run/docker.sock:/var/run/docker.sock:ro"
+
+    - name: Add curl package in Dockerfile
+      lineinfile:
+        path: /opt/yProvStore/Dockerfile
+        line: '    curl \'
+        insertafter: '    dos2unix \\'
+
+    - name: Exec docker-compose up
+      docker_compose:
+        project_src: /opt/yProvStore/
+        state: present
