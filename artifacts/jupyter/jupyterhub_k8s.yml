@@ -21,29 +21,41 @@
           cpu_limit: 2
           mem_limit: '2G'
           cpu_guarantee: 2
-          mem_guarantee': '2G'
-      - display_name: '2CPU 2GB BiodiversityR environment'
-        description: '2CPU 2GB BiodiversityR environment'
-        kubespawner_override:
-          image: 'grycap/jupyter-biodiversityr-mount'
-          cpu_limit: 2
-          mem_limit: '2G'
-          cpu_guarantee: 2
-          mem_guarantee': '2G'
-      - display_name: '2CPU 4GB 1GPU environment'
-        description: '2CPU 4GB 1GPU environment (only use it if some of the K8s WNs has GPU support)'
-        kubespawner_override:
-          image: 'grycap/k8s-singleuser-sample-gpu:latest'
-          cpu_limit: 2
-          mem_limit: '4G'
-          cpu_guarantee: 2
-          mem_guarantee': '4G'
-          extra_resource_limits:
-            nvidia.com/gpu: 1
-          extra_resource_guarantees:
-            nvidia.com/gpu: 1
+          mem_guarantee: '2G'
+    biodiversityr_profile:
+      display_name: '2CPU 2GB BiodiversityR environment'
+      description: '2CPU 2GB BiodiversityR environment'
+      kubespawner_override:
+        image: 'grycap/jupyter-biodiversityr-mount'
+        cpu_limit: 2
+        mem_limit: '2G'
+        cpu_guarantee: 2
+        mem_guarantee: '2G'
+    gpu_profile:
+      display_name: '2CPU 4GB 1GPU environment'
+      description: '2CPU 4GB 1GPU environment (only use it if some of the K8s WNs has GPU support)'
+      kubespawner_override:
+        image: 'grycap/k8s-singleuser-sample-gpu:latest'
+        cpu_limit: 2
+        mem_limit: '4G'
+        cpu_guarantee: 2
+        mem_guarantee: '4G'
+        extra_resource_limits:
+          nvidia.com/gpu: 1
+        extra_resource_guarantees:
+          nvidia.com/gpu: 1
     data_mount: "{{ install_data_mount | default(false) }}"
   tasks:
+    - name: "Set default profile list with BiodiversityR profile if enabled"
+      set_fact:
+        default_profile_list: "{{ default_profile_list + [biodiversityr_profile] }}"
+      when: biodiversityr_enabled | default(false)
+
+    - name: "Set default profile list with GPU profile if enabled"
+      set_fact:
+        default_profile_list: "{{ default_profile_list + [gpu_profile] }}"
+      when: gpu_enabled | default(false)
+
     - name: Add jupyterhub helm repo
       command: helm repo add jupyterhub https://jupyterhub.github.io/helm-chart/
       environment:
