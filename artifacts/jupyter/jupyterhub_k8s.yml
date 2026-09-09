@@ -21,7 +21,7 @@
           cpu_limit: 2
           mem_limit: '2G'
           cpu_guarantee: 2
-          mem_guarantee': '2G'
+          mem_guarantee: '2G'
     biodiversityr_profile:
       display_name: '2CPU 2GB BiodiversityR environment'
       description: '2CPU 2GB BiodiversityR environment'
@@ -30,7 +30,7 @@
         cpu_limit: 2
         mem_limit: '2G'
         cpu_guarantee: 2
-        mem_guarantee': '2G'
+        mem_guarantee: '2G'
     gpu_profile:
       display_name: '2CPU 4GB 1GPU environment'
       description: '2CPU 4GB 1GPU environment (only use it if some of the K8s WNs has GPU support)'
@@ -39,7 +39,7 @@
         cpu_limit: 2
         mem_limit: '4G'
         cpu_guarantee: 2
-        mem_guarantee': '4G'
+        mem_guarantee: '4G'
         extra_resource_limits:
           nvidia.com/gpu: 1
         extra_resource_guarantees:
