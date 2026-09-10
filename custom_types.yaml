@@ -1459,6 +1459,11 @@ node_types:
         description: Default minimum disk size per volume
         required: false
         default: "200Mi"
+      storage_system:
+        type: string
+        description: Storage system to be used in OSCAR
+        required: false
+        default: "MinIO"
     artifacts:
       minio_role:
         file: grycap.kubeminio
@@ -1500,6 +1505,7 @@ node_types:
             minio_quota_storage: { get_property: [ SELF, minio_quota_storage ] }
             metrics: { get_property: [ SELF, metrics ] }
             kserve_enable: { get_property: [ SELF, kserve_enable ] }
+            storage_system: { get_property: [ SELF, storage_system ] }
     requirements:
       - host:
           capability: tosca.capabilities.Container

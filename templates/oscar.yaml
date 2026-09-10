@@ -1,13 +1,13 @@
 tosca_definitions_version: tosca_simple_yaml_1_0
 
 imports:
-  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/oscar_rustfs/custom_types.yaml
 
 description: Deploy an OSCAR Virtual Cluster.
 
 metadata:
   template_name: OSCAR
-  template_version: "1.8.0"
+  template_version: "1.9.0"
   display_name: Deploy an OSCAR Virtual Cluster
   icon: images/oscar.png
   order: 2
@@ -26,6 +26,7 @@ metadata:
     OSCAR Data:
       - admin_token
       - oscar_password
+      - storage_system
       - minio_password
       - minio_quota_enabled
       - minio_quota_buckets:
@@ -146,6 +147,12 @@ topology_template:
       type: string
       description: OSCAR password
       default: oscar123
+    storage_system:
+      type: string
+      description: Storage system to be used in OSCAR
+      default: MinIO
+      constraints:
+        - valid_values: [ MinIO, RustFS ]
     minio_password:
       type: string
       description: MinIO password (8 characters min.)
@@ -265,6 +272,7 @@ topology_template:
     oscar:
       type: tosca.nodes.indigo.OSCAR
       properties:
+        storage_system: { get_input: storage_system }
         minio_secretkey: { get_input: minio_password }
         password: { get_input: oscar_password }
         dns_host: { concat: [ get_input: cluster_name, '.', get_input: domain_name ] }
