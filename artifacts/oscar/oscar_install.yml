@@ -22,7 +22,7 @@
       enable_httproute: '{{ minio_enable_ingress }}'
       public_hostname_api: "{{ minio_dns_host }}"
       public_hostname_console: "{{ minio_dns_host_console }}"
-      when: storage_system == "MinIO"
+      when: storage_system is not defined or storage_system == "MinIO"
 
     - role: 'grycap.kuberustfs'
       rustfs_accesskey: 'minio'
@@ -30,7 +30,7 @@
       master_deploy: true
       enable_httproute: '{{ minio_enable_ingress }}'
       public_hostname: "{{ minio_dns_host }}"
-      when: storage_system == "RustFS"
+      when: storage_system is defined and storage_system == "RustFS"
 
     - role: 'grycap.kubefaas'
       faas_framework: 'knative'
