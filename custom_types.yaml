@@ -1465,6 +1465,9 @@ node_types:
         required: false
         default: "MinIO"
     artifacts:
+      rustfs_role:
+        file: grycap.kuberustfs
+        type: tosca.artifacts.AnsibleGalaxy.role
       minio_role:
         file: grycap.kubeminio
         type: tosca.artifacts.AnsibleGalaxy.role
