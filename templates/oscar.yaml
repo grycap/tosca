@@ -26,6 +26,7 @@ metadata:
     OSCAR Data:
       - admin_token
       - oscar_password
+      - storage_system
       - minio_password
       - minio_quota_enabled
       - minio_quota_buckets:
@@ -146,6 +147,12 @@ topology_template:
       type: string
       description: OSCAR password
       default: oscar123
+    storage_system:
+      type: string
+      description: Storage system to be used in OSCAR
+      default: MinIO
+      constraints:
+        - valid_values: [ MinIO, RustFS ]
     minio_password:
       type: string
       description: MinIO password (8 characters min.)
@@ -265,6 +272,7 @@ topology_template:
     oscar:
       type: tosca.nodes.indigo.OSCAR
       properties:
+        storage_system: { get_input: storage_system }
         minio_secretkey: { get_input: minio_password }
         password: { get_input: oscar_password }
         dns_host: { concat: [ get_input: cluster_name, '.', get_input: domain_name ] }
