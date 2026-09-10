@@ -52,4 +52,4 @@
       additional_config:
         allowedImagePrefix: '{{ allowed_image_prefixes }}'
       oidc_issuer: "{{ oidc_issuers | default(['https://aai.egi.eu/auth/realms/egi']) | join(',') }}"
-      storage_system: '{{ storage_system | default("MinIO") | lower }}'
+      object_storage_type: '{{ storage_system | default("MinIO") | lower }}'
