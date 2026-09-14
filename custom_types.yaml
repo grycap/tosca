@@ -1464,6 +1464,11 @@ node_types:
         description: Storage system to be used in OSCAR
         required: false
         default: "MinIO"
+      version:
+        type: string
+        description: Version of OSCAR to install
+        required: false
+        default: "latest"
     artifacts:
       rustfs_role:
         file: grycap.kuberustfs
@@ -1509,6 +1514,7 @@ node_types:
             metrics: { get_property: [ SELF, metrics ] }
             kserve_enable: { get_property: [ SELF, kserve_enable ] }
             storage_system: { get_property: [ SELF, storage_system ] }
+            oscar_version: { get_property: [ SELF, version ] }
     requirements:
       - host:
           capability: tosca.capabilities.Container
