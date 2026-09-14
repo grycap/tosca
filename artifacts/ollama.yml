@@ -118,6 +118,8 @@
       community.docker.docker_compose_v2:
         project_src: /opt/openwebui/
         state: present
+        wait: true
+        wait_timeout: 600
 
     - name: Pull ollama models
       command:
