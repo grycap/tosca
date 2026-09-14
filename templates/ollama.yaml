@@ -16,7 +16,6 @@ metadata:
       - ollama_driver_version:
           enabled_by: ollama_nvidia_support
       - ollama_models_name
-      - ollama_dns_node_name
   parents:
     - simple-node-disk.yml
 
