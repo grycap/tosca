@@ -66,7 +66,6 @@
                 - .:/app/backend/data
               environment:
                 - OLLAMA_BASE_URL=http://ollama:11434
-                - OLLAMA_STREAM=false
               networks:
                 - backend
                 - frontend
@@ -85,6 +84,7 @@
               restart: always
               command:
               #- "--log.level=DEBUG"
+              - "--accesslog=true"
               - "--api.insecure=true"
               - "--providers.docker=true"
               - "--providers.docker.exposedbydefault=false"
@@ -98,6 +98,9 @@
               #- "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
               - "--certificatesresolvers.myresolver.acme.email={{ openwebui_cert_email }}"
               - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+              - "--serversTransport.forwardingTimeouts.dialTimeout=30s"
+              - "--serversTransport.forwardingTimeouts.responseHeaderTimeout=0s"
+              - "--serversTransport.forwardingTimeouts.idleConnTimeout=300s"
               ports:
               - "80:80"
               - "443:443"
