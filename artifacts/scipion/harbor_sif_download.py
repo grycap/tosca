@@ -14,6 +14,7 @@ import json
 import argparse
 import time
 import hashlib
+import ssl
 import urllib.request
 import urllib.error
  
@@ -54,7 +55,7 @@ def parse_image_ref(ref):
     return host, repo, tag
  
  
-def get_token(host, repo, user=None, password=None):
+def get_token(host, repo, user=None, password=None, ssl_context=None):
     """Obtains an anonymous or authenticated Bearer token from Harbor."""
     token_url = (
         f"https://{host}/service/token"
@@ -69,7 +70,7 @@ def get_token(host, repo, user=None, password=None):
         req.add_header("Authorization", f"Basic {creds}")
  
     try:
-        with urllib.request.urlopen(req, timeout=30) as resp:
+        with urllib.request.urlopen(req, timeout=30, context=ssl_context) as resp:
             data = json.loads(resp.read())
             token = data.get("token") or data.get("access_token")
             if not token:
@@ -79,7 +80,7 @@ def get_token(host, repo, user=None, password=None):
         raise RuntimeError(f"Error fetching token ({e.code}): {e.reason}")
  
  
-def get_manifest(host, repo, tag, token):
+def get_manifest(host, repo, tag, token, ssl_context=None):
     """Fetches the OCI manifest for the image."""
     url = f"https://{host}/v2/{repo}/manifests/{tag}"
     req = urllib.request.Request(url)
@@ -87,7 +88,7 @@ def get_manifest(host, repo, tag, token):
     req.add_header("Accept", "application/vnd.oci.image.manifest.v1+json")
  
     try:
-        with urllib.request.urlopen(req, timeout=30) as resp:
+        with urllib.request.urlopen(req, timeout=30, context=ssl_context) as resp:
             return json.loads(resp.read())
     except urllib.error.HTTPError as e:
         body = e.read().decode(errors="replace")
@@ -137,7 +138,7 @@ def verify_sha256(filepath, expected_digest):
     return sha256.hexdigest() == expected
  
  
-def download_blob(host, repo, digest, output_path, token, total_size):
+def download_blob(host, repo, digest, output_path, token, total_size, ssl_context=None):
     """
     Downloads a blob with resume support (Range requests).
     Returns True if completed, False if the download should be retried
@@ -159,7 +160,7 @@ def download_blob(host, repo, digest, output_path, token, total_size):
         log(f"  Total size: {format_size(total_size)}", CYAN)
  
     try:
-        with urllib.request.urlopen(req, timeout=60) as resp:
+        with urllib.request.urlopen(req, timeout=60, context=ssl_context) as resp:
             # 206 = Partial Content (resume), 200 = full download from start
             status = resp.status
             if status == 200 and existing > 0:
@@ -223,9 +224,15 @@ def main():
     parser.add_argument("-u", "--user", default=None, help="Username (optional, for private registries)")
     parser.add_argument("-p", "--password", default=None, help="Password (optional)")
     parser.add_argument("--no-verify", action="store_true", help="Skip SHA-256 verification after download")
+    parser.add_argument(
+        "--no-ssl-verify",
+        action="store_true",
+        help="Skip SSL certificate verification (insecure)",
+    )
     parser.add_argument("--retries", type=int, default=20, help="Maximum number of retries (default: 20)")
     parser.add_argument("--wait", type=int, default=10, help="Seconds between retries (default: 10)")
     args = parser.parse_args()
+    ssl_context = ssl._create_unverified_context() if args.no_ssl_verify else None
  
     # ── Parse image reference ─────────────────────────────────────────────────
     try:
@@ -247,8 +254,8 @@ def main():
     # ── Fetch manifest ────────────────────────────────────────────────────────
     log("Fetching manifest...", CYAN)
     try:
-        token = get_token(host, repo, args.user, args.password)
-        manifest = get_manifest(host, repo, tag, token)
+        token = get_token(host, repo, args.user, args.password, ssl_context)
+        manifest = get_manifest(host, repo, tag, token, ssl_context)
         layer = find_sif_layer(manifest)
     except RuntimeError as e:
         log(f"ERROR: {e}", RED)
@@ -264,8 +271,10 @@ def main():
     log("Starting download...", CYAN)
     for attempt in range(1, args.retries + 1):
         try:
-            token = get_token(host, repo, args.user, args.password)
-            success = download_blob(host, repo, digest, output_path, token, total_size)
+            token = get_token(host, repo, args.user, args.password, ssl_context)
+            success = download_blob(
+                host, repo, digest, output_path, token, total_size, ssl_context
+            )
         except RuntimeError as e:
             log(f"  ERROR: {e}", RED)
             success = False
