@@ -67,7 +67,7 @@
     - name: Start pulling Scipion apptainer container asynchronously
       shell: |
         python3 harbor_sif_download.py rinchen.cnb.csic.es/scipion/apptainer-{{ CONTAINER_FLAVOUR }}:{{ CONTAINER_VERSION }} \
-        -o apptainer-{{ CONTAINER_FLAVOUR }}:{{ CONTAINER_VERSION }}.sif --no-verify && \
+        -o apptainer-{{ CONTAINER_FLAVOUR }}:{{ CONTAINER_VERSION }}.sif --no-verify --no-ssl-verify && \
         touch apptainer-{{ CONTAINER_FLAVOUR }}:{{ CONTAINER_VERSION }}.downloaded
       args:
         chdir: /home/scipionuser/container
@@ -109,7 +109,7 @@
 
     - name: Download scipion launcher
       get_url:
-        url: https://raw.githubusercontent.com/I2PC/scipion-containers/refs/heads/master/launcher.sh.template
+        url: https://raw.githubusercontent.com/I2PC/scipion-containers/refs/heads/eoscDC/launcher.sh.template
         dest: /home/scipionuser/ScipionUserData/launcher.sh
         mode: '0755'
         owner: scipionuser
