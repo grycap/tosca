@@ -423,7 +423,7 @@ def format_params(params):
 
 
 def exec_scipion(params, template_path, display=":1", scipion_user_data="/home/scipionuser/ScipionUserData",
-                 container_path="/home/scipionuser/container/apptainer-spa:latest.sif"):
+                 instance_name="scipion-spa"):
     
     cmd = ["apptainer", "exec", "--containall",
            "--env", f"DISPLAY={display}",
@@ -432,7 +432,7 @@ def exec_scipion(params, template_path, display=":1", scipion_user_data="/home/s
            "--bind", "/tmp/.X11-unix",
            "--bind", "/etc/resolv.conf",
            "--bind", f"{scipion_user_data}",
-           container_path,
+           f"instance://{instance_name}",
            "/scipion/scipion3",
            "template",
            f"{template_path}"]
@@ -450,7 +450,7 @@ def main():
     parser.add_argument("empiar_id", help="ID de la entrada EMPIAR, p.ej. 10352 o EMPIAR-10352")
     parser.add_argument("--json", action="store_true", help="imprime JSON en vez de los parámetros del template")
     parser.add_argument("--template", action="store", help="ejecuta Scipion con los parámetros obtenidos, usando la plantilla indicada (ruta relativa a ScipionUserData)")
-    parser.add_argument("--container", action="store", help="ruta al contenedor de Scipion", default="/home/scipionuser/container/apptainer-spa:latest.sif")
+    parser.add_argument("--instance", action="store", help="Nombre de la instancia de Scipion", default="scipion-spa")
     parser.add_argument("--display", action="store", default=":1", help="valor de DISPLAY para ejecutar Scipion")
     parser.add_argument("--scipion-user-data", action="store", default=os.getcwd(), help=f"ruta a ScipionUserData")
     args = parser.parse_args()
@@ -462,7 +462,7 @@ def main():
         sys.exit(1)
 
     if args.template:
-        exec_scipion(params, args.template, container_path=args.container,
+        exec_scipion(params, args.template, instance_name=args.instance,
                      display=args.display, scipion_user_data=args.scipion_user_data)
     elif args.json:
         print(json.dumps(params, indent=4))

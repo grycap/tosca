@@ -6,6 +6,7 @@
     vnode_master: scipion-master
     CONTAINER_FLAVOUR: "{{ scipion_flavour | default('base') }}" # Available flavours are: base, spa, tomo, full
     CONTAINER_VERSION: "{{ scipion_version | default('latest') }}"
+    SCIPION_INSTANCE_NAME: "{{ 'scipion-' ~ CONTAINER_FLAVOUR) }}"
     SLURM_VERSION: "25.11.2"
     nvidia_param: ""
     single_vm: "{{ scipion_single_vm | default(false) }}"
@@ -36,6 +37,15 @@
     - name: Create ScipionUserData directory
       file:
         path: /home/scipionuser/ScipionUserData
+        state: directory
+        owner: scipionuser
+        group: scipionuser
+        mode: '0755'
+
+
+    - name: Create ScipionUserData logs directory
+      file:
+        path: /home/scipionuser/ScipionUserData/logs
         state: directory
         owner: scipionuser
         group: scipionuser
@@ -256,17 +266,32 @@
       delay: 60
       when: scipion_container_download_job.ansible_job_id is defined
 
-    - name: Launch Scipion container
+    - name: Check for running Scipion instance
+      command:
+        argv:
+          - apptainer
+          - instance
+          - list
+          - "{{ SCIPION_INSTANCE_NAME }}"
+      register: scipion_instances
+      changed_when: false
+      become: true
+      become_user: scipionuser
+
+    - name: Start Scipion instance if not running
       shell: |
           xhost +SI:localuser:scipionuser &&
 
-          nohup apptainer exec {{ nvidia_param }} --containall \
+          apptainer instance start {{ nvidia_param }} --containall \
             --env DISPLAY=:1 --env SCIPION_USER_DATA=/home/scipionuser/ScipionUserData \
             --bind /run --bind /tmp/.X11-unix --bind /etc/resolv.conf \
             --bind /home/scipionuser/ScipionUserData \
+            --bind /home/scipionuser/ScipionUserData/logs:/logs \
             {{ SLURM_DEPENDENCIES_CMD }} \
             /home/scipionuser/container/apptainer-{{ CONTAINER_FLAVOUR }}:{{ CONTAINER_VERSION }}.sif \
-            /scipion/scipion3  > /home/scipionuser/scipion3.log 2>&1 &
+            {{ SCIPION_INSTANCE_NAME | quote }}
+      when: >-
+        (scipion_instances.stdout | regex_search('(?m)^' ~ (SCIPION_INSTANCE_NAME | regex_escape) ~ '\s')) is none
       become: true
       become_user: scipionuser
       environment:
