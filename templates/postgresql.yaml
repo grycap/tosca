@@ -1,0 +1,103 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+imports:
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+
+description: Deploy PostgreSQL on a VM.
+
+metadata:
+  template_version: "1.0.0"
+  template_name: PostgreSQL
+  display_name: Deploy PostgreSQL on a VM
+  parents:
+    - simple-node-disk.yml
+  tabs:
+    PostgreSQL: postgresql_.*
+
+topology_template:
+
+  inputs:
+    postgresql_version:
+      type: string
+      description: PostgreSQL major version to install.
+      default: "14"
+
+    postgresql_database:
+      type: string
+      description: Application database name.
+      default: appdb
+      required: yes
+
+    postgresql_user:
+      type: string
+      description: Application database user.
+      default: appuser
+      required: yes
+
+    postgresql_password:
+      type: string
+      description: Password for the application database user.
+      required: yes
+
+    postgresql_port:
+      type: integer
+      description: TCP port exposed by PostgreSQL.
+      default: 5432
+      required: yes
+
+  node_templates:
+
+    postgresql:
+      type: tosca.nodes.ec3.Application
+
+      artifacts:
+        postgresql_role:
+          file: rmp2000.postgresql
+          type: tosca.artifacts.AnsibleGalaxy.role
+
+        postgresql_collection:
+          file: community.postgresql
+          type: tosca.artifacts.AnsibleGalaxy.collection
+
+      capabilities:
+        endpoint:
+          properties:
+            ports:
+              postgresql:
+                protocol: tcp
+                source: { get_input: postgresql_port }
+
+      interfaces:
+        Standard:
+          configure:
+            implementation: https://raw.githubusercontent.com/rmp2000/tosca/main/artifacts/postgresql/postgresql_install.yml
+            inputs:
+              postgresql_version: { get_input: postgresql_version }
+              postgresql_database: { get_input: postgresql_database }
+              postgresql_user: { get_input: postgresql_user }
+              postgresql_password: { get_input: postgresql_password }
+              postgresql_port: { get_input: postgresql_port }
+
+      requirements:
+        - host: simple_node
+
+  outputs:
+    postgresql_host:
+      value: { get_attribute: [ simple_node, public_address, 0 ] }
+
+    postgresql_port:
+      value: { get_input: postgresql_port }
+
+    postgresql_database:
+      value: { get_input: postgresql_database }
+
+    postgresql_user:
+      value: { get_input: postgresql_user }
+
+    postgresql_endpoint:
+      value:
+        concat:
+          - postgresql://
+          - { get_attribute: [ simple_node, public_address, 0 ] }
+          - ":"
+          - { get_input: postgresql_port }
