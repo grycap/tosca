@@ -35,15 +35,10 @@ topology_template:
       description: NVIDIA Driver version to install
       default: "535"
 
-    vllm_models_name:
-      type: list
-      entry_schema:
-        type: string
-      description: Name of the AI models to install (see https://docs.vllm.ai/en/latest/models/supported_models/)
-      default:
-      - "Qwen/Qwen3-0.6B"
-      - "meta-llama/Llama-3.2-3B-Instruct"
-      - "mistralai/Mistral-7B-Instruct-v0.3"
+    vllm_model_name:
+      type: string
+      description: Name of the AI model to install (see https://docs.vllm.ai/en/latest/models/supported_models/)
+      default: "Qwen/Qwen3-0.6B"
       required: yes
 
     vllm_tensor_parallel_size:
@@ -98,7 +93,7 @@ topology_template:
             inputs:
               nvidia_support: { get_input: vllm_nvidia_support }
               vllm_driver_version: { get_input: vllm_driver_version }
-              models_name: { get_input: vllm_models_name }
+              model_name: { get_input: vllm_model_name }
               tensor_parallel_size: { get_input: vllm_tensor_parallel_size }
               max_model_len: { get_input: vllm_max_model_len }
               node_public_address: { get_attribute: [ simple_node, public_address, 0 ] }

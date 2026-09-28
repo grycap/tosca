@@ -5,10 +5,8 @@
     openwebui_cert_email: "{{ user_cert_email | default('jhondoe@server.com') }}"
     traefik_host: "{{ node_public_address }}"
     openwebui_image_tag: "main"
-    # This recipe uses the NVIDIA GPU image and serves one Hugging Face model.
-    vllm_image_tag: "latest"
-    # Models to cache on disk; this instance serves the first model in the list.
-    vllm_models_name: "{{ models_name | default(['Qwen/Qwen3-0.6B']) }}"
+    # vLLM downloads this Hugging Face model on first start.
+    vllm_model_name: "{{ model_name | default('Qwen/Qwen3-0.6B') }}"
     vllm_tensor_parallel_size: "{{ tensor_parallel_size | default('1') }}"
     vllm_max_model_len: "{{ max_model_len | default('2048') }}"
     vllm_nvidia_support: "{{ nvidia_support | default(false) | bool }}"
@@ -30,12 +28,16 @@
         state: directory
         mode: '0755'
 
+    - name: Set vLLM image
+      set_fact:
+        vllm_image: "{{ 'vllm/vllm-openai:latest' if vllm_nvidia_support else 'vllm/vllm-openai-cpu:latest-x86_64' }}"
+
     - name: Create docker-compose file
       copy:
         content: |
           services:
             vllm:
-              image: vllm/vllm-openai:{{ vllm_image_tag }}
+              image: {{ vllm_image }}
               container_name: vllm
               restart: always
               ipc: host
@@ -46,7 +48,7 @@
                 - ./vllm-cache:/root/.cache/vllm
               command:
                 - "--model"
-                - {{ vllm_models_name[0] | to_json }}
+                - {{ vllm_model_name | to_json }}
                 - "--host"
                 - "0.0.0.0"
                 - "--port"
@@ -66,6 +68,7 @@
                         capabilities: [gpu]
                         count: all
               {% endif %}
+              # Healthcheck to ensure the vLLM service is up and running
               healthcheck:
                 test:
                   - CMD
@@ -143,25 +146,6 @@
                   driver: bridge
         dest: /opt/openwebui/docker-compose.yaml
         mode: '644'
-
-    - name: Pre-download Hugging Face models with the HF CLI
-      community.docker.docker_container:
-        name: "vllm-model-download-{{ item | replace('/', '-') | replace(':', '-') }}"
-        image: "vllm/vllm-openai:{{ vllm_image_tag }}"
-        entrypoint: hf
-        command:
-          - download
-          - "{{ item }}"
-          - --cache-dir
-          - /root/.cache/huggingface/hub
-        volumes:
-          - /opt/openwebui/huggingface:/root/.cache/huggingface
-        auto_remove: true
-        detach: false
-        state: started
-      # Download all listed models without duplicates.
-      # snapshot_download reuses cached files on subsequent runs.
-      loop: "{{ vllm_models_name }}"
 
     - name: Exec docker-compose up
       community.docker.docker_compose_v2:
