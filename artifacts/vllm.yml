@@ -11,6 +11,7 @@
     vllm_max_model_len: "{{ max_model_len | default('2048') }}"
     vllm_nvidia_support: "{{ nvidia_support | default(false) | bool }}"
     vllm_memory_utilization: "{{ memory_utilization | default(0.6) }}"
+    vllm_tool_call_parser: "{{ tool_call_parser | default('qwen3_xml') }}"
   roles:
     - role: 'grycap.docker'
       vars:
@@ -77,6 +78,9 @@
                 - "{{ vllm_max_model_len }}"
                 - "--gpu-memory-utilization"
                 - "{{ vllm_memory_utilization }}"
+                - "--enable-auto-tool-choice"
+                - "--tool-call-parser"
+                - "{{ vllm_tool_call_parser }}"
               networks:
                 - backend
               {% if vllm_nvidia_support | bool %}
