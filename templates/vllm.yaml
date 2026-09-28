@@ -17,9 +17,10 @@ metadata:
           enabled_by: vllm_nvidia_support
       - vllm_tensor_parallel_size:
           enabled_by: vllm_nvidia_support
-      - vllm_models_name
+      - vllm_model_name
       - vllm_max_model_len
       - vllm_memory_utilization
+      - vllm_tool_call_parser
   parents:
     - simple-node-disk.yml
 
@@ -56,7 +57,9 @@ topology_template:
     vllm_max_model_len:
       type: integer
       description: Maximum length of the model (in tokens)
-      default: 4096
+      default: 8192
+      constraints:
+        - valid_values: [ 8192, 16384, 32768 ]
     
     vllm_memory_utilization:
       type: float
