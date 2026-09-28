@@ -177,4 +177,4 @@
         project_src: /opt/openwebui/
         state: present
         wait: true
-        wait_timeout: 2400
+        wait_timeout: 3600
