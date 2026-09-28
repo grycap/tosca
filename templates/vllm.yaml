@@ -1,0 +1,111 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+imports:
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+
+description: TOSCA template for deploying a Ollama + Open WebUI VM
+
+metadata:
+  template_version: "1.0.0"
+  template_name: vLLM + Open WebUI
+  display_name: Install vLLM + Open WebUI
+  icon: images/vllm.png
+  tabs:
+    vLLM:
+      - vllm_nvidia_support
+      - vllm_driver_version:
+          enabled_by: vllm_nvidia_support
+      - vllm_models_name
+      - vllm_tensor_parallel_size
+      - vllm_max_model_len
+  parents:
+    - simple-node-disk.yml
+
+topology_template:
+
+  inputs:
+
+    vllm_nvidia_support:
+      type: boolean
+      description: Flag to add the NVIDIA runtime to the vLLM installation
+      default: false
+
+    vllm_driver_version:
+      type: string
+      description: NVIDIA Driver version to install
+      default: "535"
+
+    vllm_models_name:
+      type: list
+      entry_schema:
+        type: string
+      description: Name of the AI models to install (see https://docs.vllm.ai/en/latest/models/supported_models/)
+      default:
+      - "Qwen/Qwen3-0.6B"
+      - "meta-llama/Llama-3.2-3B-Instruct"
+      - "mistralai/Mistral-7B-Instruct-v0.3"
+      required: yes
+
+    vllm_tensor_parallel_size:
+      type: integer
+      description: Number of GPUs to use for tensor parallelism (1 means no tensor parallelism)
+      default: 1
+    
+    vllm_max_model_len:
+      type: integer
+      description: Maximum length of the model (in tokens)
+      default: 2048
+
+    # override simple-node-disk ports
+
+    disk_size:
+      type: scalar-unit.size
+      description: Size of the root disk of the VM (in case of 0 disk will no be resized)
+      default: 50 GiB
+      constraints:
+        - valid_values: [ 50 GiB, 100 GiB, 200 GiB, 0 GiB ]
+
+    ports:
+      type: map
+      entry_schema:
+        type: PortSpec
+      description: |
+        List of ports to be Opened in the Cloud site (eg. 22,80,443,2000:2100).
+        You can also include the remote CIDR (eg. 8.8.0.0/24).
+      default:
+        http_port:
+          source: 80
+          protocol: tcp
+        https_port:
+          source: 443
+          protocol: tcp
+
+
+  node_templates:
+
+    vllm:
+      type: tosca.nodes.SoftwareComponent
+      requirements:
+        - host: simple_node
+      artifacts:
+        docker_role:
+          file: grycap.docker
+          type: tosca.artifacts.AnsibleGalaxy.role
+      interfaces:
+        Standard:
+          configure:
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/vllm.yml
+            inputs:
+              vllm_nvidia_support: { get_input: vllm_nvidia_support }
+              vllm_driver_version: { get_input: vllm_driver_version }
+              models_name: { get_input: vllm_models_name }
+              tensor_parallel_size: { get_input: vllm_tensor_parallel_size }
+              max_model_len: { get_input: vllm_max_model_len }
+              node_public_address: { get_attribute: [ simple_node, public_address, 0 ] }
+              dns_node_name: { get_input: dns_name }
+
+  outputs:
+    openwebui_url:
+      value: { concat: [ "https://", { get_attribute: [ simple_node, public_address, 0 ] }, "/"] }
+    openwebui_dns_url:
+      value: { concat: [ "https://", { get_input: dns_name }, "/"] }

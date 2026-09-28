@@ -60,6 +60,7 @@ metadata:
     - interoperability-registry-read.yml
     - pyhandle.yml
     - apptainer.yaml
+    - vllm.yaml
 
 topology_template:
 
