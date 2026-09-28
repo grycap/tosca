@@ -8,7 +8,7 @@
     # vLLM downloads this Hugging Face model on first start.
     vllm_model_name: "{{ model_name | default('Qwen/Qwen3-0.6B') }}"
     vllm_tensor_parallel_size: "{{ tensor_parallel_size | default('1') }}"
-    vllm_max_model_len: "{{ max_model_len | default('2048') }}"
+    vllm_max_model_len: "{{ max_model_len | default('4096') }}"
     vllm_nvidia_support: "{{ nvidia_support | default(false) | bool }}"
     vllm_memory_utilization: "{{ memory_utilization | default(0.6) }}"
     vllm_tool_call_parser: "{{ tool_call_parser | default('qwen3_xml') }}"
