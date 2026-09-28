@@ -96,7 +96,7 @@ topology_template:
           configure:
             implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/vllm.yml
             inputs:
-              vllm_nvidia_support: { get_input: vllm_nvidia_support }
+              nvidia_support: { get_input: vllm_nvidia_support }
               vllm_driver_version: { get_input: vllm_driver_version }
               models_name: { get_input: vllm_models_name }
               tensor_parallel_size: { get_input: vllm_tensor_parallel_size }

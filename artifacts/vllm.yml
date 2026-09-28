@@ -11,7 +11,7 @@
     vllm_models_name: "{{ models_name | default(['Qwen/Qwen3-0.6B']) }}"
     vllm_tensor_parallel_size: "{{ tensor_parallel_size | default('1') }}"
     vllm_max_model_len: "{{ max_model_len | default('2048') }}"
-    vllm_nvidia_support: "{{ docker_nvidia_support | default(false) | bool }}"
+    vllm_nvidia_support: "{{ nvidia_support | default(false) | bool }}"
   roles:
     - role: 'grycap.docker'
       vars:
