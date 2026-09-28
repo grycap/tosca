@@ -10,12 +10,30 @@
     vllm_tensor_parallel_size: "{{ tensor_parallel_size | default('1') }}"
     vllm_max_model_len: "{{ max_model_len | default('2048') }}"
     vllm_nvidia_support: "{{ nvidia_support | default(false) | bool }}"
+    vllm_memory_utilization: "{{ memory_utilization | default(0.6) }}"
   roles:
     - role: 'grycap.docker'
       vars:
         docker_nvidia_support: "{{ vllm_nvidia_support }}"
         docker_nvidia_driver_version: "{{ vllm_driver_version | default('580') }}"
   tasks:
+
+    - name: Detect CPU instruction-set flags for CPU vLLM
+      ansible.builtin.shell: "awk '/^flags[[:space:]]*:/{print; exit} /^Features[[:space:]]*:/{print; exit}' /proc/cpuinfo"
+      register: vllm_cpu_flags
+      changed_when: false
+      when: not (vllm_nvidia_support | bool)
+
+    - name: Require AVX and AVX2 for CPU vLLM
+      ansible.builtin.assert:
+        that:
+          - "' avx ' in (' ' ~ vllm_cpu_flags.stdout ~ ' ')"
+          - "' avx2 ' in (' ' ~ vllm_cpu_flags.stdout ~ ' ')"
+        fail_msg: >-
+          This CPU does not expose AVX and AVX2. The CPU vLLM image cannot run
+          on this node; enable NVIDIA support or use a vLLM image built for
+          this processor.
+      when: not (vllm_nvidia_support | bool)
 
     - name: Set traefik host to DNS name
       set_fact:
@@ -57,9 +75,12 @@
                 - "{{ vllm_tensor_parallel_size }}"
                 - "--max-model-len"
                 - "{{ vllm_max_model_len }}"
+                - "--gpu-memory-utilization"
+                - "{{ vllm_memory_utilization }}"
               networks:
                 - backend
               {% if vllm_nvidia_support | bool %}
+              # Add NVIDIA runtime support for vLLM container
               deploy:
                 resources:
                   reservations:

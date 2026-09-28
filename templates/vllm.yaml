@@ -15,9 +15,11 @@ metadata:
       - vllm_nvidia_support
       - vllm_driver_version:
           enabled_by: vllm_nvidia_support
+      - vllm_tensor_parallel_size:
+          enabled_by: vllm_nvidia_support
       - vllm_models_name
-      - vllm_tensor_parallel_size
       - vllm_max_model_len
+      - vllm_memory_utilization
   parents:
     - simple-node-disk.yml
 
@@ -35,21 +37,31 @@ topology_template:
       description: NVIDIA Driver version to install
       default: "535"
 
+    vllm_tensor_parallel_size:
+      type: integer
+      description: Number of GPUs to use for tensor parallelism (1 means no tensor parallelism)
+      default: 1
+
     vllm_model_name:
       type: string
       description: Name of the AI model to install (see https://docs.vllm.ai/en/latest/models/supported_models/)
       default: "Qwen/Qwen3-0.6B"
       required: yes
-
-    vllm_tensor_parallel_size:
-      type: integer
-      description: Number of GPUs to use for tensor parallelism (1 means no tensor parallelism)
-      default: 1
     
     vllm_max_model_len:
       type: integer
       description: Maximum length of the model (in tokens)
       default: 2048
+    
+    vllm_memory_utilization:
+      type: float
+      description: |-
+        The fraction of memory to assign to the vLLM container (0.1 to 1.0).
+        For example, 0.6 means 60% of the available memory will be assigned to the vLLM container.
+      default: 0.6
+      constraints:
+        - max_value: 1.0
+        - min_value: 0.1
 
     # override simple-node-disk ports
 
@@ -96,6 +108,7 @@ topology_template:
               model_name: { get_input: vllm_model_name }
               tensor_parallel_size: { get_input: vllm_tensor_parallel_size }
               max_model_len: { get_input: vllm_max_model_len }
+              memory_utilization: { get_input: vllm_memory_utilization }
               node_public_address: { get_attribute: [ simple_node, public_address, 0 ] }
               dns_node_name: { get_input: dns_name }
 
