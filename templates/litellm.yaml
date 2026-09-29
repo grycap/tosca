@@ -115,7 +115,7 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/vllm.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/litellm.yml
             inputs:
               nvidia_support: { get_input: vllm_nvidia_support }
               vllm_driver_version: { get_input: vllm_driver_version }

@@ -61,6 +61,7 @@ metadata:
     - pyhandle.yml
     - apptainer.yaml
     - vllm.yaml
+    - litellm.yaml
 
 topology_template:
 
