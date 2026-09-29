@@ -178,10 +178,13 @@
         project_src: /opt/openwebui/
         state: present
 
-    - name: Wait for vLLM service to be healthy
-      ansible.builtin.wait_for:
-        host: localhost
-        port: 8000
-        delay: 10
-        timeout: 2400
-        state: started
+    - name: Wait for vLLM health endpoint
+      ansible.builtin.uri:
+        url: http://127.0.0.1:8000/health
+        method: GET
+        status_code: 200
+        timeout: 5
+      register: vllm_health
+      until: (vllm_health.status | default(0)) == 200
+      retries: 240
+      delay: 10
