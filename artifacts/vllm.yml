@@ -110,6 +110,8 @@
               restart: always
               expose:
                 - "8080"
+              ports:
+                - "127.0.0.1:8080:8080"
               volumes:
                 - .:/app/backend/data
               environment:
@@ -176,5 +178,17 @@
       community.docker.docker_compose_v2:
         project_src: /opt/openwebui/
         state: present
-        wait: true
-        wait_timeout: 3600
+
+    - name: Wait for vLLM container to be healthy
+      community.docker.docker_container_info:
+        name: vllm
+      register: vllm_info
+      until:
+        - vllm_info.exists
+        - >-
+          (vllm_info.container | default({}))
+          .get('State', {})
+          .get('Health', {})
+          .get('Status', '') == 'healthy'
+      retries: 240
+      delay: 10
