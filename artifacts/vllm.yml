@@ -62,6 +62,8 @@
               ipc: host
               expose:
                 - "8000"
+              ports:
+                - "127.0.0.1:8000:8000"
               volumes:
                 - ./huggingface:/root/.cache/huggingface
                 - ./vllm-cache:/root/.cache/vllm
@@ -175,5 +177,11 @@
       community.docker.docker_compose_v2:
         project_src: /opt/openwebui/
         state: present
-        wait: true
-        wait_timeout: 2400
+
+    - name: Wait for vLLM service to be healthy
+      ansible.builtin.wait_for:
+        host: localhost
+        port: 8000
+        delay: 10
+        timeout: 2400
+        state: started
