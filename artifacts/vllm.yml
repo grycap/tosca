@@ -118,7 +118,7 @@
                 - OPENAI_API_BASE_URLS=http://vllm:8000/v1
                 - OPENAI_API_KEYS=EMPTY
               depends_on:
-                - vllm:
+                - vllm
               networks:
                 - backend
                 - frontend
