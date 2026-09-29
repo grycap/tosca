@@ -110,8 +110,6 @@
               restart: always
               expose:
                 - "8080"
-              ports:
-                - "127.0.0.1:8080:8080"
               volumes:
                 - .:/app/backend/data
               environment:
@@ -120,8 +118,7 @@
                 - OPENAI_API_BASE_URLS=http://vllm:8000/v1
                 - OPENAI_API_KEYS=EMPTY
               depends_on:
-                vllm:
-                  condition: service_healthy
+                - vllm:
               networks:
                 - backend
                 - frontend
