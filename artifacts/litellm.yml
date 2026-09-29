@@ -55,7 +55,8 @@
 
     - name: Generate LiteLLM admin password if not provided
       set_fact:
-        litellm_admin_password: "{{ lookup('password', '/var/tmp/litellm_admin_password length=24 chars=ascii_letters,digits') }}"
+        # LiteLLM's default password policy requires upper/lower/digit/special chars.
+        litellm_admin_password: "{{ lookup('password', '/var/tmp/litellm_admin_password length=24 chars=ascii_letters,digits,punctuation') }}"
       when: litellm_enabled | bool and litellm_admin_password == ''
 
     - name: Set traefik host to DNS name
