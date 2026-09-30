@@ -56,7 +56,7 @@
     - name: Generate LiteLLM admin password if not provided
       set_fact:
         # LiteLLM's default password policy requires upper/lower/digit/special chars.
-        litellm_admin_password: "{{ lookup('password', '/var/tmp/litellm_admin_password length=24 chars=ascii_letters,digits,punctuation') }}"
+        litellm_admin_password: "{{ lookup('password', '/var/tmp/litellm_admin_password length=23 chars=ascii_letters,digits') }}!"
       when: litellm_enabled | bool and litellm_admin_password == ''
 
     - name: Set traefik host to DNS name
@@ -194,7 +194,7 @@
                   - CMD
                   - python3
                   - -c
-                  - "import urllib.request; urllib.request.urlopen('http://localhost:4000{{ litellm_path_prefix }}/health/liveliness', timeout=5)"
+                  - "import urllib.request; urllib.request.urlopen('http://localhost:4000{{ litellm_path_prefix }}/health/readiness', timeout=5)"
                 interval: 30s
                 timeout: 10s
                 retries: 3
@@ -310,7 +310,7 @@
 
     - name: Wait for LiteLLM health endpoint
       ansible.builtin.uri:
-        url: "http://127.0.0.1:4000{{ litellm_path_prefix }}/health/liveliness"
+        url: "http://127.0.0.1:4000{{ litellm_path_prefix }}/health/readiness"
         method: GET
         status_code: 200
         timeout: 5
