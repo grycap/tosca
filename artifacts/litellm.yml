@@ -338,3 +338,8 @@
       debug:
         msg: "{{ litellm_master_key }}"
       when: litellm_enabled | bool
+
+    - name: litellm_admin_password
+      debug:
+        msg: "{{ litellm_admin_password }}"
+      when: litellm_enabled | bool

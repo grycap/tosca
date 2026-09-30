@@ -138,4 +138,6 @@ topology_template:
     litellm_dns_url:
       value: { concat: [ "https://", { get_input: dns_name }, "/litellm/"] }
     litellm_ui_admin_password:
+      value: { get_attribute: [ front, ansible_output, vllm_simple_node_conf_simple_node, tasks, litellm_admin_password, output ] }
+    llitellm_master_key:
       value: { get_attribute: [ front, ansible_output, vllm_simple_node_conf_simple_node, tasks, llitellm_master_key, output ] }
