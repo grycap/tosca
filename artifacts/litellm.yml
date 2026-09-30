@@ -298,7 +298,7 @@
         state: present
 
     - name: Wait for vLLM health endpoint
-      ansible.builtin.uri:
+      uri:
         url: http://127.0.0.1:8000/health
         method: GET
         status_code: 200
@@ -309,7 +309,7 @@
       delay: 10
 
     - name: Wait for LiteLLM health endpoint
-      ansible.builtin.uri:
+      uri:
         url: "http://127.0.0.1:4000{{ litellm_path_prefix }}/health/readiness"
         method: GET
         status_code: 200
@@ -321,7 +321,7 @@
       when: litellm_enabled | bool
 
     - name: Create LiteLLM proxy admin account with its own password
-      ansible.builtin.uri:
+      uri:
         url: "http://127.0.0.1:4000{{ litellm_path_prefix }}/user/update"
         method: POST
         headers:
@@ -334,11 +334,7 @@
         status_code: 200
       when: litellm_enabled | bool
 
-    - name: Show generated LiteLLM master key
-      ansible.builtin.debug:
-        msg: >-
-          LiteLLM Admin UI: https://{{ traefik_host }}{{ litellm_path_prefix }}/ui .
-          Log in with email '{{ litellm_admin_email }}' and password '{{ litellm_admin_password }}'
-          (you will be asked to change it on first login). Use the master key '{{ litellm_master_key }}'
-          as the API key for OpenAI-compatible requests.
+    - name: llitellm_master_key
+      debug:
+        msg: "{{ litellm_master_key }}"
       when: litellm_enabled | bool

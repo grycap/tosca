@@ -133,3 +133,9 @@ topology_template:
       value: { concat: [ "https://", { get_attribute: [ simple_node, public_address, 0 ] }, "/"] }
     openwebui_dns_url:
       value: { concat: [ "https://", { get_input: dns_name }, "/"] }
+    litellm_url:
+      value: { concat: [ "https://", { get_attribute: [ simple_node, public_address, 0 ] }, "/litellm"] }
+    litellm_dns_url:
+      value: { concat: [ "https://", { get_input: dns_name }, "/litellm/"] }
+    litellm_ui_admin_password:
+      value: { get_attribute: [ front, ansible_output, vllm_simple_node_conf_simple_node, tasks, llitellm_master_key, output ] }
