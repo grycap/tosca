@@ -25,6 +25,7 @@ metadata:
       - vllm_max_model_len
       - vllm_tool_call_parser
       - vllm_gpu_memory_utilization
+      - vllm_api_key
 
 topology_template:
 
@@ -82,6 +83,13 @@ topology_template:
       type: string
       description: Tool call parser to use for the vLLM model (see https://docs.vllm.ai/en/latest/features/tool_calling/)
       default: "qwen3_xml"
+
+    vllm_api_key:
+      type: string
+      description: API key clients must send (as a Bearer token) to authenticate against the vLLM endpoint
+      required: yes
+      constraints:
+        - min_length: 8
     
     vllm_max_model_len:
       # Container command arguments must be strings when serialized to RADL.
@@ -96,9 +104,10 @@ topology_template:
       type: string
       description: |
         Fraction of memory reserved for the model (KV cache included). On the CPU backend this
-        controls host RAM, not GPU memory, despite the flag's name. Lower it if the container is
-        killed on startup for requesting more memory than is actually free on the node.
-      default: "0.5"
+        controls host RAM, not GPU memory, despite the flag's name. Raise it on a dedicated GPU
+        (e.g. 0.9) if you get KV cache errors; lower it if the container is killed on startup for
+        requesting more memory than is actually free on the node.
+      default: "0.9"
 
   node_templates:
 
@@ -114,7 +123,7 @@ topology_template:
               - "http://"
               - { get_attribute: [ vllm_container, endpoints, 0 ] }
               - "/v1"
-          OPENAI_API_KEYS: "EMPTY"
+          OPENAI_API_KEYS: { get_input: vllm_api_key }
       requirements:
         - host: openwebui_runtime
       artifacts:
@@ -167,6 +176,8 @@ topology_template:
           - "--enable-auto-tool-choice"
           - "--tool-call-parser"
           - get_input: vllm_tool_call_parser
+          - "--api-key"
+          - get_input: vllm_api_key
       requirements:
         - host: vllm_runtime
       artifacts:
@@ -187,6 +198,13 @@ topology_template:
             expose_ports:
               - protocol: tcp
                 target: 8000
+            # External HTTPS access, in addition to the internal expose_ports used by openwebui_container above.
+            # endpoints index for this entry is not guaranteed to be 1: verify after deploying and swap
+            # the get_attribute index below (and in the vllm_endpoint output) if they come out reversed.
+            publish_ports:
+              - protocol: tcp
+                target: 8000
+                endpoint: https://vllm
             volumes:
               - vllm-cache:/tmp/.cache/
               # Volume-backed /dev/shm since the default 64 MiB tmpfs is too small for vLLM
@@ -205,3 +223,5 @@ topology_template:
   outputs:
     openwebui_endpoint:
       value: { get_attribute: [ openwebui_container, endpoints, 0 ] }
+    vllm_endpoint:
+      value: { get_attribute: [ vllm_container, endpoints, 0 ] }
