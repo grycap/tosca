@@ -1,0 +1,178 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+imports:
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+
+description: TOSCA template for deploying a vLLM + Open WebUI Containers
+
+metadata:
+  template_version: "1.0.0"
+  template_name: vLLM + Open WebUI
+  display_name: Install vLLM + Open WebUI
+  icon: images/vllm.png
+  tag: Container
+  tag_color: blue
+  tabs:
+    Host:
+      - openwebui_num_cpus
+      - openwebui_mem_size
+      - vllm_num_cpus
+      - vllm_mem_size
+    vLLM:
+      - vllm_model_name
+      - vllm_max_model_len
+      - vllm_tool_call_parser
+
+topology_template:
+
+  inputs:
+
+    openwebui_num_cpus:
+      type: float
+      description: Number of CPUs assigned to the Open WebUI container
+      default: 1
+      constraints:
+        - greater_or_equal: 0.5
+
+    openwebui_mem_size:
+      type: scalar-unit.size
+      description: Amount of memory assigned to the Open WebUI container
+      default: 2 GB
+      constraints:
+        - greater_or_equal: 1 GB
+
+    vllm_num_cpus:
+      type: float
+      description: Number of CPUs assigned to the vLLM container
+      default: 15
+      constraints:
+        - greater_or_equal: 1.0
+
+    vllm_mem_size:
+      type: scalar-unit.size
+      description: Amount of memory assigned to the vLLM container
+      default: 62 GB
+      constraints:
+        - greater_or_equal: 4 GB
+
+    vllm_model_name:
+      type: string
+      description: Name of the AI model to install (see https://docs.vllm.ai/en/latest/models/supported_models/)
+      default: "Qwen/Qwen3-0.6B"
+      required: yes
+    
+    vllm_tool_call_parser:
+      type: string
+      description: Tool call parser to use for the vLLM model (see https://docs.vllm.ai/en/latest/features/tool_calling/)
+      default: "qwen3_xml"
+    
+    vllm_max_model_len:
+      # Container command arguments must be strings when serialized to RADL.
+      type: string
+      description: Maximum length of the model (in tokens)
+      default: "8192"
+      constraints:
+        - valid_values: [ "8192", "16384", "32768" ]
+
+  node_templates:
+
+    openwebui_container:
+      type: tosca.nodes.Container.Application.Docker
+      properties:
+        environment:
+          WEBUI_SECRET_KEY_FILE: "/app/backend/data/.webui_secret_key"
+          ENABLE_OLLAMA_API: "false"
+          ENABLE_OPENAI_API: "true"
+          OPENAI_API_BASE_URLS:
+            concat:
+              - "http://"
+              - { get_attribute: [ vllm_container, endpoints, 0 ] }
+              - "/v1"
+          OPENAI_API_KEYS: "EMPTY"
+      requirements:
+        - host: openwebui_runtime
+      artifacts:
+        my_image:
+          file:  "ghcr.io/open-webui/open-webui:main"
+          type: tosca.artifacts.Deployment.Image.Container.Docker
+
+    # The properties of the runtime to host the container
+    openwebui_runtime:
+      type: tosca.nodes.Container.Runtime.Docker
+      capabilities:
+        host:
+          properties:
+            num_cpus: { get_input: openwebui_num_cpus }
+            mem_size: { get_input: openwebui_mem_size }
+            publish_ports:
+              - protocol: tcp
+                target: 8080
+                endpoint: https://openwebui
+            volumes:
+              - "openwebui_data:/app/backend/data"
+
+    openwebui_data:
+      type: tosca.nodes.BlockStorage
+      properties:
+        size: 5 GB
+
+    vllm_container:
+      type: tosca.nodes.Container.Application.Docker
+      properties:
+        # OKD/OpenShift runs containers as an arbitrary non-root UID, which can't
+        # access /root (700 root:root), so caches must live under /tmp instead.
+        environment:
+          HOME: "/tmp"
+          HF_HOME: "/tmp/.cache/huggingface"
+        command:
+          - "vllm"
+          - "serve"
+          - get_input: vllm_model_name
+          - "--host"
+          - "0.0.0.0"
+          - "--port"
+          - "8000"
+          - "--tensor-parallel-size"
+          - "1"
+          - "--max-model-len"
+          - get_input: vllm_max_model_len
+          - "--enable-auto-tool-choice"
+          - "--tool-call-parser"
+          - get_input: vllm_tool_call_parser
+      requirements:
+        - host: vllm_runtime
+      artifacts:
+        my_image:
+          file: "vllm/vllm-openai-cpu:latest-x86_64"
+          type: tosca.artifacts.Deployment.Image.Container.Docker
+
+
+    # The properties of the runtime to host the container
+    vllm_runtime:
+      type: tosca.nodes.Container.Runtime.Docker
+      capabilities:
+        host:
+          properties:
+            num_cpus: { get_input: vllm_num_cpus }
+            mem_size: { get_input: vllm_mem_size }
+            expose_ports:
+              - protocol: tcp
+                target: 8000
+            volumes:
+              - vllm-cache:/tmp/.cache/
+              # Volume-backed /dev/shm since the default 64 MiB tmpfs is too small for vLLM
+              - vllm-shm:/dev/shm
+
+    vllm-shm:
+      type: tosca.nodes.BlockStorage
+      properties:
+        size: 2 GB
+
+    vllm-cache:
+      type: tosca.nodes.BlockStorage
+      properties:
+        size: 40 GB
+
+  outputs:
+    openwebui_endpoint:
+      value: { get_attribute: [ openwebui_container, endpoints, 0 ] }
