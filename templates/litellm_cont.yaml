@@ -1,0 +1,252 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+imports:
+  - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
+
+description: TOSCA template for deploying a vLLM + LiteLLM Containers
+
+metadata:
+  template_version: "1.0.0"
+  template_name: vLLM + LiteLLM
+  display_name: Install vLLM + LiteLLM
+  icon: images/litellm.png
+  tag: Container
+  tag_color: blue
+  tabs:
+    Host:
+      - litellm_num_cpus
+      - litellm_mem_size
+      - vllm_num_cpus
+      - vllm_mem_size
+      - vllm_num_gpus
+    LiteLLM:
+      - litellm_master_key
+    vLLM:
+      - vllm_image
+      - vllm_model_name
+      - vllm_max_model_len
+      - vllm_tool_call_parser
+      - vllm_gpu_memory_utilization
+
+topology_template:
+
+  inputs:
+
+    litellm_num_cpus:
+      type: float
+      description: Number of CPUs assigned to the LiteLLM container
+      default: 0.5
+
+    litellm_mem_size:
+      type: scalar-unit.size
+      description: Amount of memory assigned to the LiteLLM container
+      default: 1 GB
+
+    litellm_master_key:
+      type: string
+      description: Master key clients must send (as a Bearer token) to authenticate against the LiteLLM proxy endpoint
+      required: yes
+      constraints:
+        - min_length: 8
+
+    vllm_num_cpus:
+      type: float
+      description: Number of CPUs assigned to the vLLM container
+      default: 15
+      constraints:
+        - greater_or_equal: 1.0
+
+    vllm_mem_size:
+      type: scalar-unit.size
+      description: Amount of memory assigned to the vLLM container
+      default: 62 GB
+      constraints:
+        - greater_or_equal: 4 GB
+
+    vllm_image:
+      type: string
+      description: vLLM container image to use. Pick the GPU build when vllm_num_gpus > 0
+      default: "vllm/vllm-openai-cpu:latest-x86_64"
+      constraints:
+        - valid_values: [ "vllm/vllm-openai-cpu:latest-x86_64", "vllm/vllm-openai:latest" ]
+
+    vllm_num_gpus:
+      type: integer
+      description: Number of GPUs assigned to the vLLM container (0 = CPU only, requires the CPU image)
+      default: 0
+      constraints:
+        valid_values: [ 0, 1 ]
+
+    vllm_model_name:
+      type: string
+      description: Name of the AI model to install (see https://docs.vllm.ai/en/latest/models/supported_models/)
+      default: "Qwen/Qwen3-0.6B"
+      required: yes
+    
+    vllm_tool_call_parser:
+      type: string
+      description: Tool call parser to use for the vLLM model (see https://docs.vllm.ai/en/latest/features/tool_calling/)
+      default: "qwen3_xml"
+    
+    vllm_max_model_len:
+      # Container command arguments must be strings when serialized to RADL.
+      type: string
+      description: Maximum length of the model (in tokens)
+      default: "8192"
+      constraints:
+        - valid_values: [ "8192", "16384", "32768" ]
+
+    vllm_gpu_memory_utilization:
+      # Container command arguments must be strings when serialized to RADL.
+      type: string
+      description: |
+        Fraction of memory reserved for the model (KV cache included). On the CPU backend this
+        controls host RAM, not GPU memory, despite the flag's name. Raise it on a dedicated GPU
+        (e.g. 0.9) if you get KV cache errors; lower it if the container is killed on startup for
+        requesting more memory than is actually free on the node.
+      default: "0.7"
+
+  node_templates:
+
+    litellm_container:
+      type: tosca.nodes.Container.Application.Docker
+      properties:
+        environment:
+          STORE_MODEL_IN_DB: "True"
+          LITELLM_MASTER_KEY: { get_input: litellm_master_key }
+          DATABASE_URL:
+            concat:
+              - "postgresql://litellm:litellm_db_password@"
+              - { get_attribute: [ litellm_db_container, endpoints, 0 ] }
+              - "/litellm"
+        command:
+          - "litellm"
+          - "--model"
+          - concat:
+              - "hosted_vllm/"
+              - { get_input: vllm_model_name }
+          - "--api_base"
+          - concat:
+              - "http://"
+              - { get_attribute: [ vllm_container, endpoints, 0 ] }
+              - "/v1"
+          - "--port"
+          - "4000"
+      requirements:
+        - host: litellm_runtime
+      artifacts:
+        my_image:
+          file:  "ghcr.io/berriai/litellm:main-stable"
+          type: tosca.artifacts.Deployment.Image.Container.Docker
+
+    # The properties of the runtime to host the container
+    litellm_runtime:
+      type: tosca.nodes.Container.Runtime.Docker
+      capabilities:
+        host:
+          properties:
+            num_cpus: { get_input: litellm_num_cpus }
+            mem_size: { get_input: litellm_mem_size }
+            publish_ports:
+              - protocol: tcp
+                target: 4000
+                endpoint: https://litellm
+
+    # Postgres DB backing the LiteLLM UI (users, sessions, virtual keys)
+    litellm_db_container:
+      type: tosca.nodes.Container.Application.Docker
+      properties:
+        environment:
+          # sclorg images support running as an arbitrary non-root UID (needed on OKD/OpenShift),
+          # unlike the official postgres image which fails to chown its data dir in that setup.
+          POSTGRESQL_DATABASE: "litellm"
+          POSTGRESQL_USER: "litellm"
+          POSTGRESQL_PASSWORD: "litellm_db_password"
+      requirements:
+        - host: litellm_db_runtime
+      artifacts:
+        my_image:
+          file: "quay.io/sclorg/postgresql-16-c9s:latest"
+          type: tosca.artifacts.Deployment.Image.Container.Docker
+
+    litellm_db_runtime:
+      type: tosca.nodes.Container.Runtime.Docker
+      capabilities:
+        host:
+          properties:
+            num_cpus: 0.5
+            mem_size: 512 MB
+            expose_ports:
+              - protocol: tcp
+                target: 5432
+            volumes:
+              - "litellm_db_data:/var/lib/pgsql/data"
+
+    litellm_db_data:
+      type: tosca.nodes.BlockStorage
+      properties:
+        size: 5 GB
+
+    vllm_container:
+      type: tosca.nodes.Container.Application.Docker
+      properties:
+        # OKD/OpenShift runs containers as an arbitrary non-root UID, which can't
+        # access /root (700 root:root), so caches must live under /tmp instead.
+        environment:
+          HOME: "/tmp"
+          HF_HOME: "/tmp/.cache/huggingface"
+        command:
+          - "vllm"
+          - "serve"
+          - get_input: vllm_model_name
+          - "--host"
+          - "0.0.0.0"
+          - "--port"
+          - "8000"
+          - "--tensor-parallel-size"
+          - "1"
+          - "--max-model-len"
+          - get_input: vllm_max_model_len
+          - "--gpu-memory-utilization"
+          - get_input: vllm_gpu_memory_utilization
+          - "--enable-auto-tool-choice"
+          - "--tool-call-parser"
+          - get_input: vllm_tool_call_parser
+      requirements:
+        - host: vllm_runtime
+      artifacts:
+        my_image:
+          file: { get_input: vllm_image }
+          type: tosca.artifacts.Deployment.Image.Container.Docker
+
+
+    # The properties of the runtime to host the container
+    vllm_runtime:
+      type: tosca.nodes.Container.Runtime.Docker
+      capabilities:
+        host:
+          properties:
+            num_cpus: { get_input: vllm_num_cpus }
+            mem_size: { get_input: vllm_mem_size }
+            num_gpus: { get_input: vllm_num_gpus }
+            expose_ports:
+              - protocol: tcp
+                target: 8000
+            volumes:
+              - vllm-cache:/tmp/.cache/
+              # Volume-backed /dev/shm since the default 64 MiB tmpfs is too small for vLLM
+              - vllm-shm:/dev/shm
+
+    vllm-shm:
+      type: tosca.nodes.BlockStorage
+      properties:
+        size: 2 GB
+
+    vllm-cache:
+      type: tosca.nodes.BlockStorage
+      properties:
+        size: 40 GB
+
+  outputs:
+    litellm_endpoint:
+      value: { get_attribute: [ litellm_container, endpoints, 0 ] }
