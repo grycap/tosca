@@ -18,10 +18,13 @@ metadata:
       - openwebui_mem_size
       - vllm_num_cpus
       - vllm_mem_size
+      - vllm_num_gpus
     vLLM:
+      - vllm_image
       - vllm_model_name
       - vllm_max_model_len
       - vllm_tool_call_parser
+      - vllm_gpu_memory_utilization
 
 topology_template:
 
@@ -55,6 +58,20 @@ topology_template:
       constraints:
         - greater_or_equal: 4 GB
 
+    vllm_image:
+      type: string
+      description: vLLM container image to use. Pick the GPU build when vllm_num_gpus > 0
+      default: "vllm/vllm-openai-cpu:latest-x86_64"
+      constraints:
+        - valid_values: [ "vllm/vllm-openai-cpu:latest-x86_64", "vllm/vllm-openai:latest" ]
+
+    vllm_num_gpus:
+      type: integer
+      description: Number of GPUs assigned to the vLLM container (0 = CPU only, requires the CPU image)
+      default: 0
+      constraints:
+        valid_values: [ 0, 1 ]
+
     vllm_model_name:
       type: string
       description: Name of the AI model to install (see https://docs.vllm.ai/en/latest/models/supported_models/)
@@ -73,6 +90,15 @@ topology_template:
       default: "8192"
       constraints:
         - valid_values: [ "8192", "16384", "32768" ]
+
+    vllm_gpu_memory_utilization:
+      # Container command arguments must be strings when serialized to RADL.
+      type: string
+      description: |
+        Fraction of memory reserved for the model (KV cache included). On the CPU backend this
+        controls host RAM, not GPU memory, despite the flag's name. Lower it if the container is
+        killed on startup for requesting more memory than is actually free on the node.
+      default: "0.5"
 
   node_templates:
 
@@ -136,6 +162,8 @@ topology_template:
           - "1"
           - "--max-model-len"
           - get_input: vllm_max_model_len
+          - "--gpu-memory-utilization"
+          - get_input: vllm_gpu_memory_utilization
           - "--enable-auto-tool-choice"
           - "--tool-call-parser"
           - get_input: vllm_tool_call_parser
@@ -143,7 +171,7 @@ topology_template:
         - host: vllm_runtime
       artifacts:
         my_image:
-          file: "vllm/vllm-openai-cpu:latest-x86_64"
+          file: { get_input: vllm_image }
           type: tosca.artifacts.Deployment.Image.Container.Docker
 
 
@@ -155,6 +183,7 @@ topology_template:
           properties:
             num_cpus: { get_input: vllm_num_cpus }
             mem_size: { get_input: vllm_mem_size }
+            num_gpus: { get_input: vllm_num_gpus }
             expose_ports:
               - protocol: tcp
                 target: 8000
