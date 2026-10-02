@@ -5,7 +5,8 @@ de Scipion "2D Streaming" (Xmipp):
 https://workflowhub.eu/workflows/2169
 
     scipion3 template workflow_2D_xmipp.json.template \
-        moviespath='...' sa='...' ac='...' sr='...' dose='...' gain='...'
+        moviespath='...' filepatern='...' sa='...' ac='...' sr='...' \
+        dose='...' gain='...' gainRot='...' gainFlip='...'
 
 Fuentes de datos:
   - EMPIAR REST API  (https://www.ebi.ac.uk/empiar/api/entry/<id>/)
@@ -14,7 +15,8 @@ Fuentes de datos:
     (https://ftp.ebi.ac.uk/empiar/world_availability/<id>/)
       -> localización real de los ficheros (la estructura de "directory" que
          devuelve la API no siempre coincide 1:1 con el árbol FTP, así que se
-         verifica) y búsqueda del fichero de gain junto a las movies.
+         verifica), búsqueda del fichero de gain y detección de la extensión
+         real de las movies para filepatern.
   - EMDB REST API (https://www.ebi.ac.uk/emdb/api/entry/<EMD-id>), a través de
     la cross-reference EMD-XXXX de la entrada EMPIAR
       -> spherical aberration (nominal_cs) y dosis por frame.
@@ -35,6 +37,7 @@ import os
 import re
 import sys
 import subprocess
+from collections import Counter
 
 import requests
 
@@ -56,7 +59,30 @@ MOVIE_CATEGORY_PRIORITY = [
     "micrographs - multi-frame",
 ]
 
-GAIN_KEYWORDS = ["gain", "dark", "norm"]
+GAIN_KEYWORDS = [
+    "gain", "dark", "norm",
+    # Convención Gatan/SerialEM para referencias de gain de K2/K3
+    # (p.ej. EMPIAR-10305: "SuperRef_TMV_001_Sep18.dm4"), que no contienen
+    # ninguna de las palabras anteriores.
+    "superref", "super_ref", "super-ref",
+    "countref", "count_ref", "count-ref",
+]
+
+# Formatos propios de Gatan DigitalMicrograph, usados casi siempre para
+# referencias de gain y prácticamente nunca como formato de movie.
+GAIN_EXTENSIONS = (".dm3", ".dm4")
+
+MOVIE_EXTENSIONS = (".tif", ".tiff", ".mrc", ".mrcs", ".eer")
+
+# Mejor esfuerzo para cuando no se puede listar la carpeta de movies (p.ej.
+# no se ha encontrado el directorio real en el FTP): EMPIAR declara el
+# formato como "TIFF"/"MRC"/"EER", pero eso no dice si la extensión real es
+# .tif o .tiff — la mayoría de depositantes usan .tif pese a llamarlo "TIFF".
+DATA_FORMAT_TO_EXT = {
+    "TIFF": "*.tif",
+    "MRC": "*.mrcs",
+    "EER": "*.eer",
+}
 
 HREF_RE = re.compile(r'href="([^"?][^"]*)"')
 
@@ -251,12 +277,93 @@ def is_gain_file(name):
     return any(k in name.lower() for k in GAIN_KEYWORDS) or name.lower().endswith(".gain")
 
 
-def find_gain_file(empiar_num, movies_dir, max_levels_up=2, scipion_user_data=None):
+def _ext_of(name):
+    idx = name.rfind(".")
+    return name[idx:].lower() if idx != -1 else ""
+
+
+def guess_filepatern(file_names):
+    """
+    Determina el patrón glob de las movies (para 'filesPattern' de
+    ProtImportMovies) a partir de las extensiones realmente presentes en la
+    carpeta de movies, en vez de asumir siempre '*.tiff' (el valor por
+    defecto de la plantilla) — la propia EMPIAR API declara el formato como
+    "TIFF" incluso cuando la extensión real de los ficheros es '.tif', y
+    algunos detectores usan '.eer'/'.mrc'.
+    """
+    counts = Counter()
+    for name in file_names:
+        ext = _ext_of(name)
+        if ext in MOVIE_EXTENSIONS:
+            counts[name[-len(ext):]] += 1
+
+    if not counts:
+        return None
+
+    best_ext, _ = counts.most_common(1)[0]
+    return f"*{best_ext}"
+
+
+def find_gain_by_extension(file_names):
+    """
+    Último recurso: sin coincidencia por nombre, busca un único fichero en
+    formato Gatan (.dm3/.dm4) que conviva con las movies en otro formato
+    (p.ej. .tif) — es habitual que sea la referencia de gain aunque su
+    nombre no lo indique (p.ej. EMPIAR-10305: "SuperRef_..._Sep18.dm4").
+    Si hay más de un candidato no se puede decidir y se descarta.
+    """
+    movie_like = [n for n in file_names if _ext_of(n) in MOVIE_EXTENSIONS]
+    if not movie_like:
+        return None
+
+    candidates = [n for n in file_names if _ext_of(n) in GAIN_EXTENSIONS]
+    return candidates[0] if len(candidates) == 1 else None
+
+
+def _search_gain_in_subdir(dir_url, max_depth):
+    """
+    Busca un fichero de gain dentro de una subcarpeta cuyo NOMBRE ya sugiere
+    que es la carpeta del gain (p.ej. "gainRefer/", visto en EMPIAR-12567,
+    donde el gain no está junto a "movies/" sino en una carpeta hermana
+    dedicada bajo "data/"). Acotado a max_depth niveles de recursión.
+    """
+    if max_depth <= 0:
+        return None
+
+    entries = list_dir(dir_url)
+    files = [(n, d) for n, d in entries if not d]
+    dirs = [(n, d) for n, d in entries if d]
+
+    for name, _ in files:
+        if is_gain_file(name):
+            return dir_url, name
+
+    by_ext = find_gain_by_extension([n for n, _ in files])
+    if by_ext:
+        return dir_url, by_ext
+
+    # Carpeta dedicada al gain con un único fichero dentro: asumimos que es
+    # ese, aunque su nombre no contenga "gain"/"dark"/"norm" literalmente
+    # (el nombre de la propia carpeta ya es la señal fuerte aquí).
+    if len(files) == 1 and not dirs:
+        return dir_url, files[0][0]
+
+    for name, _ in dirs:
+        found = _search_gain_in_subdir(as_dir(join_path(dir_url, name)), max_depth - 1)
+        if found:
+            return found
+
+    return None
+
+
+def find_gain_file(empiar_num, movies_dir, max_levels_up=2, scipion_user_data=None,
+                   max_subdir_depth=2):
     """
     Busca el fichero de gain en la carpeta de movies y, si no está ahí,
     en los directorios padre (hasta max_levels_up niveles, sin salir de la
     carpeta de la propia entrada EMPIAR) — es habitual que el gain se
     deposite junto a "data/" cubriendo varias subcarpetas de movies.
+    También busca en subcarpetas cuyo nombre sugiera que contienen el gain.
     """
     if not movies_dir:
         return None, None
@@ -282,9 +389,22 @@ def find_gain_file(empiar_num, movies_dir, max_levels_up=2, scipion_user_data=No
             break
         visited.add(url)
 
-        for name, is_dir in list_dir(url):
+        entries = list_dir(url)
+        file_names = [n for n, d in entries if not d]
+
+        for name, is_dir in entries:
             if not is_dir and is_gain_file(name):
                 return url, name
+
+        by_ext = find_gain_by_extension(file_names)
+        if by_ext:
+            return url, by_ext
+
+        for name, is_dir in entries:
+            if is_dir and is_gain_file(name):
+                found = _search_gain_in_subdir(as_dir(join_path(url, name)), max_subdir_depth)
+                if found:
+                    return found
 
         if url == root:
             break
@@ -308,6 +428,60 @@ def parse_float(value_of):
         return float(value_of)
     except (TypeError, ValueError):
         return None
+
+
+DEGREES_TO_ROT_CODE = {0: 0, 90: 1, 180: 2, 270: 3}
+
+# MotionCor2/3 rotation code para el gain: 0/1/2/3 = 0/90/180/270 grados.
+GAIN_ROT_RE = re.compile(
+    r"r\s*/\s*f\s*(?P<rot>[0-3])(?:\s*/\s*(?P<flip>[0-2]))?", re.IGNORECASE
+)
+GAIN_DEGREES_RE = re.compile(
+    r"(?P<deg>\d{1,3})\s*(?:°|degrees?)\s*rotation", re.IGNORECASE
+)
+GAIN_FLIP_UPSIDE_RE = re.compile(r"flip\s+upside\s+down", re.IGNORECASE)
+GAIN_FLIP_LEFTRIGHT_RE = re.compile(r"flip\s+left\s*-?\s*right", re.IGNORECASE)
+
+
+def parse_gain_orientation(text):
+    """
+    Muchos depositantes de EMPIAR indican en 'details' cómo hay que rotar o
+    voltear el gain para que coincida con la orientación de las movies (p.ej.
+    EMPIAR-10305: "TIFF files have a 270° rotation with the gain reference
+    (r/f 3)"; EMPIAR-10352: "use gain.mrc with 90 degree rotation and flip
+    upside down"). Si no se corrige, MotionCor2/3 detecta el mismatch de
+    dimensiones y descarta la corrección de movimiento en TODAS las movies
+    sin lanzar ningún error visible en el log de Scipion (solo en
+    run.stderr), y el protocolo termina en 'failed' pese a mostrar
+    "DONE N/N".
+
+    Devuelve (gain_rot, gain_flip) como códigos de MotionCor2/3 (0-3 y 0-2),
+    o (None, None) si no se ha encontrado ninguna pista en el texto.
+    """
+    if not text:
+        return None, None
+
+    m = GAIN_ROT_RE.search(text)
+    if m:
+        rot = int(m.group("rot"))
+        flip = int(m.group("flip")) if m.group("flip") is not None else 0
+        return rot, flip
+
+    rot = None
+    m = GAIN_DEGREES_RE.search(text)
+    if m:
+        rot = DEGREES_TO_ROT_CODE.get(int(m.group("deg")))
+
+    flip = None
+    if GAIN_FLIP_UPSIDE_RE.search(text):
+        flip = 1
+    elif GAIN_FLIP_LEFTRIGHT_RE.search(text):
+        flip = 2
+
+    if rot is None and flip is None:
+        return None, None
+
+    return rot or 0, flip or 0
 
 
 def get_emdb_microscopy(emd_id):
@@ -368,10 +542,43 @@ def harvest(empiar_id, scipion_user_data=None):
             if gain_file
             else ""
         )
+        movies_dir_files = [n for n, is_dir in list_dir(movies_dir_url) if not is_dir]
+        filepatern = guess_filepatern(movies_dir_files)
     else:
         base = os.path.abspath(scipion_user_data or ".")
         moviespath = f"{base}/{num}/data/{directory_hint}/" if directory_hint else ""
         gain = ""
+        filepatern = None
+
+    if not filepatern:
+        data_format = (imageset or {}).get("data_format") or (imageset or {}).get("header_format")
+        filepatern = DATA_FORMAT_TO_EXT.get((data_format or "").upper())
+        print(
+            f"[WARNING] EMPIAR-{num}: no se ha podido determinar 'filepatern' "
+            f"listando la carpeta de movies; se usa el valor por "
+            f"{'defecto según data_format (' + data_format + ')' if filepatern else 'defecto de la plantilla'} "
+            f"— revisa que coincida con la extensión real de los ficheros.",
+            file=sys.stderr,
+        )
+        filepatern = filepatern or "*.tiff"
+
+    gain_rot, gain_flip = (None, None)
+    if gain:
+        gain_rot, gain_flip = parse_gain_orientation((imageset or {}).get("details"))
+        if gain_rot is None:
+            print(
+                f"[WARNING] EMPIAR-{num}: se ha encontrado un gain ({gain}) pero "
+                f"no se ha detectado en 'details' ninguna pista sobre su "
+                f"orientación (rotación/flip) respecto a las movies. Si el gain "
+                f"está traspuesto y no se corrige, MotionCor2/3 saltará la "
+                f"corrección de movimiento en TODAS las movies sin dar error "
+                f"visible en Scipion, y el protocolo terminará en 'failed' pese "
+                f"a completar todos los pasos. Revisa las dimensiones del gain "
+                f"contra las de una movie y, si no coinciden, añade "
+                f"'gainRot='/'gainFlip=' manualmente (0/1/2/3 = 0/90/180/270 "
+                f"grados; flip 0=ninguno/1=upside-down/2=left-right).",
+                file=sys.stderr,
+            )
 
     if not gain:
         print(
@@ -403,22 +610,28 @@ def harvest(empiar_id, scipion_user_data=None):
 
     return {
         "moviespath": moviespath,
+        "filepatern": filepatern,
         "sa": sa,
         "ac": DEFAULTS["ac"],
         "sr": sr,
         "dose": dose,
         "gain": gain,
+        "gainRot": gain_rot or 0,
+        "gainFlip": gain_flip or 0,
     }
 
 
 def format_params(params):
     return (
         f"moviespath='{params['moviespath']}' "
+        f"filepatern='{params['filepatern']}' "
         f"sa='{params['sa']}' "
         f"ac='{params['ac']}' "
         f"sr='{params['sr']}' "
         f"dose='{params['dose']}' "
-        f"gain='{params['gain']}'"
+        f"gain='{params['gain']}' "
+        f"gainRot='{params['gainRot']}' "
+        f"gainFlip='{params['gainFlip']}'"
     )
 
 
