@@ -3,13 +3,13 @@ tosca_definitions_version: tosca_simple_yaml_1_0
 imports:
   - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
 
-description: TOSCA template for deploying a vLLM + Open WebUI VM
+description: Deploy vLLM + LiteLLM + Open WebUI VM
 
 metadata:
   template_version: "1.0.0"
-  template_name: vLLM + Open WebUI
-  display_name: Install vLLM + Open WebUI
-  icon: images/vllm.png
+  template_name: vLLM + LiteLLM + Open WebUI
+  display_name: Install vLLM + LiteLLM + Open WebUI
+  icon: images/litellm.png
   tabs:
     vLLM:
       - vllm_nvidia_support
@@ -21,12 +21,28 @@ metadata:
       - vllm_max_model_len
       - vllm_memory_utilization
       - vllm_tool_call_parser
+      - vllm_api_key
+    OpenWebUI:
+      - openwebui_enabled
+    LiteLLM:
+      - litellm_admin_email
+      - litellm_enabled
   parents:
     - simple-node-disk.yml
 
 topology_template:
 
   inputs:
+
+    openwebui_enabled:
+      type: boolean
+      description: Deploy Open WebUI alongside the model services
+      default: true
+
+    vllm_api_key:
+      type: string
+      description: API key for vLLM (leave empty to disable API key authentication)
+      default: ""
 
     vllm_nvidia_support:
       type: boolean
@@ -71,6 +87,11 @@ topology_template:
         - max_value: 1.0
         - min_value: 0.1
 
+    litellm_admin_email:
+      type: string
+      description: Email address of the LiteLLM admin user
+      default: "jonhdoe@server.com"
+
     # override simple-node-disk ports
 
     disk_size:
@@ -109,8 +130,10 @@ topology_template:
       interfaces:
         Standard:
           configure:
-            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/vllm.yml
+            implementation: https://raw.githubusercontent.com/grycap/tosca/main/artifacts/ai/litellm.yml
             inputs:
+              install_openwebui: { get_input: openwebui_enabled }
+              install_litellm: { get_input: litellm_enabled }
               nvidia_support: { get_input: vllm_nvidia_support }
               vllm_driver_version: { get_input: vllm_driver_version }
               model_name: { get_input: vllm_model_name }
@@ -120,9 +143,27 @@ topology_template:
               tool_call_parser: { get_input: vllm_tool_call_parser }
               node_public_address: { get_attribute: [ simple_node, public_address, 0 ] }
               dns_node_name: { get_input: dns_name }
+              admin_email: { get_input: litellm_admin_email }
+              vllm_api_key: { get_input: vllm_api_key }
 
   outputs:
+    vllm_url:
+      description: vLLM URL
+      value: { concat: [ "https://", { get_attribute: [ simple_node, public_address, 0 ] }, "/vllm/v1"] }
+    vllm_dns_url:
+      description: vLLM DNS URL
+      value: { concat: [ "https://", { get_input: dns_name }, "/vllm/v1"] }
     openwebui_url:
+      description: Open WebUI URL (available when openwebui_enabled is true)
       value: { concat: [ "https://", { get_attribute: [ simple_node, public_address, 0 ] }, "/"] }
     openwebui_dns_url:
+      description: Open WebUI DNS URL (available when openwebui_enabled is true)
       value: { concat: [ "https://", { get_input: dns_name }, "/"] }
+    litellm_url:
+      value: { concat: [ "https://", { get_attribute: [ simple_node, public_address, 0 ] }, "/litellm"] }
+    litellm_dns_url:
+      value: { concat: [ "https://", { get_input: dns_name }, "/litellm/"] }
+    litellm_ui_admin_password:
+      value: { get_attribute: [ simple_node, ansible_output, vllm_simple_node_conf_simple_node, tasks, litellm_admin_password, output ] }
+    llitellm_master_key:
+      value: { get_attribute: [ simple_node, ansible_output, vllm_simple_node_conf_simple_node, tasks, llitellm_master_key, output ] }

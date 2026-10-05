@@ -114,8 +114,6 @@ topology_template:
       type: tosca.nodes.Container.Application.Docker
       properties:
         environment:
-          STORE_MODEL_IN_DB: "True"
-          LITELLM_MASTER_KEY: { get_input: litellm_master_key }
           DATABASE_URL:
             concat:
               - "postgresql://litellm:litellm_db_password@"
@@ -123,15 +121,8 @@ topology_template:
               - "/litellm"
         command:
           - "litellm"
-          - "--model"
-          - concat:
-              - "hosted_vllm/"
-              - { get_input: vllm_model_name }
-          - "--api_base"
-          - concat:
-              - "http://"
-              - { get_attribute: [ vllm_container, endpoints, 0 ] }
-              - "/v1"
+          - "--config"
+          - "/app/config.yaml"
           - "--port"
           - "4000"
       requirements:
@@ -140,6 +131,25 @@ topology_template:
         my_image:
           file:  "ghcr.io/berriai/litellm:main-stable"
           type: tosca.artifacts.Deployment.Image.Container.Docker
+        litellm_config_map:
+          deploy_path: /app/config.yaml
+          type: tosca.artifacts.File
+          properties:
+            content:
+              concat:
+                - "model_list:\n  - model_name: |-\n      "
+                - { get_input: vllm_model_name }
+                - "\n    litellm_params:\n      model: |-\n        hosted_vllm/"
+                - { get_input: vllm_model_name }
+                - "\n      api_base: http://"
+                - { get_attribute: [ vllm_container, endpoints, 0 ] }
+                - |
+                  /v1
+                        api_key: "EMPTY"
+                  general_settings:
+                - "  master_key: |-\n    "
+                - { get_input: litellm_master_key }
+                - "\n  disable_env_credential_login: false\n  store_model_in_db: true\n"
 
     # The properties of the runtime to host the container
     litellm_runtime:

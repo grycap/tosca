@@ -4,8 +4,10 @@
   vars:
     openwebui_cert_email: "{{ user_cert_email | default('jhondoe@server.com') }}"
     traefik_host: "{{ node_public_address }}"
+    openwebui_enabled: "{{ install_openwebui | default(true) | bool }}"
     openwebui_image_tag: "main"
     # vLLM downloads this Hugging Face model on first start.
+    vllm_api_key: "{{ vllm_key | default('') }}"
     vllm_model_name: "{{ model_name | default('Qwen/Qwen3-0.6B') }}"
     vllm_tensor_parallel_size: "{{ tensor_parallel_size | default('1') }}"
     vllm_max_model_len: "{{ max_model_len | default('8192') }}"
@@ -77,11 +79,15 @@
     - name: Create LiteLLM config file
       copy:
         content: |
-          model_list: []
+          model_list:
+            - model_name: {{ vllm_model_name | to_json }}
+              litellm_params:
+                model: {{ ('hosted_vllm/' ~ vllm_model_name) | to_json }}
+                api_base: "http://vllm:8000/v1"
+                api_key: {{ (vllm_api_key or 'EMPTY') | to_json }}
           general_settings:
             master_key: {{ litellm_master_key | to_json }}
             disable_env_credential_login: true
-            store_model_in_db: true
         dest: /opt/openwebui/litellm-config.yaml
         mode: '0644'
       register: litellm_config
@@ -106,6 +112,10 @@
               command:
                 - "--model"
                 - {{ vllm_model_name | to_json }}
+          {% if vllm_api_key %}
+                - "--api-key"
+                - {{ vllm_api_key | replace('$', '$$') | to_json }}
+          {% endif %}
                 - "--host"
                 - "0.0.0.0"
                 - "--port"
@@ -121,7 +131,22 @@
                 - "{{ vllm_tool_call_parser }}"
               networks:
                 - backend
-              {% if vllm_nvidia_support | bool %}
+          {% if vllm_api_key %}
+                - frontend
+              # Expose only API routes protected by vLLM's API key authentication.
+              labels:
+                - "traefik.enable=true"
+                - "traefik.http.routers.vllm.service=vllm"
+                - "traefik.http.routers.vllm.rule=Host(`{{ traefik_host }}`) && PathPrefix(`/vllm/v1/`)"
+                - "traefik.http.routers.vllm.entrypoints=websecure"
+                - "traefik.http.routers.vllm.tls.certresolver=myresolver"
+                - "traefik.http.routers.vllm.tls=true"
+                - "traefik.http.routers.vllm.middlewares=vllm-strip-prefix"
+                - "traefik.http.middlewares.vllm-strip-prefix.stripprefix.prefixes=/vllm"
+                - "traefik.http.services.vllm.loadbalancer.server.port=8000"
+                - "traefik.docker.network=openwebui_frontend"
+          {% endif %}
+          {% if vllm_nvidia_support | bool %}
               # Add NVIDIA runtime support for vLLM container
               deploy:
                 resources:
@@ -130,7 +155,7 @@
                       - driver: nvidia
                         capabilities: [gpu]
                         count: all
-              {% endif %}
+          {% endif %}
               # Healthcheck to ensure the vLLM service is up and running
               healthcheck:
                 test:
@@ -142,7 +167,7 @@
                 timeout: 10s
                 retries: 3
                 start_period: 1500s
-            {% if litellm_enabled | bool %}
+          {% if litellm_enabled | bool %}
             # LiteLLM service configuration
             litellm-db:
               image: postgres:16-alpine
@@ -205,7 +230,8 @@
                 - "traefik.http.routers.litellm.tls=true"
                 - "traefik.http.services.litellm.loadbalancer.server.port=4000"
                 - "traefik.docker.network=openwebui_frontend"
-            {% endif %}
+          {% endif %}
+          {% if openwebui_enabled | bool %}
             # OpenWebUI service configuration
             openwebui:
               image: ghcr.io/open-webui/open-webui:{{ openwebui_image_tag }}
@@ -218,24 +244,24 @@
               environment:
                 - ENABLE_OLLAMA_API=false
                 - ENABLE_OPENAI_API=true
-                {% if litellm_enabled | bool %}
+          {% if litellm_enabled | bool %}
                 # Use LiteLLM as the backend for OpenWebUI
                 - OPENAI_API_BASE_URLS=http://litellm:4000{{ litellm_path_prefix }}/v1
                 - OPENAI_API_KEYS={{ litellm_master_key }}
-                {% else %}
+          {% else %}
                 # Use vLLM as the backend for OpenWebUI
                 - OPENAI_API_BASE_URLS=http://vllm:8000/v1
-                - OPENAI_API_KEYS=EMPTY
-                {% endif %}
+                - {{ ('OPENAI_API_KEYS=' ~ (vllm_api_key or 'EMPTY')) | replace('$', '$$') | to_json }}
+          {% endif %}
               # Set dependencies based on whether LiteLLM is enabled
               depends_on:
-                {% if litellm_enabled | bool %}
+          {% if litellm_enabled | bool %}
                 # If LiteLLM is enabled, OpenWebUI depends on LiteLLM and vLLM
                 - litellm
-                {% else %}
+          {% else %}
                 # If LiteLLM is not enabled, OpenWebUI depends only on vLLM
                 - vllm
-                {% endif %}
+          {% endif %}
               # Network configuration
               networks:
                 - backend
@@ -249,6 +275,8 @@
                 - "traefik.http.services.openwebui.loadbalancer.server.port=8080"
                 - "traefik.docker.network=openwebui_frontend"
                 - "traefik.http.routers.openwebui.tls=true"
+          {% endif %}
+            # Traefik service configuration
             traefik:
               image: "traefik:v2.11"
               container_name: "traefik"
