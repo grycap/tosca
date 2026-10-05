@@ -10,10 +10,12 @@ metadata:
   template_name: vLLM + LiteLLM
   display_name: Install vLLM + LiteLLM
   icon: images/litellm.png
+  groups:
+  - AI
   tag: Container
   tag_color: blue
   tabs:
-    Host:
+    Resources:
       - litellm_num_cpus
       - litellm_mem_size
       - vllm_num_cpus

@@ -10,6 +10,8 @@ metadata:
   template_name: vLLM + LiteLLM + Open WebUI
   display_name: Install vLLM + LiteLLM + Open WebUI
   icon: images/litellm.png
+  groups:
+  - AI
   tabs:
     vLLM:
       - vllm_nvidia_support
@@ -21,6 +23,7 @@ metadata:
       - vllm_max_model_len
       - vllm_memory_utilization
       - vllm_tool_call_parser
+    LiteLLM:
       - litellm_admin_email
   parents:
     - simple-node-disk.yml
@@ -138,6 +141,6 @@ topology_template:
     litellm_dns_url:
       value: { concat: [ "https://", { get_input: dns_name }, "/litellm/"] }
     litellm_ui_admin_password:
-      value: { get_attribute: [ front, ansible_output, vllm_simple_node_conf_simple_node, tasks, litellm_admin_password, output ] }
+      value: { get_attribute: [ simple_node, ansible_output, vllm_simple_node_conf_simple_node, tasks, litellm_admin_password, output ] }
     llitellm_master_key:
-      value: { get_attribute: [ front, ansible_output, vllm_simple_node_conf_simple_node, tasks, llitellm_master_key, output ] }
+      value: { get_attribute: [ simple_node, ansible_output, vllm_simple_node_conf_simple_node, tasks, llitellm_master_key, output ] }

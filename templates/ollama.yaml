@@ -10,6 +10,9 @@ metadata:
   template_name: Ollama + Open WebUI
   display_name: Install Ollama + Open WebUI
   icon: images/ollama.png
+  groups:
+  - AI
+  - General
   tabs:
     Ollama:
       - ollama_nvidia_support

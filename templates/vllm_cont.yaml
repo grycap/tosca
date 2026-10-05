@@ -10,6 +10,8 @@ metadata:
   template_name: vLLM + Open WebUI
   display_name: Install vLLM + Open WebUI
   icon: images/vllm.png
+  groups:
+  - AI
   tag: Container
   tag_color: blue
   tabs:

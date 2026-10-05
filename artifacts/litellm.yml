@@ -77,17 +77,14 @@
     - name: Create LiteLLM config file
       copy:
         content: |
-          model_list:
-            - model_name: {{ vllm_model_name | to_json }}
-              litellm_params:
-                model: {{ ('hosted_vllm/' ~ vllm_model_name) | to_json }}
-                api_base: "http://vllm:8000/v1"
-                api_key: "EMPTY"
+          model_list: []
           general_settings:
             master_key: {{ litellm_master_key | to_json }}
             disable_env_credential_login: true
+            store_model_in_db: true
         dest: /opt/openwebui/litellm-config.yaml
         mode: '0644'
+      register: litellm_config
       when: litellm_enabled | bool
 
     - name: Create docker-compose file
@@ -296,6 +293,16 @@
       community.docker.docker_compose_v2:
         project_src: /opt/openwebui/
         state: present
+
+    - name: Restart LiteLLM when its configuration changes
+      community.docker.docker_compose_v2:
+        project_src: /opt/openwebui/
+        services:
+          - litellm
+        state: restarted
+      when:
+        - litellm_enabled | bool
+        - litellm_config.changed
 
     - name: Wait for vLLM health endpoint
       uri:
