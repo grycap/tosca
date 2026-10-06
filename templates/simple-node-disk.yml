@@ -209,6 +209,8 @@ topology_template:
 
   outputs:
     node_ip:
+      description: VM Public IP
       value: { get_attribute: [ simple_node, public_address, 0 ] }
     node_creds:
+      description: VM SSH credentials
       value: { get_attribute: [ simple_node, endpoint, credential, 0 ] }

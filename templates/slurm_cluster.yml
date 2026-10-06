@@ -7,7 +7,7 @@ description: Deploy a SLURM Virtual Cluster.
 
 metadata:
   template_name: SLURM
-  template_version: "1.4.1"
+  template_version: "1.4.2"
   display_name: SLURM virtual cluster
   icon: images/slurm.png
   order: 4
@@ -219,6 +219,8 @@ topology_template:
 
   outputs:
     cluster_ip:
+      description: SLURM Front-end Public IP
       value: { get_attribute: [ lrms_server, public_address, 0 ] }
     cluster_creds:
+      description: SLURM Front-end credentials
       value: { get_attribute: [ lrms_server, endpoint, credential, 0 ] }
