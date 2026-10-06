@@ -27,6 +27,20 @@ metadata:
     LiteLLM:
       - litellm_admin_email
       - litellm_enabled
+  outputs:
+    vllm_url:
+      enabled_by: [vllm_api_key, "!dns_name"]
+    vllm_dns_url:
+      enabled_by: [vllm_api_key, dns_name]
+    openwebui_url:
+      enabled_by: [openwebui_enabled, "!dns_name"]
+    openwebui_dns_url:
+      enabled_by: [openwebui_enabled, dns_name]
+    litellm_url:
+      enabled_by: [litellm_enabled, "!dns_name"]
+    litellm_dns_url:
+      enabled_by: [litellm_enabled, dns_name]
+
   parents:
     - simple-node-disk.yml
 
@@ -159,16 +173,20 @@ topology_template:
       description: vLLM DNS URL
       value: { concat: [ "https://", { get_input: dns_name }, "/vllm/v1"] }
     openwebui_url:
-      description: Open WebUI URL (available when openwebui_enabled is true)
+      description: Open WebUI URL
       value: { concat: [ "https://", { get_attribute: [ simple_node, public_address, 0 ] }, "/"] }
     openwebui_dns_url:
-      description: Open WebUI DNS URL (available when openwebui_enabled is true)
+      description: Open WebUI DNS URL
       value: { concat: [ "https://", { get_input: dns_name }, "/"] }
     litellm_url:
+      description: LiteLLM URL
       value: { concat: [ "https://", { get_attribute: [ simple_node, public_address, 0 ] }, "/litellm"] }
     litellm_dns_url:
+      description: LiteLLM DNS URL
       value: { concat: [ "https://", { get_input: dns_name }, "/litellm/"] }
     litellm_ui_admin_password:
+      description: LiteLLM admin password
       value: { get_attribute: [ simple_node, ansible_output, vllm_simple_node_conf_simple_node, tasks, litellm_admin_password, output ] }
     llitellm_master_key:
+      description: LiteLLM master key
       value: { get_attribute: [ simple_node, ansible_output, vllm_simple_node_conf_simple_node, tasks, llitellm_master_key, output ] }
