@@ -7,7 +7,7 @@ description: Deploy an OSCAR Virtual Cluster.
 
 metadata:
   template_name: OSCAR
-  template_version: "1.9.0"
+  template_version: "1.9.1"
   display_name: Deploy an OSCAR Virtual Cluster
   icon: images/oscar.png
   order: 2
@@ -410,12 +410,17 @@ topology_template:
 
   outputs:
     oscarui_endpoint:
+      description: OSCAR UI endpoint
       value: { concat: [ 'https://dashboard.oscar.grycap.net?endpoint=https://', get_input: cluster_name, '.', get_input: domain_name, '&username=oscar&password=', get_input: oscar_password ] }
     dashboard_endpoint:
+      description: K8s Dashboard endpoint
       value: { concat: [ 'https://', get_input: cluster_name, '.', get_input: domain_name, '/dashboard/' ] }
     local_oscarui_endpoint:
+      description: Local OSCAR UI endpoint
       value: { concat: [ 'https://', get_input: cluster_name, '.', get_input: domain_name, '/' ] }
     minio_endpoint:
+      description: MinIO endpoint
       value: { concat: [ 'https://minio.', get_input: cluster_name, '.', get_input: domain_name, '/' ] }
     console_minio_endpoint:
+      description: MinIO Console endpoint
       value: { concat: [ 'https://console-minio.', get_input: cluster_name, '.', get_input: domain_name, '/' ] }

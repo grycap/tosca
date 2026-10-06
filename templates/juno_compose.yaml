@@ -7,7 +7,7 @@ imports:
 description: Deploy Jupyter Notebook.
 
 metadata:
-  template_version: "1.0.0"
+  template_version: "1.1.1"
   template_name: Jupyter Notebook
   display_name: Deploy Jupyter Notebook
   icon: images/jupyter.png
@@ -17,6 +17,12 @@ metadata:
           tag_type: password
       - letsencrypt_email
       - notebook_image
+  outputs:
+    jupyter_url:
+      enabled_by: ["!dns_name"]
+    jupyter_url_dns:
+      enabled_by: ["dns_name"]
+
   parents:
     - simple-node-disk.yml
 
@@ -104,6 +110,8 @@ topology_template:
 
   outputs:
     jupyter_url:
+      description: Jupyter Notebook endpoint
       value: { concat: [ 'https://', get_attribute: [ simple_node, public_address, 0 ], '/' ] }
     jupyter_url_dns:
+      description: Jupyter Notebook endpoint
       value: { concat: [ 'https://', get_input: [ dns_name ], '/' ] }

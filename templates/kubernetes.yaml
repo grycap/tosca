@@ -7,7 +7,7 @@ description: Deploy a Kubernetes Virtual Cluster.
 
 metadata:
   template_name: Kubernetes
-  template_version: "1.4.1"
+  template_version: "1.4.3"
   display_name: Deploy a Kubernetes Virtual Cluster
   icon: images/kubernetes.png
   order: 3
@@ -28,6 +28,11 @@ metadata:
       - kube_csi_driver
       - kube_ingress_type
       - kube_install_gateway_api
+  outputs:
+    dashboard_endpoint:
+      enabled_by: ["!kube_public_dns_name"]
+    dashboard_dns_endpoint:
+      enabled_by: ["kube_public_dns_name"]
 
   childs:
     - kubeapps.yml
@@ -319,10 +324,14 @@ topology_template:
 
   outputs:
     dashboard_endpoint:
+      description: K8s Dashboard endpoint
       value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], '/dashboard/' ] }
     dashboard_dns_endpoint:
+      description: K8s Dashboard endpoint
       value: { concat: [ 'https://', get_input: kube_public_dns_name, '/dashboard/' ] }
     api_endpoint:
+      description: K8s API endpoint
       value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], ':6443' ] }
     kubeconfig:
+      description: Kubeconfig file
       value: { get_attribute: [ front, ansible_output, lrms_front_end_front_conf_front, tasks, kube_conf, output ] }

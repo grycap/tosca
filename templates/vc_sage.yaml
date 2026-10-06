@@ -7,7 +7,7 @@ imports:
 description: Deploy SAGE EDC
 
 metadata:
-  template_version: "1.4.0"
+  template_version: "1.4.1"
   template_name: SAGE EDC
   display_name: Deploy SAGE EDC
   icon: https://www.greendealdata.eu/wp-content/uploads/2026/01/Full_Logo-300x91.png
@@ -262,26 +262,38 @@ topology_template:
 
   outputs:
     participant_id:
+      description: Participant ID
       value: { get_input: ishare_client_id }
     dataspace_connector_id:
+      description: Dataspace Connector ID
       value: { get_input: connector_id }
     hostname:
+      description: Full Hostname
       value: { concat: [ get_input: sub_domain_name, '.', get_input: domain_name ] }
     dashboard_url:
+      description: Dashboard endpoint
       value: { concat: [ 'https://dashboard.', get_input: sub_domain_name, '.', get_input: [ domain_name ], '/' ] }
     connector_url:
+      description: Connector endpoint
       value: { concat: [ 'https://connector.', get_input: sub_domain_name, '.', get_input: [ domain_name ], '/api' ] }
     keycloak_url:
+      description: Keycloak endpoint
       value: { concat: [ 'https://keycloak.', get_input: sub_domain_name, '.', get_input: [ domain_name ], '/' ] }
     identity_hub_url:
+      description: Identity Hub endpoint
       value: { concat: [ 'https://identity-hub.', get_input: sub_domain_name, '.', get_input: [ domain_name ], '/' ] }
     storage_url:
+      description: Storage endpoint
       value: { concat: [ 'https://storage.', get_input: sub_domain_name, '.', get_input: [ domain_name ], '/' ] }
     dashboard_username:
+      description: Dashboard username
       value: { get_attribute: [ simple_node, ansible_output, vc_sage_simple_node_conf_simple_node, tasks, 'grycap.sage_edc : dashboard_username', output ] }
     dashboard_password:
+      description: Dashboard password
       value: { get_attribute: [ simple_node, ansible_output, vc_sage_simple_node_conf_simple_node, tasks, 'grycap.sage_edc : dashboard_password', output ] }
     env_file:
+      description: Environment file
       value: { get_attribute: [ simple_node, ansible_output, vc_sage_simple_node_conf_simple_node, tasks, 'grycap.sage_edc : env_file', output ] }
     onboarding_file:
+      description: Onboarding file
       value: { get_attribute: [ simple_node, ansible_output, vc_sage_simple_node_conf_simple_node, tasks, 'grycap.sage_edc : onboarding_file', output ] }
