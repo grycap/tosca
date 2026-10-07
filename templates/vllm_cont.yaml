@@ -224,6 +224,8 @@ topology_template:
 
   outputs:
     openwebui_endpoint:
+      description: Open WebUI URL
       value: { get_attribute: [ openwebui_container, endpoints, 0 ] }
     vllm_endpoint:
+      description: vLLM URL
       value: { get_attribute: [ vllm_container, endpoints, 0 ] }

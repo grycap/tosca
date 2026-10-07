@@ -261,4 +261,5 @@ topology_template:
 
   outputs:
     litellm_endpoint:
+      description: LiteLLM URL
       value: { get_attribute: [ litellm_container, endpoints, 0 ] }
