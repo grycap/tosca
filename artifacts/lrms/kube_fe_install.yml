@@ -68,7 +68,7 @@
       kube_install_metrics: true
       kube_cert_public_ip: "{{ IM_NODE_PUBLIC_IP }}"
       kube_ingress_in_master: "{{ use_public_ip }}"
-      kube_install_gpu_operator: "{{ kube_nvidia_support }}"
+      kube_install_gpu_operator: "{{ kube_nvidia_support | default(false)  }}"
 
   tasks:
     - name: Read kubeconfig file
