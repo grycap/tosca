@@ -7,7 +7,7 @@ description: Deploy a Kubernetes Virtual Cluster.
 
 metadata:
   template_name: Kubernetes
-  template_version: "1.4.3"
+  template_version: "1.4.4"
   display_name: Deploy a Kubernetes Virtual Cluster
   icon: images/kubernetes.png
   order: 3
@@ -22,6 +22,7 @@ metadata:
       - kube_cert_user_email:
           enabled_by: kube_cert_manager
           tag_type: email
+      - kube_nvidia_support
       - kube_public_dns_name
       - kube_allowed_cidr:
           pattern: '([0-9]{1,3}\.){3}[0-9]{1,3}\/[0-9]{1,2}'
@@ -99,10 +100,6 @@ topology_template:
       type: string
       description: "Or URL of the disk to be attached to the instance (format: ost://api.cloud.ifca.es/<vol_id>"
       default: ""
-    fe_kube_nvidia_support:
-      type: boolean
-      description: Flag to add NVIDIA support in the FE (must be set if any WN has GPU)
-      default: false
 
     wn_num:
       type: integer
@@ -149,10 +146,6 @@ topology_template:
       default: 20 GiB
       constraints:
         - valid_values: [ 20 GiB, 50 GiB, 100 GiB, 200 GiB, 0 GiB ]
-    wn_kube_nvidia_support:
-      type: boolean
-      description: Flag to add NVIDIA support in the WN
-      default: false
 
     kube_admin_token:
       type: string
@@ -182,6 +175,10 @@ topology_template:
       type: string
       description: DNS name to set to the Kubernetes Front-end
       default: ""
+    kube_nvidia_support:
+      type: boolean
+      description: Flag to add NVIDIA support (with GPU operator)
+      default: false
 
     kube_ingress_type:
       type: string
@@ -245,7 +242,7 @@ topology_template:
         admin_token: { get_input: kube_admin_token }
         install_kubeapps: false
         version: { get_input: kube_version }
-        nvidia_support: { get_input: fe_kube_nvidia_support }
+        nvidia_support: { get_input: kube_nvidia_support }
         cert_manager: { get_input: kube_cert_manager }
         cert_user_email: { get_input: kube_cert_user_email }
         tls_certificates: { get_attribute: [ HOST, endpoint, tls_certificates ] }
@@ -296,7 +293,6 @@ topology_template:
       properties:
         front_end_ip: { get_attribute: [ front, private_address, 0 ] }
         version: { get_input: kube_version }
-        nvidia_support: { get_input: wn_kube_nvidia_support }
         cri_runtime: { get_input: kube_cri_runtime }
         csi_driver: { get_input: kube_csi_driver }
       requirements:
