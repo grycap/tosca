@@ -2331,6 +2331,37 @@ node_types:
             remote_storage_credentials: { get_property: [ SELF, remote_storage, credentials] }
             remote_storage_path: { get_property: [ SELF, remote_storage, path ] }
 
+  tosca.nodes.oscar.Service:
+    derived_from: tosca.nodes.aisprint.FaaS.Function
+    properties:
+      type:
+        type: string
+        description: Type of the service - standard, inference or llm_inference
+        required: false
+        default: "standard"
+      args:
+        type: list
+        entry_schema:
+          type: string
+        description: List of arguments to pass to the service (only for inference services)
+        required: false
+        default: []
+      runtime_image:
+        type: string
+        description: Docker image to use as runtime for the service (only for inference services)
+        required: false
+        default: ""
+      model_format:
+        type: string
+        description: Format of the model (e.g., "onnx", "pytorch")
+        required: false
+        default: ""
+      api_version:
+        type: string
+        description: Version of the API to use (v1 or v2)
+        required: false
+        default: "v1"
+
 policy_types:
 
   tosca.policies.indigo.Placement:
