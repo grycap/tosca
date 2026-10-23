@@ -98,11 +98,8 @@
         - install_method == 'deps'
         - install_files['requirements.txt']
 
-    - block:
-      when:
-        - install_method == 'deps'
-        - install_files['pyproject.toml']
-        - poetry_check.rc != 0
+    - name: Install Python project from pyproject using pip
+      block:
 
         - name: Set extra_args var
           set_fact:
@@ -119,6 +116,9 @@
             cmd: pip install . {{ extra_args }}
             chdir: "{{ adapter_checkout_dir }}"
 
+      when:
+        - install_method == 'deps'
+        - install_files['pyproject.toml']
 
     - name: Install Node.js and npm
       package:
