@@ -114,6 +114,18 @@ data_types:
         type: string
         required: no
 
+  tosca.datatypes.grycap.TLSCertificate:
+    derived_from: tosca.datatypes.Root
+    properties:
+      cert:
+        type: string
+        description: The TLS certificate in PEM format
+        required: true
+      key:
+        type: string
+        description: The TLS private key in PEM format
+        required: true
+
 capability_types:
 
   tosca.capabilities.indigo.OperatingSystem:
@@ -301,11 +313,21 @@ capability_types:
         description: The optional additional IP to set to the endpoint
         type: string
         required: false
+      tls:
+        description: Whether to generate TLS certificates for this endpoint DNS names
+        type: boolean
+        default: false
+        required: false
     attributes:
       credential:
         type: list
         entry_schema:
           type: tosca.datatypes.Credential
+      tls_certificates:
+        description: TLS certificates for the endpoint, with the dns name as key
+        type: map
+        entry_schema:
+          type: tosca.datatypes.grycap.TLSCertificate
 
   tosca.capabilities.Container.Docker:
     derived_from: tosca.capabilities.Container
@@ -731,6 +753,12 @@ node_types:
         required: no
         type: string
         default: "jhondoe@server.com"
+      tls_certificates:
+        required: no
+        type: map
+        entry_schema:
+          type: tosca.datatypes.grycap.TLSCertificate
+        default: {}
       public_dns_name:
         required: no
         type: string
@@ -774,13 +802,17 @@ node_types:
       install_gateway_api:
         required: no
         type: boolean
-        default: true
+        default: false
       public_additional_dns_names:
         type: list
         entry_schema:
           type: string
         required: false
         default: []
+      install_local_path_provisioner:
+        required: no
+        type: boolean
+        default: false
     artifacts:
       kube_role:
         file: grycap.kubernetes
@@ -814,6 +846,7 @@ node_types:
             kube_nvidia_support:  { get_property: [ SELF, nvidia_support ] }
             kube_cert_manager:  { get_property: [ SELF, cert_manager ] }
             kube_cert_user_email:  { get_property: [ SELF, cert_user_email ] }
+            kube_tls_certificates: { get_property: [ SELF, tls_certificates ] }
             kube_public_dns_name:  { get_property: [ SELF, public_dns_name ] }
             kube_public_additional_dns_names:  { get_property: [ SELF, public_additional_dns_names ] }
             kube_cert_manager_challenge: { get_property: [ SELF, cert_manager_challenge ] }
@@ -828,6 +861,7 @@ node_types:
             kube_use_public_ip: { get_property: [ SELF, use_public_ip ] }
             kube_install_gateway_api: { get_property: [ SELF, install_gateway_api ] }
             kube_ingress_type: { get_property: [ SELF, ingress_type ] }
+            kube_install_local_path: { get_property: [ SELF, install_local_path_provisioner ] }
 
   tosca.nodes.indigo.LRMS.WorkerNode.Slurm:
     derived_from: tosca.nodes.indigo.LRMS.WorkerNode
@@ -1364,8 +1398,81 @@ node_types:
         type: string
         description: Default Memory user quota
         required: false
-        default: "2 Gi"
+        default: "2Gi"
+      kueue_default_ephemeral_storage:
+        type: string
+        description: Default ephemeral storage user quota
+        required: false
+        default: "2Gi"
+      kueue_default_gpu:
+        type: integer
+        description: Default GPU user quota
+        required: false
+        default: 0
+      minio_quota_enabled:
+        type: boolean
+        description: Flag to enable MinIO quotas
+        required: false
+        default: false
+      minio_quota_buckets:
+        type: string
+        description: Number of buckets allowed if MinIO quotas are enabled
+        required: false
+        default: "5"
+      minio_quota_storage:
+        type: string
+        description: Storage allowed if MinIO quotas are enabled
+        required: false
+        default: "5Gi"
+      metrics:
+        type: boolean
+        description: Enable metrics collection with Prometheus and Grafana
+        required: false
+        default: false
+      kserve_enable:
+        type: boolean
+        description: Enable KServe for model serving capabilities
+        required: false
+        default: false
+      volume_enable:
+        type: boolean
+        description: Enable persistent volume support in OSCAR
+        required: false
+        default: false
+      volume_default_available:
+        type: string
+        description: Default maximum available storage for users
+        required: false
+        default: "7Gi"
+      volume_default_max:
+        type: integer
+        description: Default maximum number of volumes per user
+        required: false
+        default: 5
+      volume_default_max_disk:
+        type: string
+        description: Default maximum disk size per volume
+        required: false
+        default: "5Gi"
+      volume_default_min_disk:
+        type: string
+        description: Default minimum disk size per volume
+        required: false
+        default: "200Mi"
+      storage_system:
+        type: string
+        description: Storage system to be used in OSCAR
+        required: false
+        default: "MinIO"
+      version:
+        type: string
+        description: Version of OSCAR to install
+        required: false
+        default: "latest"
     artifacts:
+      rustfs_role:
+        file: grycap.kuberustfs
+        type: tosca.artifacts.AnsibleGalaxy.role
       minio_role:
         file: grycap.kubeminio
         type: tosca.artifacts.AnsibleGalaxy.role
@@ -1401,6 +1508,13 @@ node_types:
             kueue_enable: { get_property: [ SELF, kueue_enable ] }
             kueue_default_cpu: { get_property: [ SELF, kueue_default_cpu ] }
             kueue_default_memory: { get_property: [ SELF, kueue_default_memory ] }
+            minio_quota_enabled: { get_property: [ SELF, minio_quota_enabled ] }
+            minio_quota_buckets: { get_property: [ SELF, minio_quota_buckets ] }
+            minio_quota_storage: { get_property: [ SELF, minio_quota_storage ] }
+            metrics: { get_property: [ SELF, metrics ] }
+            kserve_enable: { get_property: [ SELF, kserve_enable ] }
+            storage_system: { get_property: [ SELF, storage_system ] }
+            oscar_version: { get_property: [ SELF, version ] }
     requirements:
       - host:
           capability: tosca.capabilities.Container

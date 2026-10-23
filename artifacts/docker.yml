@@ -23,6 +23,6 @@
             version: "{{ git_version }}"
 
         - name: docker-compose up
-          docker_compose:
+          community.docker.docker_compose_v2:
             project_src: "/opt/docker_compose/{{ docker_compose_folder }}"
             state: present

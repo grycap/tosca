@@ -7,7 +7,7 @@ description: Deploy an OSCAR Virtual Cluster.
 
 metadata:
   template_name: OSCAR
-  template_version: "1.4.0"
+  template_version: "1.9.1"
   display_name: Deploy an OSCAR Virtual Cluster
   icon: images/oscar.png
   order: 2
@@ -26,7 +26,13 @@ metadata:
     OSCAR Data:
       - admin_token
       - oscar_password
+      - storage_system
       - minio_password
+      - minio_quota_enabled
+      - minio_quota_buckets:
+          enabled_by: minio_quota_enabled
+      - minio_quota_storage:
+          enabled_by: minio_quota_enabled
       - cert_user_email:
           tag_type: email
       - user_id:
@@ -45,7 +51,27 @@ metadata:
           enabled_by: kueue_enable
       - kueue_default_memory:
           enabled_by: kueue_enable
-          pattern: "[0-9]*( )+[TGMK]i"
+          pattern: "[0-9]*[TGMK]i"
+      - kueue_default_ephemeral_storage:
+          enabled_by: kueue_enable
+          pattern: "[0-9]*[TGMK]i"
+      - kueue_default_gpu:
+          enabled_by: kueue_enable
+      - oscar_metrics
+      - kserve_enable
+      - volume_enable
+      - volume_default_available:
+          enabled_by: volume_enable
+          pattern: "[0-9]*[TGMK]i"
+      - volume_default_max:
+          enabled_by: volume_enable
+      - volume_default_max_disk:
+          enabled_by: volume_enable
+          pattern: "[0-9]*[TGMK]i"
+      - volume_default_min_disk:
+          enabled_by: volume_enable
+          pattern: "[0-9]*[TGMK]i"
+
   childs:
     - oscar_elastic.yaml
     - oscar_function.yaml
@@ -121,12 +147,31 @@ topology_template:
       type: string
       description: OSCAR password
       default: oscar123
+    storage_system:
+      type: string
+      description: Storage system to be used in OSCAR
+      default: MinIO
+      constraints:
+        - valid_values: [ MinIO, RustFS ]
     minio_password:
       type: string
       description: MinIO password (8 characters min.)
       default: minio123
       constraints:
         - min_length: 8
+    minio_quota_enabled:
+      type: boolean
+      description: Flag to enable MinIO quotas
+      default: false
+    minio_quota_buckets:
+      type: integer
+      description: Number of buckets allowed if MinIO quotas are enabled
+      default: 5
+    minio_quota_storage:
+      type: string
+      description: Storage allowed if MinIO quotas are enabled
+      default: 5Gi
+
     cert_user_email:
       type: string
       description: Email to be used in the Let's Encrypt issuer
@@ -181,18 +226,58 @@ topology_template:
     kueue_default_memory:
       type: string
       description: Default Kueue Memory user quota
-      default: 2 Gi
+      default: 2Gi
+    kueue_default_ephemeral_storage:
+      type: string
+      description: Default Kueue Ephemeral Storage user quota
+      default: 5Gi
+    kueue_default_gpu:
+      type: integer
+      description: Default Kueue GPU user quota
+      default: 0
+
+    oscar_metrics:
+      type: boolean
+      description: Flag to enable OSCAR metrics
+      default: false
+
+    kserve_enable:
+      type: boolean
+      description: Flag to enable KServe integration
+      default: false
+
+    volume_enable:
+      type: boolean
+      description: Flag to enable volume management in OSCAR
+      default: false
+    volume_default_available:
+      type: string
+      description: Default available volume size
+      default: 7Gi
+    volume_default_max:
+      type: integer
+      description: Default maximum number of volumes per user
+      default: 5
+    volume_default_max_disk:
+      type: string
+      description: Default maximum disk size per volume
+      default: 5Gi
+    volume_default_min_disk:
+      type: string
+      description: Default minimum disk size per volume
+      default: 200Mi
 
   node_templates:
 
     oscar:
       type: tosca.nodes.indigo.OSCAR
       properties:
+        storage_system: { get_input: storage_system }
         minio_secretkey: { get_input: minio_password }
         password: { get_input: oscar_password }
         dns_host: { concat: [ get_input: cluster_name, '.', get_input: domain_name ] }
         minio_dns_host: { concat: [ "minio.", get_input: cluster_name, '.', get_input: domain_name ] }
-        minio_dns_host_console: { concat: [ "console.minio.", get_input: cluster_name, '.', get_input: domain_name ] }
+        minio_dns_host_console: { concat: [ "console-minio.", get_input: cluster_name, '.', get_input: domain_name ] }
         oidc_enable: true
         oidc_subject: { get_input: user_id }
         oidc_groups: { get_input: selected_vos }
@@ -202,6 +287,18 @@ topology_template:
         kueue_enable: { get_input: kueue_enable }
         kueue_default_cpu: { get_input: kueue_default_cpu }
         kueue_default_memory: { get_input: kueue_default_memory }
+        kueue_default_ephemeral_storage: { get_input: kueue_default_ephemeral_storage }
+        kueue_default_gpu: { get_input: kueue_default_gpu }
+        metrics: { get_input: oscar_metrics }
+        minio_quota_enabled: { get_input: minio_quota_enabled }
+        minio_quota_buckets: { get_input: minio_quota_buckets }
+        minio_quota_storage: { get_input: minio_quota_storage }
+        kserve_enable: { get_input: kserve_enable }
+        volume_enable: { get_input: volume_enable }
+        volume_default_available: { get_input: volume_default_available }
+        volume_default_max: { get_input: volume_default_max }
+        volume_default_max_disk: { get_input: volume_default_max_disk }
+        volume_default_min_disk: { get_input: volume_default_min_disk }
       capabilities:
         endpoint:
           properties:
@@ -231,11 +328,13 @@ topology_template:
         install_kubeapps: false
         install_metrics: true
         install_nfs_client: true
-        install_ingress: true
+        install_ingress: false
         version: '1.32.9'
         cert_manager: true
         cert_user_email: { get_input: cert_user_email }
         public_dns_name: { concat: [ get_input: cluster_name, '.', get_input: domain_name ] }
+        public_additional_dns_names:
+          - { concat: [ "*.", get_input: cluster_name, '.', get_input: domain_name ] }
         # cert_manager_challenge: dns01
         # cert_manager_challenge_dns01_domain: { get_input: domain_name }
         # cert_manager_challenge_dns01_ak: AK
@@ -243,6 +342,8 @@ topology_template:
         cri_runtime: containerd
         nvidia_support: { get_input: kube_nvidia_support }
         install_yunikorn: { get_input: kube_install_yunikorn }
+        ingress_type: traefik
+        install_gateway_api: true
       requirements:
         - host: front
 
@@ -254,8 +355,7 @@ topology_template:
             dns_name: kubeserver
             additional_dns_names:
               - { concat: [ get_input: cluster_name, '@', get_input: domain_name ] }
-              - { concat: [ "minio.", get_input: cluster_name, '@', get_input: domain_name ] }
-              - { concat: [ "console.minio.", get_input: cluster_name, '@', get_input: domain_name ] }
+              - { concat: [ "*.", get_input: cluster_name, '@', get_input: domain_name ] }
             network_name: PUBLIC
         host:
           properties:
@@ -310,12 +410,17 @@ topology_template:
 
   outputs:
     oscarui_endpoint:
+      description: OSCAR UI endpoint
       value: { concat: [ 'https://dashboard.oscar.grycap.net?endpoint=https://', get_input: cluster_name, '.', get_input: domain_name, '&username=oscar&password=', get_input: oscar_password ] }
     dashboard_endpoint:
+      description: K8s Dashboard endpoint
       value: { concat: [ 'https://', get_input: cluster_name, '.', get_input: domain_name, '/dashboard/' ] }
     local_oscarui_endpoint:
+      description: Local OSCAR UI endpoint
       value: { concat: [ 'https://', get_input: cluster_name, '.', get_input: domain_name, '/' ] }
     minio_endpoint:
+      description: MinIO endpoint
       value: { concat: [ 'https://minio.', get_input: cluster_name, '.', get_input: domain_name, '/' ] }
     console_minio_endpoint:
-      value: { concat: [ 'https://console.minio.', get_input: cluster_name, '.', get_input: domain_name, '/' ] }
+      description: MinIO Console endpoint
+      value: { concat: [ 'https://console-minio.', get_input: cluster_name, '.', get_input: domain_name, '/' ] }

@@ -7,7 +7,7 @@ description: Deploy a Kubernetes Virtual Cluster.
 
 metadata:
   template_name: Kubernetes
-  template_version: "1.2.7"
+  template_version: "1.4.4"
   display_name: Deploy a Kubernetes Virtual Cluster
   icon: images/kubernetes.png
   order: 3
@@ -22,12 +22,18 @@ metadata:
       - kube_cert_user_email:
           enabled_by: kube_cert_manager
           tag_type: email
+      - kube_nvidia_support
       - kube_public_dns_name
       - kube_allowed_cidr:
           pattern: '([0-9]{1,3}\.){3}[0-9]{1,3}\/[0-9]{1,2}'
       - kube_csi_driver
       - kube_ingress_type
       - kube_install_gateway_api
+  outputs:
+    dashboard_endpoint:
+      enabled_by: ["!kube_public_dns_name"]
+    dashboard_dns_endpoint:
+      enabled_by: ["kube_public_dns_name"]
 
   childs:
     - kubeapps.yml
@@ -94,10 +100,6 @@ topology_template:
       type: string
       description: "Or URL of the disk to be attached to the instance (format: ost://api.cloud.ifca.es/<vol_id>"
       default: ""
-    fe_kube_nvidia_support:
-      type: boolean
-      description: Flag to add NVIDIA support in the FE (must be set if any WN has GPU)
-      default: false
 
     wn_num:
       type: integer
@@ -144,10 +146,6 @@ topology_template:
       default: 20 GiB
       constraints:
         - valid_values: [ 20 GiB, 50 GiB, 100 GiB, 200 GiB, 0 GiB ]
-    wn_kube_nvidia_support:
-      type: boolean
-      description: Flag to add NVIDIA support in the WN
-      default: false
 
     kube_admin_token:
       type: string
@@ -156,9 +154,9 @@ topology_template:
     kube_version:
       type: string
       description: Version of Kubernetes to install
-      default: "1.35.3"
+      default: "1.36.4"
       constraints:
-        - valid_values: [ "1.35.3", "1.34.6", "1.33.10", "1.32.12", "1.31.13", "1.30.14", "1.29.15", "1.28.15" ]
+        - valid_values: [ "1.36.4", "1.37.0", "1.35.8", "1.34.11", "1.33.13", "1.32.12", "1.31.13", "1.30.14" ]
     kube_cri_runtime:
       type: string
       description: CRI Runtime to use with Kubernetes
@@ -177,6 +175,10 @@ topology_template:
       type: string
       description: DNS name to set to the Kubernetes Front-end
       default: ""
+    kube_nvidia_support:
+      type: boolean
+      description: Flag to add NVIDIA support (with GPU operator)
+      default: false
 
     kube_ingress_type:
       type: string
@@ -204,6 +206,19 @@ topology_template:
       default: NFS
       constraints:
         - valid_values: [ NFS, Longhorn ]
+    kube_install_local_path:
+      type: boolean
+      description: Flag to install the Local Path Provisioner
+      default: false
+      constraints:
+        - valid_values: [ false, true ]
+
+    kube_gen_tls_certificates:
+      type: boolean
+      description: Flag to generate self-signed TLS certificates for the cluster
+      default: false
+      constraints:
+        - valid_values: [ false, true ]
 
   node_templates:
 
@@ -227,14 +242,16 @@ topology_template:
         admin_token: { get_input: kube_admin_token }
         install_kubeapps: false
         version: { get_input: kube_version }
-        nvidia_support: { get_input: fe_kube_nvidia_support }
+        nvidia_support: { get_input: kube_nvidia_support }
         cert_manager: { get_input: kube_cert_manager }
         cert_user_email: { get_input: kube_cert_user_email }
+        tls_certificates: { get_attribute: [ HOST, endpoint, tls_certificates ] }
         public_dns_name: { get_input: kube_public_dns_name}
         cri_runtime: { get_input: kube_cri_runtime }
         csi_driver: { get_input: kube_csi_driver }
         ingress_type: { get_input: kube_ingress_type }
         install_gateway_api: { get_input: kube_install_gateway_api }
+        install_local_path_provisioner: { get_input: kube_install_local_path }
       requirements:
         - host: front
 
@@ -244,6 +261,7 @@ topology_template:
         endpoint:
           properties:
             dns_name: kubeserver
+            tls: { get_input: kube_gen_tls_certificates }
             additional_dns_names:
               - { get_input: kube_public_dns_name}
             network_name: PUBLIC
@@ -275,7 +293,6 @@ topology_template:
       properties:
         front_end_ip: { get_attribute: [ front, private_address, 0 ] }
         version: { get_input: kube_version }
-        nvidia_support: { get_input: wn_kube_nvidia_support }
         cri_runtime: { get_input: kube_cri_runtime }
         csi_driver: { get_input: kube_csi_driver }
       requirements:
@@ -303,10 +320,14 @@ topology_template:
 
   outputs:
     dashboard_endpoint:
+      description: K8s Dashboard endpoint
       value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], '/dashboard/' ] }
     dashboard_dns_endpoint:
+      description: K8s Dashboard endpoint
       value: { concat: [ 'https://', get_input: kube_public_dns_name, '/dashboard/' ] }
     api_endpoint:
+      description: K8s API endpoint
       value: { concat: [ 'https://', get_attribute: [ front, public_address, 0 ], ':6443' ] }
     kubeconfig:
+      description: Kubeconfig file
       value: { get_attribute: [ front, ansible_output, lrms_front_end_front_conf_front, tasks, kube_conf, output ] }
