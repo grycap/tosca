@@ -4,12 +4,12 @@ imports:
   - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
 
 
-description: Deploy SAGE EDC
+description: Deploy SAGE GDDS Participant Stack
 
 metadata:
-  template_version: "1.4.1"
-  template_name: SAGE EDC
-  display_name: Deploy SAGE EDC
+  template_version: "1.5.1"
+  template_name: SAGE GDDS Participant Stack
+  display_name: Deploy SAGE GDDS Participant Stack
   icon: https://www.greendealdata.eu/wp-content/uploads/2026/01/Full_Logo-300x91.png
   tabs:
     VM Data:
@@ -17,7 +17,7 @@ metadata:
       - mem_size
       - disk_size
       - sub_domain_name:
-          pattern: "^[a-zA-Z0-9\\-]+$"
+          pattern: "^[a-z0-9\\-]+$"
           tag_type: text
       - domain_name
     Data Space Data:
@@ -74,17 +74,17 @@ topology_template:
     disk_size:
       type: scalar-unit.size
       description: Size of the root disk of the VM (in case of 0 disk will no be resized)
-      default: 50 GiB
+      default: 40 GiB
       constraints:
-        - valid_values: [ 50 GiB, 100 GiB, 200 GiB, 0 GiB ]
+        - valid_values: [ 40 GiB, 100 GiB, 200 GiB, 0 GiB ]
 
     sub_domain_name:
       default: dc
-      description: DNS subdomain to be used for the deployment (e.g. if domain name is 'vm.fedcloud.eu' and subdomain is 'dc', the deployment will be accessible at 'dc.vm.fedcloud.eu'). Must be unique!.
+      description: DNS subdomain to be used for the deployment (e.g. if domain name is 'gdds.fedcloud.eu' and subdomain is 'dc', the deployment will be accessible at 'dc.gdds.fedcloud.eu'). Must be unique!.
       type: string
     domain_name:
-      default: vm.fedcloud.eu
-      description: DNS domain name to be used for the deployment. (only change if you have a custom domain that you control and you want to use it instead of 'vm.fedcloud.eu')
+      default: gdds.fedcloud.eu
+      description: DNS domain name to be used for the deployment. (only change if you have a custom domain that you control and you want to use it instead of 'gdds.fedcloud.eu')
       type: string
 
     connector_id:
@@ -239,7 +239,7 @@ topology_template:
               ishare_pr_iss: { get_input: identity_provider_satellite_id }
               sage_tls_cert: { get_input: ishare_certificate }
               sage_tls_cert_password: { get_input: ishare_certificate_pass }
-              branch: DEM-579_PR-extension
+              branch: SAGE-related
       requirements:
         - host: simple_node
 
