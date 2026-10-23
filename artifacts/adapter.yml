@@ -101,15 +101,20 @@
     - name: Install Python project from pyproject using pip
       block:
 
+        - name: Get system Python version
+          ansible.builtin.command:
+            cmd: python3 --version
+          register: system_python_version
+          changed_when: false
+
         - name: Set extra_args var
-          set_fact:
+          ansible.builtin.set_fact:
             extra_args: ""
 
         - name: Set extra_args var in py3.11
-          set_fact:
+          ansible.builtin.set_fact:
             extra_args: --break-system-packages
-          when: ansible_python_version is version('3.11', '>=')
-
+          when: system_python_version.stdout is search('Python 3\\.(1[1-9]|[2-9][0-9])\\.')
 
         - name: Install Python project from pyproject using pip
           ansible.builtin.command:
