@@ -98,14 +98,27 @@
         - install_method == 'deps'
         - install_files['requirements.txt']
 
-    - name: Install Python project from pyproject using pip
-      ansible.builtin.command:
-        cmd: pip install .
-        chdir: "{{ adapter_checkout_dir }}"
+    - block:
       when:
         - install_method == 'deps'
         - install_files['pyproject.toml']
         - poetry_check.rc != 0
+
+        - name: Set extra_args var
+          set_fact:
+            extra_args: ""
+
+        - name: Set extra_args var in py3.11
+          set_fact:
+            extra_args: --break-system-packages
+          when: ansible_python_version is version('3.11', '>=')
+
+
+        - name: Install Python project from pyproject using pip
+          ansible.builtin.command:
+            cmd: pip install . {{ extra_args }}
+            chdir: "{{ adapter_checkout_dir }}"
+
 
     - name: Install Node.js and npm
       package:
