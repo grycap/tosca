@@ -82,7 +82,7 @@
               container_name: stac-fastapi-pgstac
               image: {{ fastapi_image }}
               expose:
-                - "8082"
+                - "8000"
               environment:
                 - RELOAD=true
                 - ENVIRONMENT=local
