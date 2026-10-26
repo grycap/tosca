@@ -91,6 +91,16 @@
         - install_method == 'deps'
         - install_files['requirements.txt'] or install_files['pyproject.toml']
 
+    - name: Uninstall python3-typing-extensions if present to avoid conflicts with newer Python versions
+      package:
+        name:
+          - python3-typing-extensions
+        state: absent
+      when:
+        - install_method == 'deps'
+        - install_files['requirements.txt'] or install_files['pyproject.toml']
+      ignore_errors: true
+
     - name: Set extra_args var
       ansible.builtin.set_fact:
         pip_extra_args: ""
