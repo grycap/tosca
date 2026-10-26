@@ -91,34 +91,28 @@
         - install_method == 'deps'
         - install_files['requirements.txt'] or install_files['pyproject.toml']
 
+    - name: Set extra_args var
+      ansible.builtin.set_fact:
+        pip_extra_args: ""
+
+    - name: Set extra_args var in py3.11
+      ansible.builtin.set_fact:
+        pip_extra_args: --break-system-packages
+      when: ansible_python_version is version('3.11', '>=')
+
     - name: Install Python requirements
       ansible.builtin.pip:
         requirements: "{{ adapter_checkout_dir }}/requirements.txt"
+        extra_args: "{{ pip_extra_args }}"
       when:
         - install_method == 'deps'
         - install_files['requirements.txt']
 
     - name: Install Python project from pyproject using pip
       block:
-
-        - name: Get system Python version
-          ansible.builtin.command:
-            cmd: python3 --version
-          register: system_python_version
-          changed_when: false
-
-        - name: Set extra_args var
-          ansible.builtin.set_fact:
-            extra_args: ""
-
-        - name: Set extra_args var in py3.11
-          ansible.builtin.set_fact:
-            extra_args: --break-system-packages
-          when: system_python_version.stdout is search('Python 3\\.(1[1-9]|[2-9][0-9])\\.')
-
         - name: Install Python project from pyproject using pip
           ansible.builtin.command:
-            cmd: pip install . {{ extra_args }}
+            cmd: pip install . {{ pip_extra_args }}
             chdir: "{{ adapter_checkout_dir }}"
 
       when:
