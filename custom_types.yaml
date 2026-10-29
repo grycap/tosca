@@ -415,6 +415,19 @@ artifact_types:
     derived_from: tosca.artifacts.Root
     description: Ansible Galaxy collection to be installed in the target node
 
+interface_types:
+
+  tosca.interfaces.grycap.Upgrade:
+    derived_from: tosca.interfaces.Root
+    operations:
+      upgrade:
+        description: Upgrade the application using an Ansible playbook
+        inputs:
+          sequential:
+            type: boolean
+            required: false
+            default: false
+
 relationship_types:
 
   tosca.relationships.indigo.Manages:
