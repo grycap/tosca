@@ -1513,11 +1513,18 @@ node_types:
             kueue_enable: { get_property: [ SELF, kueue_enable ] }
             kueue_default_cpu: { get_property: [ SELF, kueue_default_cpu ] }
             kueue_default_memory: { get_property: [ SELF, kueue_default_memory ] }
+            kueue_default_ephemeral_storage: { get_property: [ SELF, kueue_default_ephemeral_storage ] }
+            kueue_default_gpu: { get_property: [ SELF, kueue_default_gpu ] }
             minio_quota_enabled: { get_property: [ SELF, minio_quota_enabled ] }
             minio_quota_buckets: { get_property: [ SELF, minio_quota_buckets ] }
             minio_quota_storage: { get_property: [ SELF, minio_quota_storage ] }
             metrics: { get_property: [ SELF, metrics ] }
             kserve_enable: { get_property: [ SELF, kserve_enable ] }
+            volume_enable: { get_property: [ SELF, volume_enable ] }
+            volume_default_available: { get_property: [ SELF, volume_default_available ] }
+            volume_default_max: { get_property: [ SELF, volume_default_max ] }
+            volume_default_max_disk: { get_property: [ SELF, volume_default_max_disk ] }
+            volume_default_min_disk: { get_property: [ SELF, volume_default_min_disk ] }
             storage_system: { get_property: [ SELF, storage_system ] }
             oscar_version: { get_property: [ SELF, version ] }
     requirements:
