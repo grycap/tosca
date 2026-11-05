@@ -50,7 +50,7 @@
                 - "/var/run/docker.sock:/var/run/docker.sock:ro"
             minio:
               # taken from: https://github.com/minio/minio/tags
-              image: quay.io/minio/minio:{{ minio_release }}
+              image: pgsty/silo:{{ minio_release }}
               volumes:
                 - minio-data:/data
               command:
