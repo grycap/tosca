@@ -3,12 +3,12 @@ tosca_definitions_version: tosca_simple_yaml_1_0
 imports:
   - grycap_custom_types: https://raw.githubusercontent.com/grycap/tosca/main/custom_types.yaml
 
-description: Deploy MinIO server.
+description: Deploy MinIO/SILO server.
 
 metadata:
-  template_version: "1.0.0"
-  template_name: MinIO
-  display_name: Deploy MinIO server
+  template_version: "1.1.0"
+  template_name: MinIO/SILO
+  display_name: Deploy MinIO/SILO server
   icon: images/minio.png
   tabs:
     MinIO Data:
@@ -27,8 +27,8 @@ topology_template:
   inputs:
 
     minio_release:
-      default: RELEASE.2023-07-21T21-12-44Z
-      description: Check out https://github.com/minio/minio/tags
+      default: RELEASE.2026-10-26T00-00-00Z
+      description: Check out https://github.com/pgsty/silo/releases
       type: string
     minio_accesskey:
       default: changeme
