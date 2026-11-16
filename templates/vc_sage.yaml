@@ -7,7 +7,7 @@ imports:
 description: Deploy SAGE GDDS Participant Stack
 
 metadata:
-  template_version: "1.5.1"
+  template_version: "1.5.2"
   template_name: SAGE GDDS Participant Stack
   display_name: Deploy SAGE GDDS Participant Stack
   icon: https://www.greendealdata.eu/wp-content/uploads/2026/01/Full_Logo-300x91.png
@@ -199,7 +199,7 @@ topology_template:
       type: tosca.nodes.ec3.Application
       artifacts:
         docker_role:
-          file: grycap.sage_edc,devel
+          file: grycap.sage_edc
           type: tosca.artifacts.AnsibleGalaxy.role
       capabilities:
         endpoint:
@@ -239,7 +239,7 @@ topology_template:
               ishare_pr_iss: { get_input: identity_provider_satellite_id }
               sage_tls_cert: { get_input: ishare_certificate }
               sage_tls_cert_password: { get_input: ishare_certificate_pass }
-              branch: SAGE-related
+              branch: develop
       requirements:
         - host: simple_node
 
