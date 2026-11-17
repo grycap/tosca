@@ -1942,7 +1942,7 @@ node_types:
         default: Route53
       dns_service_credentials:
         type: tosca.datatypes.Credential
-        description: Credentials neede to access the DNS service
+        description: Credentials needed to access the DNS service
         required: false
     requirements:
       - host:
@@ -1972,6 +1972,10 @@ node_types:
         type: tosca.datatypes.Credential
         description: SSH credentials to access Ansible host
         required: true
+      cloud_id:
+        type: string
+        description: Cloud associated with this AnsibleHost. If omitted, the host is treated as global.
+        required: false
 
   tosca.nodes.indigo.network.Network:
     derived_from: tosca.nodes.network.Network
