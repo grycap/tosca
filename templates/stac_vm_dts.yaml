@@ -129,7 +129,5 @@ topology_template:
         size: { get_input: storage_size }
 
   outputs:
-    default_stac_api_endpoint:
-      value: { concat: [ 'https://', get_input: dns_name, '/api/' ] }
     default_stac_browser_endpoint:
       value: { concat: [ 'https://', get_input: dns_name, '/' ] }
