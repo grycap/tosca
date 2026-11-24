@@ -7,7 +7,7 @@ description: Deploy an OSCAR Virtual Cluster.
 
 metadata:
   template_name: OSCAR
-  template_version: "1.9.1"
+  template_version: "1.9.2"
   display_name: Deploy an OSCAR Virtual Cluster
   icon: images/oscar.png
   order: 2
@@ -344,6 +344,7 @@ topology_template:
         install_yunikorn: { get_input: kube_install_yunikorn }
         ingress_type: traefik
         install_gateway_api: true
+        network_plugin: calico
       requirements:
         - host: front
 
